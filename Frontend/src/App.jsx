@@ -23,13 +23,11 @@ import MyBookingTourTraveler from "./pages/Traveler/MyBookingTourTraveler";
 import AITravelPlanner from "./pages/Traveler/AITravelPlanner";
 import ProviderAndAdminLogin from "./pages/Auth/ProviderAndAdminLogin";
 import GuideLogin from "./pages/Auth/GuideLogin";
-import ContentModeration from "./pages/Admin/ContentModeration";
 import { AuthContextProvider } from "./context/authContext";
 import { Toaster } from "react-hot-toast";
 
 import TourList from "./pages/Traveler/TourList";
 import TourDetail from "./pages/Traveler/TourDetail";
-import TravelerPlaceholder from "./pages/Traveler/TravelerPlaceholder";
 import HotelManagement from "./pages/Provider/HotelManagement";
 
 function AppRoutes() {
@@ -60,7 +58,6 @@ function AppRoutes() {
       <Route path="/admin" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="provider-approval" element={<ProviderApprovalPage />} />
-        <Route path="content-moderation" element={<ContentModeration />} />
         <Route path="users" element={<UserManagementPage />} />
       </Route>
 
