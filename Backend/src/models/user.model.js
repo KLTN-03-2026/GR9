@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
 const { Schema, model } = mongoose;
 
@@ -36,6 +37,20 @@ const userSchema = new Schema(
     timestamps: true,
   },
 );
+
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+});
+
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  if (!candidatePassword || !this.password) {
+    throw new Error("Missing data for password comparison");
+  }
+  return await bcrypt.compare(candidatePassword, this.password);
+};
+
 
 const User = model("User", userSchema);
 

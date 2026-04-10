@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import { googleLogin, logOut } from "../services/api/auth";
+import { googleLogin, login, logOut, signup } from "../services/api/auth";
 import { useNavigate } from "react-router-dom";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/firebase";
@@ -28,6 +28,33 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
 
+  const loginUser = async (email, password) => {
+    try {
+      const response = await login(email, password);
+      setUser(response.data.data);
+      localStorage.setItem("user", JSON.stringify(response.data.data));
+      toast.success("User logged in successfully");
+      navigate("/traveler");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Login failed. Please try again."
+      );
+    }
+  }
+
+  const signUpUser = async (data) => {
+    try {
+      const response = await signup(data);
+      setUser(response.data.data);
+      localStorage.setItem("user", JSON.stringify(response.data.data));
+      toast.success("User logged in successfully");
+      navigate("/traveler");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Login failed. Please try again."
+      );
+    }
+  }
   
 
   const logOutContext = async () => {
@@ -46,7 +73,7 @@ export const AuthContextProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, loginGoogle, logOutContext }}
+      value={{ user, loginGoogle, logOutContext, loginUser, signUpUser }}
     >
       {children}
     </AuthContext.Provider>
