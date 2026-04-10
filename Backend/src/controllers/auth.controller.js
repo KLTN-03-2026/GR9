@@ -1,8 +1,10 @@
 import { success, error } from "../utils/response.js";
 import {
   googleLogin,
+  loginUser,
   logOutUser,
   refreshTokenProcess,
+  signUpUser,
 } from "../services/auth.service.js";
 
 import dotenv from "dotenv";
@@ -18,6 +20,29 @@ export const googleLoginController = async (req, res) => {
   try {
     const { idToken } = req.body;
     const user = await googleLogin(idToken);
+    res.cookie("refreshToken", user.refreshToken, COOKIE_OPTIONS);
+    const { refreshToken, ...safeUser } = user;
+    return success(res, "User logged in successfully", safeUser, 201);
+  } catch (err) {
+    return error(res, err.message, err.status, err.errorCode);
+  }
+};
+
+export const loginUserController = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await loginUser(email, password);
+    res.cookie("refreshToken", user.refreshToken, COOKIE_OPTIONS);
+    const { refreshToken, ...safeUser } = user;
+    return success(res, "User logged in successfully", safeUser, 201);
+  } catch (err) {
+    return error(res, err.message, err.status, err.errorCode);
+  }
+};
+
+export const signUpController = async (req, res) => {
+  try {
+    const user = await signUpUser(req.body);
     res.cookie("refreshToken", user.refreshToken, COOKIE_OPTIONS);
     const { refreshToken, ...safeUser } = user;
     return success(res, "User logged in successfully", safeUser, 201);

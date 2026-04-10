@@ -11,6 +11,11 @@ const LoginForm = ({
   setShowPassword,
   loading,
   handleGoogleLogin,
+  email,
+  setEmail,
+  password,
+  setPassword,
+  handleLoginUser
 }) => {
   return (
     <div>
@@ -78,6 +83,8 @@ const LoginForm = ({
                 type="email"
                 placeholder="alex@example.com"
                 className="h-14 rounded-xl border-outline-variant/20 bg-surface-container-lowest pl-12 pr-4 text-on-surface placeholder:text-on-surface-variant focus-visible:border-primary focus-visible:ring-primary/10"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
           </div>
@@ -108,6 +115,8 @@ const LoginForm = ({
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 className="h-14 rounded-xl border-outline-variant/20 bg-surface-container-lowest pl-12 pr-14 text-on-surface placeholder:text-on-surface-variant focus-visible:border-primary focus-visible:ring-primary/10"
+                value={password}
+                onChange={(e)=>setPassword(e.target.value)}
               />
               <Button
                 type="button"
@@ -142,8 +151,10 @@ const LoginForm = ({
           type="submit"
           size="lg"
           className="h-14 w-full rounded-xl bg-gradient-to-br from-primary to-primary-container text-lg font-bold text-on-primary shadow-[0_18px_35px_rgba(25,28,30,0.08)] transition-transform hover:scale-[1.01] active:scale-[0.98]"
+          onClick={()=>handleLoginUser()}
         >
           Log In
+          
         </Button>
       </div>
       <p className="text-center text-sm font-medium text-on-surface-variant">

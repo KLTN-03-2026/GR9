@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 import LoginForm from "./LoginForm";
-import { useNavigate } from "react-router-dom";
 import AuthContext from "@/context/authContext";
 
 const showcaseTravelers = [
@@ -32,7 +31,6 @@ const showcaseTravelers = [
 ];
 
 function BrandMark({ light = false }) {
-
   return (
     <div className="flex items-center gap-3">
       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
@@ -52,7 +50,10 @@ function BrandMark({ light = false }) {
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { loginGoogle} = useContext(AuthContext);
+  const { loginGoogle } = useContext(AuthContext);
+  const { loginUser } = useContext(AuthContext);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
@@ -63,6 +64,17 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+  const handleLoginUser = async () => {
+    try {
+      setLoading(true);
+      await loginUser(email, password);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="flex min-h-screen items-stretch">
       <section className="relative hidden overflow-hidden bg-surface-container-highest lg:flex lg:w-1/2">
@@ -149,11 +161,17 @@ export default function LoginPage() {
               </p>
             </div>
 
-            
-
-            <LoginForm showPassword={showPassword} setShowPassword={setShowPassword} loading={loading} handleGoogleLogin={handleGoogleLogin}/>
-
-            
+            <LoginForm
+              showPassword={showPassword}
+              setShowPassword={setShowPassword}
+              loading={loading}
+              handleGoogleLogin={handleGoogleLogin}
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+              handleLoginUser={handleLoginUser}
+            />
 
             <div className="flex flex-col gap-4 border-t border-outline-variant/10 pt-8 text-[10px] font-bold uppercase tracking-[0.24em] text-on-surface-variant/50 sm:flex-row sm:items-center sm:justify-between">
               <span>&copy; 2024 Voyager AI</span>
