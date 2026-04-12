@@ -5,11 +5,15 @@ import {
   loginUser,
   logOutUser,
   refreshTokenProcess,
+<<<<<<< HEAD
   resendVerificationOtp,
   resetPassword,
   signUpUser,
   verifyEmailOtp,
   verifyResetPasswordOtp,
+=======
+  signUpUser,
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
 } from "../services/auth.service.js";
 
 import dotenv from "dotenv";
@@ -47,6 +51,7 @@ export const loginUserController = async (req, res) => {
 
 export const signUpController = async (req, res) => {
   try {
+<<<<<<< HEAD
     const result = await signUpUser(req.body);
     return success(res, result.message, result, 201);
   } catch (err) {
@@ -100,6 +105,12 @@ export const resetPasswordController = async (req, res) => {
   try {
     const result = await resetPassword(req.body);
     return success(res, result.message, result, 200);
+=======
+    const user = await signUpUser(req.body);
+    res.cookie("refreshToken", user.refreshToken, COOKIE_OPTIONS);
+    const { refreshToken, ...safeUser } = user;
+    return success(res, "User logged in successfully", safeUser, 201);
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
   } catch (err) {
     return error(res, err.message, err.status, err.errorCode);
   }

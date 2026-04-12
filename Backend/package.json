@@ -13,7 +13,10 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^6.0.0",
+<<<<<<< HEAD
     "cookie-parser": "^1.4.7",
+=======
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",

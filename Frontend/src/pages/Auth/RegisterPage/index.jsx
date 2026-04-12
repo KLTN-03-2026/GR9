@@ -1,5 +1,8 @@
 import { useContext, useState } from "react";
+<<<<<<< HEAD
 import { useNavigate } from "react-router-dom";
+=======
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
 
 import {
   Avatar,
@@ -49,16 +52,22 @@ function BrandMark({ light = false }) {
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+<<<<<<< HEAD
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const { signUpUser } = useContext(AuthContext);
   const { loginGoogle } = useContext(AuthContext);
   const navigate = useNavigate();
+=======
+  const { signUpUser } = useContext(AuthContext);
+  const { loginGoogle } = useContext(AuthContext);
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const handleGoogleLogin = async () => {
     try {
+<<<<<<< HEAD
       loadingGoogle(true);
       await loginGoogle();
     } catch (error) {
@@ -79,6 +88,21 @@ export default function LoginPage() {
       });
       const verifyEmail = response?.email || email;
       navigate(`/verify-email-otp?email=${encodeURIComponent(verifyEmail)}`);
+=======
+      setLoading(true);
+      await loginGoogle();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignUpUser = async () => {
+    try {
+      setLoading(true);
+      await signUpUser({fullName, email, password, confirmPassword});
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
     } catch (error) {
       console.error(error);
     } finally {
@@ -171,7 +195,10 @@ export default function LoginPage() {
           fullName={fullName}
           setFullName={setFullName}
           handleGoogleLogin={handleGoogleLogin}
+<<<<<<< HEAD
           loadingGoogle={loadingGoogle}
+=======
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
         />
       </section>
     </main>

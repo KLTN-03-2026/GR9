@@ -50,7 +50,10 @@ function BrandMark({ light = false }) {
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+<<<<<<< HEAD
   const [loadingGoogle, setLoadingGoogle] = useState(false);
+=======
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
   const { loginGoogle } = useContext(AuthContext);
   const { loginUser } = useContext(AuthContext);
   const [email, setEmail] = useState("");
@@ -75,6 +78,19 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+<<<<<<< HEAD
+=======
+  const handleLoginUser = async () => {
+    try {
+      setLoading(true);
+      await loginUser(email, password);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
 
   return (
     <main className="flex min-h-screen items-stretch">
@@ -172,7 +188,10 @@ export default function LoginPage() {
               password={password}
               setPassword={setPassword}
               handleLoginUser={handleLoginUser}
+<<<<<<< HEAD
               loadingGoogle={loadingGoogle}
+=======
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
             />
 
             <div className="flex flex-col gap-4 border-t border-outline-variant/10 pt-8 text-[10px] font-bold uppercase tracking-[0.24em] text-on-surface-variant/50 sm:flex-row sm:items-center sm:justify-between">

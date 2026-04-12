@@ -15,8 +15,12 @@ const LoginForm = ({
   setEmail,
   password,
   setPassword,
+<<<<<<< HEAD
   handleLoginUser,
   loadingGoogle
+=======
+  handleLoginUser
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
 }) => {
   return (
     <div>
@@ -153,9 +157,16 @@ const LoginForm = ({
           type="button"
           size="lg"
           className="h-14 w-full rounded-xl bg-gradient-to-br from-primary to-primary-container text-lg font-bold text-on-primary shadow-[0_18px_35px_rgba(25,28,30,0.08)] transition-transform hover:scale-[1.01] active:scale-[0.98]"
+<<<<<<< HEAD
           onClick={() => handleLoginUser()}
         >
           {loading ? "Logining..." : "Login"}
+=======
+          onClick={()=>handleLoginUser()}
+        >
+          Log In
+          
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
         </Button>
       </div>
       <p className="text-center text-sm font-medium text-on-surface-variant">

@@ -1,4 +1,5 @@
 import { createContext, useState } from "react";
+<<<<<<< HEAD
 import {
   forgotPassword,
   googleLogin,
@@ -10,6 +11,9 @@ import {
   verifyEmailOtp,
   verifyResetPasswordOtp,
 } from "../services/api/auth";
+=======
+import { googleLogin, login, logOut, signup } from "../services/api/auth";
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
 import { useNavigate } from "react-router-dom";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/firebase";
@@ -48,6 +52,7 @@ export const AuthContextProvider = ({ children }) => {
   const loginUser = async (email, password) => {
     try {
       const response = await login(email, password);
+<<<<<<< HEAD
       persistUserSession(response.data.data);
       toast.success("User logged in successfully");
       navigate("/traveler");
@@ -70,10 +75,23 @@ export const AuthContextProvider = ({ children }) => {
       throw error;
     }
   };
+=======
+      setUser(response.data.data);
+      localStorage.setItem("user", JSON.stringify(response.data.data));
+      toast.success("User logged in successfully");
+      navigate("/traveler");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Login failed. Please try again."
+      );
+    }
+  }
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
 
   const signUpUser = async (data) => {
     try {
       const response = await signup(data);
+<<<<<<< HEAD
       toast.success(
         response?.data?.message || "OTP verification code has been sent to your email."
       );
@@ -153,6 +171,19 @@ export const AuthContextProvider = ({ children }) => {
       throw error;
     }
   };
+=======
+      setUser(response.data.data);
+      localStorage.setItem("user", JSON.stringify(response.data.data));
+      toast.success("User logged in successfully");
+      navigate("/traveler");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Login failed. Please try again."
+      );
+    }
+  }
+  
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
 
   const logOutContext = async () => {
     try {
@@ -170,6 +201,7 @@ export const AuthContextProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
+<<<<<<< HEAD
       value={{
         user,
         loginGoogle,
@@ -182,6 +214,9 @@ export const AuthContextProvider = ({ children }) => {
         verifyPasswordResetOtp,
         resetPasswordWithOtp,
       }}
+=======
+      value={{ user, loginGoogle, logOutContext, loginUser, signUpUser }}
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
     >
       {children}
     </AuthContext.Provider>

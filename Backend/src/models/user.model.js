@@ -42,11 +42,17 @@ const userSchema = new Schema(
   },
 );
 
+<<<<<<< HEAD
 userSchema.pre("save", async function () {
   if (!this.isModified("password") || !this.password) {
     return;
   }
 
+=======
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
   this.password = await bcrypt.hash(this.password, 10);
 });
 
@@ -57,6 +63,10 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
 const User = model("User", userSchema);
 
 export default User;
