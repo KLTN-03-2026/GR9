@@ -15,16 +15,21 @@ const LoginForm = ({
   setEmail,
   password,
   setPassword,
+<<<<<<< HEAD
+  handleLoginUser,
+  loadingGoogle
+=======
   handleLoginUser
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
 }) => {
   return (
     <div>
       <Button
         onClick={() => handleGoogleLogin()}
-        disabled={loading}
+        disabled={loadingGoogle}
         className={`h-12 w-full flex items-center justify-center gap-3 bg-surface-container-lowest py-3.5 px-4 rounded-xl editorial-shadow hover:bg-surface-container-low transition-colors duration-200 group`}
       >
-        {loading ? (
+        {loadingGoogle ? (
           <>
             <div className="text-black flex gap-2">
               <Spinner className="h-5 w-5 animate-spin " />
@@ -98,11 +103,11 @@ const LoginForm = ({
                 Password
               </Label>
               <Button
-                type="button"
+                asChild
                 variant="link"
                 className="h-auto p-0 text-xs font-bold text-primary hover:text-primary-container"
               >
-                Forgot?
+                <Link to="/forgot-password">Forgot?</Link>
               </Button>
             </div>
 
@@ -148,13 +153,20 @@ const LoginForm = ({
         </div>
 
         <Button
-          type="submit"
+          disabled={loading}
+          type="button"
           size="lg"
           className="h-14 w-full rounded-xl bg-gradient-to-br from-primary to-primary-container text-lg font-bold text-on-primary shadow-[0_18px_35px_rgba(25,28,30,0.08)] transition-transform hover:scale-[1.01] active:scale-[0.98]"
+<<<<<<< HEAD
+          onClick={() => handleLoginUser()}
+        >
+          {loading ? "Logining..." : "Login"}
+=======
           onClick={()=>handleLoginUser()}
         >
           Log In
           
+>>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
         </Button>
       </div>
       <p className="text-center text-sm font-medium text-on-surface-variant">
