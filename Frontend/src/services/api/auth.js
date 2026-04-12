@@ -12,7 +12,6 @@ export const signup = async (data) => {
   return await api.post("/auth/signup", data);
 };
 
-<<<<<<< HEAD
 export const verifyEmailOtp = async (email, otp) => {
   return await api.post("/auth/verify-email-otp", { email, otp });
 };
@@ -33,8 +32,6 @@ export const resetPassword = async (payload) => {
   return await api.post("/auth/reset-password", payload);
 };
 
-=======
->>>>>>> 7ae5aa9f848602989c74bfe555d11299ca3bc5c0
 export const refreshToken = async () => {
   return await api.post("/auth/refresh-token");
 };
