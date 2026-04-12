@@ -378,56 +378,7 @@ export const resetPassword = async ({ email, otp, password, confirmPassword }) =
   }
 };
 
-export const loginUser = async (email, password) => {
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      throw new Error("User not found");
-    }
-    const isPasswordMatch = await user.comparePassword(password);
-    if (!isPasswordMatch) {
-      throw new Error("Invalid password");
-    }
-    const token = generateToken(user._id);
-    return {
-      message: "Đăng nhập thành công",
-      refreshToken: token.refreshToken,
-      accessToken: token.accessToken,
-      user: {
-        email: user.email,
-        full_name: user.fullName,
-        avatar: user.avatarUrl,
-        role: user.role,
-      },
-    };
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
 
-export const signUpUser = async (data) => {
-  try {
-    const userExists = await User.findOne({ email: data.email });
-    if (userExists) {
-      throw new Error("Email already exists");
-    }
-    const user = await User.create(data);
-    const token = generateToken(user._id);
-    return {
-      message: "Đăng ký thành công",
-      refreshToken: token.refreshToken,
-      accessToken: token.accessToken,
-      user: {
-        email: user.email,
-        full_name: user.fullName,
-        avatar: user.avatarUrl,
-        role: user.role,
-      },
-    };
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
 
 export const refreshTokenProcess = async (refreshTokenFromCookie) => {
   try {
