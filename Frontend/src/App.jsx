@@ -4,6 +4,10 @@ import Layout from "./components/Layout";
 import LandingHome from "./pages/LandingHome";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
+import VerifyEmailOtpPage from "./pages/Auth/VerifyEmailOtpPage";
+import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
+import VerifyResetPasswordOtpPage from "./pages/Auth/VerifyResetPasswordOtpPage";
+import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 
 import TravelerDashboard from "./pages/Traveler/Dashboard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
@@ -38,6 +42,13 @@ function AppRoutes() {
       <Route path="/" element={<LandingHome />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<RegisterPage />} />
+      <Route path="/verify-email-otp" element={<VerifyEmailOtpPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route
+        path="/forgot-password/verify-otp"
+        element={<VerifyResetPasswordOtpPage />}
+      />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route
         path="/provider-and-admin-login-management"
         element={<ProviderAndAdminLogin />}

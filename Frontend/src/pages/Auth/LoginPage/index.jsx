@@ -50,18 +50,19 @@ function BrandMark({ light = false }) {
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
   const { loginGoogle } = useContext(AuthContext);
   const { loginUser } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const handleGoogleLogin = async () => {
     try {
-      setLoading(true);
+      setLoadingGoogle(true);
       await loginGoogle();
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      setLoadingGoogle(false);
     }
   };
   const handleLoginUser = async () => {
@@ -171,6 +172,7 @@ export default function LoginPage() {
               password={password}
               setPassword={setPassword}
               handleLoginUser={handleLoginUser}
+              loadingGoogle={loadingGoogle}
             />
 
             <div className="flex flex-col gap-4 border-t border-outline-variant/10 pt-8 text-[10px] font-bold uppercase tracking-[0.24em] text-on-surface-variant/50 sm:flex-row sm:items-center sm:justify-between">

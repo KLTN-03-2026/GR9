@@ -1,4 +1,5 @@
 import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
   Avatar,
@@ -48,27 +49,36 @@ function BrandMark({ light = false }) {
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
   const { signUpUser } = useContext(AuthContext);
   const { loginGoogle } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const handleGoogleLogin = async () => {
     try {
-      setLoading(true);
+      loadingGoogle(true);
       await loginGoogle();
     } catch (error) {
       console.error(error);
     } finally {
-      setLoading(false);
+      loadingGoogle(false);
     }
   };
 
   const handleSignUpUser = async () => {
     try {
       setLoading(true);
-      await signUpUser({fullName, email, password, confirmPassword});
+      const response = await signUpUser({
+        fullName,
+        email,
+        password,
+        confirmPassword,
+      });
+      const verifyEmail = response?.email || email;
+      navigate(`/verify-email-otp?email=${encodeURIComponent(verifyEmail)}`);
     } catch (error) {
       console.error(error);
     } finally {
@@ -161,6 +171,7 @@ export default function LoginPage() {
           fullName={fullName}
           setFullName={setFullName}
           handleGoogleLogin={handleGoogleLogin}
+          loadingGoogle={loadingGoogle}
         />
       </section>
     </main>
