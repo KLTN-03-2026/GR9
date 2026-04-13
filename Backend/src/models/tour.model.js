@@ -15,7 +15,7 @@ const tourActivitySchema = new Schema(
     serviceId: {
       type: [Schema.Types.ObjectId],
       ref: "Service",
-      default: [],
+      default: null,
     },
   },
   {

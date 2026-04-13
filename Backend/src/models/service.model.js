@@ -2,6 +2,20 @@ import mongoose from "mongoose";
 
 const { Schema, model, Types } = mongoose;
 
+const totalSchema = new Schema(
+  {
+    price: { type: Number, default: 0 },
+    type: {
+      type: String,
+      enum: ["ADULT", "CHILD", "INFANT"],
+      required: true,
+    },
+  },
+  {
+    _id: true,
+  },
+);
+
 const serviceSchema = new Schema(
   {
     providerId: {
@@ -37,19 +51,11 @@ const serviceSchema = new Schema(
       default: "",
       trim: true,
     },
-    price: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
+    totalSchema: { type: [totalSchema], default: [] },
     status: {
       type: String,
       enum: ["DRAFT", "ACTIVE", "INACTIVE", "BLOCKED"],
       default: "DRAFT",
-    },
-    includes: {
-      type: Boolean,
-      default: false,
     },
   },
   {
