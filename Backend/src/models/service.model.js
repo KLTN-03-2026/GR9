@@ -29,6 +29,9 @@ const serviceSchema = new Schema(
       ],
       index: true,
     },
+    address: { type: String, default: null },
+    long: { type: Number, default: null },
+    lat: { type: Number, default: null },
     description: {
       type: String,
       default: "",
@@ -53,7 +56,6 @@ const serviceSchema = new Schema(
     timestamps: true,
   },
 );
-
 
 const Service = model("Service", serviceSchema);
 

@@ -7,14 +7,16 @@ const tourActivitySchema = new Schema(
   {
     time: { type: String, default: null },
     title: { type: String, required: true, trim: true },
-    address: { type: String, default: null },
-    long: { type: Number, default: null },
-    lat: { type: Number, default: null },
     statusActivity: {
       type: String,
       enum: ["DONE", "NOT_DONE"],
       default: "NOT_DONE",
-    }
+    },
+    serviceId: {
+      type: [Schema.Types.ObjectId],
+      ref: "Service",
+      default: [],
+    },
   },
   {
     _id: true,
@@ -53,17 +55,6 @@ const tourSchema = new Schema(
     isActive: { type: Boolean, default: true },
 
     itineraries: { type: [tourItinerarySchema], default: [] },
-    serviceId: {
-      type: [Schema.Types.ObjectId],
-      ref: "Service",
-      default: [],
-    },
-    hotelId: {
-      type: Schema.Types.ObjectId,
-      ref: "Hotel",
-      required: true,
-    },
-
   },
   {
     timestamps: true,
