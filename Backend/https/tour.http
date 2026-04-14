@@ -1,6 +1,6 @@
 POST http://localhost:3000/api/tours
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjA5MTIyNywiZXhwIjoxNzc2MDkyMTI3fQ.JUF2mNsVYmZPeidSfKG2ToEvHBNoo9LILhV9WjLI8iQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjE2MjU2OCwiZXhwIjoxNzc2MTYzNDY4fQ.DPCT3i78yTPqCVyQ8tAJNop-RK4ShzaayQWpwGslsH0
 
 {
   "quantity": 20,
@@ -16,58 +16,52 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhN
   "itineraries": [
     {
       "dayNumber": 1,
-      "title": "Khám phá trung tâm Đà Nẵng",
       "description": "Tham quan các địa điểm nổi bật trong thành phố",
       "activities": [
         {
           "time": "08:00",
-          "title": "Đón khách tại khách sạn",
           "statusActivity": "NOT_DONE",
-          "serviceId": "69dcb7636589f642fdf4b515"
+          "serviceId": "69de1a470a4f2be4380fa2ef"
         },
         {
           "time": "10:00",
           "title": "Tham quan Cầu Rồng",
           "statusActivity": "NOT_DONE",
-          "serviceId": "69dcf3e0209534dbf31365c4"
+          "serviceId": "69de1a470a4f2be4380fa2f2"
         }
       ]
     },
     {
       "dayNumber": 2,
-      "title": "Bà Nà Hills",
       "description": "Trải nghiệm cáp treo và Golden Bridge",
       "activities": [
         {
           "time": "08:30",
-          "title": "Di chuyển đến Bà Nà Hills",
           "statusActivity": "NOT_DONE",
-          "serviceId": "69dcf3e0209534dbf31365c5"
+          "serviceId": "69de1a470a4f2be4380fa2f4"
         },
         {
           "time": "11:00",
           "title": "Check-in Cầu Vàng",
           "statusActivity": "NOT_DONE",
-          "serviceId": "69dcf3e0209534dbf31365c6"
+          "serviceId": "69de1a470a4f2be4380fa2f6"
         }
       ]
     },
     {
       "dayNumber": 3,
-      "title": "Biển Mỹ Khê & kết thúc",
       "description": "Thư giãn và trả khách",
       "activities": [
         {
           "time": "09:00",
-          "title": "Tắm biển Mỹ Khê",
           "statusActivity": "NOT_DONE",
-          "serviceId": "69dcf3e0209534dbf31365c7"
+          "serviceId": "69de1a470a4f2be4380fa2f8"
         },
         {
           "time": "12:00",
           "title": "Kết thúc tour",
           "statusActivity": "NOT_DONE",
-          "serviceId": "69dcf3e0209534dbf31365c8"
+          "serviceId": "69de1a470a4f2be4380fa2fb"
         }
       ]
     }
@@ -76,19 +70,18 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhN
 
 ###
 GET http://localhost:3000/api/tours
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjA5MTIyNywiZXhwIjoxNzc2MDkyMTI3fQ.JUF2mNsVYmZPeidSfKG2ToEvHBNoo9LILhV9WjLI8iQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjE2MjU2OCwiZXhwIjoxNzc2MTYzNDY4fQ.DPCT3i78yTPqCVyQ8tAJNop-RK4ShzaayQWpwGslsH0
 
 
 ###
-GET http://localhost:3000/api/tours/:id
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjA5MTIyNywiZXhwIjoxNzc2MDkyMTI3fQ.JUF2mNsVYmZPeidSfKG2ToEvHBNoo9LILhV9WjLI8iQ
+GET http://localhost:3000/api/tours/69de1a884f6678778d99639a
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjE2NDc5MSwiZXhwIjoxNzc2MTY1NjkxfQ.jlCV19XX45k1XGEIufuoixggTdON7rxyiNFkMu1UXcY
 
 
 ###
-PUT http://localhost:3000/api/tours/:id
+PUT http://localhost:3000/api/tours/69de1a884f6678778d99639a
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjA5MTIyNywiZXhwIjoxNzc2MDkyMTI3fQ.JUF2mNsVYmZPeidSfKG2ToEvHBNoo9LILhV9WjLI8iQ
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjE2NDc5MSwiZXhwIjoxNzc2MTY1NjkxfQ.jlCV19XX45k1XGEIufuoixggTdON7rxyiNFkMu1UXcY
 
 {
   "price": 2000000,
@@ -96,12 +89,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhN
   "itineraries": [
     {
       "dayNumber": 1,
-      "title": "Updated ngày 1",
       "activities": [
         {
           "time": "09:00",
           "title": "Đi ăn sáng",
-          "serviceId": "69dcb7636589f642fdf4b515"
+          "serviceId": "69de1a470a4f2be4380fa2ef"
         }
       ]
     }
@@ -109,6 +101,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhN
 }
 
 ###
-DELETE http://localhost:3000/api/tours/:id
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjA5MTIyNywiZXhwIjoxNzc2MDkyMTI3fQ.JUF2mNsVYmZPeidSfKG2ToEvHBNoo9LILhV9WjLI8iQ
+DELETE http://localhost:3000/api/tours/69de1a884f6678778d99639a
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjE2NDc5MSwiZXhwIjoxNzc2MTY1NjkxfQ.jlCV19XX45k1XGEIufuoixggTdON7rxyiNFkMu1UXcY
 
