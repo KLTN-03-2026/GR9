@@ -5,7 +5,6 @@ const { Schema, model } = mongoose;
 const tourActivitySchema = new Schema(
     {
         time: { type: String, default: null },
-        title: { type: String, required: true, trim: true },
         statusActivity: {
             type: String,
             enum: ["DONE", "NOT_DONE"],
