@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoute from "./routes/auth.route.js";
 import guideRoute from "./routes/guide.route.js";
+import tourRouter from "./routes/tour.route.js";
 dotenv.config();
 
 connectDB();
@@ -26,6 +27,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoute);
 app.use("/api/guide", guideRoute);
+app.use("/api/tours", tourRouter);
 
 const PORT = process.env.PORT || 3000;
 

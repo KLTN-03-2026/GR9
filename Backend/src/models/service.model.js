@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const { Schema, model, Types } = mongoose;
+const { Schema, model } = mongoose;
 
 const totalSchema = new Schema(
   {
@@ -19,7 +19,7 @@ const totalSchema = new Schema(
 const serviceSchema = new Schema(
   {
     providerId: {
-      type: Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
       index: true,

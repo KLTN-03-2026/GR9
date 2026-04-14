@@ -1,0 +1,114 @@
+POST http://localhost:3000/api/tours
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjA5MTIyNywiZXhwIjoxNzc2MDkyMTI3fQ.JUF2mNsVYmZPeidSfKG2ToEvHBNoo9LILhV9WjLI8iQ
+
+{
+  "quantity": 20,
+  "price": 1500000,
+  "location": "Da Nang",
+  "description": "Tour tham quan Đà Nẵng 3 ngày 2 đêm",
+  "numberOfDay": 3,
+  "startDay": "2026-05-01T00:00:00.000Z",
+  "type": "GROUP",
+  "minSlots": 5,
+  "maxSlots": 20,
+  "isActive": true,
+  "itineraries": [
+    {
+      "dayNumber": 1,
+      "title": "Khám phá trung tâm Đà Nẵng",
+      "description": "Tham quan các địa điểm nổi bật trong thành phố",
+      "activities": [
+        {
+          "time": "08:00",
+          "title": "Đón khách tại khách sạn",
+          "statusActivity": "NOT_DONE",
+          "serviceId": "69dcb7636589f642fdf4b515"
+        },
+        {
+          "time": "10:00",
+          "title": "Tham quan Cầu Rồng",
+          "statusActivity": "NOT_DONE",
+          "serviceId": "69dcf3e0209534dbf31365c4"
+        }
+      ]
+    },
+    {
+      "dayNumber": 2,
+      "title": "Bà Nà Hills",
+      "description": "Trải nghiệm cáp treo và Golden Bridge",
+      "activities": [
+        {
+          "time": "08:30",
+          "title": "Di chuyển đến Bà Nà Hills",
+          "statusActivity": "NOT_DONE",
+          "serviceId": "69dcf3e0209534dbf31365c5"
+        },
+        {
+          "time": "11:00",
+          "title": "Check-in Cầu Vàng",
+          "statusActivity": "NOT_DONE",
+          "serviceId": "69dcf3e0209534dbf31365c6"
+        }
+      ]
+    },
+    {
+      "dayNumber": 3,
+      "title": "Biển Mỹ Khê & kết thúc",
+      "description": "Thư giãn và trả khách",
+      "activities": [
+        {
+          "time": "09:00",
+          "title": "Tắm biển Mỹ Khê",
+          "statusActivity": "NOT_DONE",
+          "serviceId": "69dcf3e0209534dbf31365c7"
+        },
+        {
+          "time": "12:00",
+          "title": "Kết thúc tour",
+          "statusActivity": "NOT_DONE",
+          "serviceId": "69dcf3e0209534dbf31365c8"
+        }
+      ]
+    }
+  ]
+}
+
+###
+GET http://localhost:3000/api/tours
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjA5MTIyNywiZXhwIjoxNzc2MDkyMTI3fQ.JUF2mNsVYmZPeidSfKG2ToEvHBNoo9LILhV9WjLI8iQ
+
+
+###
+GET http://localhost:3000/api/tours/:id
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjA5MTIyNywiZXhwIjoxNzc2MDkyMTI3fQ.JUF2mNsVYmZPeidSfKG2ToEvHBNoo9LILhV9WjLI8iQ
+
+
+###
+PUT http://localhost:3000/api/tours/:id
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjA5MTIyNywiZXhwIjoxNzc2MDkyMTI3fQ.JUF2mNsVYmZPeidSfKG2ToEvHBNoo9LILhV9WjLI8iQ
+
+
+{
+  "price": 2000000,
+  "location": "Hoi An",
+  "itineraries": [
+    {
+      "dayNumber": 1,
+      "title": "Updated ngày 1",
+      "activities": [
+        {
+          "time": "09:00",
+          "title": "Đi ăn sáng",
+          "serviceId": "69dcb7636589f642fdf4b515"
+        }
+      ]
+    }
+  ]
+}
+
+###
+DELETE http://localhost:3000/api/tours/:id
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjA5MTIyNywiZXhwIjoxNzc2MDkyMTI3fQ.JUF2mNsVYmZPeidSfKG2ToEvHBNoo9LILhV9WjLI8iQ
+
