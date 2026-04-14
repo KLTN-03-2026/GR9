@@ -3,3 +3,19 @@ import api from "./index";
 export const createGuide = async (guide) => {
   return await api.post("/guide", guide);
 };
+
+export const getGuides = async () => {
+  return await api.get("/guide");
+};
+
+export const getGuideById = async (id) => {
+  return await api.get(`/guide/${id}`);
+};
+
+export const updateGuideById = async (id, guide) => {
+  return await api.put(`/guide/${id}`, guide);
+};
+
+export const deleteGuideById = async (id) => {
+  return await api.delete(`/guide/${id}`);
+};
