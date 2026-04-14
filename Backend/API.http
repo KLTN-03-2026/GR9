@@ -1,0 +1,38 @@
+# ### Get provider services
+# GET http://localhost:3000/api/services
+# Authorization: Bearer {{token}}
+### Create a new service
+POST http://localhost:3000/api/services
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGNiNmFjNDVjN2U1OGI2NGI2MGJlYSIsImlhdCI6MTc3NjA3MjQ4NiwiZXhwIjoxNzc2MDczMzg2fQ.mna5evLWEYwws_HwYKFdcOuTzf0h8oymPTrrldqydbQ
+
+{
+  "name": "Demo Hotel Service",
+  "type": "HOTEL",
+  "description": "Test service created from API.http",
+  "location": {
+    "type": "Point",
+    "coordinates": [108.2208, 16.0678]
+  },
+  "address": "123 Demo Street",
+  "city": "Da Nang",
+  "basePrice": 1200000,
+  "duration": 24,
+  "status": "ACTIVE"
+}
+
+# ### Update an existing service
+# PUT http://localhost:3000/api/services/{{serviceId}}
+# Content-Type: application/json
+# Authorization: Bearer {{token}}
+
+# {
+#   "name": "Updated Demo Hotel Service",
+#   "description": "Updated description from API.http",
+#   "basePrice": 1500000,
+#   "status": "ACTIVE"
+# }
+
+# ### Delete a service
+# DELETE http://localhost:3000/api/services/{{serviceId}}
+# Authorization: Bearer {{token}}

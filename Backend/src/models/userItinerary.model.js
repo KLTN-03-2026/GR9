@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+  import mongoose from "mongoose";
 
-const { Schema, model } = mongoose;
+  const { Schema, model } = mongoose;
 
 const userItineraryActivitySchema = new Schema(
     {
