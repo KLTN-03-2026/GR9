@@ -2,12 +2,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Edit, Copy, Trash2 } from "lucide-react";
+import { MapPin, Edit, Trash2 } from "lucide-react";
 
 const fallbackImage =
   "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80";
 
-const ServiceCard = ({ item }) => {
+const ServiceCard = ({ item, onEdit, onDelete }) => {
   const title = item.title || item.name || "Untitled Service";
   const category = item.category || item.type || "Service";
   const location = item.location || item.address || "Unknown location";
@@ -17,7 +17,7 @@ const ServiceCard = ({ item }) => {
   const image = item.image || fallbackImage;
 
   return (
-    <Card className="group overflow-hidden rounded-3xl border-slate-100 shadow-sm hover:shadow-xl hover:shadow-teal-900/5 transition-all flex flex-col">
+    <Card className="group overflow-hidden rounded-3xl border-slate-200 bg-white shadow-sm hover:shadow-xl hover:shadow-teal-900/5 transition-all flex flex-col">
       <div className="aspect-[16/10] relative overflow-hidden">
         <img
           alt={title}
@@ -52,7 +52,8 @@ const ServiceCard = ({ item }) => {
               {priceLabel}
             </p>
             <p className="text-lg font-extrabold text-slate-900">
-              {price.toLocaleString()} <span className="text-xs font-medium">VNĐ</span>
+              {price.toLocaleString()}{" "}
+              <span className="text-xs font-medium">VNĐ</span>
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -60,20 +61,15 @@ const ServiceCard = ({ item }) => {
               variant="secondary"
               size="icon"
               className="h-9 w-9 rounded-xl hover:bg-teal-50 hover:text-primary"
+              onClick={() => onEdit?.(item)}
             >
               <Edit className="w-4 h-4" />
             </Button>
             <Button
               variant="secondary"
               size="icon"
-              className="h-9 w-9 rounded-xl hover:bg-teal-50 hover:text-primary"
-            >
-              <Copy className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="secondary"
-              size="icon"
               className="h-9 w-9 rounded-xl hover:bg-red-50 hover:text-red-500"
+              onClick={() => onDelete?.(item)}
             >
               <Trash2 className="w-4 h-4" />
             </Button>
