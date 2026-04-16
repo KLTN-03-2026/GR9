@@ -26,6 +26,7 @@ import PublicTourTracking from "./pages/Guest/PublicTourTracking";
 import AssignedToursList from "./pages/Guide/AssignedToursList";
 import TourTracking from "./pages/Traveler/TourTracking";
 import MyBookingTourTraveler from "./pages/Traveler/MyBookingTourTraveler";
+import TrackingLinkManagement from "./pages/Traveler/TrackingLinkManagement";
 import AITravelPlanner from "./pages/Traveler/AITravelPlanner";
 import ProviderAndAdminLogin from "./pages/Auth/ProviderAndAdminLogin";
 import GuideLogin from "./pages/Auth/GuideLogin";
@@ -60,6 +61,10 @@ function AppRoutes() {
       <Route path="/traveler" element={<Layout />}>
         <Route path="tour-tracking" element={<TourTracking />} />
         <Route path="my-booking-traveler" element={<MyBookingTourTraveler />} />
+        <Route
+          path="traveler-tracking-link-management"
+          element={<TrackingLinkManagement />}
+        />
         <Route path="ai-travel-planner" element={<AITravelPlanner />} />
 
         <Route index element={<TravelerDashboard />} />
