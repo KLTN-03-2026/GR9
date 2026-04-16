@@ -99,7 +99,7 @@ function AppRoutes() {
       </Route>
 
       <Route path="/guest" element={<Layout />}>
-        <Route path="public-tour-tracking" element={<PublicTourTracking />} />
+        <Route index element={<PublicTourTracking />} />
         <Route path="booking-success-and-tracking-link" element={<BookingSuccess />} />
       </Route>
     </Routes>
