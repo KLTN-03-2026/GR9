@@ -21,7 +21,10 @@ const GuideManagementProvider = () => {
   const cards = useMemo(
     () => [
       { label: "Total Guides", value: guides.length },
-      { label: "Active Now", value: guides.filter((guide) => guide.isActive).length },
+      {
+        label: "Active Now",
+        value: guides.filter((guide) => guide.isActive).length,
+      },
       { label: "Assigned Bookings", value: "2" },
       { label: "Avg Rating", value: "4.8" },
     ],
@@ -133,6 +136,7 @@ const GuideManagementProvider = () => {
     );
   }, [debounced, guides]);
   const handleOpen = () => {
+    setTitle("Add new guide");
     setOpen(!open);
   };
   const handleDelete = (_id) => {
