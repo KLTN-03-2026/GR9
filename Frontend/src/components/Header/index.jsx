@@ -38,6 +38,7 @@ const ROUTE_TITLES = [
   { test: (p) => p.startsWith('/guide/live-tour-tracking'), title: 'Guide Live Tour Tracking' },
   { test: (p) => p.startsWith('/guide/assigned-tours'), title: 'Assigned Tours List Guide' },
   { test: (p) => p === '/guide' || p === '/guide/', title: 'Guide Dashboard' },
+  { test: (p) => p.startsWith('/provider/manage-tours'), title: 'Manage Tours' },
   { test: (p) => p.startsWith('/provider/guide-management'), title: 'Guide Management Provider' },
   { test: (p) => p.startsWith('/provider/bookings-management'), title: 'Bookings Management' },
   { test: (p) => p.startsWith('/provider/hotel-management'), title: 'Hotels Management' },
