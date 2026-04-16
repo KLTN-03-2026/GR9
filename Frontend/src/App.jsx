@@ -20,6 +20,7 @@ import ProviderDashboard from "./pages/Provider/ProviderDashboard";
 import ManageTours from "./pages/Provider/ManageTours";
 import EditTour from "./pages/Provider/EditTour";
 import GuideManagementProvider from "./pages/Provider/GuideManagementProvider";
+import ServiceManagement from "./pages/Provider/ServiceManagement";
 import ProviderBookingManagement from "./pages/Provider/ProviderBookingManagement";
 import GuideLiveTourTracking from "./pages/Guide/GuideLiveTourTracking";
 import PublicTourTracking from "./pages/Guest/PublicTourTracking";
@@ -83,6 +84,7 @@ function AppRoutes() {
           path="bookings-management"
           element={<ProviderBookingManagement />}
         />
+        <Route path="service-management" element={<ServiceManagement />} />
         <Route path="hotel-management" element={<HotelManagement />} />
         
       </Route>

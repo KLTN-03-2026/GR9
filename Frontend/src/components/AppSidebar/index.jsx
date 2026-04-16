@@ -84,6 +84,11 @@ const MENU = {
       href: "/manage-tours",
       icon: FolderKanban,
     },
+    {
+      name: "Service Management Provider",
+      href: "/service-management",
+      icon: ClipboardList,
+    },
     { name: "Create or Edit Tour", href: "/edit-tour", icon: SquarePen },
     {
       name: "Bookings Management Provider",
