@@ -35,6 +35,10 @@ export const DialogGuide = ({
   setIsActive,
   loading,
   handleAddGuide,
+  gender,
+  setGender,
+  title,
+  handleUpdateGuide,
 }) => {
   return (
     <div>
@@ -42,10 +46,12 @@ export const DialogGuide = ({
         <DialogContent className="sm:max-w-[600px] bg-white border-slate-200">
           <DialogHeader>
             <DialogTitle className="text-xl font-extrabold text-slate-900">
-              Add New Guide
+              {title}
             </DialogTitle>
             <DialogDescription className="text-slate-500">
-              Fill in the details to add a new guide to your roster
+              {title === "Add the guide"
+                ? "Fill in the details to add a new guide to your roster"
+                : "Fill in the details to update a guide in your roster"}
             </DialogDescription>
           </DialogHeader>
 
@@ -110,32 +116,48 @@ export const DialogGuide = ({
                   Status
                 </label>
                 <Select
-                value={isActive ? "active" : "inactive"}
-                  onValueChange={(value) => setIsActive(value === "active")}
-                  defaultValue="active"
+                  value={isActive ? "ACTIVE" : "INACTIVE"}
+                  onValueChange={(value) => setIsActive(value === "ACTIVE" ? true : false)}
+                  defaultValue="ACTIVE"
                 >
                   <SelectTrigger className="h-10 w-full border-slate-200 bg-slate-50 text-slate-900 focus-visible:ring-teal-500">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
+                      <SelectItem value="ACTIVE">Active</SelectItem>
+                      <SelectItem value="INACTIVE">Inactive</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-widest text-slate-600">
-                  Upload Avatar
+                  Gender
                 </label>
-                {/* ĐÂY CHÍNH LÀ NÚT CHỌN FILE UPLOAD ẢNH */}
-                <Input
-                  type="file"
-                  accept="image/*"
-                  className="text-slate-900 bg-slate-50 border-slate-200 focus-visible:ring-teal-500 cursor-pointer file:text-teal-600 file:font-semibold file:bg-teal-50 file:border-0 file:rounded-md file:px-2 file:py-1 file:mr-3"
-                />
+                <Select value={gender} onValueChange={setGender}>
+                  <SelectTrigger className="h-10 w-full border-slate-200 bg-slate-50 text-slate-900 focus-visible:ring-teal-500">
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="MALE">Male</SelectItem>
+                      <SelectItem value="FEMALE">Female</SelectItem>
+                      <SelectItem value="OTHER">Other</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-slate-600">
+                Upload Avatar
+              </label>
+              <Input
+                type="file"
+                accept="image/*"
+                className="text-slate-900 bg-slate-50 border-slate-200 focus-visible:ring-teal-500 cursor-pointer file:text-teal-600 file:font-semibold file:bg-teal-50 file:border-0 file:rounded-md file:px-2 file:py-1 file:mr-3"
+              />
             </div>
 
             <DialogFooter className="pt-6">
@@ -149,12 +171,23 @@ export const DialogGuide = ({
                 </Button>
               </DialogClose>
               <Button
-                onClick={handleAddGuide}
-                disabled={loading}
-                type="submit"
+                onClick={() => {
+                  if (title === "Add new guide") {
+                    handleAddGuide();
+                  } else {
+                    handleUpdateGuide();
+                  }
+                }}
+                disabled={loading} 
                 className="bg-teal-600 hover:bg-teal-700 text-white shadow-md"
               >
-                {loading ? "Adding..." : "Add Guide"}
+                {loading
+                  ? title === "Update the guide"
+                    ? "Updating..."
+                    : "Adding..."
+                  : title
+                    ? "Update"
+                    : "Add"}
               </Button>
             </DialogFooter>
           </div>

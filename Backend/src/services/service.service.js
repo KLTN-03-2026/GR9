@@ -68,7 +68,7 @@ export const updateService = async (serviceId, payload, user) => {
       filter,
       updatePayload,
       {
-        new: true,
+        returnDocument: "after",
         runValidators: true,
       },
     );

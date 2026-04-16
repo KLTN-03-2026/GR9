@@ -3,7 +3,6 @@ import { throwError } from "../utils/throwError.js";
 
 export const createGuide = async (guideData) => {
   try {
-    console.log("Creating guide with data:", guideData);
     const existingGuide = await User.findOne({ email: guideData.email });
     if (existingGuide) {
       throw throwError("Email đã tồn tại", 400, "EMAIL_ALREADY_EXISTS");
@@ -46,13 +45,15 @@ export const deleteGuide = async (id) => {
   }
 };
 
-export const updateGuide = async (id, guideData) => {
+export const updateGuide = async (_id, guideData) => {
   try {
-    const existingGuide = await User.findById(id);
+    const existingGuide = await User.findById(_id);
     if (!existingGuide) {
       throw throwError("Không tìm thấy guide", 404, "GUIDE_NOT_FOUND");
     }
-    const guide = await User.findByIdAndUpdate(id, guideData, { new: true });
+    const guide = await User.findByIdAndUpdate(_id, guideData, {
+      returnDocument: "after",
+    });
     return guide;
   } catch (error) {
     throw throwError(error.message, error.status, "UPDATE_GUIDE_ERROR");
