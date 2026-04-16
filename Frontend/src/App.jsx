@@ -18,6 +18,7 @@ import UserManagementPage from "./pages/Admin/UserManagementPage";
 
 import ProviderDashboard from "./pages/Provider/ProviderDashboard";
 import ManageTours from "./pages/Provider/ManageTours";
+import EditTour from "./pages/Provider/EditTour";
 import GuideManagementProvider from "./pages/Provider/GuideManagementProvider";
 import ServiceManagement from "./pages/Provider/ServiceManagement";
 import ProviderBookingManagement from "./pages/Provider/ProviderBookingManagement";
@@ -77,6 +78,7 @@ function AppRoutes() {
       <Route path="/provider" element={<Layout />}>
         <Route index element={<ProviderDashboard />} />
         <Route path="manage-tours" element={<ManageTours />} />
+        <Route path="edit-tour" element={<EditTour />} />
         <Route path="guide-management" element={<GuideManagementProvider />} />
         <Route
           path="bookings-management"
