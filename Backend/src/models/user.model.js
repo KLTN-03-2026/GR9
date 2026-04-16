@@ -30,7 +30,7 @@ const userSchema = new Schema(
     specialty: { type: String, default: null },
     gender: { type: String, enum: ["MALE", "FEMALE", "OTHER"], default: "OTHER" },
     rate: {type: Number, default: null},
-    status: { type: String, default: "ACTIVE" },
+    status: { type: String, default: "NOT_STARTED", enum: ["NOT_STARTED", "CHECKED_IN", "ON_GOING", "COMPLETED", "CANCELLED", "NO_SHOW"], default: "NOT_STARTED" },
     isActive: { type: Boolean, default: false },
     codeVerify: { type: String, default: null },
     codeVerifyExpiresAt: { type: Date, default: null },
