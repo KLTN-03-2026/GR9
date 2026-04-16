@@ -8,7 +8,7 @@ const allowCreateRoles = ["PROVIDER", "ADMIN", "USER"];
 const checkUserExists = async (userId) => {
   const user = await User.findById(userId);
   if (!user) {
-    throwError("User not found", 404, "USER_NOT_FOUND");
+    throwError("Không tìm thấy người dùng", 404, "USER_NOT_FOUND");
   }
   return user;
 };
@@ -35,7 +35,11 @@ export const getServices = async (user) => {
 
     return await Service.find(filter).sort({ createdAt: -1 });
   } catch (error) {
-    throwError(error.message, error.status || 500, "GET_SERVICES_ERROR");
+    throwError(
+      "Không thể tải danh sách dịch vụ",
+      error.status || 500,
+      "GET_SERVICES_ERROR",
+    );
   }
 };
 
@@ -44,7 +48,7 @@ export const createService = async (payload, user) => {
     const currentUser = await checkUserExists(user._id);
 
     if (!allowCreateRoles.includes(currentUser.role)) {
-      throwError("Unauthorized to create service", 403, "UNAUTHORIZED");
+      throwError("Không có quyền tạo dịch vụ", 403, "UNAUTHORIZED");
     }
 
     const serviceData = {
@@ -54,7 +58,11 @@ export const createService = async (payload, user) => {
 
     return await Service.create(serviceData);
   } catch (error) {
-    throwError(error.message, error.status || 500, "CREATE_SERVICE_ERROR");
+    throwError(
+      "Không thể tạo dịch vụ",
+      error.status || 500,
+      "CREATE_SERVICE_ERROR",
+    );
   }
 };
 
@@ -68,18 +76,26 @@ export const updateService = async (serviceId, payload, user) => {
       filter,
       updatePayload,
       {
-        returnDocument: "after",
+        new: true,
         runValidators: true,
       },
     );
 
     if (!updatedService) {
-      throwError("Service not found or unauthorized", 404, "SERVICE_NOT_FOUND");
+      throwError(
+        "Không tìm thấy dịch vụ hoặc không có quyền",
+        404,
+        "SERVICE_NOT_FOUND",
+      );
     }
 
     return updatedService;
   } catch (error) {
-    throwError(error.message, error.status || 500, "UPDATE_SERVICE_ERROR");
+    throwError(
+      "Không thể cập nhật dịch vụ",
+      error.status || 500,
+      "UPDATE_SERVICE_ERROR",
+    );
   }
 };
 
@@ -89,11 +105,19 @@ export const deleteService = async (serviceId, user) => {
     const deletedService = await Service.findOneAndDelete(filter);
 
     if (!deletedService) {
-      throwError("Service not found or unauthorized", 404, "SERVICE_NOT_FOUND");
+      throwError(
+        "Không tìm thấy dịch vụ hoặc không có quyền",
+        404,
+        "SERVICE_NOT_FOUND",
+      );
     }
 
     return deletedService;
   } catch (error) {
-    throwError(error.message, error.status || 500, "DELETE_SERVICE_ERROR");
+    throwError(
+      "Không thể xóa dịch vụ",
+      error.status || 500,
+      "DELETE_SERVICE_ERROR",
+    );
   }
 };

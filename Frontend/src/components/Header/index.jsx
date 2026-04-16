@@ -38,10 +38,13 @@ const ROUTE_TITLES = [
   { test: (p) => p.startsWith('/guide/live-tour-tracking'), title: 'Guide Live Tour Tracking' },
   { test: (p) => p.startsWith('/guide/assigned-tours'), title: 'Assigned Tours List Guide' },
   { test: (p) => p === '/guide' || p === '/guide/', title: 'Guide Dashboard' },
+  { test: (p) => p.startsWith('/provider/edit-tour'), title: 'Create or Edit Tour' },
+  { test: (p) => p.startsWith('/provider/manage-tours'), title: 'Manage Tours' },
   { test: (p) => p.startsWith('/provider/guide-management'), title: 'Guide Management Provider' },
   { test: (p) => p.startsWith('/provider/bookings-management'), title: 'Bookings Management' },
   { test: (p) => p.startsWith('/provider/hotel-management'), title: 'Hotels Management' },
   { test: (p) => p === '/provider' || p === '/provider/', title: 'Provider Dashboard' },
+  { test: (p) => p.startsWith('/traveler/traveler-tracking-link-management'), title: 'Tracking Link Management' },
   { test: (p) => p.startsWith('/traveler/') || p === '/traveler', title: 'Traveler Dashboard' },
   { test: (p) => p.startsWith('/admin/') || p === '/admin', title: 'Admin Dashboard' },
 ];

@@ -9,11 +9,11 @@ import {
 export const getServices = async (req, res) => {
   try {
     const services = await getServicesService(req.user);
-    return success(res, "Services loaded successfully", services, 200);
+    return success(res, "Tải danh sách dịch vụ thành công", services, 200);
   } catch (err) {
     return error(
       res,
-      err.message || "Failed to load services",
+      err.message || "Tải danh sách dịch vụ thất bại",
       err.status || 500,
       err.errorCode,
     );
@@ -23,11 +23,11 @@ export const getServices = async (req, res) => {
 export const createService = async (req, res) => {
   try {
     const service = await createServiceService(req.body, req.user);
-    return success(res, "Service created successfully", service, 201);
+    return success(res, "Tạo dịch vụ thành công", service, 201);
   } catch (err) {
     return error(
       res,
-      err.message || "Failed to create service",
+      err.message || "Tạo dịch vụ thất bại",
       err.status || 500,
       err.errorCode,
     );
@@ -38,11 +38,11 @@ export const updateService = async (req, res) => {
   try {
     const { id } = req.params;
     const updatedService = await updateServiceService(id, req.body, req.user);
-    return success(res, "Service updated successfully", updatedService, 200);
+    return success(res, "Cập nhật dịch vụ thành công", updatedService, 200);
   } catch (err) {
     return error(
       res,
-      err.message || "Failed to update service",
+      err.message || "Cập nhật dịch vụ thất bại",
       err.status || 500,
       err.errorCode,
     );
@@ -52,11 +52,11 @@ export const updateService = async (req, res) => {
 export const deleteService = async (req, res) => {
   try {
     await deleteServiceService(req.params.id, req.user);
-    return success(res, "Service deleted successfully", null, 200);
+    return success(res, "Xóa dịch vụ thành công", null, 200);
   } catch (err) {
     return error(
       res,
-      err.message || "Failed to delete service",
+      err.message || "Xóa dịch vụ thất bại",
       err.status || 500,
       err.errorCode,
     );
