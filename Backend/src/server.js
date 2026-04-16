@@ -6,6 +6,7 @@ import connectDB from "./config/db.js";
 import authRoute from "./routes/auth.route.js";
 import guideRoute from "./routes/guide.route.js";
 import tourRouter from "./routes/tour.route.js";
+import serviceRoute from "./routes/service.route.js";
 dotenv.config();
 
 connectDB();
@@ -15,12 +16,14 @@ const app = express();
 app.use(
   cors({
     origin: [
-      process.env.URL_FE || process.env.FRONTEND_APP_URL || "http://localhost:5173",
+      process.env.URL_FE ||
+        process.env.FRONTEND_APP_URL ||
+        "http://localhost:5173",
     ],
     credentials: true,
     methods: ["POST", "GET", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 app.use(express.json());
 app.use(cookieParser());
@@ -28,6 +31,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoute);
 app.use("/api/guide", guideRoute);
 app.use("/api/tours", tourRouter);
+app.use("/api/services", serviceRoute);
 
 const PORT = process.env.PORT || 3000;
 
