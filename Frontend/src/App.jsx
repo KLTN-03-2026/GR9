@@ -11,7 +11,6 @@ import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 
 import TravelerDashboard from "./pages/Traveler/Dashboard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
-import GuideTest from "./pages/Guide/GuideTest";
 import BookingSuccess from "./pages/Guest/BookingSuccess";
 import ProviderApprovalPage from "./pages/Admin/ProviderApprovalPage";
 import UserManagementPage from "./pages/Admin/UserManagementPage";
@@ -36,6 +35,7 @@ import { Toaster } from "react-hot-toast";
 import TourList from "./pages/Traveler/TourList";
 import TourDetail from "./pages/Traveler/TourDetail";
 import HotelManagement from "./pages/Provider/HotelManagement";
+import GuideDashboardHome from "./pages/Guide/GuideDashboardHome";
 
 function AppRoutes() {
   const location = useLocation();
@@ -93,7 +93,7 @@ function AppRoutes() {
       </Route>
 
       <Route path="/guide" element={<Layout />}>
-        <Route index element={<GuideTest />} />
+        <Route index element={<GuideDashboardHome />} />
         <Route path="assigned-tours" element={<AssignedToursList />} />
         <Route path="live-tour-tracking" element={<GuideLiveTourTracking />} />
       </Route>
