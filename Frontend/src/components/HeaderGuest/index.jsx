@@ -10,23 +10,11 @@ const HeaderGuest = () => {
     <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b border-outline-variant/20 bg-white/92 px-6 backdrop-blur-xl shadow-sm">
       <div className="mx-auto flex h-full max-w-[1400px] items-center justify-between gap-6">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 shrink-0">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-            <MapPinned className="h-5 w-5" />
-          </div>
-          <div>
-            <h3 className="font-heading text-sm font-bold text-foreground">
-              Voyager AI
-            </h3>
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
-              Open Access
-            </p>
-          </div>
-        </Link>
+       
 
         {/* Navigation */}
         <nav className="no-scrollbar hidden items-center gap-2 overflow-x-auto md:flex">
-          <Link to="/guest/public-tour-tracking">
+          <Link to="/guest">
             <Button
               
               className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${isBookingSuccessPage === false ? 'bg-teal-50 text-teal-700' : 'bg-0 text-slate-500 hover:bg-slate-100'} `}
