@@ -40,13 +40,23 @@ const ROUTE_TITLES = [
   { test: (p) => p === '/guide' || p === '/guide/', title: 'Guide Dashboard' },
   { test: (p) => p.startsWith('/provider/edit-tour'), title: 'Create or Edit Tour' },
   { test: (p) => p.startsWith('/provider/manage-tours'), title: 'Manage Tours' },
+  { test: (p) => p.startsWith('/provider/service-management'), title: 'Service Management' },
   { test: (p) => p.startsWith('/provider/guide-management'), title: 'Guide Management Provider' },
   { test: (p) => p.startsWith('/provider/bookings-management'), title: 'Bookings Management' },
   { test: (p) => p.startsWith('/provider/hotel-management'), title: 'Hotels Management' },
   { test: (p) => p === '/provider' || p === '/provider/', title: 'Provider Dashboard' },
+  { test: (p) => p.startsWith('/traveler/tour-list'), title: 'Tour List'},
+  { test: (p) => p.startsWith('/traveler/tour-detail'), title: 'Tour Detail' },
+  { test: (p) => p.startsWith('/traveler/ai-travel-planner'), title: 'AI Travel Planner' },
+  { test: (p) => p.startsWith('/traveler/my-booking-traveler'), title: 'My Booking' },
   { test: (p) => p.startsWith('/traveler/traveler-tracking-link-management'), title: 'Tracking Link Management' },
-  { test: (p) => p.startsWith('/traveler/') || p === '/traveler', title: 'Traveler Dashboard' },
+  { test: (p) => p.startsWith('/traveler/tour-tracking'), title: 'Tour Tracking' },
+  { test: (p) => p.startsWith('/traveler/') || p === '/traveler', title: 'Traveler Dashboard' }, 
+  { test: (p) => p.startsWith('/admin/users'), title: 'User Management' },
+  { test: (p) => p.startsWith('/admin/provider-approval'), title: 'Provider Approval' },
   { test: (p) => p.startsWith('/admin/') || p === '/admin', title: 'Admin Dashboard' },
+  
+
 ];
 
 function resolveBreadcrumbTitle(pathname, fallbackTitle) {
