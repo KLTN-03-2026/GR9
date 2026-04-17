@@ -37,6 +37,7 @@ import TourList from "./pages/Traveler/TourList";
 import TourDetail from "./pages/Traveler/TourDetail";
 import HotelManagement from "./pages/Provider/HotelManagement";
 import GuideDashboardHome from "./pages/Guide/GuideDashboardHome";
+import ProviderProfile from "./pages/Provider/ProviderProfile";
 
 function AppRoutes() {
   const location = useLocation();
@@ -91,13 +92,15 @@ function AppRoutes() {
         />
         <Route path="service-management" element={<ServiceManagement />} />
         <Route path="hotel-management" element={<HotelManagement />} />
-        
+        <Route path="profile" element={<ProviderProfile />} />
+
       </Route>
 
       <Route path="/guide" element={<Layout />}>
         <Route index element={<GuideDashboardHome />} />
         <Route path="assigned-tours" element={<AssignedToursList />} />
         <Route path="live-tour-tracking" element={<GuideLiveTourTracking />} />
+        
       </Route>
 
       <Route path="/guest" element={<Layout />}>
