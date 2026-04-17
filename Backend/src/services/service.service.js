@@ -18,7 +18,7 @@ const buildOwnershipFilter = (serviceId, user) => {
     _id: new mongoose.Types.ObjectId(serviceId),
   };
 
-  if (user.role !== "ADMIN") {
+  if (user.role === "PROVIDER") {
     filter.providerId = new mongoose.Types.ObjectId(user._id);
   }
 
@@ -29,7 +29,7 @@ export const getServices = async (user) => {
   try {
     const filter = {};
 
-    if (user.role !== "ADMIN") {
+    if (user.role === "PROVIDER") {
       filter.providerId = user._id;
     }
 

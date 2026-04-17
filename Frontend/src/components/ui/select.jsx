@@ -44,7 +44,7 @@ function SelectTrigger({ className, size = "default", children, ...props }) {
 function SelectContent({
   className,
   children,
-  position = "item-aligned",
+  position = "popper",
   align = "center",
   ...props
 }) {

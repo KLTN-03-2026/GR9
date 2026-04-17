@@ -375,7 +375,6 @@ export const resetPassword = async ({ email, otp, password, confirmPassword }) =
 };
 
 
-
 export const refreshTokenProcess = async (refreshTokenFromCookie) => {
   try {
     if (!refreshTokenFromCookie) {

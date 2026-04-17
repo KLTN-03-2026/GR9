@@ -21,7 +21,6 @@ const tourActivitySchema = new Schema(
 const tourItinerarySchema = new Schema(
     {
         dayNumber: { type: Number, required: true, min: 1 },
-        title: { type: String, required: true, trim: true },
         description: { type: String, default: null },
         activities: { type: [tourActivitySchema], default: [] },
     },
@@ -35,7 +34,11 @@ const tourSchema = new Schema(
             required: true,
             index: true,
         },
-        quantity: { type: Number, default: 0, min: 0 },
+        quantity: { 
+            adults: { type: Number, default: 1, min: 1 },
+            children: { type: Number, default: 0, min: 0 },
+            infants: { type: Number, default: 0, min: 0 },
+         },
         price: { type: Number, default: 0, min: 0 },
         location: { type: String, default: null, trim: true },
         description: { type: String, default: null },
