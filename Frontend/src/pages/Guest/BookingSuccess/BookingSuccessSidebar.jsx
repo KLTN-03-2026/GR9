@@ -1,0 +1,61 @@
+import { Download, Lightbulb, Sparkles } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
+export default function BookingSuccessSidebar() {
+  return (
+    <aside className="space-y-6 lg:sticky lg:top-28 lg:col-span-5">
+      <div className="relative overflow-hidden rounded-[28px] shadow-[0_28px_90px_rgba(15,23,42,0.18)]">
+        <img
+          alt="Azure Horizon"
+          className="aspect-[4/5] w-full object-cover"
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4-uJ-PvLUyy3V5Xcghc6WHePwWWJfxOr2aCh_VVA7u7hx4p4WGrmhT6Pz9piMJR7-IvOCPOO16ZrPHWjGHySpZv4Cyy9_0WFQAUn0h1gTGrgDxDs959nlZqmFFaISeKJc79JVaz7Ql2Y9tb-eYZAxW8_7XNibWr4JABCqjK5aXwgN0V2VgrCP_AkU2WQ8ChBV2z82uOyTavylKvqE4E3d-P5PRGA_C_KW0Py1eBvwD_QAbY_YUdki9hgZmc-zcZj1lMcyVWpB2RDS"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/10 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 space-y-3 p-8 text-white">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm">
+            <Sparkles className="size-4 text-emerald-300" />
+            <span className="text-xs font-bold uppercase tracking-[0.25em] text-emerald-100">
+              Voyager Exclusive
+            </span>
+          </div>
+          <div>
+            <h3 className="text-3xl font-black tracking-tight">
+              Azure Horizon Expedition
+            </h3>
+            <p className="mt-2 text-sm font-medium text-white/80">
+              French Polynesia • 8 Days
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4">
+        <Button
+          variant="ghost"
+          className="h-14 rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+        >
+          <Download className="size-4" />
+          Download Receipt (PDF)
+        </Button>
+      </div>
+
+      <Card className="border border-orange-200/70 bg-gradient-to-br from-orange-50 to-amber-50 py-0 shadow-[0_18px_50px_rgba(245,158,11,0.10)]">
+        <CardContent className="p-6">
+          <div className="mb-3 flex items-center gap-2 text-orange-700">
+            <Lightbulb className="size-5" />
+            <span className="text-xs font-bold uppercase tracking-[0.2em]">
+              Voyager Tip
+            </span>
+          </div>
+          <p className="leading-7 text-orange-950/80">
+            The weather forecast for your destination suggests light rain on day
+            2. Don&apos;t worry, your itinerary has been automatically adjusted
+            with a luxury spa afternoon.
+          </p>
+        </CardContent>
+      </Card>
+    </aside>
+  );
+}
