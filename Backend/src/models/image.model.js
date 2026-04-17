@@ -6,7 +6,7 @@ const imageSchema = new Schema(
   {
     entityType: {
       type: String,
-      enum: ["TOUR", "HOTEL", "SERVICE", "USER_ITINERARY"],
+      enum: ["TOUR", "HOTEL", "SERVICE", "USER_ITINERARY", "PROVIDER"],
       required: true,
     },
     entityId: {

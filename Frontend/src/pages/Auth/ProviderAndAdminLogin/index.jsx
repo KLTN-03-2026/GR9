@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AuthContext from "@/context/authContext";
 
 const roleMeta = {
   provider: {
@@ -26,7 +27,22 @@ const roleMeta = {
 
 function LoginForm({ role }) {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { loginUser } = useContext(AuthContext);
   const currentRole = roleMeta[role];
+
+  const handleSignIn = async () => {
+    try {
+      setLoading(true);
+      await loginUser(email, password);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <TabsContent value={role} className="mt-0">
@@ -119,9 +135,11 @@ function LoginForm({ role }) {
 
         <Button
           type="button"
+          onClick={handleSignIn}
+          disabled={loading}
           className="h-14 w-full rounded-xl bg-gradient-to-r from-primary to-primary-container px-6 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98]"
         >
-          <span>Sign In</span>
+          <span>{loading ? "Signing In..." : "Sign In"}</span>
           <span className="material-symbols-outlined text-sm">
             arrow_forward
           </span>
