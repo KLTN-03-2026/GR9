@@ -44,6 +44,7 @@ const ROUTE_TITLES = [
   { test: (p) => p.startsWith('/provider/guide-management'), title: 'Guide Management Provider' },
   { test: (p) => p.startsWith('/provider/bookings-management'), title: 'Bookings Management' },
   { test: (p) => p.startsWith('/provider/hotel-management'), title: 'Hotels Management' },
+  { test: (p) => p.startsWith('/provider/profile'), title: 'Provider Profile' },
   { test: (p) => p === '/provider' || p === '/provider/', title: 'Provider Dashboard' },
   { test: (p) => p.startsWith('/traveler/tour-list'), title: 'Tour List'},
   { test: (p) => p.startsWith('/traveler/tour-detail'), title: 'Tour Detail' },
@@ -55,6 +56,7 @@ const ROUTE_TITLES = [
   { test: (p) => p.startsWith('/admin/users'), title: 'User Management' },
   { test: (p) => p.startsWith('/admin/provider-approval'), title: 'Provider Approval' },
   { test: (p) => p.startsWith('/admin/') || p === '/admin', title: 'Admin Dashboard' },
+  
   
 
 ];
