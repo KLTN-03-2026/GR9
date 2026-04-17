@@ -11,12 +11,13 @@ import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 
 import TravelerDashboard from "./pages/Traveler/Dashboard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
-import GuideTest from "./pages/Guide/GuideTest";
 import BookingSuccess from "./pages/Guest/BookingSuccess";
 import ProviderApprovalPage from "./pages/Admin/ProviderApprovalPage";
 import UserManagementPage from "./pages/Admin/UserManagementPage";
 
 import ProviderDashboard from "./pages/Provider/ProviderDashboard";
+import ManageTours from "./pages/Provider/ManageTours";
+import EditTour from "./pages/Provider/EditTour";
 import GuideManagementProvider from "./pages/Provider/GuideManagementProvider";
 import ServiceManagement from "./pages/Provider/ServiceManagement";
 import ProviderBookingManagement from "./pages/Provider/ProviderBookingManagement";
@@ -25,6 +26,7 @@ import PublicTourTracking from "./pages/Guest/PublicTourTracking";
 import AssignedToursList from "./pages/Guide/AssignedToursList";
 import TourTracking from "./pages/Traveler/TourTracking";
 import MyBookingTourTraveler from "./pages/Traveler/MyBookingTourTraveler";
+import TrackingLinkManagement from "./pages/Traveler/TrackingLinkManagement";
 import AITravelPlanner from "./pages/Traveler/AITravelPlanner";
 import ProviderAndAdminLogin from "./pages/Auth/ProviderAndAdminLogin";
 import GuideLogin from "./pages/Auth/GuideLogin";
@@ -34,6 +36,7 @@ import { Toaster } from "react-hot-toast";
 import TourList from "./pages/Traveler/TourList";
 import TourDetail from "./pages/Traveler/TourDetail";
 import HotelManagement from "./pages/Provider/HotelManagement";
+import GuideDashboardHome from "./pages/Guide/GuideDashboardHome";
 
 function AppRoutes() {
   const location = useLocation();
@@ -59,6 +62,10 @@ function AppRoutes() {
       <Route path="/traveler" element={<Layout />}>
         <Route path="tour-tracking" element={<TourTracking />} />
         <Route path="my-booking-traveler" element={<MyBookingTourTraveler />} />
+        <Route
+          path="traveler-tracking-link-management"
+          element={<TrackingLinkManagement />}
+        />
         <Route path="ai-travel-planner" element={<AITravelPlanner />} />
 
         <Route index element={<TravelerDashboard />} />
@@ -75,6 +82,8 @@ function AppRoutes() {
 
       <Route path="/provider" element={<Layout />}>
         <Route index element={<ProviderDashboard />} />
+        <Route path="manage-tours" element={<ManageTours />} />
+        <Route path="edit-tour" element={<EditTour />} />
         <Route path="guide-management" element={<GuideManagementProvider />} />
         <Route
           path="bookings-management"
@@ -82,16 +91,17 @@ function AppRoutes() {
         />
         <Route path="service-management" element={<ServiceManagement />} />
         <Route path="hotel-management" element={<HotelManagement />} />
+        
       </Route>
 
       <Route path="/guide" element={<Layout />}>
-        <Route index element={<GuideTest />} />
+        <Route index element={<GuideDashboardHome />} />
         <Route path="assigned-tours" element={<AssignedToursList />} />
         <Route path="live-tour-tracking" element={<GuideLiveTourTracking />} />
       </Route>
 
       <Route path="/guest" element={<Layout />}>
-        <Route path="public-tour-tracking" element={<PublicTourTracking />} />
+        <Route index element={<PublicTourTracking />} />
         <Route path="booking-success-and-tracking-link" element={<BookingSuccess />} />
       </Route>
     </Routes>

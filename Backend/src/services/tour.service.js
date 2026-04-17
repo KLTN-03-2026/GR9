@@ -32,11 +32,11 @@ export const updateTourService = async (tourId, payload, userId) => {
     const tour = await Tour.findOneAndUpdate(
       {
         _id: new mongoose.Types.ObjectId(tourId),
-    providerId: new mongoose.Types.ObjectId(userId),
+        providerId: new mongoose.Types.ObjectId(userId),
       },
       payload,
       {
-        new: true,
+        returnDocument: "after",
         runValidators: true,
       },
     );

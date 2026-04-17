@@ -1,4 +1,4 @@
-import { createGuide, deleteGuide, getGuides } from "../services/guide.service.js";
+import { createGuide, deleteGuide, getGuides, updateGuide } from "../services/guide.service.js";
 import { error, success } from "../utils/response.js";
 
 export const createGuideController = async (req, res) => {
@@ -30,7 +30,7 @@ export const getGuideByIdController = async (req, res) => {
 
 export const updateGuideByIdController = async (req, res) => {
   try {
-    const guide = await updateGuideById(req.params.id, req.body);
+    const guide = await updateGuide(req.params.id, req.body);
     return success(res, "Cập nhật Guide thành công", guide, 201);
   } catch (err) {
     return error(res, err.message, err.status, err.errorCode);
