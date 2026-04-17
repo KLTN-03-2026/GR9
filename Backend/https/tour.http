@@ -1,9 +1,13 @@
 POST http://localhost:3000/api/tours
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjE2MjU2OCwiZXhwIjoxNzc2MTYzNDY4fQ.DPCT3i78yTPqCVyQ8tAJNop-RK4ShzaayQWpwGslsH0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZTBhMmZjZjcyMWEzZjdhMzg5YWJkMyIsImlhdCI6MTc3NjQ0NDczMiwiZXhwIjoxNzc2NDQ1NjMyfQ.SHMxanwIp1fVFB0lwf5ikEYa18aB53pi25avD8pKZGI
 
 {
-  "quantity": 20,
+  "quantity": {
+    "adults": 10,
+    "children": 2,
+    "infants": 0
+  },
   "price": 1500000,
   "location": "Da Nang",
   "description": "Tour tham quan Đà Nẵng 3 ngày 2 đêm",
@@ -70,7 +74,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhN
 
 ###
 GET http://localhost:3000/api/tours
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjE2MjU2OCwiZXhwIjoxNzc2MTYzNDY4fQ.DPCT3i78yTPqCVyQ8tAJNop-RK4ShzaayQWpwGslsH0
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZTBhMmZjZjcyMWEzZjdhMzg5YWJkMyIsImlhdCI6MTc3NjMyOTQ2OCwiZXhwIjoxNzc2MzMwMzY4fQ.RKcoO_voQJoUsHCF7xe6T7ntNQP97yMtUfmmBoNRZOU
 
 
 ###

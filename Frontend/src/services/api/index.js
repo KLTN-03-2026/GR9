@@ -16,7 +16,7 @@ const PUBLIC_AUTH_PATHS = [
 
 const apiInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  timeout: 10000,
+  timeout: 200000,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

@@ -13,15 +13,19 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/genai": "^1.50.1",
+    "@google/generative-ai": "^0.24.1",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "firebase-admin": "^13.7.0",
+    "groq-sdk": "^1.1.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.3.1",
-    "nodemailer": "^7.0.13"
+    "nodemailer": "^7.0.13",
+    "openai": "^6.34.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
