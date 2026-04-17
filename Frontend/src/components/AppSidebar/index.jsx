@@ -61,6 +61,7 @@ const MENU = {
       href: "/content-moderation",
       icon: ShieldAlert,
     },
+    
   ],
 
   guide: [
@@ -105,6 +106,11 @@ const MENU = {
       href: "/hotel-management",
       icon: Hotel,
     },
+    {
+      name: "Provider Profile",
+      href: "/profile",
+      icon: UserCog,  
+    }
   ],
 };
 
