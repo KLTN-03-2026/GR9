@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import Image from "../models/image.model.js";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { generateToken } from "../utils/generateToken.js";
@@ -8,14 +9,20 @@ import { sendMail } from "../config/mailer.js";
 import { throwError } from "../utils/throwError.js";
 dotenv.config();
 
-const EMAIL_VERIFY_EXPIRES_MINUTES = Number(process.env.EMAIL_VERIFY_EXPIRES_MINUTES || 15);
-const RESET_PASSWORD_EXPIRES_MINUTES = Number(process.env.RESET_PASSWORD_EXPIRES_MINUTES || 30);
+const EMAIL_VERIFY_EXPIRES_MINUTES = Number(
+  process.env.EMAIL_VERIFY_EXPIRES_MINUTES || 15,
+);
+const RESET_PASSWORD_EXPIRES_MINUTES = Number(
+  process.env.RESET_PASSWORD_EXPIRES_MINUTES || 30,
+);
 
+const normalizeEmail = (email) =>
+  String(email || "")
+    .trim()
+    .toLowerCase();
 
-
-const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
-
-const getOtpExpiryDate = (minutes) => new Date(Date.now() + minutes * 60 * 1000);
+const getOtpExpiryDate = (minutes) =>
+  new Date(Date.now() + minutes * 60 * 1000);
 
 const sanitizeAuthPayload = (user, tokens) => ({
   message: "Đăng nhập thành công",
@@ -28,6 +35,7 @@ const sanitizeAuthPayload = (user, tokens) => ({
     avatar: user.avatarUrl,
     role: user.role,
     isActive: user.isActive,
+    firstJoin: user.firstJoin,
   },
 });
 
@@ -79,8 +87,117 @@ const assignVerificationOtp = (user) => {
 const assignResetPasswordOtp = (user) => {
   const otp = generatePincode();
   user.resetPasswordOtp = otp;
-  user.resetPasswordOtpExpiresAt = getOtpExpiryDate(RESET_PASSWORD_EXPIRES_MINUTES);
+  user.resetPasswordOtpExpiresAt = getOtpExpiryDate(
+    RESET_PASSWORD_EXPIRES_MINUTES,
+  );
   return otp;
+};
+
+export const applyProvider = async (data, file, req) => {
+  const email = normalizeEmail(data.email);
+  const fullName = String(data.fullName || "").trim();
+  const phone = String(data.phone || "").trim();
+  const gender = String(data.gender || "OTHER").toUpperCase();
+  const address = String(data.address || "").trim();
+
+  if (!fullName || !email) {
+    throw throwError(
+      "Tên đầy đủ và email là bắt buộc",
+      400,
+      "MISSING_REQUIRED_FIELDS",
+    );
+  }
+
+  const existingUser = await User.findOne({ email });
+  if (
+    existingUser &&
+    existingUser.role === "PROVIDER" &&
+    existingUser.isActive
+  ) {
+    throw throwError(
+      "Email đã được sử dụng bởi một đối tác đã được kích hoạt",
+      409,
+      "EMAIL_ALREADY_EXISTS",
+    );
+  }
+  if (
+    existingUser &&
+    existingUser.role !== "PROVIDER" &&
+    existingUser.isActive
+  ) {
+    throw throwError("Email đã được sử dụng", 409, "EMAIL_ALREADY_EXISTS");
+  }
+
+  const user = existingUser || new User();
+  user.email = email;
+  user.fullName = fullName;
+  user.phone = phone;
+  user.gender = ["MALE", "FEMALE", "OTHER"].includes(gender) ? gender : "OTHER";
+  user.address = address;
+  user.role = "PROVIDER";
+  user.authType = "LOCAL";
+  user.isActive = false;
+  user.firstJoin = true;
+  user.emailVerifiedAt = null;
+  user.password = null;
+
+  await user.save();
+
+  if (file) {
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
+    const imageUrl = `${baseUrl}/uploads/providers/${file.filename}`;
+
+    await Image.create({
+      entityType: "PROVIDER",
+      entityId: user._id,
+      imageUrl,
+      description: file.originalname,
+    });
+  }
+
+  return {
+    message: "Hồ sơ đối tác đã được gửi. Vui lòng chờ quản trị viên xác nhận.",
+    email: user.email,
+  };
+};
+
+export const setFirstJoinPassword = async (
+  userId,
+  password,
+  confirmPassword,
+) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw throwError("Người dùng không tồn tại", 404, "USER_NOT_FOUND");
+  }
+  if (!user.firstJoin) {
+    throw throwError(
+      "Tài khoản không thuộc trạng thái lần đầu đăng nhập",
+      400,
+      "NOT_FIRST_JOIN",
+    );
+  }
+  if (!password || !confirmPassword) {
+    throw throwError(
+      "Mật khẩu và xác nhận mật khẩu là bắt buộc",
+      400,
+      "MISSING_REQUIRED_FIELDS",
+    );
+  }
+  if (password !== confirmPassword) {
+    throw throwError(
+      "Mật khẩu xác nhận không khớp",
+      400,
+      "PASSWORD_CONFIRM_NOT_MATCH",
+    );
+  }
+  user.password = password;
+  user.firstJoin = false;
+  await user.save();
+
+  return {
+    message: "Mật khẩu mới đã được cập nhật. Bạn có thể tiếp tục đăng nhập.",
+  };
 };
 
 export const googleLogin = async (idToken) => {
@@ -94,7 +211,7 @@ export const googleLogin = async (idToken) => {
       throw throwError(
         "Invalid token format. Firebase ID token must have 3 parts.",
         400,
-        "INVALID_TOKEN_FORMAT"
+        "INVALID_TOKEN_FORMAT",
       );
     }
 
@@ -133,13 +250,25 @@ export const googleLogin = async (idToken) => {
     console.error("Google login error:", error);
 
     if (error.code === "auth/argument-error") {
-      throw throwError("Invalid Firebase ID token format", 400, "INVALID_TOKEN_FORMAT");
+      throw throwError(
+        "Invalid Firebase ID token format",
+        400,
+        "INVALID_TOKEN_FORMAT",
+      );
     }
 
     if (error.code === "auth/id-token-expired") {
-      throw throwError("Firebase ID token has expired", 401, "TOKEN_HAS_EXPIRED");
+      throw throwError(
+        "Firebase ID token has expired",
+        401,
+        "TOKEN_HAS_EXPIRED",
+      );
     }
-    throw throwError(error.message, error.status || 401, error.errorCode || "AUTHENTICATION_FAILED");
+    throw throwError(
+      error.message,
+      error.status || 401,
+      error.errorCode || "AUTHENTICATION_FAILED",
+    );
   }
 };
 
@@ -151,10 +280,18 @@ export const loginUser = async (email, password) => {
       throw throwError("User not found", 404, "USER_NOT_FOUND");
     }
     if (user.authType !== "LOCAL") {
-      throw throwError("Please login with Google for this account", 400, "GOOGLE_AUTH_REQUIRED");
+      throw throwError(
+        "Please login with Google for this account",
+        400,
+        "GOOGLE_AUTH_REQUIRED",
+      );
     }
     if (!user.isActive) {
-      throw throwError("Account is not verified. Please verify OTP sent to your email.", 403, "ACCOUNT_NOT_VERIFIED");
+      throw throwError(
+        "Account is not verified. Please verify OTP sent to your email.",
+        403,
+        "ACCOUNT_NOT_VERIFIED",
+      );
     }
     const isPasswordMatch = await user.comparePassword(password);
     if (!isPasswordMatch) {
@@ -177,13 +314,25 @@ export const signUpUser = async (data) => {
     const confirmPassword = String(data.confirmPassword || "");
 
     if (!fullName || !email || !password || !confirmPassword) {
-      throw throwError("Full name, email and password are required", 400, "MISSING_REQUIRED_FIELDS");
+      throw throwError(
+        "Full name, email and password are required",
+        400,
+        "MISSING_REQUIRED_FIELDS",
+      );
     }
     if (password.length < 6) {
-      throw throwError("Password must be at least 6 characters", 400, "PASSWORD_TOO_SHORT");
+      throw throwError(
+        "Password must be at least 6 characters",
+        400,
+        "PASSWORD_TOO_SHORT",
+      );
     }
     if (password !== confirmPassword) {
-      throw throwError("Password confirmation does not match", 400, "PASSWORD_CONFIRM_NOT_MATCH");
+      throw throwError(
+        "Password confirmation does not match",
+        400,
+        "PASSWORD_CONFIRM_NOT_MATCH",
+      );
     }
 
     const userExists = await User.findOne({ email });
@@ -191,7 +340,11 @@ export const signUpUser = async (data) => {
       throw throwError("Email already exists", 409, "EMAIL_ALREADY_EXISTS");
     }
     if (userExists && userExists.authType === "GOOGLE") {
-      throw throwError("Email already exists with Google login", 409, "EMAIL_ALREADY_EXISTS_WITH_GOOGLE");
+      throw throwError(
+        "Email already exists with Google login",
+        409,
+        "EMAIL_ALREADY_EXISTS_WITH_GOOGLE",
+      );
     }
 
     const user = userExists || new User();
@@ -209,7 +362,8 @@ export const signUpUser = async (data) => {
     await sendVerificationOtpMail(user, otp);
 
     return {
-      message: "Đăng ký thành công. Vui lòng kiểm tra email để lấy mã OTP xác thực.",
+      message:
+        "Đăng ký thành công. Vui lòng kiểm tra email để lấy mã OTP xác thực.",
       email: user.email,
     };
   } catch (error) {
@@ -225,7 +379,11 @@ export const verifyEmailOtp = async (email, otp) => {
       throw throwError("User not found", 404, "USER_NOT_FOUND");
     }
     if (user.isActive) {
-      throw throwError("Account has already been verified", 400, "ACCOUNT_ALREADY_VERIFIED");
+      throw throwError(
+        "Account has already been verified",
+        400,
+        "ACCOUNT_ALREADY_VERIFIED",
+      );
     }
     if (!user.codeVerify || !user.codeVerifyExpiresAt) {
       throw throwError("Verification OTP not found", 400, "OTP_NOT_FOUND");
@@ -260,10 +418,18 @@ export const resendVerificationOtp = async (email) => {
       throw throwError("User not found", 404, "USER_NOT_FOUND");
     }
     if (user.authType !== "LOCAL") {
-      throw throwError("This account does not support email OTP verification", 400, "OTP_NOT_SUPPORTED");
+      throw throwError(
+        "This account does not support email OTP verification",
+        400,
+        "OTP_NOT_SUPPORTED",
+      );
     }
     if (user.isActive) {
-      throw throwError("Account has already been verified", 400, "ACCOUNT_ALREADY_VERIFIED");
+      throw throwError(
+        "Account has already been verified",
+        400,
+        "ACCOUNT_ALREADY_VERIFIED",
+      );
     }
 
     const otp = assignVerificationOtp(user);
@@ -286,12 +452,17 @@ export const forgotPassword = async (email) => {
 
     if (!user) {
       return {
-        message: "Nếu email tồn tại trong hệ thống, mã OTP đặt lại mật khẩu đã được gửi.",
+        message:
+          "Nếu email tồn tại trong hệ thống, mã OTP đặt lại mật khẩu đã được gửi.",
         email: normalizedEmail,
       };
     }
     if (user.authType !== "LOCAL") {
-      throw throwError("This account does not support password reset by OTP", 400, "RESET_NOT_SUPPORTED");
+      throw throwError(
+        "This account does not support password reset by OTP",
+        400,
+        "RESET_NOT_SUPPORTED",
+      );
     }
 
     const otp = assignResetPasswordOtp(user);
@@ -334,7 +505,12 @@ export const verifyResetPasswordOtp = async (email, otp) => {
   }
 };
 
-export const resetPassword = async ({ email, otp, password, confirmPassword }) => {
+export const resetPassword = async ({
+  email,
+  otp,
+  password,
+  confirmPassword,
+}) => {
   try {
     const normalizedEmail = normalizeEmail(email);
     const user = await User.findOne({ email: normalizedEmail });
@@ -342,13 +518,25 @@ export const resetPassword = async ({ email, otp, password, confirmPassword }) =
       throw throwError("User not found", 404, "USER_NOT_FOUND");
     }
     if (!password || !confirmPassword) {
-      throw throwError("New password and confirmation are required", 400, "MISSING_REQUIRED_FIELDS");
+      throw throwError(
+        "New password and confirmation are required",
+        400,
+        "MISSING_REQUIRED_FIELDS",
+      );
     }
     if (password.length < 6) {
-      throw throwError("Password must be at least 6 characters", 400, "PASSWORD_TOO_SHORT");
+      throw throwError(
+        "Password must be at least 6 characters",
+        400,
+        "PASSWORD_TOO_SHORT",
+      );
     }
     if (password !== confirmPassword) {
-      throw throwError("Password confirmation does not match", 400, "PASSWORD_CONFIRM_NOT_MATCH");
+      throw throwError(
+        "Password confirmation does not match",
+        400,
+        "PASSWORD_CONFIRM_NOT_MATCH",
+      );
     }
     if (!user.resetPasswordOtp || !user.resetPasswordOtpExpiresAt) {
       throw throwError("Reset password OTP not found", 400, "OTP_NOT_FOUND");
@@ -374,25 +562,35 @@ export const resetPassword = async ({ email, otp, password, confirmPassword }) =
   }
 };
 
-
-
 export const refreshTokenProcess = async (refreshTokenFromCookie) => {
   try {
     if (!refreshTokenFromCookie) {
-      throw throwError("Refresh token not found", 401, "REFRESH_TOKEN_NOT_FOUND");
+      throw throwError(
+        "Refresh token not found",
+        401,
+        "REFRESH_TOKEN_NOT_FOUND",
+      );
     }
     let decoded;
     try {
       decoded = jwt.verify(
         refreshTokenFromCookie,
-        process.env.JWT_REFRESH_SECRET
+        process.env.JWT_REFRESH_SECRET,
       );
     } catch (error) {
-      throw throwError("Refresh token is not valid", 401, "REFRESH_TOKEN_INVALID");
+      throw throwError(
+        "Refresh token is not valid",
+        401,
+        "REFRESH_TOKEN_INVALID",
+      );
     }
     const user = await User.findById(decoded.id);
     if (!user || user.refreshToken !== refreshTokenFromCookie) {
-      throw throwError("Refresh token is not valid", 401, "REFRESH_TOKEN_INVALID");
+      throw throwError(
+        "Refresh token is not valid",
+        401,
+        "REFRESH_TOKEN_INVALID",
+      );
     }
     const token = generateToken(user._id);
     return {

@@ -57,11 +57,15 @@ const MENU = {
     { name: "User Management Admin", href: "/users", icon: UserCog },
     { name: "Provider Approval", href: "/provider-approval", icon: BadgeCheck },
     {
+      name: "Approval History",
+      href: "/provider-approval-history",
+      icon: FolderKanban,
+    },
+    {
       name: "Content Moderation",
       href: "/content-moderation",
       icon: ShieldAlert,
     },
-    
   ],
 
   guide: [
@@ -109,8 +113,8 @@ const MENU = {
     {
       name: "Provider Profile",
       href: "/profile",
-      icon: UserCog,  
-    }
+      icon: UserCog,
+    },
   ],
 };
 

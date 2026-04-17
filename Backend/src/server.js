@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import path from "path";
 import connectDB from "./config/db.js";
 import authRoute from "./routes/auth.route.js";
 import guideRoute from "./routes/guide.route.js";
@@ -27,6 +28,7 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+app.use("/uploads", express.static(path.resolve("uploads")));
 
 app.use("/api/auth", authRoute);
 app.use("/api/guide", guideRoute);
