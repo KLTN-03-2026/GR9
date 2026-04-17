@@ -17,20 +17,40 @@ const userSchema = new Schema(
     password: { type: String, default: null },
     
     fullName: { type: String, trim: true, default: null },
-    avatarUrl: { type: String, default: "https://lh3.googleusercontent.com/aida-public/AB6AXuD0BfviMsRmGSM1xnCOiLAjEB-Xdb5zdVkaJer9i8EJDmcHyk3B_cx3NNEUzYZx5eeXLb3knh4GSyKV1fU2pKt6dX7NkkJOM-qqssY1oLkNGpRLgm3AiSVVcnGdAVSqgMJeL-mStHglR2Rc9V12kuRO9iwN7ZjrDqchBTD7BWXOm-mCLk6H7Q8mnXUOH5vIX9avqy2wQ7x_g34-VVu4BanY1QQ1qVm-2_PkEjdf_nz1PHmI3pTuP8jQkRkJa9qDZRvYGjv8ySp5VHSG" },
+    avatarUrl: {
+      type: String,
+      default:
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuD0BfviMsRmGSM1xnCOiLAjEB-Xdb5zdVkaJer9i8EJDmcHyk3B_cx3NNEUzYZx5eeXLb3knh4GSyKV1fU2pKt6dX7NkkJOM-qqssY1oLkNGpRLgm3AiSVVcnGdAVSqgMJeL-mStHglR2Rc9V12kuRO9iwN7ZjrDqchBTD7BWXOm-mCLk6H7Q8mnXUOH5vIX9avqy2wQ7x_g34-VVu4BanY1QQ1qVm-2_PkEjdf_nz1PHmI3pTuP8jQkRkJa9qDZRvYGjv8ySp5VHSG",
+    },
 
     role: {
       type: String,
-      enum: ["USER", "ADMIN", "GUIDE", "PROVIDER"],
-      default: "USER",
+      enum: ["TRAVELER", "ADMIN", "GUIDE", "PROVIDER"],
+      default: "TRAVELER",
     },
 
     refreshToken: { type: String, default: null },
     firstJoin: { type: Boolean, default: true },
     specialty: { type: String, default: null },
-    gender: { type: String, enum: ["MALE", "FEMALE", "OTHER"], default: "OTHER" },
-    rate: {type: Number, default: null},
-    status: { type: String, default: "NOT_STARTED", enum: ["NOT_STARTED", "CHECKED_IN", "ON_GOING", "COMPLETED", "CANCELLED", "NO_SHOW"], default: "NOT_STARTED" },
+    gender: {
+      type: String,
+      enum: ["MALE", "FEMALE", "OTHER"],
+      default: "OTHER",
+    },
+    rate: { type: Number, default: null },
+    status: {
+      type: String,
+      default: "NOT_STARTED",
+      enum: [
+        "NOT_STARTED",
+        "CHECKED_IN",
+        "ON_GOING",
+        "COMPLETED",
+        "CANCELLED",
+        "NO_SHOW",
+      ],
+      default: "NOT_STARTED",
+    },
     isActive: { type: Boolean, default: false },
     codeVerify: { type: String, default: null },
     codeVerifyExpiresAt: { type: Date, default: null },

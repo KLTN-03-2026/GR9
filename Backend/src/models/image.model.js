@@ -27,3 +27,4 @@ imageSchema.index({ entityType: 1, entityId: 1 });
 const Image = model("Image", imageSchema);
 
 export default Image;
+
