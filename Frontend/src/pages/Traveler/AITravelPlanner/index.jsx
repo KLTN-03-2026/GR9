@@ -29,6 +29,7 @@ export default function AITravelPlanner() {
   const [startDate, setStartDate] = useState(null);
   const [duration, setDuration] = useState(3);
   const [budget, setBudget] = useState("1500");
+  const [location, setLocation] = useState(null);
   const [travelStyles, setTravelStyles] = useState({
     relax: false,
     adventure: true,
@@ -40,6 +41,7 @@ export default function AITravelPlanner() {
     child: 1,
     infant: 0,
   });
+  const [itinerary, setItinerary] = useState(null);
 
   const handleToggleTravelStyle = (styleKey) => {
     setTravelStyles((prev) => ({
@@ -90,12 +92,30 @@ export default function AITravelPlanner() {
       });
       console.log(response);
       const data = extractJson(response.data.data);
+      setItinerary(data);
       console.log(data);
     } catch (error) {
       console.log(error);
     }
   };
 
+  const handleGetLatLng = async (address) => {
+    const res = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+        address,
+      )}&key=${import.meta.env.VITE_MAP_API_KEY}`,
+    );
+
+    const data = await res.json();
+
+    if (data.results && data.results.length > 0) {
+      const { lat, lng } = data.results[0].geometry.location;
+
+      setLocation({ lat, lng });
+
+      console.log("LAT LNG:", lat, lng);
+    }
+  };
   return (
     <div>
       <div className="flex h-screen pt-16">
@@ -116,15 +136,28 @@ export default function AITravelPlanner() {
             travelStyles={travelStyles}
           />
 
-          <section className="scrollbar-hide relative h-full flex-1 overflow-y-auto bg-surface p-8">
-            <PlannerResultHeader />
+          <section
+            className={`scrollbar-hide relative h-full flex-1 overflow-y-auto ${
+              itinerary
+                ? "bg-surface p-8 xl:flex xl:flex-col xl:overflow-y-auto"
+                : "bg-black/5 p-0"
+            }`}
+          >
+            <PlannerResultHeader itinerary={itinerary} />
 
-            <div className="grid grid-cols-1 gap-10 xl:grid-cols-2">
-              <PlannerItinerary />
-              <PlannerVisuals />
-            </div>
+            {itinerary ? (
+              <>
+                <div className="grid grid-cols-1 gap-10 xl:min-h-0 xl:flex-1 xl:grid-cols-2">
+                  <PlannerItinerary
+                    itinerary={itinerary}
+                    handleGetLatLng={handleGetLatLng}
+                  />
+                  <PlannerVisuals itinerary={itinerary} location={location} />
+                </div>
 
-            <div className="h-20" />
+                <div className="h-20" />
+              </>
+            ) : null}
           </section>
         </main>
       </div>
