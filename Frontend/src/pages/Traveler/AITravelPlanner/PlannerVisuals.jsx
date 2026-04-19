@@ -1,16 +1,11 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
 
 const center = { lat: 16.047079, lng: 108.20623 };
 
-function PlannerVisuals() {
+function PlannerVisuals({ itinerary, location }) {
   // const mapRef = useRef();
   // const mapContainerRef = useRef();
   // const markerRef = useRef();
@@ -60,6 +55,10 @@ function PlannerVisuals() {
   //   };
   // }, []);
 
+  if (!itinerary) {
+    return null;
+  }
+
   return (
     <div className="space-y-8">
       <Card className="group relative rounded-[2rem] border-none bg-surface-container-lowest p-2 shadow-sm">
@@ -72,51 +71,12 @@ function PlannerVisuals() {
                 gestureHandling="greedy"
                 disableDefaultUI={false}
               >
-                <Marker position={center} />
+                {location ? <Marker position={location} /> : null}
               </Map>
             </div>
           </APIProvider>
           <div className="pointer-events-none absolute inset-0 bg-primary/5" />
         </div>
-      </Card>
-
-      <Card className="group relative aspect-video overflow-hidden rounded-[2rem] border-none py-0 shadow-none">
-        <img
-          alt="Landscape"
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYCXC5i2Kl9Sl5OfqGcXSSyg4bRbhovYNMdJD9PFLOTNVFpPvb-AsUQBOcSdrOF_DXCJVR2kEurTrwS58qw0NFpRs5fjZKhZK-6JTGUW_B5YIDa-BTFeWD404uE3Ao-EBQj5rvlrfaCqkMGy537kgK8Z6y65pEA5G2eiaGAoIPdrYvjZNa0q3g-T6WJXLMdleRW7yfg7tvGhyhNT_Ks7nSC4J9T7asyJRa2rBuyjD65T6_E_Wp8zjhNVuC1yXRendZ5o0wu2oPQQbr"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-        <CardContent className="absolute bottom-6 left-6 p-0">
-          <p className="mb-1 text-xs font-bold uppercase tracking-widest text-white/70">
-            Local Secret
-          </p>
-          <CardTitle className="text-xl font-bold text-white">
-            The Sagano Scenic Railway
-          </CardTitle>
-          <CardDescription className="mt-1 text-[11px] italic text-white/80">
-            Suggested: "The Sagano Scenic Railway is inserted as a low-stress
-            connector between temple and food blocks."
-          </CardDescription>
-        </CardContent>
-      </Card>
-      <Card className="overflow-hidden rounded-[1.75rem] border-none bg-white py-0 shadow-sm">
-        <CardContent className="space-y-4 p-5">
-          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                Weather Outlook
-              </p>
-              <CardTitle className="mt-2 text-xl font-extrabold text-on-surface">
-                Plan Around the Forecast
-              </CardTitle>
-              <CardDescription className="mt-1 max-w-md text-xs leading-relaxed text-on-surface-variant">
-                Check current conditions and switch between forecast days before
-                locking the itinerary.
-              </CardDescription>
-            </div>
-          </div>
-        </CardContent>
       </Card>
     </div>
   );

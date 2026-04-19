@@ -35,7 +35,8 @@ const serviceSchema = new Schema(
       enum: [
         "HOTEL",
         "TRANSPORT",
-        "TOUR_GUIDE",
+        "RESTAURANT",
+        "ACTIVITY",
         "FOOD",
         "ATTRACTION_TICKET",
         "COMBO",
