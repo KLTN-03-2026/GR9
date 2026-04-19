@@ -12,6 +12,26 @@ export const signup = async (data) => {
   return await api.post("/auth/signup", data);
 };
 
+export const applyProvider = async (data) => {
+  return await api.post("/auth/apply-provider", data);
+};
+
+export const getProviderApplications = async () => {
+  return await api.get("/auth/provider-applications");
+};
+
+export const approveProviderApplication = async (id) => {
+  return await api.put(`/auth/provider-applications/${id}/approve`);
+};
+
+export const rejectProviderApplication = async (id) => {
+  return await api.put(`/auth/provider-applications/${id}/reject`);
+};
+
+export const firstJoinPassword = async (payload) => {
+  return await api.patch("/auth/first-join-password", payload);
+};
+
 export const verifyEmailOtp = async (email, otp) => {
   return await api.post("/auth/verify-email-otp", { email, otp });
 };

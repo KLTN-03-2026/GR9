@@ -4,7 +4,8 @@
 ### Create a new service
 POST http://localhost:3000/api/services
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGNiNmFjNDVjN2U1OGI2NGI2MGJlYSIsImlhdCI6MTc3NjA3MjQ4NiwiZXhwIjoxNzc2MDczMzg2fQ.mna5evLWEYwws_HwYKFdcOuTzf0h8oymPTrrldqydbQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGUzMTc0NmJiNTliYmFkNjI5OGFlNyIsImlhdCI6MTc3NjE2OTMzMiwiZXhwIjoxNzc2MTcwMjMyfQ.tE0YfI_kOr4oo0RWjLQedmka3Fx5KYV8BLQ8GxOtVik
+
 
 {
   "name": "Demo Hotel Service",

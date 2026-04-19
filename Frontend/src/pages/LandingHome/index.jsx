@@ -1,147 +1,150 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 
 const valueProps = [
   {
-    icon: 'auto_awesome',
-    title: 'Personalized Itineraries',
+    icon: "auto_awesome",
+    title: "Personalized Itineraries",
     description:
-      'Our AI learns your travel style to craft minute-by-minute plans perfectly balanced between hidden gems and landmarks.',
+      "Our AI learns your travel style to craft minute-by-minute plans perfectly balanced between hidden gems and landmarks.",
   },
   {
-    icon: 'fitness_tracker',
-    title: 'Live Guide Tracking',
+    icon: "fitness_tracker",
+    title: "Live Guide Tracking",
     description:
-      'Stay connected with verified local experts in real-time. Safety and local insight, just a tap away.',
+      "Stay connected with verified local experts in real-time. Safety and local insight, just a tap away.",
   },
   {
-    icon: 'sell',
-    title: 'Best Local Rates',
+    icon: "sell",
+    title: "Best Local Rates",
     description:
-      'Skip the tourist traps. We negotiate directly with Da Nang providers to bring you authentic pricing.',
+      "Skip the tourist traps. We negotiate directly with Da Nang providers to bring you authentic pricing.",
   },
 ];
 
 const steps = [
   {
-    number: '1',
-    title: 'Select Preferences',
+    number: "1",
+    title: "Select Preferences",
     description: `Choose "Foodie", "Culture seeker", or "Relaxed pace".`,
   },
   {
-    number: '2',
-    title: 'AI Optimization',
-    description:
-      'Our engine calculates the best routes and opening hours.',
+    number: "2",
+    title: "AI Optimization",
+    description: "Our engine calculates the best routes and opening hours.",
   },
   {
-    number: '3',
-    title: 'One-Tap Booking',
-    description:
-      'Instantly book tickets for Marble Mountains or Ba Na Hills.',
+    number: "3",
+    title: "One-Tap Booking",
+    description: "Instantly book tickets for Marble Mountains or Ba Na Hills.",
   },
 ];
 
 const experiences = [
   {
-    title: 'Ba Na Hills & Golden Bridge',
+    title: "Ba Na Hills & Golden Bridge",
     description:
       'Experience the mountain resort and the world-famous "Hands of God" bridge with priority cable car access.',
     image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBL9pR0zY4kSNnBk3xZO68-GXolb9prvqajKTOANTaU8RkCPgGYxp6tUcsjtN69RRGorRd8ob2U_kSkKdlFePyVv9qC5n4zrFuhfz1gYizSioRYpmYqXy0AZ6yX5ohYe4xP9icnTUUKIjjNFX0YPDFpEG9xtp8O039wAT366heEU4SEw_QKByCKTRI_FYb3ufpkKqMqpoRM71tJpOpcyMQKVfWCe3OT4ShiRL2B4Ix4vXO7uHJPQNgHzcvtFzQx-eF7-EJEbpJECEfq',
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBL9pR0zY4kSNnBk3xZO68-GXolb9prvqajKTOANTaU8RkCPgGYxp6tUcsjtN69RRGorRd8ob2U_kSkKdlFePyVv9qC5n4zrFuhfz1gYizSioRYpmYqXy0AZ6yX5ohYe4xP9icnTUUKIjjNFX0YPDFpEG9xtp8O039wAT366heEU4SEw_QKByCKTRI_FYb3ufpkKqMqpoRM71tJpOpcyMQKVfWCe3OT4ShiRL2B4Ix4vXO7uHJPQNgHzcvtFzQx-eF7-EJEbpJECEfq",
     imageAlt:
-      'Close up of the giant stone hands holding the Golden Bridge in Ba Na Hills, Da Nang',
+      "Close up of the giant stone hands holding the Golden Bridge in Ba Na Hills, Da Nang",
     recommended: true,
   },
   {
-    title: 'Hoi An Ancient Food Tour',
+    title: "Hoi An Ancient Food Tour",
     description:
-      'A dusk walk through the lantern-lit streets, tasting the best Cao Lau and Banh Mi in the region.',
+      "A dusk walk through the lantern-lit streets, tasting the best Cao Lau and Banh Mi in the region.",
     image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuC0IkcrDFeYfI0ZJiU-g4sCwLt54ckkHmPq9CYnMBKNZa1DHmWSXco79pyzSgC4gssRGMpTwoYGiJcjp506oVvPfnpZp9DQeRD3v6q4XiipuD2edDK98LPi-N-J7Z0C-JcjJZv2PxwBBCa2rNQPpiN9S0qbzq46nYanYtlpPjG44FjfvS1RrkSYSWNkLYk43bwJvjOLv2ciZYHFZ7KoHMsQqzgUyf-0XaUpU---KfqTOdsHKfpO2F8FEYv77RnPWZQXuizVlBV8KGjP',
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuC0IkcrDFeYfI0ZJiU-g4sCwLt54ckkHmPq9CYnMBKNZa1DHmWSXco79pyzSgC4gssRGMpTwoYGiJcjp506oVvPfnpZp9DQeRD3v6q4XiipuD2edDK98LPi-N-J7Z0C-JcjJZv2PxwBBCa2rNQPpiN9S0qbzq46nYanYtlpPjG44FjfvS1RrkSYSWNkLYk43bwJvjOLv2ciZYHFZ7KoHMsQqzgUyf-0XaUpU---KfqTOdsHKfpO2F8FEYv77RnPWZQXuizVlBV8KGjP",
     imageAlt:
-      'Colorful lanterns glowing at night in the ancient town of Hoi An near Da Nang',
+      "Colorful lanterns glowing at night in the ancient town of Hoi An near Da Nang",
   },
   {
-    title: 'Son Tra Peninsula Discovery',
+    title: "Son Tra Peninsula Discovery",
     description:
       'Explore the "Monkey Mountain," the giant Lady Buddha statue, and secluded beaches with crystal clear water.',
     image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuAbVkUw1OfwMyGmGHXDLL7l_QMuAyEa7RyvhP3YJTsOhu-sKM0zPuBbT4RJ1f5lrf4D8zCYIpT3iAT_Av35iZ89fj3T4rkDQh2ewDLiTtxKvhUtyLObf7Wlm2Dd1-RJz_NerFuf1mdk0PDCA5ooKFr9xiKcSR_VCoIxUW1r5u7E7012Usuid4WGn8EMAzwa8VDuYM_FO9W6LjF3rd8tMiSxSdLAhFtJC-SIjUaNnSwQClAEMCHIHErq_EeMpkLE_uEYWZPhDHaHSWKw',
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuAbVkUw1OfwMyGmGHXDLL7l_QMuAyEa7RyvhP3YJTsOhu-sKM0zPuBbT4RJ1f5lrf4D8zCYIpT3iAT_Av35iZ89fj3T4rkDQh2ewDLiTtxKvhUtyLObf7Wlm2Dd1-RJz_NerFuf1mdk0PDCA5ooKFr9xiKcSR_VCoIxUW1r5u7E7012Usuid4WGn8EMAzwa8VDuYM_FO9W6LjF3rd8tMiSxSdLAhFtJC-SIjUaNnSwQClAEMCHIHErq_EeMpkLE_uEYWZPhDHaHSWKw",
     imageAlt:
-      'Linh Ung Pagoda statue overlooking the coastline of Son Tra Peninsula in Da Nang',
+      "Linh Ung Pagoda statue overlooking the coastline of Son Tra Peninsula in Da Nang",
   },
 ];
 
 const roles = [
   {
-    icon: 'flight_takeoff',
-    title: 'For Travelers',
-    description:
-      'Unlock the ultimate Da Nang experience. Explore like a local, track your itinerary in real-time, and get AI-powered insights on every corner.',
-    cta: 'Explore as Traveler',
-    className: 'bg-surface-container-lowest text-on-surface',
-    iconWrapperClass: 'bg-primary-container/20 text-primary',
+    icon: "flight_takeoff",
+    title: "For Travelers",
+    description: "...",
+    cta: "Explore as Traveler",
+    path: "/signup",
+    className: "bg-surface-container-lowest text-on-surface",
+    iconWrapperClass: "bg-primary-container/20 text-primary",
   },
   {
-    icon: 'storefront',
-    title: 'For Providers',
+    icon: "storefront",
+    title: "For Providers",
     description:
-      'List your tours, cafes, or stays. Use our AI tools to manage bookings and reach thousands of international travelers daily.',
-    cta: 'Join Provider Portal',
-    className: 'bg-primary text-on-primary',
-    iconWrapperClass: 'bg-white/20 text-white',
+      "List your tours, cafes, or stays. Use our AI tools to manage bookings and reach thousands of international travelers daily.",
+    cta: "Join Provider Portal",
+    path: "/apply-provider",
+    className: "bg-primary text-on-primary",
+    iconWrapperClass: "bg-white/20 text-white",
   },
 ];
 
 const stats = [
-  { value: '10,000+', label: 'Trips Planned' },
-  { value: '500+', label: 'Local Guides' },
-  { value: '4.9/5', label: 'Average Rating', className: 'col-span-2 md:col-span-1' },
+  { value: "10,000+", label: "Trips Planned" },
+  { value: "500+", label: "Local Guides" },
+  {
+    value: "4.9/5",
+    label: "Average Rating",
+    className: "col-span-2 md:col-span-1",
+  },
 ];
 
 const testimonials = [
   {
     quote:
       "The AI planner found a local seafood place in Da Nang that wasn't on any blog. It was the highlight of our trip!",
-    name: 'Sarah J.',
-    country: 'United Kingdom',
+    name: "Sarah J.",
+    country: "United Kingdom",
     image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuC7jqZVXIVoME0giMh4SDX7OFY-4iZ3iYOfOuHA7CFfvi81-2FimNhe6k8DUYHNFOpZxL6YeAVJrD-BYbAECYHOZI7ivv0yegIDWYAltPsYXkD-ze-XlKIuvp4dSTO0xAPlc9zHtcdo532QXIC8iGYrur0fVP-oAHJ14HI4WSD9xmWSkNiSTCD0peuD-9p6nKSRxPQ46dTX7bk3fJ77ebQi1mah5b3mxLXkouAax39i3h_mKH-G2RIvsrcJyAKbwwRxF1_IvtjXt0yk',
-    imageAlt: 'Portrait of a smiling young woman with glasses',
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuC7jqZVXIVoME0giMh4SDX7OFY-4iZ3iYOfOuHA7CFfvi81-2FimNhe6k8DUYHNFOpZxL6YeAVJrD-BYbAECYHOZI7ivv0yegIDWYAltPsYXkD-ze-XlKIuvp4dSTO0xAPlc9zHtcdo532QXIC8iGYrur0fVP-oAHJ14HI4WSD9xmWSkNiSTCD0peuD-9p6nKSRxPQ46dTX7bk3fJ77ebQi1mah5b3mxLXkouAax39i3h_mKH-G2RIvsrcJyAKbwwRxF1_IvtjXt0yk",
+    imageAlt: "Portrait of a smiling young woman with glasses",
   },
   {
     quote:
-      'I was skeptical about AI travel but Voyager AI actually saved us hours of transport planning between Da Nang and Hoi An.',
-    name: 'Markus T.',
-    country: 'Germany',
+      "I was skeptical about AI travel but Voyager AI actually saved us hours of transport planning between Da Nang and Hoi An.",
+    name: "Markus T.",
+    country: "Germany",
     image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBsbD-ki1I-R4yMYB3ls1RGRUqShVqMwWfa-wFGi-OLQ7wmcE7yO0bu8XLsCellyPCG4EAZl6Imp2UkTLDkzNutvFAETyeeW6cDvFIjDCA9i026z5vHQ1z0ibndjhtj7TFahijCVHJ4AxJI3Rd_-Qgrzh9DKbby_YwnDKNiFw5kYt2E0t38glXtFonsBl3Qkxd0LrDCVwmrJb-Eb5WgtPrOQtU0t01Ljko7yg7vo9S-QBkrf_0_NgFhnigeN4nOioGyvCDPVG2AJ8IN',
-    imageAlt: 'Portrait of a bearded man smiling outdoors',
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBsbD-ki1I-R4yMYB3ls1RGRUqShVqMwWfa-wFGi-OLQ7wmcE7yO0bu8XLsCellyPCG4EAZl6Imp2UkTLDkzNutvFAETyeeW6cDvFIjDCA9i026z5vHQ1z0ibndjhtj7TFahijCVHJ4AxJI3Rd_-Qgrzh9DKbby_YwnDKNiFw5kYt2E0t38glXtFonsBl3Qkxd0LrDCVwmrJb-Eb5WgtPrOQtU0t01Ljko7yg7vo9S-QBkrf_0_NgFhnigeN4nOioGyvCDPVG2AJ8IN",
+    imageAlt: "Portrait of a bearded man smiling outdoors",
   },
   {
     quote:
-      'The real-time guide tracking gave me so much peace of mind as a solo traveler. Highly recommended!',
-    name: 'Elena L.',
-    country: 'Australia',
+      "The real-time guide tracking gave me so much peace of mind as a solo traveler. Highly recommended!",
+    name: "Elena L.",
+    country: "Australia",
     image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBtKv1764CA7Hkz-dVYhiqBO7WZncXHP5G7aiulCfTGzVhxYY4srcsB7BuB1m-1ZPYoI14T1apGrV5LB1IGZAveTo8jJ-gLjeeTGdGFFoxn0SjSQiMI94luuXlm2XiEnuOcGW1QTLRGxBv9gQ_sz696u0rmu-ObFh8_ZGJ3WA_cliGk6ZWPJZGEkYZjSu54fhzE12GWJrZddlWq6yVZroidLdL9eQCJlFHGmuiFl3prp5J2XBauI1ExjIOoQiZn-rAuonzlHnJ8AY1q',
-    imageAlt: 'Portrait of a young woman with a friendly smile',
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBtKv1764CA7Hkz-dVYhiqBO7WZncXHP5G7aiulCfTGzVhxYY4srcsB7BuB1m-1ZPYoI14T1apGrV5LB1IGZAveTo8jJ-gLjeeTGdGFFoxn0SjSQiMI94luuXlm2XiEnuOcGW1QTLRGxBv9gQ_sz696u0rmu-ObFh8_ZGJ3WA_cliGk6ZWPJZGEkYZjSu54fhzE12GWJrZddlWq6yVZroidLdL9eQCJlFHGmuiFl3prp5J2XBauI1ExjIOoQiZn-rAuonzlHnJ8AY1q",
+    imageAlt: "Portrait of a young woman with a friendly smile",
   },
 ];
 
 const footerGroups = [
   {
-    title: 'Explore',
-    links: ['Destinations', 'AI Planner', 'Live Tracking'],
+    title: "Explore",
+    links: ["Destinations", "AI Planner", "Live Tracking"],
   },
   {
-    title: 'Solutions',
-    links: ['Provider Portal', 'Partner Tools'],
+    title: "Solutions",
+    links: ["Provider Portal", "Partner Tools"],
   },
   {
-    title: 'Company',
-    links: ['About Us', 'Careers', 'Privacy Policy'],
+    title: "Company",
+    links: ["About Us", "Careers", "Privacy Policy"],
   },
 ];
 
@@ -170,12 +173,12 @@ const LandingHome = () => {
             >
               Itineraries
             </a>
-            <a
-              href="#providers"
+            <Link
+              to="/apply-provider"
               className="font-heading text-sm font-medium tracking-tight text-slate-600 transition-colors duration-300 hover:text-teal-500"
             >
               Providers
-            </a>
+            </Link>
             <a
               href="#support"
               className="font-heading text-sm font-medium tracking-tight text-slate-600 transition-colors duration-300 hover:text-teal-500"
@@ -209,10 +212,10 @@ const LandingHome = () => {
               Premium Discovery
             </span>
             <h1 className="mb-8 font-heading text-5xl leading-[1.1] font-extrabold tracking-tight text-on-surface md:text-7xl">
-              Your Personal{' '}
+              Your Personal{" "}
               <span className="bg-gradient-to-r from-primary to-primary-container bg-clip-text text-transparent">
                 AI Concierge
-              </span>{' '}
+              </span>{" "}
               for Da Nang
             </h1>
 
@@ -273,7 +276,10 @@ const LandingHome = () => {
         </div>
       </section>
 
-      <section id="itineraries" className="overflow-hidden bg-surface-container-low py-24">
+      <section
+        id="itineraries"
+        className="overflow-hidden bg-surface-container-low py-24"
+      >
         <div className="container mx-auto px-6">
           <div className="flex flex-col items-center gap-16 lg:flex-row">
             <div className="space-y-8 lg:w-1/2">
@@ -389,7 +395,7 @@ const LandingHome = () => {
               type="button"
               className="group flex items-center gap-2 font-heading font-bold text-primary transition-all hover:gap-3"
             >
-              View all destinations{' '}
+              View all destinations{" "}
               <span className="material-symbols-outlined">arrow_forward</span>
             </button>
           </div>
@@ -438,13 +444,13 @@ const LandingHome = () => {
                   {role.title}
                 </h3>
                 <p className="mb-8 text-current/80">{role.description}</p>
-                <button
-                  type="button"
+                <Link
+                  to={role.path}
                   className="flex items-center gap-2 font-bold transition-transform hover:translate-x-1"
                 >
                   {role.cta}
                   <span className="material-symbols-outlined">east</span>
-                </button>
+                </Link>
               </div>
             ))}
           </div>

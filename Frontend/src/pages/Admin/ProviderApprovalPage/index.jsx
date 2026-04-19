@@ -1,77 +1,117 @@
+import { useEffect, useState } from "react";
 import ProviderApprovalCard from "./ProviderApprovalCard";
-import ProcessedProvidersList from "./ProcessedProvidersList";
+import {
+  getProviderApplications,
+  approveProviderApplication,
+  rejectProviderApplication,
+} from "@/services/api/auth";
+
+import toast from "react-hot-toast";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const mockProviders = [
-  {
-    id: 1,
-    name: "Skyline Alpine Expeditions",
-    description:
-      "Specializing in high-altitude trekking and luxury basecamp experiences across the Swiss Alps.",
-    status: "new",
-    logoUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuA_SaGAk79jB4iPaIILNisKZHe3NoIeLNXN2ha1eR1tk7QFencsbo3JNDYx2j1Isdc2FMRxGw9u-SeYxwJR9FXARahUXVaXzbFwq6GSg71HiPR1I0YPcHz9BWrPwJuXLEHzKy-jxDa1wDz5z5LaXFbfrud-GJ_AXxUTMjb-Y5VKTJEBjfZ-hAH7HDJ8r_pjOxnP64KDyqSdbif_MteWMtdazuE1djydDaG8yVQQ88ZtbDUVSLvIWQ9yw2oPTAFydL4qfNa5IpD3N4Mj",
-    documents: [
-      { name: "Business_License.pdf", verified: true, icon: "description" },
-      { name: "Insurance_Cert.pdf", verified: true, icon: "policy" },
-      { name: "Tax_ID_Verification", verified: false, icon: "history_edu" },
-    ],
-  },
-  {
-    id: 2,
-    name: "Oceanic Yacht Charters",
-    description:
-      "Premium Mediterranean yacht rentals with fully-staffed crews and bespoke coastal itineraries.",
-    status: "urgent",
-    logoUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCfqMHhXRIm_qAefyf2KTf66IKp9T5V6EGcfh_TixkeMLHJJLrH17OsVOwXdHKH7FejURnAnNRcd7kd6hmwGSNuzEjH0LUn63HtTUg9ZaJt3_onQCqoyD9IIqJX7TXI9mY6Oir_HIo9chyyjaCL3kU-a9SMmsuXS8Q0QSNYRFrvv_oFI4lRsfABkaM008Pw32SKM2lHBzPsunPkRW37gCZt6u_9jZgZO1NL6-LTF7IDUhW9FyAf-u3Vv-SklNKGCB1HMyEZe3V0nUej",
-    documents: [
-      { name: "Maritime_Ops.pdf", verified: true, icon: "description" },
-      { name: "Safety_Audit_2024", verified: true, icon: "verified" },
-    ],
-  },
-];
-
-const mockProcessed = [
-  {
-    id: 1,
-    name: "Desert Treks UAE",
-    initials: "DT",
-    date: "Oct 24, 2023",
-    status: "approved",
-    reviewer: "admin_martha",
-  },
-  {
-    id: 2,
-    name: "Berlin Bike Tours",
-    initials: "BB",
-    date: "Oct 23, 2023",
-    status: "rejected",
-    reviewer: "admin_james",
-  },
-];
 const ProviderApprovalPage = () => {
-  const providers = mockProviders || [];
-  const processed = mockProcessed || [];
+  const [providers, setProviders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const loadProviders = async () => {
+    setLoading(true);
+    try {
+      const response = await getProviderApplications();
+      const data = response?.data?.data;
+      setProviders(Array.isArray(data) ? data : data ? [data] : []);
+    } catch (err) {
+      console.error(err);
+      setError(
+        err?.response?.data?.message ||
+          "Không thể tải danh sách form đăng ký đối tác.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProviders();
+  }, []);
+
+  const handleApprove = async (providerId) => {
+    setLoading(true);
+    try {
+      await approveProviderApplication(providerId);
+      toast.success("Đã phê duyệt hồ sơ đối tác.");
+      await loadProviders();
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.response?.data?.message || "Phê duyệt thất bại.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReject = async (providerId) => {
+    setLoading(true);
+    try {
+      await rejectProviderApplication(providerId);
+      toast.success("Đã từ chối hồ sơ đối tác.");
+      await loadProviders();
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.response?.data?.message || "Từ chối thất bại.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="pt-24 pb-12  max-w-[1600px] mx-auto space-y-12">
+    <div className="pt-24 pb-12 max-w-6xl mx-auto space-y-12">
       <section>
-        <h3 className="text-3xl font-extrabold tracking-tight text-slate-900 font-headline">
-          Review New Partnerships
-        </h3>
-        <p className="text-slate-500 mt-2 max-w-2xl text-sm">
-          Examine business credentials and verification documents for providers
-          requesting access to the marketplace.
-        </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h3 className="text-3xl font-extrabold tracking-tight text-slate-900 font-headline">
+              Review New Partnerships
+            </h3>
+            <p className="text-slate-500 mt-2 max-w-2xl text-sm">
+              Examine business credentials and verification documents for
+              providers requesting access to the marketplace.
+            </p>
+          </div>
+          <div className="rounded-3xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+            <p className="text-sm uppercase tracking-[0.18em] text-slate-400">
+              Total Applications
+            </p>
+            <p className="text-3xl font-headline font-bold text-slate-900">
+              {providers.length}
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="grid grid-cols-1 xl:grid-cols-12 gap-8">
         <div className="xl:col-span-8 space-y-6">
-          {providers.map((p) => (
-            <ProviderApprovalCard key={p.id} provider={p} />
-          ))}
+          {loading ? (
+            <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center text-slate-500">
+              Đang tải danh sách form đăng ký...
+            </div>
+          ) : error ? (
+            <div className="rounded-3xl border border-rose-200 bg-rose-50 p-10 text-center text-rose-700">
+              {error}
+            </div>
+          ) : providers.length === 0 ? (
+            <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center text-slate-500">
+              Chưa có hồ sơ đăng ký đối tác nào.
+            </div>
+          ) : (
+            providers.map((p) => (
+              <ProviderApprovalCard
+                key={p._id || p.id}
+                provider={p}
+                onApprove={() => handleApprove(p._id || p.id)}
+                onReject={() => handleReject(p._id || p.id)}
+              />
+            ))
+          )}
         </div>
 
         <div className="xl:col-span-4 space-y-6">
@@ -137,13 +177,6 @@ const ProviderApprovalPage = () => {
             </CardContent>
           </Card>
         </div>
-      </section>
-
-      <section className="pt-10 border-t border-slate-100">
-        <h4 className="text-xl font-bold text-slate-900 mb-6 px-2">
-          Processed Requests
-        </h4>
-        <ProcessedProvidersList data={processed} />
       </section>
     </div>
   );

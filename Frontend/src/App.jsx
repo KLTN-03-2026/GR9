@@ -8,11 +8,13 @@ import VerifyEmailOtpPage from "./pages/Auth/VerifyEmailOtpPage";
 import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
 import VerifyResetPasswordOtpPage from "./pages/Auth/VerifyResetPasswordOtpPage";
 import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
+import FirstJoinPasswordPage from "./pages/Auth/FirstJoinPasswordPage";
 
 import TravelerDashboard from "./pages/Traveler/Dashboard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import BookingSuccess from "./pages/Guest/BookingSuccess";
 import ProviderApprovalPage from "./pages/Admin/ProviderApprovalPage";
+import ProviderApprovalHistory from "./pages/Admin/ProviderApprovalHistory";
 import UserManagementPage from "./pages/Admin/UserManagementPage";
 
 import ProviderDashboard from "./pages/Provider/ProviderDashboard";
@@ -38,13 +40,14 @@ import TourDetail from "./pages/Traveler/TourDetail";
 import HotelManagement from "./pages/Provider/HotelManagement";
 import GuideDashboardHome from "./pages/Guide/GuideDashboardHome";
 import ProviderProfile from "./pages/Provider/ProviderProfile";
-
+import ProviderApplicationForm from "./pages/LandingHome/ProviderApplicationForm";
 function AppRoutes() {
   const location = useLocation();
 
   return (
     <Routes location={location} key={location.pathname}>
       <Route path="/" element={<LandingHome />} />
+      <Route path="/apply-provider" element={<ProviderApplicationForm />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<RegisterPage />} />
       <Route path="/verify-email-otp" element={<VerifyEmailOtpPage />} />
@@ -54,6 +57,7 @@ function AppRoutes() {
         element={<VerifyResetPasswordOtpPage />}
       />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/first-join-password" element={<FirstJoinPasswordPage />} />
       <Route
         path="/provider-and-admin-login-management"
         element={<ProviderAndAdminLogin />}
@@ -78,6 +82,10 @@ function AppRoutes() {
       <Route path="/admin" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="provider-approval" element={<ProviderApprovalPage />} />
+        <Route
+          path="provider-approval-history"
+          element={<ProviderApprovalHistory />}
+        />
         <Route path="users" element={<UserManagementPage />} />
       </Route>
 
@@ -93,19 +101,20 @@ function AppRoutes() {
         <Route path="service-management" element={<ServiceManagement />} />
         <Route path="hotel-management" element={<HotelManagement />} />
         <Route path="profile" element={<ProviderProfile />} />
-
       </Route>
 
       <Route path="/guide" element={<Layout />}>
         <Route index element={<GuideDashboardHome />} />
         <Route path="assigned-tours" element={<AssignedToursList />} />
         <Route path="live-tour-tracking" element={<GuideLiveTourTracking />} />
-        
       </Route>
 
       <Route path="/guest" element={<Layout />}>
         <Route index element={<PublicTourTracking />} />
-        <Route path="booking-success-and-tracking-link" element={<BookingSuccess />} />
+        <Route
+          path="booking-success-and-tracking-link"
+          element={<BookingSuccess />}
+        />
       </Route>
     </Routes>
   );

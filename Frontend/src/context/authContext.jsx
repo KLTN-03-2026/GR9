@@ -1,5 +1,7 @@
 import { createContext, useState } from "react";
 import {
+  applyProvider,
+  firstJoinPassword,
   forgotPassword,
   googleLogin,
   login,
@@ -19,7 +21,7 @@ const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user")) || null
+    JSON.parse(localStorage.getItem("user")) || null,
   );
   const navigate = useNavigate();
 
@@ -39,7 +41,7 @@ export const AuthContextProvider = ({ children }) => {
       return response.data.data;
     } catch (error) {
       toast.error(
-        error?.response?.data?.message || "Login failed. Please try again."
+        error?.response?.data?.message || "Login failed. Please try again.",
       );
       throw error;
     }
@@ -48,24 +50,39 @@ export const AuthContextProvider = ({ children }) => {
   const loginUser = async (email, password) => {
     try {
       const response = await login(email, password);
-      persistUserSession(response.data.data);
+      const payload = response.data.data;
+      persistUserSession(payload);
       toast.success("User logged in successfully");
-      navigate("/traveler");
-      return response.data.data;
+
+      if (payload?.user?.role === "PROVIDER" && payload?.user?.firstJoin) {
+        navigate(
+          `/first-join-password?email=${encodeURIComponent(
+            String(payload?.user?.email || "").trim(),
+          )}`,
+        );
+      } else if (payload?.user?.role === "ADMIN") {
+        navigate("/admin");
+      } else if (payload?.user?.role === "PROVIDER") {
+        navigate("/provider");
+      } else {
+        navigate("/traveler");
+      }
+
+      return payload;
     } catch (error) {
       if (error?.response?.data?.errorCode === "ACCOUNT_NOT_VERIFIED") {
         toast.error(
           error?.response?.data?.message ||
-            "Your account is not verified yet. Please enter OTP."
+            "Your account is not verified yet. Please enter OTP.",
         );
         navigate(
-          `/verify-email-otp?email=${encodeURIComponent(String(email || "").trim())}`
+          `/verify-email-otp?email=${encodeURIComponent(String(email || "").trim())}`,
         );
         throw error;
       }
 
       toast.error(
-        error?.response?.data?.message || "Login failed. Please try again."
+        error?.response?.data?.message || "Login failed. Please try again.",
       );
       throw error;
     }
@@ -75,12 +92,44 @@ export const AuthContextProvider = ({ children }) => {
     try {
       const response = await signup(data);
       toast.success(
-        response?.data?.message || "OTP verification code has been sent to your email."
+        response?.data?.message ||
+          "OTP verification code has been sent to your email.",
       );
       return response.data.data;
     } catch (error) {
       toast.error(
-        error?.response?.data?.message || "Signup failed. Please try again."
+        error?.response?.data?.message || "Signup failed. Please try again.",
+      );
+      throw error;
+    }
+  };
+
+  const applyProvider = async (data) => {
+    try {
+      const response = await applyProvider(data);
+      toast.success(
+        response?.data?.message ||
+          "Hồ sơ của bạn đã được gửi. Vui lòng chờ quản trị viên xác nhận.",
+      );
+      return response.data.data;
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message ||
+          "Gửi hồ sơ thất bại. Vui lòng thử lại.",
+      );
+      throw error;
+    }
+  };
+
+  const updateFirstJoinPassword = async (payload) => {
+    try {
+      const response = await firstJoinPassword(payload);
+      toast.success(response?.data?.message || "Mật khẩu đã được cập nhật.");
+      navigate("/provider");
+      return response.data.data;
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Cập nhật mật khẩu thất bại.",
       );
       throw error;
     }
@@ -95,7 +144,8 @@ export const AuthContextProvider = ({ children }) => {
       return response.data.data;
     } catch (error) {
       toast.error(
-        error?.response?.data?.message || "OTP verification failed. Please try again."
+        error?.response?.data?.message ||
+          "OTP verification failed. Please try again.",
       );
       throw error;
     }
@@ -108,7 +158,8 @@ export const AuthContextProvider = ({ children }) => {
       return response.data.data;
     } catch (error) {
       toast.error(
-        error?.response?.data?.message || "Unable to resend OTP. Please try again."
+        error?.response?.data?.message ||
+          "Unable to resend OTP. Please try again.",
       );
       throw error;
     }
@@ -121,7 +172,8 @@ export const AuthContextProvider = ({ children }) => {
       return response.data.data;
     } catch (error) {
       toast.error(
-        error?.response?.data?.message || "Unable to send reset OTP. Please try again."
+        error?.response?.data?.message ||
+          "Unable to send reset OTP. Please try again.",
       );
       throw error;
     }
@@ -133,9 +185,7 @@ export const AuthContextProvider = ({ children }) => {
       toast.success(response?.data?.message || "OTP is valid.");
       return response.data.data;
     } catch (error) {
-      toast.error(
-        error?.response?.data?.message || "Reset OTP is invalid."
-      );
+      toast.error(error?.response?.data?.message || "Reset OTP is invalid.");
       throw error;
     }
   };
@@ -148,7 +198,8 @@ export const AuthContextProvider = ({ children }) => {
       return response.data.data;
     } catch (error) {
       toast.error(
-        error?.response?.data?.message || "Password reset failed. Please try again."
+        error?.response?.data?.message ||
+          "Password reset failed. Please try again.",
       );
       throw error;
     }
@@ -163,7 +214,7 @@ export const AuthContextProvider = ({ children }) => {
       navigate("/");
     } catch (error) {
       toast.error(
-        error?.response?.data?.message || "Logout failed. Please try again."
+        error?.response?.data?.message || "Logout failed. Please try again.",
       );
     }
   };
@@ -176,6 +227,8 @@ export const AuthContextProvider = ({ children }) => {
         logOutContext,
         loginUser,
         signUpUser,
+        applyProvider,
+        updateFirstJoinPassword,
         verifyEmailOtpAndLogin,
         resendEmailOtp,
         requestPasswordReset,
