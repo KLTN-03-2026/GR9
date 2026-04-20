@@ -16,11 +16,9 @@ function PlannerVisuals({ itinerary, location }) {
     if (!location) {
       return;
     }
-
     setMapCenter(location);
     setMapZoom(focusedZoom);
   }, [location]);
-
   if (!itinerary) {
     return null;
   }
