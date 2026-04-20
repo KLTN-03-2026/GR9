@@ -4,6 +4,7 @@ import PlannerResultHeader from "./PlannerResultHeader";
 import PlannerSidebar from "./PlannerSidebar";
 import PlannerVisuals from "./PlannerVisuals";
 import { callAi } from "@/services/api/ai";
+import { geocodeAddress } from "@/services/api/location";
 
 const extractJson = (text) => {
   if (!text || typeof text !== "string") {
@@ -100,22 +101,18 @@ export default function AITravelPlanner() {
   };
 
   const handleGetLatLng = async (address) => {
-    const res = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
-        address,
-      )}&key=${import.meta.env.VITE_MAP_API_KEY}`,
-    );
-
-    const data = await res.json();
-
-    if (data.results && data.results.length > 0) {
-      const { lat, lng } = data.results[0].geometry.location;
+    try {
+      const response = await geocodeAddress(address);
+      const { lat, lng } = response.data.data;
 
       setLocation({ lat, lng });
-
-      console.log("LAT LNG:", lat, lng);
+      console.log("LAT LNG:", location);
+    } catch (error) {
+      console.log(error);
     }
   };
+
+
   return (
     <div>
       <div className="flex h-screen pt-16">
