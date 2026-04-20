@@ -10,6 +10,7 @@ import guideRoute from "./routes/guide.route.js";
 import tourRouter from "./routes/tour.route.js";
 import serviceRoute from "./routes/service.route.js";
 import aiRoute from "./routes/ai.route.js";
+import locationRoute from "./routes/location.route.js";
 dotenv.config();
 
 connectDB();
@@ -38,6 +39,7 @@ app.use("/api/guide", guideRoute);
 app.use("/api/tours", tourRouter);
 app.use("/api/services", serviceRoute);
 app.use("/api/ai", aiRoute);
+app.use("/api/location", locationRoute);
 
 const PORT = process.env.PORT || 3000;
 
