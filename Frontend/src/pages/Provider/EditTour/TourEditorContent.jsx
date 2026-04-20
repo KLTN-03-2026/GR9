@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   BedDouble,
   CarFront,
@@ -21,102 +20,24 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
 
-const itinerarySections = [
-  {
-    key: "morning",
-    label: "Morning",
-    icon: Sun,
-    iconClass: "text-amber-600",
-    titlePlaceholder: "Activity title, e.g. Sunrise Coffee & Briefing",
-    descPlaceholder: "Describe the experience in detail...",
-    imageLabel: "Morning Photo",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuA0z8jmfb6DMwraRTBU-YRFgovPYeQE_UB9LLSSxZokly9VWq1gLx8BsM29hSfxpWsD99f3W12gVlkWMdD2O69eWzybMKV4_a2dlQrIuVQvXG9YrG6shMkgSP_J8kDR4MjxHSSyvipKrBK4QayqZCyLF_Yp9inCMhze9zZYSJ1c3_VKx7V5XcI94jpclNxW5N7vkfnYb6uJBPSZUfwNni7FW58FSBKiHBpMgwTOtuDEbN-zAKfFgV846-rHGfl_9ig9Krteoi_DQKxc",
-  },
-  {
-    key: "midday",
-    label: "Midday",
-    icon: UtensilsCrossed,
-    iconClass: "text-primary",
-    titlePlaceholder: "Lunch location or theme",
-    descPlaceholder: "Menu highlights or activity details...",
-    imageLabel: "Lunch Image",
-  },
-  {
-    key: "afternoon",
-    label: "Afternoon",
-    icon: Mountain,
-    iconClass: "text-slate-600",
-    titlePlaceholder: "Main adventure of the day",
-    descPlaceholder: "Physical intensity, sights, and hidden gems...",
-    imageLabel: "Afternoon Image",
-  },
-];
-
-const includedOptions = [
-  { id: "meals", label: "All Meals", checked: true },
-  { id: "fees", label: "Entry Fees", checked: true },
-  { id: "pickup", label: "Airport Pick-up", checked: false },
-  { id: "equipment", label: "Equipment Hire", checked: false },
-];
-
-const hotelOptions = [
-  {
-    id: "grand-hotel",
-    name: "Grand Hotel Ambasciatori",
-    meta: "5 Stars · Selected",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBhgnk6Cwn_tY-me5K7_lE9AAwEKzjqkIwMBuMR2GYI51g7BCci6QkA_mEWyhcPU9fgw2ENrpst5koPeZfifIhLe5leajOsuPQ2zogsmOPUejjLoWjXko0-REHhO0Q_oJUF3xdyA4Wp6uzgsJOeFoU1URUioeB8GUpILatjWvz7nAt8mHsAiHGBz126KGKEgDhmeMgZuiu-HuVuhGVfP5ck35b7kGjRg4CiL9UJfWZ0r4m8CSBRY1F-mSuaMhptCKEucvVwvgpThYr4",
-  },
-];
-
-const guideOptions = [
-  "Marco Rossi (Senior Italian Guide)",
-  "Elena Vitucci (Art Historian)",
-  "Luca Moretti (Trekking Expert)",
-  "Assign Later",
-];
-
-export default function TourEditorContent({ mode = "page", onCancel }) {
-  const [difficulty, setDifficulty] = useState("easy");
-  const [guide, setGuide] = useState(guideOptions[0]);
-  const [transport, setTransport] = useState("private-van");
-  const [included, setIncluded] = useState(
-    includedOptions.reduce((acc, item) => {
-      acc[item.id] = item.checked;
-      return acc;
-    }, {}),
-  );
-
-  const isDialog = mode === "dialog";
-
+export default function TourEditorContent() {
   return (
-    <div className={cn("space-y-10 text-on-surface", isDialog && "space-y-8")}>
+    <div className="space-y-10 text-on-surface">
       <section className="relative overflow-hidden rounded-[2rem] bg-[radial-gradient(circle_at_top_left,_rgba(0,131,120,0.18),_transparent_38%),linear-gradient(135deg,_#ffffff,_#eef7f5)] p-6 shadow-[0_20px_50px_rgba(15,23,42,0.06)] ring-1 ring-slate-200/70 md:p-8">
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            {!isDialog ? (
-              <nav
-                aria-label="Breadcrumb"
-                className="mb-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant"
-              >
-                <span>Tours</span>
-                <ChevronRight className="size-3.5" />
-                <span>Manage Tours</span>
-                <ChevronRight className="size-3.5" />
-                <span className="text-primary">Create New Tour</span>
-              </nav>
-            ) : null}
+            <nav
+              aria-label="Breadcrumb"
+              className="mb-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant"
+            >
+              <span>Tours</span>
+              <ChevronRight className="size-3.5" />
+              <span>Manage Tours</span>
+              <ChevronRight className="size-3.5" />
+              <span className="text-primary">Create New Tour</span>
+            </nav>
 
             <h1 className="font-headline text-4xl font-extrabold tracking-tight text-on-surface md:text-5xl">
               Craft Your Experience
@@ -128,29 +49,18 @@ export default function TourEditorContent({ mode = "page", onCancel }) {
             </p>
 
             <div className="mt-5 flex flex-wrap gap-2">
-              <Badge className="rounded-full bg-primary/50 px-3 py-1 text-primary"></Badge>
-              <Badge className="rounded-full bg-tertiary/50 px-3 py-1 text-tertiary"></Badge>
+              <Badge className="rounded-full bg-primary/50 px-3 py-1 text-primary" />
+              <Badge className="rounded-full bg-tertiary/50 px-3 py-1 text-tertiary" />
             </div>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            {isDialog ? (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                className="h-12 rounded-2xl border-outline-variant/30 bg-white px-6 font-semibold text-slate-600"
-              >
-                Cancel
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                className="h-12 rounded-2xl border-outline-variant/30 bg-white px-6 font-semibold text-slate-600"
-              >
-                Save Draft
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              className="h-12 rounded-2xl border-outline-variant/30 bg-white px-6 font-semibold text-slate-600"
+            >
+              Save Draft
+            </Button>
             <Button className="h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-container px-8 font-bold text-on-primary shadow-lg shadow-primary/15">
               Publish Tour
             </Button>
@@ -158,7 +68,7 @@ export default function TourEditorContent({ mode = "page", onCancel }) {
         </div>
       </section>
 
-      <form className="space-y-10" aria-label="Edit tour form">
+      <div className="space-y-10" aria-label="Edit tour form">
         <Card className="rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
           <CardHeader className="px-6 pt-6">
             <CardTitle className="font-headline text-2xl font-bold">
@@ -239,16 +149,9 @@ export default function TourEditorContent({ mode = "page", onCancel }) {
               <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
                 Difficulty Level
               </label>
-              <Select value={difficulty} onValueChange={setDifficulty}>
-                <SelectTrigger className="h-12 w-full rounded-xl border-outline-variant/20 bg-surface-container-low px-4">
-                  <SelectValue placeholder="Select difficulty" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="easy">Easy</SelectItem>
-                  <SelectItem value="moderate">Moderate</SelectItem>
-                  <SelectItem value="challenging">Challenging</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex h-12 items-center rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 text-sm font-semibold text-on-surface">
+                Easy
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -307,60 +210,103 @@ export default function TourEditorContent({ mode = "page", onCancel }) {
             </div>
 
             <CardContent className="space-y-8 p-6">
-              {itinerarySections.map((section, index) => {
-                const Icon = section.icon;
-
-                return (
-                  <div
-                    key={section.key}
-                    className={cn(
-                      "grid grid-cols-1 gap-6 lg:grid-cols-3",
-                      index > 0 && "border-t border-slate-100 pt-8",
-                    )}
-                  >
-                    <button
-                      type="button"
-                      className="group relative aspect-[4/3] overflow-hidden rounded-[1.5rem] border-2 border-dashed border-slate-200 bg-slate-100 transition-all hover:border-primary/30 hover:bg-slate-200"
-                    >
-                      {section.image ? (
-                        <img
-                          src={section.image}
-                          alt={section.imageLabel}
-                          className="absolute inset-0 h-full w-full object-cover opacity-45 transition-transform duration-300 group-hover:scale-105"
-                        />
-                      ) : null}
-                      <div className="relative z-10 flex h-full flex-col items-center justify-center gap-2 p-4">
-                        <ImagePlus className="size-5 text-slate-500" />
-                        <p className="text-center text-xs font-bold uppercase tracking-[0.24em] text-slate-600">
-                          {section.imageLabel}
-                        </p>
-                      </div>
-                    </button>
-
-                    <div className="space-y-4 lg:col-span-2">
-                      <div
-                        className={cn(
-                          "flex items-center gap-2 text-xs font-bold uppercase tracking-[0.24em]",
-                          section.iconClass,
-                        )}
-                      >
-                        <Icon className="size-4" />
-                        {section.label}
-                      </div>
-
-                      <Input
-                        type="text"
-                        placeholder={section.titlePlaceholder}
-                        className="h-12 rounded-xl border-none bg-surface-container-low px-4"
-                      />
-                      <Textarea
-                        placeholder={section.descPlaceholder}
-                        className="min-h-28 rounded-xl border-none bg-surface-container-low px-4 py-3"
-                      />
-                    </div>
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <button
+                  type="button"
+                  className="group relative aspect-[4/3] overflow-hidden rounded-[1.5rem] border-2 border-dashed border-slate-200 bg-slate-100 transition-all hover:border-primary/30 hover:bg-slate-200"
+                >
+                  <img
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0z8jmfb6DMwraRTBU-YRFgovPYeQE_UB9LLSSxZokly9VWq1gLx8BsM29hSfxpWsD99f3W12gVlkWMdD2O69eWzybMKV4_a2dlQrIuVQvXG9YrG6shMkgSP_J8kDR4MjxHSSyvipKrBK4QayqZCyLF_Yp9inCMhze9zZYSJ1c3_VKx7V5XcI94jpclNxW5N7vkfnYb6uJBPSZUfwNni7FW58FSBKiHBpMgwTOtuDEbN-zAKfFgV846-rHGfl_9ig9Krteoi_DQKxc"
+                    alt="Morning Photo"
+                    className="absolute inset-0 h-full w-full object-cover opacity-45 transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="relative z-10 flex h-full flex-col items-center justify-center gap-2 p-4">
+                    <ImagePlus className="size-5 text-slate-500" />
+                    <p className="text-center text-xs font-bold uppercase tracking-[0.24em] text-slate-600">
+                      Morning Photo
+                    </p>
                   </div>
-                );
-              })}
+                </button>
+
+                <div className="space-y-4 lg:col-span-2">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.24em] text-amber-600">
+                    <Sun className="size-4" />
+                    Morning
+                  </div>
+
+                  <Input
+                    type="text"
+                    placeholder="Activity title, e.g. Sunrise Coffee & Briefing"
+                    className="h-12 rounded-xl border-none bg-surface-container-low px-4"
+                  />
+                  <Textarea
+                    placeholder="Describe the experience in detail..."
+                    className="min-h-28 rounded-xl border-none bg-surface-container-low px-4 py-3"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 border-t border-slate-100 pt-8 lg:grid-cols-3">
+                <button
+                  type="button"
+                  className="group relative aspect-[4/3] overflow-hidden rounded-[1.5rem] border-2 border-dashed border-slate-200 bg-slate-100 transition-all hover:border-primary/30 hover:bg-slate-200"
+                >
+                  <div className="relative z-10 flex h-full flex-col items-center justify-center gap-2 p-4">
+                    <ImagePlus className="size-5 text-slate-500" />
+                    <p className="text-center text-xs font-bold uppercase tracking-[0.24em] text-slate-600">
+                      Lunch Image
+                    </p>
+                  </div>
+                </button>
+
+                <div className="space-y-4 lg:col-span-2">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.24em] text-primary">
+                    <UtensilsCrossed className="size-4" />
+                    Midday
+                  </div>
+
+                  <Input
+                    type="text"
+                    placeholder="Lunch location or theme"
+                    className="h-12 rounded-xl border-none bg-surface-container-low px-4"
+                  />
+                  <Textarea
+                    placeholder="Menu highlights or activity details..."
+                    className="min-h-28 rounded-xl border-none bg-surface-container-low px-4 py-3"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 border-t border-slate-100 pt-8 lg:grid-cols-3">
+                <button
+                  type="button"
+                  className="group relative aspect-[4/3] overflow-hidden rounded-[1.5rem] border-2 border-dashed border-slate-200 bg-slate-100 transition-all hover:border-primary/30 hover:bg-slate-200"
+                >
+                  <div className="relative z-10 flex h-full flex-col items-center justify-center gap-2 p-4">
+                    <ImagePlus className="size-5 text-slate-500" />
+                    <p className="text-center text-xs font-bold uppercase tracking-[0.24em] text-slate-600">
+                      Afternoon Image
+                    </p>
+                  </div>
+                </button>
+
+                <div className="space-y-4 lg:col-span-2">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.24em] text-slate-600">
+                    <Mountain className="size-4" />
+                    Afternoon
+                  </div>
+
+                  <Input
+                    type="text"
+                    placeholder="Main adventure of the day"
+                    className="h-12 rounded-xl border-none bg-surface-container-low px-4"
+                  />
+                  <Textarea
+                    placeholder="Physical intensity, sights, and hidden gems..."
+                    className="min-h-28 rounded-xl border-none bg-surface-container-low px-4 py-3"
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </section>
@@ -389,26 +335,21 @@ export default function TourEditorContent({ mode = "page", onCancel }) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 px-6 pb-6">
-                {hotelOptions.map((hotel) => (
-                  <div
-                    key={hotel.id}
-                    className="flex items-center gap-3 rounded-2xl border border-primary/15 bg-surface-container-low p-3"
-                  >
-                    <img
-                      src={hotel.image}
-                      alt={hotel.name}
-                      className="h-14 w-14 rounded-xl object-cover"
-                    />
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-bold text-on-surface">
-                        {hotel.name}
-                      </p>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500">
-                        {hotel.meta}
-                      </p>
-                    </div>
+                <div className="flex items-center gap-3 rounded-2xl border border-primary/15 bg-surface-container-low p-3">
+                  <img
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhgnk6Cwn_tY-me5K7_lE9AAwEKzjqkIwMBuMR2GYI51g7BCci6QkA_mEWyhcPU9fgw2ENrpst5koPeZfifIhLe5leajOsuPQ2zogsmOPUejjLoWjXko0-REHhO0Q_oJUF3xdyA4Wp6uzgsJOeFoU1URUioeB8GUpILatjWvz7nAt8mHsAiHGBz126KGKEgDhmeMgZuiu-HuVuhGVfP5ck35b7kGjRg4CiL9UJfWZ0r4m8CSBRY1F-mSuaMhptCKEucvVwvgpThYr4"
+                    alt="Grand Hotel Ambasciatori"
+                    className="h-14 w-14 rounded-xl object-cover"
+                  />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-on-surface">
+                      Grand Hotel Ambasciatori
+                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500">
+                      5 Stars · Selected
+                    </p>
                   </div>
-                ))}
+                </div>
 
                 <Button
                   type="button"
@@ -428,33 +369,15 @@ export default function TourEditorContent({ mode = "page", onCancel }) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-3 px-6 pb-6">
-                <button
-                  type="button"
-                  onClick={() => setTransport("private-van")}
-                  className={cn(
-                    "flex flex-col items-center justify-center gap-2 rounded-[1.25rem] p-4 text-sm font-bold transition-all",
-                    transport === "private-van"
-                      ? "bg-primary-container text-on-primary-container shadow-md"
-                      : "bg-surface-container-low text-slate-600 hover:bg-slate-200",
-                  )}
-                >
+                <div className="flex flex-col items-center justify-center gap-2 rounded-[1.25rem] bg-primary-container p-4 text-sm font-bold text-on-primary-container shadow-md">
                   <CarFront className="size-5" />
                   <span>Private Van</span>
-                </button>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => setTransport("speedboat")}
-                  className={cn(
-                    "flex flex-col items-center justify-center gap-2 rounded-[1.25rem] p-4 text-sm font-bold transition-all",
-                    transport === "speedboat"
-                      ? "bg-primary-container text-on-primary-container shadow-md"
-                      : "bg-surface-container-low text-slate-600 hover:bg-slate-200",
-                  )}
-                >
+                <div className="flex flex-col items-center justify-center gap-2 rounded-[1.25rem] bg-surface-container-low p-4 text-sm font-bold text-slate-600">
                   <Sailboat className="size-5" />
                   <span>Speedboat</span>
-                </button>
+                </div>
               </CardContent>
             </Card>
 
@@ -465,18 +388,9 @@ export default function TourEditorContent({ mode = "page", onCancel }) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 px-6 pb-6">
-                <Select value={guide} onValueChange={setGuide}>
-                  <SelectTrigger className="h-12 w-full rounded-xl border-none bg-surface-container-low px-4 text-sm font-semibold">
-                    <SelectValue placeholder="Select guide" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {guideOptions.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex h-12 items-center rounded-xl bg-surface-container-low px-4 text-sm font-semibold text-on-surface">
+                  Marco Rossi (Senior Italian Guide)
+                </div>
 
                 <div className="flex items-start gap-3 rounded-2xl bg-tertiary-container/8 p-4">
                   <ShieldCheck className="mt-0.5 size-4 shrink-0 text-tertiary" />
@@ -505,23 +419,25 @@ export default function TourEditorContent({ mode = "page", onCancel }) {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              {includedOptions.map((item) => (
-                <label
-                  key={item.id}
-                  className="flex cursor-pointer items-center gap-3 rounded-full bg-surface-container-lowest px-4 py-3 shadow-sm transition-all hover:bg-white"
-                >
-                  <Checkbox
-                    checked={included[item.id]}
-                    onCheckedChange={(checked) =>
-                      setIncluded((current) => ({
-                        ...current,
-                        [item.id]: Boolean(checked),
-                      }))
-                    }
-                  />
-                  <span className="text-sm font-semibold">{item.label}</span>
-                </label>
-              ))}
+              <label className="flex items-center gap-3 rounded-full bg-surface-container-lowest px-4 py-3 shadow-sm">
+                <Checkbox checked />
+                <span className="text-sm font-semibold">All Meals</span>
+              </label>
+
+              <label className="flex items-center gap-3 rounded-full bg-surface-container-lowest px-4 py-3 shadow-sm">
+                <Checkbox checked />
+                <span className="text-sm font-semibold">Entry Fees</span>
+              </label>
+
+              <label className="flex items-center gap-3 rounded-full bg-surface-container-lowest px-4 py-3 shadow-sm">
+                <Checkbox />
+                <span className="text-sm font-semibold">Airport Pick-up</span>
+              </label>
+
+              <label className="flex items-center gap-3 rounded-full bg-surface-container-lowest px-4 py-3 shadow-sm">
+                <Checkbox />
+                <span className="text-sm font-semibold">Equipment Hire</span>
+              </label>
 
               <Button
                 type="button"
@@ -540,14 +456,13 @@ export default function TourEditorContent({ mode = "page", onCancel }) {
           </Button>
           <Button
             type="button"
-            onClick={isDialog ? onCancel : undefined}
             variant="outline"
             className="h-12 rounded-2xl border-slate-200 bg-white font-bold text-slate-600"
           >
-            {isDialog ? "Cancel" : "Save Draft"}
+            Save Draft
           </Button>
         </div>
-      </form>
+      </div>
     </div>
   );
 }
