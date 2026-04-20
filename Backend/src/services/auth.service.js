@@ -1,5 +1,4 @@
 import User from "../models/user.model.js";
-import Image from "../models/image.model.js";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { generateToken } from "../utils/generateToken.js";
@@ -91,74 +90,6 @@ const assignResetPasswordOtp = (user) => {
     RESET_PASSWORD_EXPIRES_MINUTES,
   );
   return otp;
-};
-
-export const applyProvider = async (data, file, req) => {
-  const email = normalizeEmail(data.email);
-  const fullName = String(data.fullName || "").trim();
-  const phone = String(data.phone || "").trim();
-  const gender = String(data.gender || "OTHER").toUpperCase();
-  const address = String(data.address || "").trim();
-
-  if (!fullName || !email) {
-    throw throwError(
-      "Tên đầy đủ và email là bắt buộc",
-      400,
-      "MISSING_REQUIRED_FIELDS",
-    );
-  }
-
-  const existingUser = await User.findOne({ email });
-  if (
-    existingUser &&
-    existingUser.role === "PROVIDER" &&
-    existingUser.isActive
-  ) {
-    throw throwError(
-      "Email đã được sử dụng bởi một đối tác đã được kích hoạt",
-      409,
-      "EMAIL_ALREADY_EXISTS",
-    );
-  }
-  if (
-    existingUser &&
-    existingUser.role !== "PROVIDER" &&
-    existingUser.isActive
-  ) {
-    throw throwError("Email đã được sử dụng", 409, "EMAIL_ALREADY_EXISTS");
-  }
-
-  const user = existingUser || new User();
-  user.email = email;
-  user.fullName = fullName;
-  user.phone = phone;
-  user.gender = ["MALE", "FEMALE", "OTHER"].includes(gender) ? gender : "OTHER";
-  user.address = address;
-  user.role = "PROVIDER";
-  user.authType = "LOCAL";
-  user.isActive = false;
-  user.firstJoin = true;
-  user.emailVerifiedAt = null;
-  user.password = null;
-
-  await user.save();
-
-  if (file) {
-    const baseUrl = `${req.protocol}://${req.get("host")}`;
-    const imageUrl = `${baseUrl}/uploads/providers/${file.filename}`;
-
-    await Image.create({
-      entityType: "PROVIDER",
-      entityId: user._id,
-      imageUrl,
-      description: file.originalname,
-    });
-  }
-
-  return {
-    message: "Hồ sơ đối tác đã được gửi. Vui lòng chờ quản trị viên xác nhận.",
-    email: user.email,
-  };
 };
 
 export const setFirstJoinPassword = async (
