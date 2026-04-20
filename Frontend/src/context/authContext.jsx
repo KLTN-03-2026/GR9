@@ -1,6 +1,5 @@
 import { createContext, useState } from "react";
 import {
-  applyProvider,
   firstJoinPassword,
   forgotPassword,
   googleLogin,
@@ -12,6 +11,7 @@ import {
   verifyEmailOtp,
   verifyResetPasswordOtp,
 } from "../services/api/auth";
+import { applyProvider } from "../services/api/provider";
 import { useNavigate } from "react-router-dom";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/firebase";

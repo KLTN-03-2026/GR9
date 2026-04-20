@@ -4,7 +4,7 @@ import {
   getProviderApplications,
   approveProviderApplication,
   rejectProviderApplication,
-} from "@/services/api/auth";
+} from "@/services/api/provider";
 
 import toast from "react-hot-toast";
 import { Progress } from "@/components/ui/progress";
