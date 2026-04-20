@@ -16,7 +16,7 @@ import {
   MapPin,
   UploadCloud,
 } from "lucide-react";
-import { applyProvider } from "@/services/api/auth";
+import { applyProvider } from "@/services/api/provider";
 import toast from "react-hot-toast";
 import InfomationCard from "./InfomationCard";
 import SubmissionWaiting from "./SubmissionWaiting";
