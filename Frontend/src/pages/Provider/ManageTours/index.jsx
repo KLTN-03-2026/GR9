@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import DialogCreateTour from "./DialogCreateTour";
 
 const stats = [
   {
@@ -146,6 +147,7 @@ export default function ManageTours() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("latest");
+  const [createOpen, setCreateOpen] = useState(false);
 
   const filteredTours = tours
     .filter((tour) => {
@@ -202,7 +204,10 @@ export default function ManageTours() {
               </div>
             </div>
 
-            <Button className="h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-container px-6 font-headline text-sm font-bold text-on-primary shadow-lg shadow-primary/15">
+            <Button
+              onClick={() => setCreateOpen(true)}
+              className="h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-container px-6 font-headline text-sm font-bold text-on-primary shadow-lg shadow-primary/15"
+            >
               <Plus className="size-4" />
               Create Tour
             </Button>
@@ -454,6 +459,8 @@ export default function ManageTours() {
           </div>
         </CardContent>
       </Card>
+
+      <DialogCreateTour open={createOpen} onOpenChange={setCreateOpen} />
     </div>
   );
 }
