@@ -1,5 +1,5 @@
 import express from "express";
-import { protect } from "../middlewares/auth.middleware.js";
+import { authorize, protect } from "../middlewares/auth.middleware.js";
 import {
   createGuideController,
   deleteGuideByIdController,
@@ -8,11 +8,11 @@ import {
   updateGuideByIdController,
 } from "../controllers/guide.controller.js";
 const router = express.Router();
-
-router.post("/", protect, createGuideController);
-router.get("/", protect, getGuidesController);
-router.get("/:id", protect, getGuideByIdController);
-router.put("/:id", protect, updateGuideByIdController);
-router.delete("/:id", protect, deleteGuideByIdController);
+router.use(protect, authorize("GUIDE"));
+router.post("/", createGuideController);
+router.get("/", getGuidesController);
+router.get("/:id", getGuideByIdController);
+router.put("/:id", updateGuideByIdController);
+router.delete("/:id", deleteGuideByIdController);
 
 export default router;
