@@ -11,9 +11,10 @@ import { Button } from "@/components/ui/button";
 const typeLabels = {
   HOTEL: "Accommodation",
   TRANSPORT: "Transport",
-  FOOD: "Dining",
-  ATTRACTION_TICKET: "Attraction",
-  TOUR_GUIDE: "Guide",
+  RESTAURANT: "Restaurant",
+  ACTIVITY: "Activity",
+  FOOD: "Food",
+  ATTRACTION_TICKET: "Attraction Ticket",
   COMBO: "Combo",
   OTHER: "Other",
 };

@@ -57,9 +57,10 @@ export const signUpController = async (req, res) => {
 
 export const setFirstJoinPasswordController = async (req, res) => {
   try {
-    const { password, confirmPassword } = req.body;
+    const { currentPassword, password, confirmPassword } = req.body;
     const result = await setFirstJoinPassword(
       req.user._id,
+      currentPassword,
       password,
       confirmPassword,
     );

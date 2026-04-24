@@ -1,12 +1,8 @@
 import { useContext, useState } from "react";
+import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,23 +21,47 @@ const roleMeta = {
   },
 };
 
-function LoginForm({ role }) {
-  const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { loginUser } = useContext(AuthContext);
+function LoginForm({
+  role,
+  email,
+  password,
+  setEmail,
+  setPassword,
+  showPassword,
+  setShowPassword,
+  loading,
+  onSubmit,
+}) {
   const currentRole = roleMeta[role];
 
-  const handleSignIn = async () => {
-    try {
-      setLoading(true);
-      await loginUser(email, password);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Validate email and password
+    const trimmedEmail = email?.trim() || "";
+    const trimmedPassword = password?.trim() || "";
+
+    if (!trimmedEmail) {
+      toast.error("Email is required");
+      return;
     }
+
+    if (!trimmedEmail.includes("@")) {
+      toast.error("Please enter a valid email");
+      return;
+    }
+
+    if (!trimmedPassword) {
+      toast.error("Password is required");
+      return;
+    }
+
+    if (trimmedPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    onSubmit(trimmedEmail, trimmedPassword);
   };
 
   return (
@@ -53,7 +73,7 @@ function LoginForm({ role }) {
         <p className="text-on-surface-variant">{currentRole.description}</p>
       </div>
 
-      <form className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <Label className="ml-1 block text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
             Access Role
@@ -86,8 +106,11 @@ function LoginForm({ role }) {
             <Input
               id={`email-${role}`}
               type="email"
+              value={email || ""}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="name@voyager.ai"
               className="h-14 rounded-xl border-transparent bg-surface-container-low pl-12 pr-4 text-on-surface placeholder:text-outline-variant focus-visible:border-primary focus-visible:ring-primary/10"
+              disabled={loading}
             />
           </div>
         </div>
@@ -116,14 +139,18 @@ function LoginForm({ role }) {
             <Input
               id={`password-${role}`}
               type={showPassword ? "text" : "password"}
+              value={password || ""}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               className="h-14 rounded-xl border-transparent bg-surface-container-low pl-12 pr-12 text-on-surface placeholder:text-outline-variant focus-visible:border-primary focus-visible:ring-primary/10"
+              disabled={loading}
             />
             <Button
               type="button"
               variant="ghost"
               size="icon-sm"
               onClick={() => setShowPassword((value) => !value)}
+              disabled={loading}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:bg-transparent hover:text-primary"
             >
               <span className="material-symbols-outlined">
@@ -134,10 +161,9 @@ function LoginForm({ role }) {
         </div>
 
         <Button
-          type="button"
-          onClick={handleSignIn}
+          type="submit"
           disabled={loading}
-          className="h-14 w-full rounded-xl bg-gradient-to-r from-primary to-primary-container px-6 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98]"
+          className="h-14 w-full rounded-xl bg-gradient-to-r from-primary to-primary-container px-6 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] disabled:opacity-50"
         >
           <span>{loading ? "Signing In..." : "Sign In"}</span>
           <span className="material-symbols-outlined text-sm">
@@ -162,6 +188,24 @@ function LoginForm({ role }) {
 }
 
 export default function ProviderAndAdminLogin() {
+  const [activeRole, setActiveRole] = useState("provider");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { loginUser } = useContext(AuthContext);
+
+  const handleSignIn = async (trimmedEmail, trimmedPassword) => {
+    try {
+      setLoading(true);
+      await loginUser(trimmedEmail, trimmedPassword);
+    } catch (error) {
+      console.error("Login error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div>
       <main className="relative flex flex-grow items-center justify-center overflow-hidden px-4 py-12 min-h-screen">
@@ -214,9 +258,33 @@ export default function ProviderAndAdminLogin() {
           </div>
 
           <CardContent className="w-full p-8 md:w-1/2 md:p-16">
-            <Tabs defaultValue="provider" className="w-full">
-              <LoginForm role="provider" />
-              <LoginForm role="admin" />
+            <Tabs
+              value={activeRole}
+              onValueChange={setActiveRole}
+              className="w-full"
+            >
+              <LoginForm
+                role="provider"
+                email={email}
+                password={password}
+                setEmail={setEmail}
+                setPassword={setPassword}
+                showPassword={showPassword}
+                setShowPassword={setShowPassword}
+                loading={loading}
+                onSubmit={handleSignIn}
+              />
+              <LoginForm
+                role="admin"
+                email={email}
+                password={password}
+                setEmail={setEmail}
+                setPassword={setPassword}
+                showPassword={showPassword}
+                setShowPassword={setShowPassword}
+                loading={loading}
+                onSubmit={handleSignIn}
+              />
             </Tabs>
           </CardContent>
         </Card>
