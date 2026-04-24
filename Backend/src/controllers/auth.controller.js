@@ -36,8 +36,8 @@ export const googleLoginController = async (req, res) => {
 
 export const loginUserController = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await loginUser(email, password);
+    const { email, password, role } = req.body;
+    const user = await loginUser(email, password, role);
     res.cookie("refreshToken", user.refreshToken, COOKIE_OPTIONS);
     const { refreshToken, ...safeUser } = user;
     return success(res, "User logged in successfully", safeUser, 201);

@@ -4,10 +4,23 @@ import ManageToursStats from "./ManageToursStats";
 import ManageToursTable from "./ManageToursTable";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getServices } from "@/services/api/service";
 
 export default function ManageTours() {
-  const [open,setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [services, setServices] = useState([]);
+  const fetchServices = async () => {
+    try {
+      const response = await getServices();
+      setServices(response?.data?.data || []);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    fetchServices();
+  }, []);
   const handleOpenDialog = () => setOpen(!open);
   return (
     <div className="space-y-8 text-on-surface">
@@ -61,7 +74,7 @@ export default function ManageTours() {
       </section>
       <ManageToursStats />
       <ManageToursTable />
-      <DialogCreateTour open={open} onOpenChange={setOpen} />
+      <DialogCreateTour open={open} onOpenChange={setOpen} services={services}/>
     </div>
   );
 }
