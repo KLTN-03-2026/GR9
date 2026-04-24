@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import toast from "react-hot-toast";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs } from "@/components/ui/tabs";
 =======
@@ -15,6 +16,13 @@ import AuthContext from "@/context/authContext";
 import LoginForm from "./LoginForm";
 
 <<<<<<< HEAD
+=======
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs } from "@/components/ui/tabs";
+import AuthContext from "@/context/authContext";
+import LoginForm from "./LoginForm";
+
+>>>>>>> bc5fb87e8b9a97824290b0b453bfc98c387007a8
 export default function ProviderAndAdminLogin() {
   const [activeRole, setActiveRole] = useState("provider");
   const [email, setEmail] = useState("");
@@ -31,6 +39,7 @@ export default function ProviderAndAdminLogin() {
       console.error("Login error:", error);
     } finally {
       setLoading(false);
+<<<<<<< HEAD
 =======
 const roleMeta = {
   provider: {
@@ -84,12 +93,15 @@ function LoginForm({
     if (trimmedPassword.length < 6) {
       toast.error("Password must be at least 6 characters");
       return;
+=======
+>>>>>>> bc5fb87e8b9a97824290b0b453bfc98c387007a8
     }
 
     onSubmit(trimmedEmail, trimmedPassword);
   };
 
   return (
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     <TabsContent value={role} className="mt-0">
@@ -235,6 +247,8 @@ export default function ProviderAndAdminLogin() {
 
   return (
 >>>>>>> 899ec63ae2a1e700d3cf0655197af36bfc4e1b24
+=======
+>>>>>>> bc5fb87e8b9a97824290b0b453bfc98c387007a8
     <div>
       <main className="relative flex flex-grow items-center justify-center overflow-hidden px-4 py-12 min-h-screen">
         <div className="absolute right-[-5%] top-[-10%] h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
