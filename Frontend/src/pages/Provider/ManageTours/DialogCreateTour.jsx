@@ -14,14 +14,12 @@ import {
   BedDouble,
   CarFront,
   CirclePlus,
+  Clock,
   ConciergeBell,
   ImagePlus,
-  Mountain,
-  Sailboat,
   ShieldCheck,
   Sparkles,
-  Sun,
-  UtensilsCrossed,
+  Trash2,
   WandSparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,11 +33,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function DialogCreateTour({ open, onOpenChange }) {
+export default function DialogCreateTour({ open, onOpenChange, services }) {
   const [days, setDays] = useState([{ activities: [1] }]);
 
   const handleAddDay = () => {
     setDays((currentDays) => [...currentDays, { activities: [1] }]);
+  };
+
+  const handleRemoveDay = (dayIndex) => {
+    setDays((currentDays) =>
+      currentDays.length > 1
+        ? currentDays.filter(
+            (_, currentDayIndex) => currentDayIndex !== dayIndex,
+          )
+        : currentDays,
+    );
   };
 
   const handleAddActivity = (dayIndex) => {
@@ -54,6 +62,26 @@ export default function DialogCreateTour({ open, onOpenChange }) {
       ),
     );
   };
+
+  const handleRemoveActivity = (dayIndex, activityIndex) => {
+    setDays((currentDays) =>
+      currentDays.map((day, currentDayIndex) =>
+        currentDayIndex === dayIndex
+          ? {
+              ...day,
+              activities:
+                day.activities.length > 1
+                  ? day.activities.filter(
+                      (_, currentActivityIndex) =>
+                        currentActivityIndex !== activityIndex,
+                    )
+                  : day.activities,
+            }
+          : day,
+      ),
+    );
+  };
+  if (!services) return null;
 
   return (
     <>
@@ -146,15 +174,6 @@ export default function DialogCreateTour({ open, onOpenChange }) {
                       className="h-12 rounded-xl border-outline-variant/20 bg-surface-container-low"
                     />
                   </div>
-
-                  <div>
-                    <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
-                      Difficulty Level
-                    </label>
-                    <div className="flex h-12 items-center rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 text-sm font-semibold text-on-surface">
-                      Easy
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
 
@@ -196,27 +215,38 @@ export default function DialogCreateTour({ open, onOpenChange }) {
                         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary font-bold text-on-primary">
                           {dayIndex + 1}
                         </span>
-                        <div>
-                          <h3 className="font-headline text-lg font-bold text-on-surface">
-                            Day {dayIndex + 1}
+                        <div className="flex min-w-0 flex-1 flex-col gap-2">
+                          <h3 className="font-headline text-lg font-bold text-on-surface whitespace-nowrap">
+                            <span>Day {dayIndex + 1}</span>
                           </h3>
-                          <p className="text-xs text-on-surface-variant">
-                            {dayIndex === 0
-                              ? "Introduce the rhythm, setting, and tone of the tour."
-                              : "Shape the next chapter of the traveler experience."}
-                          </p>
+                          <Textarea
+                            placeholder="Introduce the rhythm, setting, and tone of the tour"
+                            className="min-h-20 text-xs text-on-surface-variant"
+                          />
                         </div>
                       </div>
 
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => handleAddActivity(dayIndex)}
-                        className="h-10 rounded-xl border-dashed border-primary/25 bg-primary/5 px-4 font-semibold text-primary"
-                      >
-                        <CirclePlus className="size-4" />
-                        Add Activity
-                      </Button>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={() => handleRemoveDay(dayIndex)}
+                          disabled={days.length === 1}
+                          className="h-10 rounded-xl px-4 font-semibold text-slate-500 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          <Trash2 className="size-4" />
+                          Remove Day
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => handleAddActivity(dayIndex)}
+                          className="h-10 rounded-xl border-dashed border-primary/25 bg-primary/5 px-4 font-semibold text-primary"
+                        >
+                          <CirclePlus className="size-4" />
+                          Add Activity
+                        </Button>
+                      </div>
                     </div>
 
                     <CardContent className="space-y-8 p-6">
@@ -233,35 +263,56 @@ export default function DialogCreateTour({ open, onOpenChange }) {
                             type="button"
                             className="group relative aspect-[4/3] overflow-hidden rounded-[1.5rem] border-2 border-dashed border-slate-200 bg-slate-100 transition-all hover:border-primary/30 hover:bg-slate-200"
                           >
-                            {activityIndex === 0 ? (
-                              <img
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0z8jmfb6DMwraRTBU-YRFgovPYeQE_UB9LLSSxZokly9VWq1gLx8BsM29hSfxpWsD99f3W12gVlkWMdD2O69eWzybMKV4_a2dlQrIuVQvXG9YrG6shMkgSP_J8kDR4MjxHSSyvipKrBK4QayqZCyLF_Yp9inCMhze9zZYSJ1c3_VKx7V5XcI94jpclNxW5N7vkfnYb6uJBPSZUfwNni7FW58FSBKiHBpMgwTOtuDEbN-zAKfFgV846-rHGfl_9ig9Krteoi_DQKxc"
-                                alt="Activity Image"
-                                className="absolute inset-0 h-full w-full object-cover opacity-45 transition-transform duration-300 group-hover:scale-105"
-                              />
-                            ) : null}
                             <div className="relative z-10 flex h-full flex-col items-center justify-center gap-2 p-4">
                               <ImagePlus className="size-5 text-slate-500" />
                               <p className="text-center text-xs font-bold uppercase tracking-[0.24em] text-slate-600">
-                                {activityIndex === 0
-                                  ? "Morning Photo"
-                                  : `Activity ${activityIndex + 1} Image`}
+                                + Add Photo
                               </p>
                             </div>
                           </button>
 
                           <div className="space-y-4 lg:col-span-2">
+                            <div className="flex items-center justify-between">
+                              <Select>
+                                <SelectTrigger className="h-12 rounded-xl border-outline-variant/20 bg-surface-container-low px-4 text-sm font-semibold">
+                                  <SelectValue placeholder="Select activity" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {services
+                                    .filter(
+                                      (service) => service.type === "ACTIVITY",
+                                    )
+                                    .map((service) => (
+                                      <SelectItem
+                                        key={service.id}
+                                        value={service.id}
+                                      >
+                                        {service.name}
+                                      </SelectItem>
+                                    ))}
+                                </SelectContent>
+                              </Select>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() =>
+                                  handleRemoveActivity(dayIndex, activityIndex)
+                                }
+                                disabled={day.activities.length === 1}
+                                className="h-9 rounded-xl px-3 text-slate-500 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                <Trash2 className="size-4" />
+                                Remove Activity
+                              </Button>
+                            </div>
+
                             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.24em] text-primary">
-                              {activityIndex === 0 ? (
-                                <Sun className="size-4" />
-                              ) : activityIndex === 1 ? (
-                                <UtensilsCrossed className="size-4" />
-                              ) : (
-                                <Mountain className="size-4" />
-                              )}
-                              {activityIndex === 0
-                                ? "Morning"
-                                : `Activity ${activityIndex + 1}`}
+                              <Clock className="size-4" />
+                              <Input
+                                type="time"
+                                placeholder="Time"
+                                className="h-12 w-32 rounded-xl border-none bg-surface-container-low px-4"
+                              />
                             </div>
 
                             <Input
@@ -368,9 +419,13 @@ export default function DialogCreateTour({ open, onOpenChange }) {
                           <SelectValue placeholder="Select transport" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="private-van">Private Van</SelectItem>
+                          <SelectItem value="private-van">
+                            Private Van
+                          </SelectItem>
                           <SelectItem value="speedboat">Speedboat</SelectItem>
-                          <SelectItem value="shuttle-bus">Shuttle Bus</SelectItem>
+                          <SelectItem value="shuttle-bus">
+                            Shuttle Bus
+                          </SelectItem>
                         </SelectContent>
                       </Select>
 
@@ -390,8 +445,6 @@ export default function DialogCreateTour({ open, onOpenChange }) {
                     </CardContent>
                   </Card>
 
-                  
-
                   <Card className="rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
                     <CardHeader className="px-6 pt-6">
                       <CardTitle className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
@@ -399,9 +452,12 @@ export default function DialogCreateTour({ open, onOpenChange }) {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4 px-6 pb-6">
-                      <div className="flex h-12 items-center rounded-xl bg-surface-container-low px-4 text-sm font-semibold text-on-surface">
-                        Marco Rossi (Senior Italian Guide)
-                      </div>
+                      <Select>
+                        <SelectTrigger className="h-12 rounded-xl border-outline-variant/20 bg-surface-container-low px-4 text-sm font-semibold">
+                          <SelectValue placeholder="Select lead guide" />
+                        </SelectTrigger>
+                        <SelectContent />
+                      </Select>
 
                       <div className="flex items-start gap-3 rounded-2xl bg-tertiary-container/8 p-4">
                         <ShieldCheck className="mt-0.5 size-4 shrink-0 text-tertiary" />
@@ -414,56 +470,6 @@ export default function DialogCreateTour({ open, onOpenChange }) {
                   </Card>
                 </div>
               </section>
-
-              <Card className="rounded-[2rem] border-none bg-surface-container py-0 shadow-[0_16px_40px_rgba(15,23,42,0.04)]">
-                <CardContent className="space-y-6 p-6">
-                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div>
-                      <h3 className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
-                        What&apos;s Included?
-                      </h3>
-                    </div>
-
-                    <div className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold text-primary shadow-sm">
-                      <Sparkles className="size-4" />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-3">
-                    <label className="flex items-center gap-3 rounded-full bg-surface-container-lowest px-4 py-3 shadow-sm">
-                      <Checkbox checked />
-                      <span className="text-sm font-semibold">All Meals</span>
-                    </label>
-
-                    <label className="flex items-center gap-3 rounded-full bg-surface-container-lowest px-4 py-3 shadow-sm">
-                      <Checkbox checked />
-                      <span className="text-sm font-semibold">Entry Fees</span>
-                    </label>
-
-                    <label className="flex items-center gap-3 rounded-full bg-surface-container-lowest px-4 py-3 shadow-sm">
-                      <Checkbox />
-                      <span className="text-sm font-semibold">
-                        Airport Pick-up
-                      </span>
-                    </label>
-
-                    <label className="flex items-center gap-3 rounded-full bg-surface-container-lowest px-4 py-3 shadow-sm">
-                      <Checkbox />
-                      <span className="text-sm font-semibold">
-                        Equipment Hire
-                      </span>
-                    </label>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="rounded-full border-dashed border-slate-400 bg-transparent px-4 text-sm font-bold text-slate-500"
-                    >
-                      + Add Custom
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </div>
 

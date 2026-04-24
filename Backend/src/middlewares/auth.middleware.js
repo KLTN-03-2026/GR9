@@ -18,6 +18,15 @@ export const protect = async (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
-    return error(res, "Token is not valid", 401, null)
+    return error(res, "Token is not valid", 401, null);
   }
+};
+
+export const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return error(res, "Forbidden", 403, "FORBIDDEN");
+    }
+    next();
+  };
 };
