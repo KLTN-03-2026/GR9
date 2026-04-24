@@ -1,5 +1,5 @@
 import express from "express";
-import { protect } from "../middlewares/auth.middleware.js";
+import { authorize, protect } from "../middlewares/auth.middleware.js";
 import {
   getServices,
   createService,
@@ -9,9 +9,10 @@ import {
 
 const router = express.Router();
 
-router.get("/", protect, getServices);
-router.post("/", protect, createService);
-router.put("/:id", protect, updateService);
-router.delete("/:id", protect, deleteService);
+router.use(protect, authorize("PROVIDER"));
+router.get("/", getServices);
+router.post("/", createService);
+router.put("/:id", updateService);
+router.delete("/:id", deleteService);
 
 export default router;

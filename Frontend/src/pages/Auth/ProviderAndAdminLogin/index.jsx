@@ -1,4 +1,5 @@
 import { useContext, useState } from "react";
+import toast from "react-hot-toast";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs } from "@/components/ui/tabs";
@@ -22,6 +23,8 @@ export default function ProviderAndAdminLogin() {
     } finally {
       setLoading(false);
     }
+
+    onSubmit(trimmedEmail, trimmedPassword);
   };
 
   return (
