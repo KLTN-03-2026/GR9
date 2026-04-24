@@ -94,6 +94,7 @@ const assignResetPasswordOtp = (user) => {
 
 export const setFirstJoinPassword = async (
   userId,
+  currentPassword,
   password,
   confirmPassword,
 ) => {
@@ -108,6 +109,25 @@ export const setFirstJoinPassword = async (
       "NOT_FIRST_JOIN",
     );
   }
+
+  // Verify current password
+  if (!currentPassword) {
+    throw throwError(
+      "Mật khẩu tạm thời là bắt buộc",
+      400,
+      "MISSING_CURRENT_PASSWORD",
+    );
+  }
+
+  const isCurrentPasswordMatch = await user.comparePassword(currentPassword);
+  if (!isCurrentPasswordMatch) {
+    throw throwError(
+      "Mật khẩu tạm thời không chính xác",
+      401,
+      "INVALID_CURRENT_PASSWORD",
+    );
+  }
+
   if (!password || !confirmPassword) {
     throw throwError(
       "Mật khẩu và xác nhận mật khẩu là bắt buộc",
@@ -210,13 +230,16 @@ export const loginUser = async (email, password) => {
     if (!user) {
       throw throwError("User not found", 404, "USER_NOT_FOUND");
     }
-    if (user.authType !== "LOCAL") {
+
+    // Allow login if user has a password set (regardless of authType)
+    if (!user.password) {
       throw throwError(
         "Please login with Google for this account",
         400,
         "GOOGLE_AUTH_REQUIRED",
       );
     }
+
     if (!user.isActive) {
       throw throwError(
         "Account is not verified. Please verify OTP sent to your email.",
