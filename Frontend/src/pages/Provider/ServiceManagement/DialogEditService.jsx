@@ -25,7 +25,8 @@ import { toast } from "react-hot-toast";
 const serviceTypes = [
   { value: "HOTEL", label: "Accommodation" },
   { value: "TRANSPORT", label: "Transport" },
-  { value: "TOUR_GUIDE", label: "Tour Guide" },
+  { value: "RESTAURANT", label: "Restaurant" },
+  { value: "ACTIVITY", label: "Activity" },
   { value: "FOOD", label: "Food" },
   { value: "ATTRACTION_TICKET", label: "Attraction Ticket" },
   { value: "COMBO", label: "Combo" },

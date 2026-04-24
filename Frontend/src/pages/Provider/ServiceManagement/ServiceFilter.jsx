@@ -14,9 +14,10 @@ const categories = [
   { value: "All", label: "All" },
   { value: "HOTEL", label: "Accommodation" },
   { value: "TRANSPORT", label: "Transport" },
-  { value: "FOOD", label: "Dining" },
-  { value: "ATTRACTION_TICKET", label: "Attraction" },
-  { value: "TOUR_GUIDE", label: "Guide" },
+  { value: "RESTAURANT", label: "Restaurant" },
+  { value: "ACTIVITY", label: "Activity" },
+  { value: "FOOD", label: "Food" },
+  { value: "ATTRACTION_TICKET", label: "Attraction Ticket" },
   { value: "COMBO", label: "Combo" },
   { value: "OTHER", label: "Other" },
 ];
