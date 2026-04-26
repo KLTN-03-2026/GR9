@@ -35,7 +35,11 @@ const tourSchema = new Schema(
             children: { type: Number, default: 0, min: 0 },
             infants: { type: Number, default: 0, min: 0 },
         },
-        price: { type: Number, default: 0, min: 0 },
+        price: {
+            adult: { type: Number, default: 0, min: 0 },
+            child: { type: Number, default: 0, min: 0 },
+            infant: { type: Number, default: 0, min: 0 },
+        },
         location: { type: String, default: null, trim: true },
         description: { type: String, default: null },
         numberOfDay: { type: Number, default: 1, min: 1 },
