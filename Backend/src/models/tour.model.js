@@ -62,7 +62,7 @@ const tourSchema = new Schema(
         },
         leadDuideServiceId: {
             type: Schema.Types.ObjectId,
-            ref: "Service",
+            ref: "User",
             default: null,
         },
     },
