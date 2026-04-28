@@ -1,0 +1,33 @@
+import { syncTourImagesService, uploadImages } from "../services/image.service.js";
+import { success, error } from "../utils/response.js";
+
+export const uploadImageController = async (req, res) => {
+    try {
+        const { entityType, entityId } = req.body;
+        
+        const images = await uploadImages({
+            files: req.files,
+            entityType,
+            entityId,
+        });
+
+        return success(res, "Upload ảnh thành công", images, 201);
+    } catch (err) {
+        return error(res, err.message, err.status, err.errorCode);
+    }
+};
+
+export const syncTourImages = async (req, res) => {
+    try {
+        const { entityId, images, entityType } = req.body;
+
+        await syncTourImagesService(entityId, images, entityType);
+
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};

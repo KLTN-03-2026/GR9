@@ -41,6 +41,7 @@ const tourSchema = new Schema(
             infant: { type: Number, default: 0, min: 0 },
         },
         location: { type: String, default: null, trim: true },
+        name: { type: String, default: null, trim: true },
         description: { type: String, default: null },
         numberOfDay: { type: Number, default: 1, min: 1 },
         startDay: { type: Date, default: null },
