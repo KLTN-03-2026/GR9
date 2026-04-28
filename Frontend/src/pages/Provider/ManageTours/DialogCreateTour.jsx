@@ -159,8 +159,6 @@ export default function DialogCreateTour({
     const handleRemoveDay = (dayIndex) => {
         setDays((prev) => {
             const newDays = prev.filter((_, index) => index !== dayIndex);
-
-            // update lại dayNumber cho đúng
             return newDays.map((day, i) => ({
                 ...day,
                 dayNumber: i + 1,
@@ -358,7 +356,6 @@ export default function DialogCreateTour({
                                                                 </Button>
                                                             </div>
                                                             <div className="relative">
-                                                                {/* INPUT */}
                                                                 <div className="relative">
                                                                     <Input
                                                                         placeholder="Search service..."
@@ -387,7 +384,6 @@ export default function DialogCreateTour({
                                                                         className="h-12 rounded-xl bg-surface-container-low pr-10" // 👈 chừa chỗ cho nút X
                                                                     />
 
-                                                                    {/* NÚT CLEAR */}
                                                                     {activity.search && (
                                                                         <button
                                                                             type="button"
@@ -410,7 +406,6 @@ export default function DialogCreateTour({
                                                                     )}
                                                                 </div>
 
-                                                                {/* DROPDOWN */}
                                                                 {activity.isFocus && (
                                                                     <div className="absolute z-50 mt-2 w-full rounded-xl border border-slate-200 bg-white shadow-lg">
                                                                         <div className="max-h-56 overflow-y-auto">
@@ -478,7 +473,6 @@ export default function DialogCreateTour({
                                                                 {activity.serviceId &&
                                                                 serviceMap[activity.serviceId] ? (
                                                                     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-                                                                        {/* HEADER */}
                                                                         <div className="flex items-start justify-between">
                                                                             <p className="text-sm font-semibold text-slate-800">
                                                                                 {serviceMap[activity.serviceId].name}
@@ -489,12 +483,10 @@ export default function DialogCreateTour({
                                                                             </span>
                                                                         </div>
 
-                                                                        {/* DESCRIPTION */}
                                                                         <p className="text-xs text-slate-600 line-clamp-2">
                                                                             {serviceMap[activity.serviceId].description}
                                                                         </p>
 
-                                                                        {/* PRICE */}
                                                                         <div className="mt-2 grid grid-cols-3 gap-2">
                                                                             {serviceMap[activity.serviceId].total?.map(
                                                                                 (t) => (
@@ -514,7 +506,6 @@ export default function DialogCreateTour({
                                                                         </div>
                                                                     </div>
                                                                 ) : (
-                                                                    /* EMPTY STATE */
                                                                     <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center">
                                                                         <p className="text-xs text-slate-500">
                                                                             Chưa chọn service — hãy tìm và chọn hoạt
@@ -805,7 +796,6 @@ export default function DialogCreateTour({
                                         <div className="mt-4 flex flex-wrap gap-4 items-center justify-center">
                                             {existingImages?.length > 0 || newImages?.length > 0 ? (
                                                 <>
-                                                    {/* Hiển thị ảnh cũ */}
                                                     {existingImages?.map((img, i) => (
                                                         <div
                                                             key={`existing-${img._id || i}`}
@@ -832,7 +822,6 @@ export default function DialogCreateTour({
                                                             </button>
                                                         </div>
                                                     ))}
-                                                    {/* Hiển thị ảnh mới */}
                                                     {newImages?.map((file, i) => (
                                                         <div
                                                             key={`new-${i}`}
@@ -876,7 +865,6 @@ export default function DialogCreateTour({
                                         />
                                     </div>
 
-                                    {/* LOCATION */}
                                     <div>
                                         <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
                                             Location
@@ -889,7 +877,6 @@ export default function DialogCreateTour({
                                         />
                                     </div>
 
-                                    {/* DESCRIPTION */}
                                     <div className="md:col-span-2">
                                         <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
                                             Description
@@ -902,7 +889,6 @@ export default function DialogCreateTour({
                                         />
                                     </div>
 
-                                    {/* PRICE */}
                                     <div>
                                         <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
                                             Base Price (USD)
@@ -924,7 +910,6 @@ export default function DialogCreateTour({
                                         </div>
                                     </div>
 
-                                    {/* MAX SLOT */}
                                     <div>
                                         <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
                                             Max Capacity
@@ -937,7 +922,6 @@ export default function DialogCreateTour({
                                         />
                                     </div>
 
-                                    {/* MIN SLOT (NEW) */}
                                     <div>
                                         <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
                                             Min Capacity
@@ -950,7 +934,6 @@ export default function DialogCreateTour({
                                         />
                                     </div>
 
-                                    {/* DAYS */}
                                     <div>
                                         <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
                                             Duration (Days)
@@ -962,7 +945,6 @@ export default function DialogCreateTour({
                                         />
                                     </div>
 
-                                    {/* DIFFICULTY */}
                                     <div className="md:col-span-2">
                                         <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
                                             Difficulty Level

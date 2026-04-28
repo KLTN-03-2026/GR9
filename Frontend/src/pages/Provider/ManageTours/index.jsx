@@ -55,8 +55,8 @@ export default function ManageTours() {
     const [open, setOpen] = useState(false);
     const [editingTourId, setEditingTourId] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
-    const [newImages, setNewImages] = useState([]); // ảnh mới upload (File)
-    const [existingImages, setExistingImages] = useState([]); // ảnh từ DB (URL)
+    const [newImages, setNewImages] = useState([]); 
+    const [existingImages, setExistingImages] = useState([]); 
 
     const handleOpenDialog = () => {
         setOpen(true);
@@ -106,7 +106,6 @@ export default function ManageTours() {
             const res = await createTour(payload);
             const newTour = res?.data?.data;
             setTours((prev) => [newTour, ...prev]);
-            // Upload ảnh mới nếu có
             if (newImages.length > 0) {
                 await uploadImagesApi(newImages, "TOUR", newTour._id);
             }
@@ -133,7 +132,6 @@ export default function ManageTours() {
 
             await updateTourById(editingTourId, payload);
 
-            // 1. Upload ảnh mới
             let uploadedUrls = [];
 
             if (newImages.length > 0) {
@@ -141,14 +139,8 @@ export default function ManageTours() {
 
                 uploadedUrls = (uploadRes?.data?.data || []).map((img) => img.imageUrl);
             }
-
-            // 2. LẤY ẢNH CŨ
             const oldUrls = existingImages.map((img) => img.imageUrl || img.url).filter(Boolean);
-
-            // 3. GHÉP CẢ HAI (QUAN TRỌNG)
             const keptUrls = [...oldUrls, ...uploadedUrls];
-
-            // 4. SYNC
             await syncTourImagesApi(editingTourId, "TOUR", keptUrls);
 
             toast.success("Update tour successfully!");
@@ -170,7 +162,6 @@ export default function ManageTours() {
     const handleEdit = (tour) => {
         setTour(tour);
         setDays(mapTourToDays(tour, services));
-        // Chuẩn hóa lại mảng ảnh: nếu là string thì là URL, nếu là object thì lấy imageUrl/url
         setExistingImages(
             (tour.images || []).map((img) => {
                 if (typeof img === "string") return { imageUrl: img };

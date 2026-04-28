@@ -1,4 +1,3 @@
-// services/image.service.js
 import Image from "../models/image.model.js";
 import cloudinary from "../config/cloudinary.js";
 
@@ -29,24 +28,17 @@ export const uploadImages = async ({ files, entityType, entityId }) => {
 };
 
 export const syncTourImagesService = async (entityId, keptImageUrls, entityType) => {
-    // 1. Lấy toàn bộ ảnh hiện tại
     const existingImages = await Image.find({
         entityType,
         entityId,
     });
-
-    // 2. Lọc ra ảnh bị xóa
     const imagesToDelete = existingImages.filter((img) => !keptImageUrls.includes(img.imageUrl));
-
-    // 3. Xóa trên Cloudinary
     await Promise.all(
         imagesToDelete.map((img) => {
             const publicId = img.imageUrl.split("/").pop().split(".")[0];
             return cloudinary.uploader.destroy(`${entityType}/${publicId}`);
         }),
     );
-
-    // 4. Xóa DB
     await Image.deleteMany({
         _id: { $in: imagesToDelete.map((img) => img._id) },
     });
