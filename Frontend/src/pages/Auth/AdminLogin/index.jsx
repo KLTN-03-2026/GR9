@@ -1,12 +1,9 @@
 import { useContext, useState } from "react";
-
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs } from "@/components/ui/tabs" ;
 import AuthContext from "@/context/authContext";
-import LoginForm from "./LoginForm";
+import AdminLoginForm from "./AdminLoginForm";
 
-export default function ProviderAndAdminLogin() {
-  const [activeRole, setActiveRole] = useState("provider");
+export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -31,7 +28,7 @@ export default function ProviderAndAdminLogin() {
         <div className="absolute bottom-[-10%] left-[-5%] h-80 w-80 rounded-full bg-secondary-container/20 blur-3xl" />
 
         <Card className="w-full max-w-5xl overflow-hidden rounded-xl border-none bg-surface-container-lowest py-0 shadow-[0px_20px_40px_rgba(25,28,30,0.06)] md:flex md:flex-row">
-          <div className="relative hidden overflow-hidden bg-primary p-12 md:flex md:w-1/2 md:flex-col md:justify-between">
+          <div className="relative hidden overflow-hidden bg-gradient-to-br from-primary to-primary-container p-12 md:flex md:w-1/2 md:flex-col md:justify-between">
             <div
               className="absolute inset-0 opacity-20"
               style={{
@@ -47,63 +44,44 @@ export default function ProviderAndAdminLogin() {
               <Card className="mb-8 inline-flex border border-white/20 bg-white/10 py-0 backdrop-blur-md shadow-none">
                 <CardContent className="px-3 py-1">
                   <span className="text-xs font-semibold uppercase tracking-widest text-white">
-                    Partner Portal
+                    Admin Panel
                   </span>
                 </CardContent>
               </Card>
 
               <h1 className="mb-4 font-headline text-4xl font-extrabold leading-tight tracking-tight text-white">
-                Manage world-class <br />
-                travel experiences.
+                System <br />
+                Administration Portal.
               </h1>
               <p className="max-w-md text-lg leading-relaxed text-white/80">
-                Access your professional dashboard to coordinate itineraries,
-                manage bookings, and leverage AI-driven insights for your
-                clients.
+                Access the comprehensive admin dashboard to manage users,
+                monitor activities, and oversee platform operations.
               </p>
             </div>
 
             <div className="relative z-10 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10">
                 <span className="material-symbols-outlined text-sm text-white">
-                  shield_person
+                  admin_panel_settings
                 </span>
               </div>
               <span className="text-sm font-medium uppercase tracking-wider text-white/60">
-                Enterprise Grade Security
+                Secure Administration
               </span>
             </div>
           </div>
 
           <CardContent className="w-full p-8 md:w-1/2 md:p-16">
-            <Tabs
-              value={activeRole}
-              onValueChange={setActiveRole}
-              className="w-full"
-            >
-              <LoginForm
-                role="provider"
-                email={email}
-                password={password}
-                setEmail={setEmail}
-                setPassword={setPassword}
-                showPassword={showPassword}
-                setShowPassword={setShowPassword}
-                loading={loading}
-                onSubmit={handleSignIn}
-              />
-              <LoginForm
-                role="admin"
-                email={email}
-                password={password}
-                setEmail={setEmail}
-                setPassword={setPassword}
-                showPassword={showPassword}
-                setShowPassword={setShowPassword}
-                loading={loading}
-                onSubmit={handleSignIn}
-              />
-            </Tabs>
+            <AdminLoginForm
+              email={email}
+              password={password}
+              setEmail={setEmail}
+              setPassword={setPassword}
+              showPassword={showPassword}
+              setShowPassword={setShowPassword}
+              loading={loading}
+              onSubmit={handleSignIn}
+            />
           </CardContent>
         </Card>
       </main>
