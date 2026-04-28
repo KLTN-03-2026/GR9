@@ -4,6 +4,7 @@ import {
     deleteTourService,
     getTourService,
     getAllTourService,
+    getToursByProvider,
 } from "../services/tour.service.js";
 
 import { error, success } from "../utils/response.js";
@@ -63,5 +64,15 @@ export const deleteTourController = async (req, res) => {
         return success(res, "Delete tour successfully");
     } catch (err) {
         return error(res, err.message, err.status || 500);
+    }
+};
+
+export const getToursByProviderController = async (req, res) => {
+    try {
+        const tours = await getToursByProvider(req.user.id);
+
+        return success(res, "Lấy danh sách tour theo provider", tours, 200);
+    } catch (err) {
+        return error(res, err.message, err.status, err.errorCode);
     }
 };
