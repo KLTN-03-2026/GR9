@@ -40,7 +40,7 @@ import TourDetail from "./pages/Traveler/TourDetail";
 import HotelManagement from "./pages/Provider/HotelManagement";
 import GuideDashboardHome from "./pages/Guide/GuideDashboardHome";
 import ProviderProfile from "./pages/Provider/ProviderProfile";
-import ProviderApplicationForm from "./pages/LandingHome/ProviderApplicationForm";
+import ProviderApplicationForm from "./pages/Guest/ProviderApplicationForm";
 function AppRoutes() {
   const location = useLocation();
 
