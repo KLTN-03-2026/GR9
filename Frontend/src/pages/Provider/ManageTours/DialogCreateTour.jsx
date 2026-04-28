@@ -1,503 +1,1040 @@
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-  BedDouble,
-  CarFront,
-  CirclePlus,
-  Clock,
-  ConciergeBell,
-  ImagePlus,
-  ShieldCheck,
-  Sparkles,
-  Trash2,
-  WandSparkles,
+    BedDouble,
+    CarFront,
+    CirclePlus,
+    ConciergeBell,
+    Focus,
+    ImagePlus,
+    Mountain,
+    ShieldCheck,
+    Sun,
+    UtensilsCrossed,
+    WandSparkles,
+    X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 
-export default function DialogCreateTour({ open, onOpenChange, services }) {
-  const [days, setDays] = useState([{ activities: [1] }]);
+export default function DialogCreateTour({
+    open,
+    onOpenChange,
+    tour,
+    setTour,
+    services,
+    guides,
+    handleClick,
+    loading,
+    days,
+    setDays,
+    editingTourId,
+    selectedImage,
+    setSelectedImage,
+    existingImages,
+    setExistingImages,
+    newImages,
+    setNewImages,
+}) {
+    useEffect(() => {
+        const urls = newImages.map((file) => URL.createObjectURL(file));
 
-  const handleAddDay = () => {
-    setDays((currentDays) => [...currentDays, { activities: [1] }]);
-  };
+        return () => {
+            urls.forEach((url) => URL.revokeObjectURL(url));
+        };
+    }, [newImages]);
+    useEffect(() => {
+        const validDays = days
+            .map((d) => {
+                const validActivities = d.activities.filter((a) => a.serviceId && a.time);
 
-  const handleRemoveDay = (dayIndex) => {
-    setDays((currentDays) =>
-      currentDays.length > 1
-        ? currentDays.filter(
-            (_, currentDayIndex) => currentDayIndex !== dayIndex,
-          )
-        : currentDays,
-    );
-  };
+                if (validActivities.length === 0) return null;
 
-  const handleAddActivity = (dayIndex) => {
-    setDays((currentDays) =>
-      currentDays.map((day, index) =>
-        index === dayIndex
-          ? {
-              ...day,
-              activities: [...day.activities, day.activities.length + 1],
-            }
-          : day,
-      ),
-    );
-  };
+                return {
+                    dayNumber: d.dayNumber,
+                    description: d.description,
+                    activities: validActivities.map((a) => ({
+                        time: a.time,
+                        serviceId: a.serviceId,
+                        statusActivity: "NOT_DONE",
+                    })),
+                };
+            })
+            .filter(Boolean);
 
-  const handleRemoveActivity = (dayIndex, activityIndex) => {
-    setDays((currentDays) =>
-      currentDays.map((day, currentDayIndex) =>
-        currentDayIndex === dayIndex
-          ? {
-              ...day,
-              activities:
-                day.activities.length > 1
-                  ? day.activities.filter(
-                      (_, currentActivityIndex) =>
-                        currentActivityIndex !== activityIndex,
-                    )
-                  : day.activities,
-            }
-          : day,
-      ),
-    );
-  };
-  if (!services) return null;
+        setTour((prev) => ({
+            ...prev,
+            numberOfDay: validDays.length,
+            itineraries: validDays,
+        }));
+    }, [days]);
+    useEffect(() => {
+        const price = calculateTourPrice(days, services);
 
-  return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="flex max-h-[92vh] max-w-[calc(100%-2rem)] flex-col overflow-hidden rounded-[2rem] border-none bg-surface p-0 sm:max-w-6xl">
-          <DialogHeader className="border-b border-slate-200 px-6 py-5">
-            <DialogTitle className="font-headline text-2xl font-extrabold text-on-surface">
-              Create Tour
-            </DialogTitle>
-            <DialogDescription className="text-sm text-on-surface-variant">
-              Fill in the tour details, itinerary, and logistics without leaving
-              the manage tours dashboard.
-            </DialogDescription>
-          </DialogHeader>
+        setTour((prev) => ({
+            ...prev,
+            price,
+        }));
+    }, [days, services]);
+    const calculateTourPrice = (days, services) => {
+        let adult = 0;
+        let child = 0;
+        let infant = 0;
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 md:px-6 md:py-6">
-            <div className="space-y-10" aria-label="Edit tour form">
-              <Card className="rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
-                <CardHeader className="px-6 pt-6">
-                  <CardTitle className="font-headline text-2xl font-bold">
-                    Basic Information
-                  </CardTitle>
-                  <p className="text-sm text-on-surface-variant">
-                    Start with the essential details travelers and search
-                    engines use to understand the experience.
-                  </p>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 gap-6 px-6 pb-6 md:grid-cols-2">
-                  <div className="md:col-span-2">
-                    <label
-                      htmlFor="tour-name"
-                      className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500"
-                    >
-                      Tour Name
-                    </label>
-                    <Input
-                      id="tour-name"
-                      type="text"
-                      placeholder="e.g. Hidden Gems of the Amalfi Coast"
-                      className="h-14 rounded-2xl border-outline-variant/20 bg-surface-container-low px-4 font-headline text-lg font-semibold"
-                    />
-                  </div>
+        days.forEach((day) => {
+            day.activities.forEach((act) => {
+                const service = services.find((s) => s._id === act.serviceId);
+                if (!service) return;
 
-                  <div>
-                    <label
-                      htmlFor="base-price"
-                      className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500"
-                    >
-                      Base Price (USD)
-                    </label>
-                    <div className="relative">
-                      <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">
-                        $
-                      </span>
-                      <Input
-                        id="base-price"
-                        type="number"
-                        placeholder="0.00"
-                        className="h-12 rounded-xl border-outline-variant/20 bg-surface-container-low pl-8"
-                      />
-                    </div>
-                  </div>
+                adult += service.total?.find((t) => t.type === "ADULT")?.price || 0;
+                child += service.total?.find((t) => t.type === "CHILD")?.price || 0;
+                infant += service.total?.find((t) => t.type === "INFANT")?.price || 0;
+            });
+        });
 
-                  <div>
-                    <label
-                      htmlFor="max-capacity"
-                      className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500"
-                    >
-                      Max Capacity
-                    </label>
-                    <Input
-                      id="max-capacity"
-                      type="number"
-                      placeholder="12"
-                      className="h-12 rounded-xl border-outline-variant/20 bg-surface-container-low"
-                    />
-                  </div>
+        return { adult, child, infant };
+    };
+    const serviceMap = services.reduce((acc, s) => {
+        acc[s._id] = s;
+        return acc;
+    }, {});
+    const selectedHotel = services.find((s) => s._id === tour.hotelServiceId);
+    const selectedTransport = services.find((s) => s._id === tour.transportServiceId);
+    const selectedGuide = guides.find((s) => s._id === tour.leadDuideServiceId);
+    const handlePriceChange = (type, value) => {
+        setTour((prev) => ({
+            ...prev,
+            price: {
+                ...prev.price,
+                [type]: value === "" ? "" : Number(value),
+            },
+        }));
+    };
+    const handleAddActivity = (dayIndex) => {
+        setDays((prev) =>
+            prev.map((day, index) =>
+                index === dayIndex
+                    ? {
+                          ...day,
+                          activities: [
+                              ...day.activities,
+                              {
+                                  time: "",
+                                  title: "",
+                                  statusActivity: "NOT_DONE",
+                                  serviceId: "",
+                                  search: "",
+                                  isFocus: false,
+                                  image: "",
+                              },
+                          ],
+                      }
+                    : day,
+            ),
+        );
+    };
+    const handleRemoveActivity = (dayIndex, activityIndex) => {
+        setDays((prev) =>
+            prev.map((day, dIndex) =>
+                dIndex === dayIndex
+                    ? {
+                          ...day,
+                          activities: day.activities.filter((_, aIndex) => aIndex !== activityIndex),
+                      }
+                    : day,
+            ),
+        );
+    };
+    const handleRemoveDay = (dayIndex) => {
+        setDays((prev) => {
+            const newDays = prev.filter((_, index) => index !== dayIndex);
 
-                  <div>
-                    <label
-                      htmlFor="duration-days"
-                      className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500"
-                    >
-                      Duration (Days)
-                    </label>
-                    <Input
-                      id="duration-days"
-                      type="number"
-                      placeholder="1"
-                      className="h-12 rounded-xl border-outline-variant/20 bg-surface-container-low"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+            // update lại dayNumber cho đúng
+            return newDays.map((day, i) => ({
+                ...day,
+                dayNumber: i + 1,
+            }));
+        });
+    };
+    const handleAddDay = () => {
+        setDays((prev) => [
+            ...prev,
+            {
+                dayNumber: prev.length + 1,
+                description: "",
+                activities: [
+                    {
+                        time: "",
+                        title: "",
+                        statusActivity: "NOT_DONE",
+                        serviceId: "",
+                        search: "",
+                        isFocus: false,
+                        image: "",
+                    },
+                ],
+            },
+        ]);
+    };
+    const updateActivity = (dayIndex, activityIndex, data) => {
+        setDays((prev) =>
+            prev.map((day, dIndex) =>
+                dIndex === dayIndex
+                    ? {
+                          ...day,
+                          activities: day.activities.map((act, aIndex) =>
+                              aIndex === activityIndex ? { ...act, ...data } : act,
+                          ),
+                      }
+                    : day,
+            ),
+        );
+    };
+    const updateDayDescription = (dayIndex, value) => {
+        setDays((prev) => prev.map((day, index) => (index === dayIndex ? { ...day, description: value } : day)));
+    };
+    return (
+        <>
+            <Dialog open={open} onOpenChange={onOpenChange}>
+                <DialogContent className="flex max-h-[92vh] max-w-[calc(100%-2rem)] flex-col overflow-hidden rounded-[2rem] border-none bg-surface p-0 sm:max-w-6xl">
+                    <DialogHeader className="border-b border-slate-200 px-6 py-5">
+                        <DialogTitle className="font-headline text-2xl font-extrabold text-on-surface">
+                            Create Tour
+                        </DialogTitle>
+                        <DialogDescription className="text-sm text-on-surface-variant">
+                            Fill in the tour details, itinerary, and logistics without leaving the manage tours
+                            dashboard.
+                        </DialogDescription>
+                    </DialogHeader>
 
-              <section className="space-y-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-tertiary-container text-on-tertiary-fixed">
-                      <WandSparkles className="size-5" />
-                    </div>
-                    <div>
-                      <h2 className="font-headline text-2xl font-bold uppercase tracking-tight">
-                        Itinerary Builder
-                      </h2>
-                      <p className="text-sm text-on-surface-variant">
-                        Build a vivid, traveler-friendly day plan with strong
-                        visual cues and descriptive copy.
-                      </p>
-                    </div>
-                  </div>
+                    <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 md:px-6 md:py-6">
+                        <div className="space-y-10" aria-label="Edit tour form">
+                            <section className="space-y-6">
+                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-tertiary-container text-on-tertiary-fixed">
+                                            <WandSparkles className="size-5" />
+                                        </div>
+                                        <div>
+                                            <h2 className="font-headline text-2xl font-bold uppercase tracking-tight">
+                                                Itinerary Builder
+                                            </h2>
+                                            <p className="text-sm text-on-surface-variant">
+                                                Build a vivid, traveler-friendly day plan with strong visual cues and
+                                                descriptive copy.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={handleAddDay}
+                                        className="h-11 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 px-4 font-bold text-primary"
+                                    >
+                                        <CirclePlus className="size-4" />
+                                        Add Day
+                                    </Button>
+                                </div>
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleAddDay}
-                    className="h-11 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 px-4 font-bold text-primary"
-                  >
-                    <CirclePlus className="size-4" />
-                    Add Day
-                  </Button>
-                </div>
+                                {days.map((day, dayIndex) => (
+                                    <Card
+                                        key={dayIndex}
+                                        className="overflow-hidden rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]"
+                                    >
+                                        <div className="flex flex-col gap-4 bg-surface-container-low px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+                                            <div className="flex items-center gap-4">
+                                                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary font-bold text-on-primary">
+                                                    {dayIndex + 1}
+                                                </span>
+                                                <div>
+                                                    <h3 className="font-headline text-lg font-bold text-on-surface">
+                                                        Day {dayIndex + 1}
+                                                    </h3>
+                                                    <p className="text-xs text-on-surface-variant">
+                                                        {dayIndex === 0
+                                                            ? "Introduce the rhythm, setting, and tone of the tour."
+                                                            : "Shape the next chapter of the traveler experience."}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-4">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={() => handleAddActivity(dayIndex)}
+                                                    className="h-10 rounded-xl border-dashed border-primary/25 bg-primary/5 px-4 font-semibold text-primary"
+                                                >
+                                                    <CirclePlus className="size-4" />
+                                                    Add Activity
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    onClick={() => handleRemoveDay(dayIndex)}
+                                                    className="h-10 rounded-xl border-dashed border-red-800/25 bg-red-800/5 px-4 font-semibold text-red-800"
+                                                >
+                                                    <X className="size-4" />
+                                                    Delete Day
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div className="px-6 pt-6">
+                                            <div className="mb-3 flex items-center justify-between">
+                                                <label className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                                    Day Description
+                                                </label>
+                                                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                                                    Optional
+                                                </span>
+                                            </div>
 
-                {days.map((day, dayIndex) => (
-                  <Card
-                    key={dayIndex}
-                    className="overflow-hidden rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]"
-                  >
-                    <div className="flex flex-col gap-4 bg-surface-container-low px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex items-center gap-4">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary font-bold text-on-primary">
-                          {dayIndex + 1}
-                        </span>
-                        <div className="flex min-w-0 flex-1 flex-col gap-2">
-                          <h3 className="font-headline text-lg font-bold text-on-surface whitespace-nowrap">
-                            <span>Day {dayIndex + 1}</span>
-                          </h3>
-                          <Textarea
-                            placeholder="Introduce the rhythm, setting, and tone of the tour"
-                            className="min-h-20 text-xs text-on-surface-variant"
-                          />
+                                            <Textarea
+                                                placeholder="Describe what travelers will experience this day..."
+                                                value={day.description}
+                                                onChange={(e) => updateDayDescription(dayIndex, e.target.value)}
+                                                className="min-h-[90px] rounded-xl border border-slate-200 bg-surface-container-low px-4 py-3 text-sm leading-relaxed focus:ring-2 focus:ring-primary/20"
+                                            />
+                                        </div>
+                                        <CardContent className="space-y-8 p-6">
+                                            {day.activities.map((activity, activityIndex) => {
+                                                const filteredServices = services.filter((s) =>
+                                                    s.name.toLowerCase().includes(activity.search.toLowerCase()),
+                                                );
+                                                return (
+                                                    <div
+                                                        key={activityIndex}
+                                                        className={`grid grid-cols-1 gap-6 lg:grid-cols-3 ${
+                                                            activityIndex > 0 ? "border-t border-slate-100 pt-8" : ""
+                                                        }`}
+                                                    >
+                                                        <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-100">
+                                                            {activity.image ? (
+                                                                <img
+                                                                    src={activity.image}
+                                                                    alt={activity.title}
+                                                                    className="h-full w-full object-cover"
+                                                                />
+                                                            ) : (
+                                                                <div className="flex h-full flex-col items-center justify-center text-slate-400">
+                                                                    <ImagePlus className="size-6" />
+                                                                    <p className="text-xs mt-2">No image</p>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="space-y-4 lg:col-span-2">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.24em] text-primary">
+                                                                    {activityIndex === 0 ? (
+                                                                        <Sun className="size-4" />
+                                                                    ) : activityIndex === 1 ? (
+                                                                        <UtensilsCrossed className="size-4" />
+                                                                    ) : (
+                                                                        <Mountain className="size-4" />
+                                                                    )}
+                                                                    {`Activity ${activityIndex + 1}`}
+                                                                </div>
+
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    onClick={() =>
+                                                                        handleRemoveActivity(dayIndex, activityIndex)
+                                                                    }
+                                                                    className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
+                                                                >
+                                                                    <X className="size-4" />
+                                                                </Button>
+                                                            </div>
+                                                            <div className="relative">
+                                                                {/* INPUT */}
+                                                                <div className="relative">
+                                                                    <Input
+                                                                        placeholder="Search service..."
+                                                                        value={activity.search}
+                                                                        onChange={(e) =>
+                                                                            updateActivity(dayIndex, activityIndex, {
+                                                                                search: e.target.value,
+                                                                            })
+                                                                        }
+                                                                        onFocus={() =>
+                                                                            updateActivity(dayIndex, activityIndex, {
+                                                                                isFocus: true,
+                                                                            })
+                                                                        }
+                                                                        onBlur={() => {
+                                                                            setTimeout(() => {
+                                                                                updateActivity(
+                                                                                    dayIndex,
+                                                                                    activityIndex,
+                                                                                    {
+                                                                                        isFocus: false,
+                                                                                    },
+                                                                                );
+                                                                            }, 150);
+                                                                        }}
+                                                                        className="h-12 rounded-xl bg-surface-container-low pr-10" // 👈 chừa chỗ cho nút X
+                                                                    />
+
+                                                                    {/* NÚT CLEAR */}
+                                                                    {activity.search && (
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() =>
+                                                                                updateActivity(
+                                                                                    dayIndex,
+                                                                                    activityIndex,
+                                                                                    {
+                                                                                        search: "",
+                                                                                        serviceId: "",
+                                                                                        title: "",
+                                                                                        image: "",
+                                                                                    },
+                                                                                )
+                                                                            }
+                                                                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 hover:bg-slate-200 transition"
+                                                                        >
+                                                                            <X className="size-4 text-slate-500" />
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+
+                                                                {/* DROPDOWN */}
+                                                                {activity.isFocus && (
+                                                                    <div className="absolute z-50 mt-2 w-full rounded-xl border border-slate-200 bg-white shadow-lg">
+                                                                        <div className="max-h-56 overflow-y-auto">
+                                                                            {filteredServices.length > 0 ? (
+                                                                                filteredServices.map((s) => {
+                                                                                    const price = s.total.find(
+                                                                                        (t) => t.type === "ADULT",
+                                                                                    )?.price;
+
+                                                                                    return (
+                                                                                        <div
+                                                                                            key={s._id}
+                                                                                            onClick={() => {
+                                                                                                updateActivity(
+                                                                                                    dayIndex,
+                                                                                                    activityIndex,
+                                                                                                    {
+                                                                                                        serviceId:
+                                                                                                            s._id,
+                                                                                                        search: s.name,
+                                                                                                        title: s.name,
+                                                                                                        image: s.image,
+                                                                                                        isFocus: false,
+                                                                                                    },
+                                                                                                );
+                                                                                            }}
+                                                                                            className="cursor-pointer px-4 py-3 hover:bg-slate-100"
+                                                                                        >
+                                                                                            <div className="flex justify-between">
+                                                                                                <span className="font-medium">
+                                                                                                    {s.name}
+                                                                                                </span>
+                                                                                                <span className="text-primary font-semibold text-sm">
+                                                                                                    {price
+                                                                                                        ? `$${price}`
+                                                                                                        : "Free"}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                            <p className="text-xs text-slate-500">
+                                                                                                {s.address}
+                                                                                            </p>
+                                                                                        </div>
+                                                                                    );
+                                                                                })
+                                                                            ) : (
+                                                                                <p className="p-3 text-sm text-slate-400">
+                                                                                    No service found
+                                                                                </p>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <Input
+                                                                type="time"
+                                                                value={activity.time}
+                                                                onChange={(e) =>
+                                                                    updateActivity(dayIndex, activityIndex, {
+                                                                        time: e.target.value,
+                                                                    })
+                                                                }
+                                                                className="h-12 rounded-xl border-none bg-surface-container-low px-4"
+                                                            />
+                                                            <div className="mt-4">
+                                                                {activity.serviceId &&
+                                                                serviceMap[activity.serviceId] ? (
+                                                                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-2">
+                                                                        {/* HEADER */}
+                                                                        <div className="flex items-start justify-between">
+                                                                            <p className="text-sm font-semibold text-slate-800">
+                                                                                {serviceMap[activity.serviceId].name}
+                                                                            </p>
+
+                                                                            <span className="text-[11px] font-bold uppercase text-primary">
+                                                                                {serviceMap[activity.serviceId].type}
+                                                                            </span>
+                                                                        </div>
+
+                                                                        {/* DESCRIPTION */}
+                                                                        <p className="text-xs text-slate-600 line-clamp-2">
+                                                                            {serviceMap[activity.serviceId].description}
+                                                                        </p>
+
+                                                                        {/* PRICE */}
+                                                                        <div className="mt-2 grid grid-cols-3 gap-2">
+                                                                            {serviceMap[activity.serviceId].total?.map(
+                                                                                (t) => (
+                                                                                    <div
+                                                                                        key={t.type}
+                                                                                        className="rounded-lg bg-white p-2 text-center border"
+                                                                                    >
+                                                                                        <p className="text-[10px] text-slate-500">
+                                                                                            {t.type}
+                                                                                        </p>
+                                                                                        <p className="text-sm font-bold text-slate-800">
+                                                                                            ${t.price}
+                                                                                        </p>
+                                                                                    </div>
+                                                                                ),
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                ) : (
+                                                                    /* EMPTY STATE */
+                                                                    <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center">
+                                                                        <p className="text-xs text-slate-500">
+                                                                            Chưa chọn service — hãy tìm và chọn hoạt
+                                                                            động cho ngày này
+                                                                        </p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => handleAddActivity(dayIndex)}
+                                                className="h-11 rounded-2xl border-2 border-dashed border-primary/20 bg-primary/5 px-4 font-bold text-primary"
+                                            >
+                                                <CirclePlus className="size-4" />
+                                                Add Activity To Day {dayIndex + 1}
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </section>
+
+                            <section className="space-y-8">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary-container text-on-secondary-container">
+                                        <ConciergeBell className="size-5" />
+                                    </div>
+
+                                    <div>
+                                        <h2 className="font-headline text-2xl font-bold uppercase tracking-tight">
+                                            Services & Logistics
+                                        </h2>
+                                        <p className="text-sm text-on-surface-variant">
+                                            Select the operational details that support the traveler experience on the
+                                            ground.
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                                    <Card className="rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
+                                        <CardHeader className="px-6 pt-6">
+                                            <div className="flex items-start justify-between">
+                                                <CardTitle className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                                    Hotel
+                                                </CardTitle>
+
+                                                <span className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-bold text-primary">
+                                                    From $120/night
+                                                </span>
+                                            </div>
+                                        </CardHeader>
+
+                                        <CardContent className="space-y-5 px-6 pb-6">
+                                            <Select
+                                                value={tour.hotelServiceId}
+                                                onValueChange={(value) =>
+                                                    setTour((prev) => ({
+                                                        ...prev,
+                                                        hotelServiceId: value,
+                                                    }))
+                                                }
+                                            >
+                                                <SelectTrigger className="h-12 rounded-2xl border-outline-variant/20 bg-surface-container-low px-4 text-sm font-semibold w-full">
+                                                    <SelectValue placeholder="Select hotel" />
+                                                </SelectTrigger>
+
+                                                <SelectContent>
+                                                    {services
+                                                        .filter((s) => s.type === "HOTEL")
+                                                        .map((s) => (
+                                                            <SelectItem key={s._id} value={s._id}>
+                                                                {s.name}
+                                                            </SelectItem>
+                                                        ))}
+                                                </SelectContent>
+                                            </Select>
+
+                                            <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-surface-container-low p-4 transition-all">
+                                                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                                    <BedDouble className="size-5" />
+                                                </div>
+
+                                                <div className="min-w-0 flex-1">
+                                                    {selectedHotel ? (
+                                                        <>
+                                                            <p className="truncate text-sm font-bold text-on-surface">
+                                                                {selectedHotel.name}
+                                                            </p>
+
+                                                            <p className="text-xs text-slate-500 line-clamp-2">
+                                                                {selectedHotel.description}
+                                                            </p>
+
+                                                            <p className="mt-1 text-[11px] font-semibold text-primary">
+                                                                {selectedHotel.address}
+                                                            </p>
+                                                        </>
+                                                    ) : (
+                                                        <p className="text-sm text-slate-400">Chưa chọn khách sạn</p>
+                                                    )}
+                                                </div>
+
+                                                {selectedHotel?.total?.[0]?.price && (
+                                                    <div className="text-right">
+                                                        <p className="text-xs font-bold text-primary">
+                                                            ${selectedHotel?.total?.[0]?.price}
+                                                        </p>
+                                                        <p className="text-[10px] text-slate-500">starting</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card className="rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
+                                        <CardHeader className="px-6 pt-6">
+                                            <div className="flex items-start justify-between">
+                                                <CardTitle className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                                    Transport
+                                                </CardTitle>
+
+                                                <span className="rounded-full bg-secondary/10 px-3 py-1 text-[10px] font-bold text-secondary">
+                                                    From $50
+                                                </span>
+                                            </div>
+                                        </CardHeader>
+
+                                        <CardContent className="space-y-5 px-6 pb-6">
+                                            <Select
+                                                value={tour.transportServiceId}
+                                                onValueChange={(value) =>
+                                                    setTour((prev) => ({
+                                                        ...prev,
+                                                        transportServiceId: value,
+                                                    }))
+                                                }
+                                            >
+                                                <SelectTrigger className="h-12 rounded-2xl border-outline-variant/20 bg-surface-container-low px-4 text-sm font-semibold w-full">
+                                                    <SelectValue placeholder="Select transport" />
+                                                </SelectTrigger>
+
+                                                <SelectContent>
+                                                    {services
+                                                        .filter((s) => s.type === "TRANSPORT")
+                                                        .map((s) => (
+                                                            <SelectItem key={s._id} value={s._id}>
+                                                                {s.name}
+                                                            </SelectItem>
+                                                        ))}
+                                                </SelectContent>
+                                            </Select>
+
+                                            <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-surface-container-low p-4 transition-all">
+                                                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                                    <CarFront className="size-5" />
+                                                </div>
+
+                                                <div className="min-w-0 flex-1">
+                                                    {selectedTransport ? (
+                                                        <>
+                                                            <p className="truncate text-sm font-bold text-on-surface">
+                                                                {selectedTransport.name}
+                                                            </p>
+
+                                                            <p className="text-xs text-slate-500 line-clamp-2">
+                                                                {selectedTransport.description}
+                                                            </p>
+
+                                                            <p className="mt-1 text-[11px] font-semibold text-slate-500">
+                                                                {selectedTransport.address}
+                                                            </p>
+                                                        </>
+                                                    ) : (
+                                                        <p className="text-sm text-slate-400">Chưa chọn phương tiện</p>
+                                                    )}
+                                                </div>
+
+                                                {selectedTransport?.total?.[0]?.price && (
+                                                    <div className="text-right">
+                                                        <p className="text-xs font-bold text-primary">
+                                                            ${selectedTransport?.total?.[0]?.price}
+                                                        </p>
+                                                        <p className="text-[10px] text-slate-500">trip</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
+                                        <CardHeader className="px-6 pt-6">
+                                            <div className="flex items-start justify-between">
+                                                <CardTitle className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                                    Lead Guide
+                                                </CardTitle>
+
+                                                <span className="rounded-full bg-tertiary/10 px-3 py-1 text-[10px] font-bold text-tertiary">
+                                                    Assigned
+                                                </span>
+                                            </div>
+                                        </CardHeader>
+
+                                        <CardContent className="space-y-5 px-6 pb-6">
+                                            <Select
+                                                value={tour.leadDuideServiceId}
+                                                onValueChange={(value) =>
+                                                    setTour((prev) => ({
+                                                        ...prev,
+                                                        leadDuideServiceId: value,
+                                                    }))
+                                                }
+                                            >
+                                                <SelectTrigger className="h-12 rounded-2xl border-outline-variant/20 bg-surface-container-low px-4 text-sm font-semibold w-full">
+                                                    <SelectValue placeholder="Select lead guide" />
+                                                </SelectTrigger>
+
+                                                <SelectContent>
+                                                    {guides
+                                                        .filter((g) => g.role === "GUIDE")
+                                                        .map((g) => (
+                                                            <SelectItem key={g._id} value={g._id}>
+                                                                {g.fullName || g.email}
+                                                            </SelectItem>
+                                                        ))}
+                                                </SelectContent>
+                                            </Select>
+
+                                            <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-surface-container-low p-4 transition-all">
+                                                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-tertiary/10 text-tertiary">
+                                                    <ShieldCheck className="size-5" />
+                                                </div>
+
+                                                <div className="min-w-0 flex-1">
+                                                    {selectedGuide ? (
+                                                        <>
+                                                            <p className="truncate text-sm font-bold text-on-surface">
+                                                                {selectedGuide.fullName || selectedGuide.email}
+                                                            </p>
+
+                                                            <p className="text-xs text-slate-500 line-clamp-2">
+                                                                {selectedGuide.email}
+                                                            </p>
+
+                                                            <p className="mt-1 text-[11px] font-semibold text-tertiary">
+                                                                GUIDE • Certified
+                                                            </p>
+                                                        </>
+                                                    ) : (
+                                                        <p className="text-sm text-slate-400">Chưa chọn guide</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            </section>
+
+                            <Card className="rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
+                                <CardHeader className="px-6 pt-6">
+                                    <CardTitle className="font-headline text-2xl font-bold">
+                                        Basic Information
+                                    </CardTitle>
+                                    <p className="text-sm text-on-surface-variant">
+                                        Start with the essential details travelers and search engines use to understand
+                                        the experience.
+                                    </p>
+                                </CardHeader>
+
+                                <CardContent className="grid grid-cols-1 gap-6 px-6 pb-6 md:grid-cols-2">
+                                    <div className="md:col-span-2">
+                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                            Tour Images
+                                        </label>
+                                        <Input
+                                            type="file"
+                                            multiple
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const files = Array.from(e.target.files);
+                                                setNewImages((prev) => [...prev, ...files]);
+                                                e.target.value = null;
+                                            }}
+                                        />{" "}
+                                        <div className="mt-4 flex flex-wrap gap-4 items-center justify-center">
+                                            {existingImages?.length > 0 || newImages?.length > 0 ? (
+                                                <>
+                                                    {/* Hiển thị ảnh cũ */}
+                                                    {existingImages?.map((img, i) => (
+                                                        <div
+                                                            key={`existing-${img._id || i}`}
+                                                            className="relative group w-32 h-32 rounded-2xl overflow-hidden border cursor-pointer"
+                                                            onClick={() =>
+                                                                setSelectedImage(img.imageUrl || img.url || img)
+                                                            }
+                                                        >
+                                                            <img
+                                                                src={img.imageUrl || img.url || img}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setExistingImages((prev) =>
+                                                                        prev.filter((_, index) => index !== i),
+                                                                    );
+                                                                }}
+                                                                className="absolute top-2 right-2 bg-white text-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                                                            >
+                                                                <X className="size-4" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                    {/* Hiển thị ảnh mới */}
+                                                    {newImages?.map((file, i) => (
+                                                        <div
+                                                            key={`new-${i}`}
+                                                            className="relative group w-32 h-32 rounded-2xl overflow-hidden border-2 border-primary/50 bg-primary/5 cursor-pointer"
+                                                            onClick={() => setSelectedImage(URL.createObjectURL(file))}
+                                                        >
+                                                            <img
+                                                                src={URL.createObjectURL(file)}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                            <div className="absolute inset-0 bg-primary/10"></div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setNewImages((prev) =>
+                                                                        prev.filter((_, index) => index !== i),
+                                                                    );
+                                                                }}
+                                                                className="absolute top-2 right-2 bg-white text-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                                                            >
+                                                                <X className="size-4" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </>
+                                            ) : (
+                                                <p className="text-sm text-slate-400">No images</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                            Tour Name
+                                        </label>
+                                        <Input
+                                            value={tour.name}
+                                            onChange={(e) => setTour({ ...tour, name: e.target.value })}
+                                            placeholder="e.g. Ba Na Hills Adventure"
+                                            className="h-14 rounded-2xl bg-surface-container-low px-4 font-semibold"
+                                        />
+                                    </div>
+
+                                    {/* LOCATION */}
+                                    <div>
+                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                            Location
+                                        </label>
+                                        <Input
+                                            value={tour.location}
+                                            onChange={(e) => setTour({ ...tour, location: e.target.value })}
+                                            placeholder="e.g. Da Nang, Vietnam"
+                                            className="h-14 rounded-2xl bg-surface-container-low px-4 font-semibold"
+                                        />
+                                    </div>
+
+                                    {/* DESCRIPTION */}
+                                    <div className="md:col-span-2">
+                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                            Description
+                                        </label>
+                                        <Textarea
+                                            value={tour.description}
+                                            onChange={(e) => setTour({ ...tour, description: e.target.value })}
+                                            placeholder="Describe your tour experience..."
+                                            className="min-h-[100px] rounded-xl bg-surface-container-low"
+                                        />
+                                    </div>
+
+                                    {/* PRICE */}
+                                    <div>
+                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                            Base Price (USD)
+                                        </label>
+
+                                        <div className="grid grid-cols-3 gap-4">
+                                            {["adult", "child", "infant"].map((type) => (
+                                                <div key={type}>
+                                                    <label className="text-xs font-semibold text-slate-500 uppercase">
+                                                        {type}
+                                                    </label>
+                                                    <Input
+                                                        type="number"
+                                                        value={tour.price[type]}
+                                                        onChange={(e) => handlePriceChange(type, e.target.value)}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* MAX SLOT */}
+                                    <div>
+                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                            Max Capacity
+                                        </label>
+                                        <Input
+                                            type="number"
+                                            value={tour.maxSlots}
+                                            onChange={(e) => setTour({ ...tour, maxSlots: Number(e.target.value) })}
+                                            className="h-12 rounded-xl bg-surface-container-low"
+                                        />
+                                    </div>
+
+                                    {/* MIN SLOT (NEW) */}
+                                    <div>
+                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                            Min Capacity
+                                        </label>
+                                        <Input
+                                            type="number"
+                                            value={tour.minSlots}
+                                            onChange={(e) => setTour({ ...tour, minSlots: Number(e.target.value) })}
+                                            className="h-12 rounded-xl bg-surface-container-low"
+                                        />
+                                    </div>
+
+                                    {/* DAYS */}
+                                    <div>
+                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                            Duration (Days)
+                                        </label>
+                                        <Input
+                                            value={tour.numberOfDay}
+                                            readOnly
+                                            className="h-12 rounded-xl bg-surface-container-low opacity-70"
+                                        />
+                                    </div>
+
+                                    {/* DIFFICULTY */}
+                                    <div className="md:col-span-2">
+                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                            Difficulty Level
+                                        </label>
+
+                                        <Select
+                                            value={tour.difficulty || "EASY"}
+                                            onValueChange={(value) => setTour({ ...tour, difficulty: value })}
+                                        >
+                                            <SelectTrigger className="h-14 w-full rounded-2xl border-outline-variant/20 bg-surface-container-low px-4 py-6 font-semibold">
+                                                <SelectValue placeholder="Select difficulty" />
+                                            </SelectTrigger>
+
+                                            <SelectContent className="rounded-xl">
+                                                <SelectItem value="EASY" className="font-semibold">
+                                                    <span>Easy</span>
+                                                </SelectItem>
+
+                                                <SelectItem value="MEDIUM" className="font-semibold">
+                                                    <span>Medium</span>
+                                                </SelectItem>
+
+                                                <SelectItem value="HARD" className="font-semibold">
+                                                    <span>Hard</span>
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          onClick={() => handleRemoveDay(dayIndex)}
-                          disabled={days.length === 1}
-                          className="h-10 rounded-xl px-4 font-semibold text-slate-500 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                          <Trash2 className="size-4" />
-                          Remove Day
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => handleAddActivity(dayIndex)}
-                          className="h-10 rounded-xl border-dashed border-primary/25 bg-primary/5 px-4 font-semibold text-primary"
-                        >
-                          <CirclePlus className="size-4" />
-                          Add Activity
-                        </Button>
-                      </div>
                     </div>
 
-                    <CardContent className="space-y-8 p-6">
-                      {day.activities.map((activity, activityIndex) => (
-                        <div
-                          key={activityIndex}
-                          className={`grid grid-cols-1 gap-6 lg:grid-cols-3 ${
-                            activityIndex > 0
-                              ? "border-t border-slate-100 pt-8"
-                              : ""
-                          }`}
-                        >
-                          <button
+                    <DialogFooter className="mx-0 mb-0 shrink-0 flex-col gap-3 rounded-none border-t border-slate-200 bg-surface px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+                        <Button
                             type="button"
-                            className="group relative aspect-[4/3] overflow-hidden rounded-[1.5rem] border-2 border-dashed border-slate-200 bg-slate-100 transition-all hover:border-primary/30 hover:bg-slate-200"
-                          >
-                            <div className="relative z-10 flex h-full flex-col items-center justify-center gap-2 p-4">
-                              <ImagePlus className="size-5 text-slate-500" />
-                              <p className="text-center text-xs font-bold uppercase tracking-[0.24em] text-slate-600">
-                                + Add Photo
-                              </p>
-                            </div>
-                          </button>
+                            variant="outline"
+                            onClick={() => onOpenChange?.(false)}
+                            className="h-11 rounded-xl border-slate-200 bg-white px-5 font-semibold text-slate-600"
+                        >
+                            Cancel
+                        </Button>
 
-                          <div className="space-y-4 lg:col-span-2">
-                            <div className="flex items-center justify-between">
-                              <Select>
-                                <SelectTrigger className="h-12 rounded-xl border-outline-variant/20 bg-surface-container-low px-4 text-sm font-semibold">
-                                  <SelectValue placeholder="Select activity" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {services
-                                    .filter(
-                                      (service) => service.type === "ACTIVITY",
-                                    )
-                                    .map((service) => (
-                                      <SelectItem
-                                        key={service.id}
-                                        value={service.id}
-                                      >
-                                        {service.name}
-                                      </SelectItem>
-                                    ))}
-                                </SelectContent>
-                              </Select>
-                              <Button
+                        <div className="flex flex-col gap-3 sm:flex-row">
+                            <Button
                                 type="button"
-                                variant="ghost"
-                                onClick={() =>
-                                  handleRemoveActivity(dayIndex, activityIndex)
-                                }
-                                disabled={day.activities.length === 1}
-                                className="h-9 rounded-xl px-3 text-slate-500 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
-                              >
-                                <Trash2 className="size-4" />
-                                Remove Activity
-                              </Button>
-                            </div>
-
-                            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.24em] text-primary">
-                              <Clock className="size-4" />
-                              <Input
-                                type="time"
-                                placeholder="Time"
-                                className="h-12 w-32 rounded-xl border-none bg-surface-container-low px-4"
-                              />
-                            </div>
-
-                            <Input
-                              type="text"
-                              placeholder={
-                                activityIndex === 0
-                                  ? "Activity title, e.g. Sunrise Coffee & Briefing"
-                                  : `Activity ${activityIndex + 1} title`
-                              }
-                              className="h-12 rounded-xl border-none bg-surface-container-low px-4"
-                            />
-                            <Textarea
-                              placeholder={
-                                activityIndex === 0
-                                  ? "Describe the experience in detail..."
-                                  : `Describe activity ${activityIndex + 1} in detail...`
-                              }
-                              className="min-h-28 rounded-xl border-none bg-surface-container-low px-4 py-3"
-                            />
-                          </div>
+                                variant="outline"
+                                className="h-11 rounded-xl border-outline-variant/30 bg-white px-5 font-semibold text-slate-600"
+                            >
+                                Save Draft
+                            </Button>
+                            <Button
+                                onClick={handleClick}
+                                disabled={loading}
+                                className="h-11 rounded-xl bg-gradient-to-br from-primary to-primary-container px-6 font-bold text-on-primary shadow-lg shadow-primary/15"
+                            >
+                                {loading ? <Spinner /> : `${editingTourId ? "Update Tour" : "Publish Tour"}`}
+                            </Button>
                         </div>
-                      ))}
-
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => handleAddActivity(dayIndex)}
-                        className="h-11 rounded-2xl border-2 border-dashed border-primary/20 bg-primary/5 px-4 font-bold text-primary"
-                      >
-                        <CirclePlus className="size-4" />
-                        Add Activity To Day {dayIndex + 1}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </section>
-
-              <section className="space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-secondary-container text-on-secondary-container">
-                    <ConciergeBell className="size-5" />
-                  </div>
-                  <div>
-                    <h2 className="font-headline text-2xl font-bold uppercase tracking-tight">
-                      Services & Logistics
-                    </h2>
-                    <p className="text-sm text-on-surface-variant">
-                      Select the operational details that support the traveler
-                      experience on the ground.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                  <Card className="rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
-                    <CardHeader className="px-6 pt-6">
-                      <CardTitle className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
-                        Hotel
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4 px-6 pb-6">
-                      <Select defaultValue="grand-hotel">
-                        <SelectTrigger className="h-12 rounded-xl border-outline-variant/20 bg-surface-container-low px-4 text-sm font-semibold">
-                          <SelectValue placeholder="Select hotel" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="grand-hotel">
-                            Grand Hotel Ambasciatori
-                          </SelectItem>
-                          <SelectItem value="ocean-pearl">
-                            Ocean Pearl Resort
-                          </SelectItem>
-                          <SelectItem value="city-boutique">
-                            City Boutique Hotel
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-
-                      <div className="flex items-center gap-3 rounded-2xl border border-primary/15 bg-surface-container-low p-3">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                          <BedDouble className="size-5" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-bold text-on-surface">
-                            Grand Hotel Ambasciatori
-                          </p>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500">
-                            5 Stars
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
-                    <CardHeader className="px-6 pt-6">
-                      <CardTitle className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
-                        Transport
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4 px-6 pb-6">
-                      <Select defaultValue="private-van">
-                        <SelectTrigger className="h-12 rounded-xl border-outline-variant/20 bg-surface-container-low px-4 text-sm font-semibold">
-                          <SelectValue placeholder="Select transport" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="private-van">
-                            Private Van
-                          </SelectItem>
-                          <SelectItem value="speedboat">Speedboat</SelectItem>
-                          <SelectItem value="shuttle-bus">
-                            Shuttle Bus
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-
-                      <div className="flex items-center gap-3 rounded-2xl border border-primary/15 bg-surface-container-low p-3">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                          <CarFront className="size-5" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-bold text-on-surface">
-                            Private Van
-                          </p>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500">
-                            Default option
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
-                    <CardHeader className="px-6 pt-6">
-                      <CardTitle className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
-                        Lead Guide
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4 px-6 pb-6">
-                      <Select>
-                        <SelectTrigger className="h-12 rounded-xl border-outline-variant/20 bg-surface-container-low px-4 text-sm font-semibold">
-                          <SelectValue placeholder="Select lead guide" />
-                        </SelectTrigger>
-                        <SelectContent />
-                      </Select>
-
-                      <div className="flex items-start gap-3 rounded-2xl bg-tertiary-container/8 p-4">
-                        <ShieldCheck className="mt-0.5 size-4 shrink-0 text-tertiary" />
-                        <p className="text-xs leading-5 text-on-tertiary-fixed-variant">
-                          All guides are certified, background checked, and
-                          selected for high-quality on-tour communication.
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </section>
-            </div>
-          </div>
-
-          <DialogFooter className="mx-0 mb-0 shrink-0 flex-col gap-3 rounded-none border-t border-slate-200 bg-surface px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange?.(false)}
-              className="h-11 rounded-xl border-slate-200 bg-white px-5 font-semibold text-slate-600"
-            >
-              Cancel
-            </Button>
-
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button
-                type="button"
-                variant="outline"
-                className="h-11 rounded-xl border-outline-variant/30 bg-white px-5 font-semibold text-slate-600"
-              >
-                Save Draft
-              </Button>
-              <Button className="h-11 rounded-xl bg-gradient-to-br from-primary to-primary-container px-6 font-bold text-on-primary shadow-lg shadow-primary/15">
-                Publish Tour
-              </Button>
-            </div>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+                <DialogContent
+                    showCloseButton={false}
+                    className="sm:max-w-[750px] max-h-[750px] bg-amber-200/0 border-none shadow-none p-0"
+                >
+                    <DialogDescription>
+                        <img src={selectedImage} className="w-full h-full shadow-2xl rounded-2xl" alt="" />
+                    </DialogDescription>
+                </DialogContent>
+            </Dialog>
+        </>
+    );
 }

@@ -6,11 +6,13 @@ import {
   getTourController,
   updateTourController,
   deleteTourController,
+  getToursByProviderController,
 } from "../controllers/tour.controller.js";
 
 const router = express.Router();
 router.use(protect, authorize("PROVIDER"));
-router.get("/", getAllTourController);
+router.get("/all", getAllTourController);
+router.get("/", getToursByProviderController);
 router.get("/:id", getTourController);
 router.post("/", createTourController);
 router.put("/:id", updateTourController);
