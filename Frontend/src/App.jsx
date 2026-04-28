@@ -30,6 +30,7 @@ import TourTracking from "./pages/Traveler/TourTracking";
 import MyBookingTourTraveler from "./pages/Traveler/MyBookingTourTraveler";
 import TrackingLinkManagement from "./pages/Traveler/TrackingLinkManagement";
 import AITravelPlanner from "./pages/Traveler/AITravelPlanner";
+import AITourHistory from "./pages/Traveler/AITourHistory";
 import ProviderAndAdminLogin from "./pages/Auth/ProviderAndAdminLogin";
 import GuideLogin from "./pages/Auth/GuideLogin";
 import { AuthContextProvider } from "./context/authContext";
@@ -72,6 +73,7 @@ function AppRoutes() {
           element={<TrackingLinkManagement />}
         />
         <Route path="ai-travel-planner" element={<AITravelPlanner />} />
+        <Route path="ai-tour-history" element={<AITourHistory />} />
 
         <Route index element={<TravelerDashboard />} />
         <Route path="tour-list" element={<TourList />} />

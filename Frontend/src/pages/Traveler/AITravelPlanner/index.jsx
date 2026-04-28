@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { useLocation, useNavigate } from "react-router-dom";
 import PlannerItinerary from "./PlannerItinerary";
 import PlannerResultHeader from "./PlannerResultHeader";
 import PlannerSidebar from "./PlannerSidebar";
 import PlannerVisuals from "./PlannerVisuals";
-import { callAi } from "@/services/api/ai";
+import { callAi, saveAiTourHistory } from "@/services/api/ai";
 import { geocodeAddress } from "@/services/api/location";
 
 const extractJson = (text) => {
@@ -26,30 +28,49 @@ const extractJson = (text) => {
 };
 
 export default function AITravelPlanner() {
+  const navigate = useNavigate();
+  const routeLocation = useLocation();
   const [destination, setDestination] = useState("Kyoto, Japan");
   const [startDate, setStartDate] = useState(null);
   const [duration, setDuration] = useState(3);
   const [budget, setBudget] = useState("1500");
   const [location, setLocation] = useState(null);
-  const [travelStyles, setTravelStyles] = useState({
-    relax: false,
-    adventure: true,
-    food: true,
-    culture: false,
-  });
+  const [describe, setDescribe] = useState(null);
   const [quantity, setQuantity] = useState({
     adult: 2,
     child: 1,
     infant: 0,
   });
   const [itinerary, setItinerary] = useState(null);
+  const [savingTrip, setSavingTrip] = useState(false);
+  const [savedTripId, setSavedTripId] = useState(null);
 
-  const handleToggleTravelStyle = (styleKey) => {
-    setTravelStyles((prev) => ({
-      ...prev,
-      [styleKey]: !prev[styleKey],
-    }));
-  };
+  useEffect(() => {
+    const selectedTour = routeLocation.state?.selectedTour;
+    if (!selectedTour) return;
+
+    setItinerary(selectedTour);
+    setSavedTripId(selectedTour._id || null);
+    setDestination(selectedTour.location || "");
+    setDuration(selectedTour.numberOfDay || 3);
+    setBudget(
+      String(
+        (Number(selectedTour.price?.ADULT) || 0) +
+          (Number(selectedTour.price?.CHILD) || 0) +
+          (Number(selectedTour.price?.INFANT) || 0),
+      ),
+    );
+    setDescribe(selectedTour.description || "");
+    setQuantity({
+      adult: Number(selectedTour.quantity?.ADULT) || 0,
+      child: Number(selectedTour.quantity?.CHILD) || 0,
+      infant: Number(selectedTour.quantity?.INFANT) || 0,
+    });
+
+    if (selectedTour.startDay) {
+      setStartDate(new Date(selectedTour.startDay));
+    }
+  }, [routeLocation.state]);
 
   const handleChangeDuration = (value) => {
     setDuration(Number(value));
@@ -74,29 +95,48 @@ export default function AITravelPlanner() {
 
   const handleGenerateTour = async () => {
     try {
-      console.log({
+      const payload = {
         destination,
         startDate: startDate?.toISOString() ?? null,
         budget: Number(budget) || 0,
-        travelStyles,
+        describe,
         duration,
         quantity,
-      });
+      };
 
-      const response = await callAi({
-        destination,
-        startDate: startDate?.toISOString() ?? null,
-        budget: Number(budget) || 0,
-        travelStyles,
-        duration,
-        quantity,
-      });
-      console.log(response);
+      const response = await callAi(payload);
       const data = extractJson(response.data.data);
       setItinerary(data);
-      console.log(data);
+      setSavedTripId(null);
     } catch (error) {
       console.log(error);
+      toast.error(error?.response?.data?.message || "Cannot generate tour");
+    }
+  };
+
+  const handleSaveTrip = async () => {
+    if (!itinerary) {
+      toast.error("Please generate a trip before saving");
+      return;
+    }
+
+    if (savedTripId) {
+      toast.success("This trip is already saved");
+      return;
+    }
+
+    try {
+      setSavingTrip(true);
+      const response = await saveAiTourHistory({
+        tour: itinerary,
+      });
+      setSavedTripId(response.data.data?._id);
+      toast.success("Trip saved to AI Tour History");
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message || "Cannot save trip");
+    } finally {
+      setSavingTrip(false);
     }
   };
 
@@ -128,9 +168,9 @@ export default function AITravelPlanner() {
             onDestinationChange={setDestination}
             onDurationChange={handleChangeDuration}
             onStartDateChange={handleChangeStartDate}
+            setDescribe={setDescribe}
             startDate={startDate}
-            onToggleTravelStyle={handleToggleTravelStyle}
-            travelStyles={travelStyles}
+            describe={describe}
           />
 
           <section
@@ -140,7 +180,13 @@ export default function AITravelPlanner() {
                 : "bg-black/5 p-0"
             }`}
           >
-            <PlannerResultHeader itinerary={itinerary} />
+            <PlannerResultHeader
+              itinerary={itinerary}
+              isTripSaved={Boolean(savedTripId)}
+              isSavingTrip={savingTrip}
+              onOpenHistory={() => navigate("/traveler/ai-tour-history")}
+              onSaveTrip={handleSaveTrip}
+            />
 
             {itinerary ? (
               <>
