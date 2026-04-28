@@ -26,6 +26,7 @@ import {
   BadgeCheck,
   ShieldAlert,
   Hotel,
+  History,
 } from "lucide-react";
 
 const MENU = {
@@ -34,6 +35,7 @@ const MENU = {
     { name: "Tour List", href: "/tour-list", icon: Plane },
     { name: "Tour Detail", href: "/tour-detail", icon: Mountain },
     { name: "AI Travel Planner", href: "/ai-travel-planner", icon: Sparkles },
+    { name: "AI Tour History", href: "/ai-tour-history", icon: History },
     {
       name: "Chat AI Assistant",
       href: "/chat-ai-assistant",

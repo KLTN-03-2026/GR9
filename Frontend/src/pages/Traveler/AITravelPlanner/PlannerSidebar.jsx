@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 const formatDateInputValue = (date) => {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
@@ -34,8 +35,8 @@ function PlannerSidebar({
   onDurationChange,
   onStartDateChange,
   startDate,
-  onToggleTravelStyle,
-  travelStyles,
+  describe,
+  setDescribe,
 }) {
   return (
     <section className="scrollbar-hide h-full w-full overflow-y-auto bg-surface-container-low p-8 md:w-[400px] xl:w-[450px]">
@@ -137,77 +138,15 @@ function PlannerSidebar({
 
           <div className="space-y-3">
             <Label className="px-1 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-              Travel Style
+              Describe your trip
             </Label>
             <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                onClick={() => onToggleTravelStyle("relax")}
-                variant={travelStyles.relax ? "secondary" : "outline"}
-                className={`h-auto rounded-full px-4 py-2 text-xs ${
-                  travelStyles.relax
-                    ? "border border-primary bg-primary/5 font-bold text-primary hover:bg-primary/10"
-                    : "border-outline-variant/30 font-semibold hover:border-primary hover:text-primary"
-                }`}
-              >
-                <span>Relax</span>
-                {travelStyles.relax ? (
-                  <span className="material-symbols-outlined text-[14px]">
-                    check
-                  </span>
-                ) : null}
-              </Button>
-              <Button
-                type="button"
-                onClick={() => onToggleTravelStyle("adventure")}
-                variant={travelStyles.adventure ? "secondary" : "outline"}
-                className={`h-auto rounded-full px-4 py-2 text-xs ${
-                  travelStyles.adventure
-                    ? "border border-primary bg-primary/5 font-bold text-primary hover:bg-primary/10"
-                    : "border-outline-variant/30 font-semibold hover:border-primary hover:text-primary"
-                }`}
-              >
-                <span>Adventure</span>
-                {travelStyles.adventure ? (
-                  <span className="material-symbols-outlined text-[14px]">
-                    check
-                  </span>
-                ) : null}
-              </Button>
-              <Button
-                type="button"
-                onClick={() => onToggleTravelStyle("food")}
-                variant={travelStyles.food ? "secondary" : "outline"}
-                className={`h-auto rounded-full px-4 py-2 text-xs ${
-                  travelStyles.food
-                    ? "border border-primary bg-primary/5 font-bold text-primary hover:bg-primary/10"
-                    : "border-outline-variant/30 font-semibold hover:border-primary hover:text-primary"
-                }`}
-              >
-                <span>Food</span>
-                {travelStyles.food ? (
-                  <span className="material-symbols-outlined text-[14px]">
-                    check
-                  </span>
-                ) : null}
-              </Button>
-              <Button
-                type="button"
-                onClick={() => onToggleTravelStyle("culture")}
-                variant={travelStyles.culture ? "secondary" : "outline"}
-                className={`h-auto rounded-full px-4 py-2 text-xs ${
-                  travelStyles.culture
-                    ? "border border-primary bg-primary/5 font-bold text-primary hover:bg-primary/10"
-                    : "border-outline-variant/30 font-semibold hover:border-primary hover:text-primary"
-                }`}
-              >
-                <span>Culture</span>
-                {travelStyles.culture ? (
-                  <span className="material-symbols-outlined text-[14px]">
-                    check
-                  </span>
-                ) : null}
-              </Button>
+              <Textarea
+                value={describe}
+                onChange={(e) => setDescribe(e.target.value)}
+                className="h-32 rounded-2xl border-outline-variant/20 bg-surface-container-lowest  font-medium text-on-surface focus-visible:border-primary focus-visible:ring-primary/10"
+                placeholder="Describe your trip"
+              />
             </div>
           </div>
 

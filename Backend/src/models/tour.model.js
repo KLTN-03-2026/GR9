@@ -65,7 +65,7 @@ const tourSchema = new Schema(
             ref: "Service",
             default: null,
         },
-        leadDuideServiceId: {
+        leadGuideServiceId: {
             type: Schema.Types.ObjectId,
             ref: "User",
             default: null,
