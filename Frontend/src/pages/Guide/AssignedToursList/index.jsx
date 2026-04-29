@@ -10,13 +10,15 @@ import {
   Users,
 } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarGroup, AvatarImage } from "@/components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarImage,
+} from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -46,6 +48,7 @@ import {
   GUIDE_ASSIGNED_TOURS,
   filterToursBySegment,
 } from "@/data/guideAssignedTours";
+import PageHero from "@/components/shared/page-hero";
 
 const SEGMENTS = [
   { id: "all", label: "All" },
@@ -69,9 +72,11 @@ function statusBadgeClass(status) {
 
 function sortTours(list, sortBy) {
   const next = [...list];
-  if (sortBy === "startDate") next.sort((a, b) => a.startDate.localeCompare(b.startDate));
+  if (sortBy === "startDate")
+    next.sort((a, b) => a.startDate.localeCompare(b.startDate));
   if (sortBy === "title") next.sort((a, b) => a.title.localeCompare(b.title));
-  if (sortBy === "passengers") next.sort((a, b) => b.passengerCount - a.passengerCount);
+  if (sortBy === "passengers")
+    next.sort((a, b) => b.passengerCount - a.passengerCount);
   return next;
 }
 
@@ -90,7 +95,8 @@ const AssignedToursList = () => {
 
   const filtered = useMemo(() => {
     let list = filterToursBySegment(GUIDE_ASSIGNED_TOURS, segment);
-    if (filterRegion !== "all") list = list.filter((t) => t.region === filterRegion);
+    if (filterRegion !== "all")
+      list = list.filter((t) => t.region === filterRegion);
     list = list.filter((t) => {
       if (t.status === "ongoing") return showOngoing;
       if (t.status === "scheduled") return showScheduled;
@@ -120,7 +126,10 @@ const AssignedToursList = () => {
   }, [filtered]);
 
   const sidebarTours = useMemo(
-    () => filtered.filter((t) => heroTour && t.id !== heroTour.id && t.listRole === "sidebar"),
+    () =>
+      filtered.filter(
+        (t) => heroTour && t.id !== heroTour.id && t.listRole === "sidebar",
+      ),
     [filtered, heroTour],
   );
 
@@ -149,16 +158,28 @@ const AssignedToursList = () => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl text-on-surface">
-      <section className="mb-12">
-        <h1 className="mb-2 font-headline text-4xl font-extrabold tracking-tight text-on-surface md:text-5xl">
-          My Itineraries
-        </h1>
-        <p className="max-w-2xl text-lg text-on-surface-variant">
-          Curating guide-ready travel experiences across the shared demo workspace. Here are your
-          assigned journeys.
-        </p>
-      </section>
+    <div className="mx-auto w-full max-w-[1600px] pb-12 pt-24 text-on-surface">
+      <PageHero
+        eyebrow="Assignment Board"
+        heading={
+          <>
+            My{" "}
+            <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
+              Itineraries
+            </span>
+          </>
+        }
+        description="Review assigned journeys, filter by schedule state, and move from planning to live operations without leaving the guide workspace."
+        actions={
+          <Button
+            onClick={() => setProposeOpen(true)}
+            className="rounded-2xl bg-gradient-to-br from-primary to-primary-container px-6 py-3 font-bold text-on-primary shadow-lg shadow-primary/15"
+          >
+            <Plus className="size-4" />
+            Propose New Tour
+          </Button>
+        }
+      />
 
       <section className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
         <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
@@ -192,7 +213,9 @@ const AssignedToursList = () => {
           </Button>
           <SheetContent side="right" className="w-full gap-0 sm:max-w-md">
             <SheetHeader className="border-b border-outline-variant/15 pb-4">
-              <SheetTitle className="font-headline">Filter itineraries</SheetTitle>
+              <SheetTitle className="font-headline">
+                Filter itineraries
+              </SheetTitle>
               <SheetDescription>
                 Narrow the list by region, lifecycle state, and sort order.
               </SheetDescription>
@@ -235,21 +258,34 @@ const AssignedToursList = () => {
                   Status
                 </p>
                 <label className="flex cursor-pointer items-center gap-3 text-sm">
-                  <Checkbox checked={showOngoing} onCheckedChange={(v) => setShowOngoing(!!v)} />
+                  <Checkbox
+                    checked={showOngoing}
+                    onCheckedChange={(v) => setShowOngoing(!!v)}
+                  />
                   Ongoing
                 </label>
                 <label className="flex cursor-pointer items-center gap-3 text-sm">
-                  <Checkbox checked={showScheduled} onCheckedChange={(v) => setShowScheduled(!!v)} />
+                  <Checkbox
+                    checked={showScheduled}
+                    onCheckedChange={(v) => setShowScheduled(!!v)}
+                  />
                   Scheduled
                 </label>
                 <label className="flex cursor-pointer items-center gap-3 text-sm">
-                  <Checkbox checked={showCompleted} onCheckedChange={(v) => setShowCompleted(!!v)} />
+                  <Checkbox
+                    checked={showCompleted}
+                    onCheckedChange={(v) => setShowCompleted(!!v)}
+                  />
                   Completed
                 </label>
               </div>
             </div>
             <SheetFooter className="border-t border-outline-variant/15">
-              <Button variant="outline" className="w-full" onClick={resetFilters}>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={resetFilters}
+              >
                 Reset filters
               </Button>
               <Button className="w-full" onClick={() => setSheetOpen(false)}>
@@ -290,7 +326,9 @@ const AssignedToursList = () => {
                 </div>
                 <div className="absolute bottom-4 left-4">
                   <div className="rounded-xl bg-white/90 px-4 py-2 backdrop-blur-md">
-                    <span className="text-xl font-bold text-primary">{heroTour.code}</span>
+                    <span className="text-xl font-bold text-primary">
+                      {heroTour.code}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -309,21 +347,29 @@ const AssignedToursList = () => {
                     <span className="mb-1 block text-xs font-bold tracking-widest text-on-surface-variant uppercase">
                       Guide
                     </span>
-                    <span className="font-semibold text-primary">{heroTour.guideName}</span>
+                    <span className="font-semibold text-primary">
+                      {heroTour.guideName}
+                    </span>
                   </div>
                 </div>
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-outline-variant/10 pt-6">
                   <div className="flex flex-wrap gap-8">
                     <div className="flex flex-col">
-                      <span className="text-xs font-medium text-on-surface-variant">Passengers</span>
+                      <span className="text-xs font-medium text-on-surface-variant">
+                        Passengers
+                      </span>
                       <span className="flex items-center gap-1 text-lg font-bold">
                         {heroTour.passengerCount}
                         <Users className="size-4" />
                       </span>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-xs font-medium text-on-surface-variant">Duration</span>
-                      <span className="text-lg font-bold">{heroTour.dateRangeLabel}</span>
+                      <span className="text-xs font-medium text-on-surface-variant">
+                        Duration
+                      </span>
+                      <span className="text-lg font-bold">
+                        {heroTour.dateRangeLabel}
+                      </span>
                     </div>
                   </div>
                   <Button
@@ -365,7 +411,9 @@ const AssignedToursList = () => {
                   <span className="mb-1 block text-[10px] font-bold tracking-widest text-on-surface-variant uppercase">
                     {t.code}
                   </span>
-                  <h3 className="mb-4 font-headline text-xl font-bold">{t.title}</h3>
+                  <h3 className="mb-4 font-headline text-xl font-bold">
+                    {t.title}
+                  </h3>
                   <div className="space-y-3 text-sm text-on-surface-variant">
                     <div className="flex items-center gap-3">
                       <CalendarDays className="size-[18px] shrink-0" />
@@ -385,7 +433,9 @@ const AssignedToursList = () => {
                     className="mt-6 w-full rounded-xl border-outline-variant/30 font-bold text-primary hover:bg-primary/5"
                     asChild
                   >
-                    <Link to={`/guide/tour-detail-ops/${t.id}`}>View Details</Link>
+                    <Link to={`/guide/tour-detail-ops/${t.id}`}>
+                      View Details
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -393,10 +443,12 @@ const AssignedToursList = () => {
 
             <Card className="relative overflow-hidden rounded-2xl border-0 bg-primary-container py-6 text-on-primary shadow-lg ring-0 shadow-primary-container/20">
               <CardContent className="relative z-10 px-6">
-                <h3 className="mb-2 font-headline text-lg font-bold">Live Fleet View</h3>
+                <h3 className="mb-2 font-headline text-lg font-bold">
+                  Live Fleet View
+                </h3>
                 <p className="mb-6 text-sm text-on-primary-container/80">
-                  {activeFleetCount} tour{activeFleetCount === 1 ? "" : "s"} currently active in your
-                  region.
+                  {activeFleetCount} tour{activeFleetCount === 1 ? "" : "s"}{" "}
+                  currently active in your region.
                 </p>
                 <div className="relative mb-4 h-32 overflow-hidden rounded-xl bg-white/10 backdrop-blur-md">
                   <div className="absolute inset-0 flex items-center justify-center bg-slate-200/20">
@@ -416,7 +468,9 @@ const AssignedToursList = () => {
           </div>
 
           <div className="mt-4 lg:col-span-12">
-            <h4 className="mb-6 font-headline text-xl font-bold text-on-surface">Later this week</h4>
+            <h4 className="mb-6 font-headline text-xl font-bold text-on-surface">
+              Later this week
+            </h4>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               {laterTours.map((t) => (
                 <Card
@@ -429,7 +483,10 @@ const AssignedToursList = () => {
                         <span className="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase">
                           {t.code}
                         </span>
-                        <Badge variant="muted" className="rounded px-2 py-0.5 text-[10px] font-bold uppercase">
+                        <Badge
+                          variant="muted"
+                          className="rounded px-2 py-0.5 text-[10px] font-bold uppercase"
+                        >
                           {t.status}
                         </Badge>
                       </div>
@@ -441,14 +498,25 @@ const AssignedToursList = () => {
                     <div className="mt-4 flex items-center justify-between">
                       <AvatarGroup>
                         {t.passengers.slice(0, 3).map((p) => (
-                          <Avatar key={p.id} className="size-6 border-2 border-white">
+                          <Avatar
+                            key={p.id}
+                            className="size-6 border-2 border-white"
+                          >
                             <AvatarImage src={p.avatar} alt={p.name} />
-                            <AvatarFallback className="text-[9px]">{p.name.slice(0, 1)}</AvatarFallback>
+                            <AvatarFallback className="text-[9px]">
+                              {p.name.slice(0, 1)}
+                            </AvatarFallback>
                           </Avatar>
                         ))}
                       </AvatarGroup>
-                      <Button variant="link" className="h-auto p-0 text-xs font-semibold" asChild>
-                        <Link to={`/guide/tour-detail-ops/${t.id}`}>Manage Tour</Link>
+                      <Button
+                        variant="link"
+                        className="h-auto p-0 text-xs font-semibold"
+                        asChild
+                      >
+                        <Link to={`/guide/tour-detail-ops/${t.id}`}>
+                          Manage Tour
+                        </Link>
                       </Button>
                     </div>
                   </CardContent>
@@ -463,8 +531,12 @@ const AssignedToursList = () => {
                 <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-teal-50 text-primary transition-transform group-hover:scale-110">
                   <Plus className="size-7" />
                 </div>
-                <h5 className="text-lg font-bold text-on-surface">Propose New Tour</h5>
-                <p className="text-sm text-on-surface-variant">Design a custom route for your next group</p>
+                <h5 className="text-lg font-bold text-on-surface">
+                  Propose New Tour
+                </h5>
+                <p className="text-sm text-on-surface-variant">
+                  Design a custom route for your next group
+                </p>
               </button>
             </div>
           </div>
@@ -507,7 +579,10 @@ const AssignedToursList = () => {
             <Button variant="outline" onClick={() => setProposeOpen(false)}>
               Cancel
             </Button>
-            <Button disabled={!proposalTitle.trim() || submitting} onClick={submitProposal}>
+            <Button
+              disabled={!proposalTitle.trim() || submitting}
+              onClick={submitProposal}
+            >
               {submitting ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />

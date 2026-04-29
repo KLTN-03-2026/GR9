@@ -5,11 +5,11 @@ import ProviderProfilePayout from "./ProviderProfilePayout";
 
 export default function ProviderProfile() {
   return (
-    <div className="relative overflow-hidden text-on-surface">
+    <div className="relative overflow-hidden bg-surface text-on-surface">
       <div className="pointer-events-none absolute -top-24 right-0 h-96 w-96 rounded-full bg-primary-fixed-dim/20 blur-3xl" />
       <div className="pointer-events-none absolute bottom-20 left-10 h-72 w-72 rounded-full bg-tertiary-fixed/20 blur-3xl" />
 
-      <main className="mx-auto w-full max-w-6xl space-y-10 pb-10">
+      <main className="mx-auto w-full max-w-[1600px] space-y-10 px-6 pb-12 pt-24 md:px-10">
         <ProviderProfileHero />
 
         <div className="grid grid-cols-12 gap-6">
@@ -22,11 +22,7 @@ export default function ProviderProfile() {
             <ProviderProfileContact />
           </div>
         </div>
-
-        
       </main>
-
-      
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
 import toast from "react-hot-toast";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import PageHero from "@/components/shared/page-hero";
 
 const ProviderApprovalPage = () => {
   const [providers, setProviders] = useState([]);
@@ -65,43 +66,52 @@ const ProviderApprovalPage = () => {
   };
 
   return (
-    <div className="pt-24 pb-12 max-w-6xl mx-auto space-y-12">
-      <section>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h3 className="text-3xl font-extrabold tracking-tight text-slate-900 font-headline">
-              Review New Partnerships
-            </h3>
-            <p className="text-slate-500 mt-2 max-w-2xl text-sm">
-              Examine business credentials and verification documents for
-              providers requesting access to the marketplace.
-            </p>
-          </div>
-          <div className="rounded-3xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
-            <p className="text-sm uppercase tracking-[0.18em] text-slate-400">
-              Total Applications
-            </p>
-            <p className="text-3xl font-headline font-bold text-slate-900">
-              {providers.length}
-            </p>
-          </div>
-        </div>
-      </section>
+    <div className="mx-auto max-w-[1600px] space-y-8 pb-12 pt-24">
+      <PageHero
+        eyebrow="Verification Queue"
+        heading={
+          <>
+            Review New{" "}
+            <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
+              Partnerships
+            </span>
+          </>
+        }
+        description="Examine business credentials and verification documents for providers requesting access to the marketplace."
+        actions={
+          <Card className="w-full min-w-[220px] rounded-3xl border border-slate-200 bg-white/90 shadow-sm">
+            <CardContent className="px-5 py-4">
+              <p className="text-sm uppercase tracking-[0.18em] text-slate-400">
+                Total Applications
+              </p>
+              <p className="text-3xl font-headline font-bold text-slate-900">
+                {providers.length}
+              </p>
+            </CardContent>
+          </Card>
+        }
+      />
 
-      <section className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+      <section className="grid grid-cols-1 gap-8 xl:grid-cols-12">
         <div className="xl:col-span-8 space-y-6">
           {loading ? (
-            <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center text-slate-500">
-              Đang tải danh sách form đăng ký...
-            </div>
+            <Card className="rounded-3xl border border-slate-200 bg-white shadow-sm">
+              <CardContent className="p-10 text-center text-slate-500">
+                Đang tải danh sách form đăng ký...
+              </CardContent>
+            </Card>
           ) : error ? (
-            <div className="rounded-3xl border border-rose-200 bg-rose-50 p-10 text-center text-rose-700">
-              {error}
-            </div>
+            <Card className="rounded-3xl border border-rose-200 bg-rose-50 shadow-sm">
+              <CardContent className="p-10 text-center text-rose-700">
+                {error}
+              </CardContent>
+            </Card>
           ) : providers.length === 0 ? (
-            <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center text-slate-500">
-              Chưa có hồ sơ đăng ký đối tác nào.
-            </div>
+            <Card className="rounded-3xl border border-slate-200 bg-white shadow-sm">
+              <CardContent className="p-10 text-center text-slate-500">
+                Chưa có hồ sơ đăng ký đối tác nào.
+              </CardContent>
+            </Card>
           ) : (
             providers.map((p) => (
               <ProviderApprovalCard
