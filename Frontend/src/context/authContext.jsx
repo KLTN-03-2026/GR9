@@ -11,7 +11,6 @@ import {
   verifyEmailOtp,
   verifyResetPasswordOtp,
 } from "../services/api/auth";
-import { applyProvider } from "../services/api/provider";
 import { useNavigate } from "react-router-dom";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/firebase";
@@ -47,9 +46,9 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
 
-  const loginUser = async (email, password) => {
+  const loginUser = async (email, password, role) => {
     try {
-      const response = await login(email, password);
+      const response = await login(email, password, role);
       const payload = response.data.data;
       persistUserSession(payload);
       toast.success("User logged in successfully");
@@ -64,7 +63,7 @@ export const AuthContextProvider = ({ children }) => {
         navigate("/admin");
       } else if (payload?.user?.role === "PROVIDER") {
         navigate("/provider");
-      } else {
+      } else if (payload?.user?.role === "TRAVELER") {
         navigate("/traveler");
       }
 
