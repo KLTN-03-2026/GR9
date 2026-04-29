@@ -108,11 +108,6 @@ const MENU = {
       icon: Users,
     },
     {
-      name: "Hotel Management Provider",
-      href: "/hotel-management",
-      icon: Hotel,
-    },
-    {
       name: "Provider Profile",
       href: "/profile",
       icon: UserCog,

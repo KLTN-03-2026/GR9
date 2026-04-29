@@ -223,16 +223,18 @@ export const googleLogin = async (idToken) => {
   }
 };
 
-export const loginUser = async (email, password) => {
+export const loginUser = async (email, password, role) => {
   try {
     const normalizedEmail = normalizeEmail(email);
     const user = await User.findOne({ email: normalizedEmail });
+    if(user.role !== role) {
+      throw throwError("You are not allowed to login as this role", 403, "ROLE_NOT_ALLOWED");
+    }
     if (!user) {
       throw throwError("User not found", 404, "USER_NOT_FOUND");
     }
 
-    // Allow login if user has a password set (regardless of authType)
-    if (!user.password) {
+    if (!user.password && user.authType === "GOOGLE" ) {
       throw throwError(
         "Please login with Google for this account",
         400,

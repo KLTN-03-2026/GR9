@@ -1,9 +1,17 @@
-import React from 'react';
-import { Bell, Search } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { Bell, ChevronDown, LogOut, Search, UserRound } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import AuthContext from '@/context/authContext';
 
 const PAGE_META = {
   '/traveler': {
@@ -69,6 +77,7 @@ function resolveBreadcrumbTitle(pathname, fallbackTitle) {
 
 const Header = () => {
   const location = useLocation();
+  const { user, logOutContext } = useContext(AuthContext);
 
   const isProviderBookingsPage =
     location.pathname === '/provider/bookings-management';
@@ -81,6 +90,15 @@ const Header = () => {
     ...baseMeta,
     title: resolveBreadcrumbTitle(location.pathname, baseMeta.title),
   };
+
+  const currentRole = currentMeta.role.toLowerCase();
+  const profilePath =
+    currentRole === 'provider' ? '/provider/profile' : `/${currentRole}`;
+  const currentUser = user?.user;
+  const avatarFallback =
+    currentUser?.full_name?.trim()?.charAt(0)?.toUpperCase() ||
+    currentUser?.email?.trim()?.charAt(0)?.toUpperCase() ||
+    currentMeta.avatarFallback;
 
 
 
@@ -125,11 +143,41 @@ const Header = () => {
             <span className="absolute right-[11px] top-[10px] h-2 w-2 rounded-full bg-red-500" />
           </Button>
 
-          <Avatar className="h-9 w-9 border border-outline-variant/30 bg-surface-container-low">
-            <AvatarFallback className="text-xs font-bold text-teal-800">
-              {currentMeta.avatarFallback}
-            </AvatarFallback>
-          </Avatar>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-11 gap-2 rounded-full px-1.5 pr-2 hover:bg-surface-container-low"
+              >
+                <Avatar className="h-9 w-9 border border-outline-variant/30 bg-surface-container-low">
+                  <AvatarFallback className="text-xs font-bold text-teal-800">
+                    {avatarFallback}
+                  </AvatarFallback>
+                </Avatar>
+                <ChevronDown className="h-4 w-4 text-on-surface-variant" />
+              </Button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent
+              align="end"
+              className="w-48 rounded-xl border-outline-variant/30 bg-white p-1 shadow-xl"
+            >
+              <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+                <Link to={profilePath} className="flex items-center gap-2">
+                  <UserRound className="h-4 w-4" />
+                  <span>Profile</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={logOutContext}
+                className="cursor-pointer rounded-lg text-red-600 focus:text-red-600"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>

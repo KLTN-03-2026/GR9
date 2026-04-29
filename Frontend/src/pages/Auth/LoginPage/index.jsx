@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import LoginForm from "./LoginForm";
 import AuthContext from "@/context/authContext";
+import { useLocation } from "react-router-dom";
 
 const showcaseTravelers = [
   {
@@ -67,8 +68,9 @@ export default function LoginPage() {
   };
   const handleLoginUser = async () => {
     try {
+      
       setLoading(true);
-      await loginUser(email, password);
+      await loginUser(email, password, "TRAVELER");
     } catch (error) {
       console.error(error);
     } finally {

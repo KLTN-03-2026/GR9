@@ -4,8 +4,8 @@ export const googleLogin = async (idToken) => {
   return await api.post("/auth/google", { idToken });
 };
 
-export const login = async (email, password) => {
-  return await api.post("/auth/login", { email, password });
+export const login = async (email, password, role) => {
+  return await api.post("/auth/login", { email, password, role });
 };
 
 export const signup = async (data) => {

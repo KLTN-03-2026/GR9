@@ -38,7 +38,6 @@ import { Toaster } from "react-hot-toast";
 
 import TourList from "./pages/Traveler/TourList";
 import TourDetail from "./pages/Traveler/TourDetail";
-import HotelManagement from "./pages/Provider/HotelManagement";
 import GuideDashboardHome from "./pages/Guide/GuideDashboardHome";
 import ProviderProfile from "./pages/Provider/ProviderProfile";
 import ProviderApplicationForm from "./pages/Guest/ProviderApplicationForm";
@@ -60,7 +59,11 @@ function AppRoutes() {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/first-join-password" element={<FirstJoinPasswordPage />} />
       <Route
-        path="/provider-and-admin-login-management"
+        path="/provider-login"
+        element={<ProviderAndAdminLogin />}
+      />
+      <Route
+        path="/admin-login"
         element={<ProviderAndAdminLogin />}
       />
       <Route path="/guide-staff-login" element={<GuideLogin />} />
@@ -101,7 +104,6 @@ function AppRoutes() {
           element={<ProviderBookingManagement />}
         />
         <Route path="service-management" element={<ServiceManagement />} />
-        <Route path="hotel-management" element={<HotelManagement />} />
         <Route path="profile" element={<ProviderProfile />} />
       </Route>
 
