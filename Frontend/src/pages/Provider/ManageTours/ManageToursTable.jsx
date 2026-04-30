@@ -17,8 +17,10 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { formatPrice } from "@/utils/formatPrice";
+import { useNavigate } from "react-router-dom";
 
 export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
+    const navigate = useNavigate();
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState("all");
     const [sort, setSort] = useState("latest");
@@ -145,7 +147,9 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                                         <TableCell className="px-6 py-5">
                                             <div className="flex items-center gap-4">
                                                 <img
-                                                    src={tour.images?.[0]?.imageUrl || "https://via.placeholder.com/100"}
+                                                    src={
+                                                        tour.images?.[0]?.imageUrl || "https://via.placeholder.com/100"
+                                                    }
                                                     alt={tour.name}
                                                     className="h-16 w-16 rounded-2xl object-cover shadow-sm"
                                                 />
@@ -212,8 +216,10 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end" className="w-44">
-                                                        <DropdownMenuItem onClick={() => handleEdit(tour)}>
-                                                            Edit details
+                                                        <DropdownMenuItem
+                                                            onClick={() => navigate(`/provider/tours/${tour._id}/schedule`)}
+                                                        >
+                                                            Manage schedule
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem>Duplicate tour</DropdownMenuItem>
                                                         <DropdownMenuSeparator />
