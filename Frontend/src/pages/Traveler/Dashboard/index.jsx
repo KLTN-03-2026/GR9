@@ -9,9 +9,7 @@ const TravelerDashboard = () => {
             <div className="flex min-h-screen pt-16">
                 <main className="mx-auto w-full max-w-[1600px] flex-1 p-6 lg:p-10">
                     <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-                        {/* Left column */}
                         <div className="space-y-12 lg:col-span-8">
-                            {/* Hero / AI banner */}
                             <section className="group relative h-[320px] overflow-hidden rounded-[2rem] bg-slate-900">
                                 <img
                                     alt="Paradise beach"

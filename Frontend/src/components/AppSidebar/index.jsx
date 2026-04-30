@@ -26,6 +26,7 @@ import {
   BadgeCheck,
   ShieldAlert,
   Hotel,
+  History,
 } from "lucide-react";
 
 const MENU = {
@@ -34,6 +35,7 @@ const MENU = {
     { name: "Tour List", href: "/tour-list", icon: Plane },
     { name: "Tour Detail", href: "/tour-detail", icon: Mountain },
     { name: "AI Travel Planner", href: "/ai-travel-planner", icon: Sparkles },
+    { name: "AI Tour History", href: "/ai-tour-history", icon: History },
     {
       name: "Chat AI Assistant",
       href: "/chat-ai-assistant",
@@ -50,6 +52,7 @@ const MENU = {
       icon: LinkIcon,
     },
     { name: "Tour Tracking", href: "/tour-tracking", icon: MapPin },
+    { name: "Traveler Profile", href: "/profile", icon: UserCog },
   ],
 
   admin: [
@@ -66,6 +69,7 @@ const MENU = {
       href: "/content-moderation",
       icon: ShieldAlert,
     },
+    { name: "Admin Profile", href: "/profile", icon: UserCog },
   ],
 
   guide: [
@@ -80,6 +84,7 @@ const MENU = {
       href: "/live-tour-tracking",
       icon: Share2,
     },
+    { name: "Guide Profile", href: "/profile", icon: UserCog },
   ],
 
   provider: [
@@ -104,11 +109,6 @@ const MENU = {
       name: "Guide Management Provider",
       href: "/guide-management",
       icon: Users,
-    },
-    {
-      name: "Hotel Management Provider",
-      href: "/hotel-management",
-      icon: Hotel,
     },
     {
       name: "Provider Profile",
