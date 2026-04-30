@@ -10,7 +10,7 @@ export const createGuide = async (providerId, guideData) => {
     if (existingGuide) {
         throw throwError("Email đã tồn tại", 400, "EMAIL_ALREADY_EXISTS");
     }
-
+    
     return await User.create({
         ...guideData,
         role: "GUIDE",

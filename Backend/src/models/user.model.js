@@ -12,10 +12,14 @@ const userSchema = new Schema(
       required: true,
       default: "LOCAL",
     },
-
+    supervisorId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
     email: { type: String, required: true, unique: true, trim: true },
     password: { type: String, default: null },
-    
+
     fullName: { type: String, trim: true, default: null },
     avatarUrl: {
       type: String,
@@ -23,11 +27,11 @@ const userSchema = new Schema(
         "https://lh3.googleusercontent.com/aida-public/AB6AXuD0BfviMsRmGSM1xnCOiLAjEB-Xdb5zdVkaJer9i8EJDmcHyk3B_cx3NNEUzYZx5eeXLb3knh4GSyKV1fU2pKt6dX7NkkJOM-qqssY1oLkNGpRLgm3AiSVVcnGdAVSqgMJeL-mStHglR2Rc9V12kuRO9iwN7ZjrDqchBTD7BWXOm-mCLk6H7Q8mnXUOH5vIX9avqy2wQ7x_g34-VVu4BanY1QQ1qVm-2_PkEjdf_nz1PHmI3pTuP8jQkRkJa9qDZRvYGjv8ySp5VHSG",
     },
 
-        role: {
-            type: String,
-            enum: ["TRAVELER", "ADMIN", "GUIDE", "PROVIDER"],
-            default: "TRAVELER",
-        },
+    role: {
+      type: String,
+      enum: ["TRAVELER", "ADMIN", "GUIDE", "PROVIDER"],
+      default: "TRAVELER",
+    },
 
     refreshToken: { type: String, default: null },
     firstJoin: { type: Boolean, default: true },
@@ -51,6 +55,7 @@ const userSchema = new Schema(
       ],
       default: "NOT_STARTED",
     },
+    language: { type: String, default: "vi" },
     isActive: { type: Boolean, default: false },
     codeVerify: { type: String, default: null },
     codeVerifyExpiresAt: { type: Date, default: null },
@@ -59,6 +64,7 @@ const userSchema = new Schema(
     emailVerifiedAt: { type: Date, default: null },
     address: { type: String, default: null },
     phone: { type: String, default: null },
+    supervisorId: { type: Schema.Types.ObjectId, ref: "User", default: null },
   },
   {
     timestamps: true,
@@ -66,18 +72,18 @@ const userSchema = new Schema(
 );
 
 userSchema.pre("save", async function () {
-    if (!this.isModified("password") || !this.password) {
-        return;
-    }
+  if (!this.isModified("password") || !this.password) {
+    return;
+  }
 
-    this.password = await bcrypt.hash(this.password, 10);
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
-    if (!candidatePassword || !this.password) {
-        throw new Error("Missing data for password comparison");
-    }
-    return await bcrypt.compare(candidatePassword, this.password);
+  if (!candidatePassword || !this.password) {
+    throw new Error("Missing data for password comparison");
+  }
+  return await bcrypt.compare(candidatePassword, this.password);
 };
 
 const User = model("User", userSchema);

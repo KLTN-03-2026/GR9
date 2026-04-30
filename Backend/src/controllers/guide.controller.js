@@ -15,8 +15,10 @@ export const createGuideController = async (req, res) => {
 // GET ALL GUIDES (BY PROVIDER)
 export const getGuidesController = async (req, res) => {
     try {
+        console.log(req.user.id);
+        
         const guides = await getGuides(req.user.id);
-
+        
         return success(res, "Lấy danh sách Guide", guides, 200);
     } catch (err) {
         return error(res, err.message, err.status, err.errorCode);
