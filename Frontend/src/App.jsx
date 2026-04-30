@@ -41,6 +41,9 @@ import TourDetail from "./pages/Traveler/TourDetail";
 import GuideDashboardHome from "./pages/Guide/GuideDashboardHome";
 import ProviderProfile from "./pages/Provider/ProviderProfile";
 import ProviderApplicationForm from "./pages/Guest/ProviderApplicationForm";
+import TravelerProfile from "./pages/Traveler/TravelerProfile";
+import GuideProfile from "./pages/Guide/GuideProfile";
+import AdminProfile from "./pages/Admin/AdminProfile";
 function AppRoutes() {
   const location = useLocation();
 
@@ -58,17 +61,12 @@ function AppRoutes() {
       />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/first-join-password" element={<FirstJoinPasswordPage />} />
-      <Route
-        path="/provider-login"
-        element={<ProviderAndAdminLogin />}
-      />
-      <Route
-        path="/admin-login"
-        element={<ProviderAndAdminLogin />}
-      />
+      <Route path="/provider-login" element={<ProviderAndAdminLogin />} />
+      <Route path="/admin-login" element={<ProviderAndAdminLogin />} />
       <Route path="/guide-staff-login" element={<GuideLogin />} />
 
       <Route path="/traveler" element={<Layout />}>
+        <Route path="profile" element={<TravelerProfile />} />
         <Route path="tour-tracking" element={<TourTracking />} />
         <Route path="my-booking-traveler" element={<MyBookingTourTraveler />} />
         <Route
@@ -86,6 +84,7 @@ function AppRoutes() {
 
       <Route path="/admin" element={<Layout />}>
         <Route index element={<AdminDashboard />} />
+        <Route path="profile" element={<AdminProfile />} />
         <Route path="provider-approval" element={<ProviderApprovalPage />} />
         <Route
           path="provider-approval-history"
@@ -109,6 +108,7 @@ function AppRoutes() {
 
       <Route path="/guide" element={<Layout />}>
         <Route index element={<GuideDashboardHome />} />
+        <Route path="profile" element={<GuideProfile />} />
         <Route path="assigned-tours" element={<AssignedToursList />} />
         <Route path="live-tour-tracking" element={<GuideLiveTourTracking />} />
       </Route>

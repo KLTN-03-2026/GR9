@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import path from "path";
 import connectDB from "./config/db.js";
 import authRoute from "./routes/auth.route.js";
+import userRoute from "./routes/user.route.js";
 import providerRoute from "./routes/provider.route.js";
 import guideRoute from "./routes/guide.route.js";
 import tourRouter from "./routes/tour.route.js";
@@ -31,6 +32,7 @@ app.use(cookieParser());
 app.use("/uploads", express.static(path.resolve("uploads")));
 
 app.use("/api/auth", authRoute);
+app.use("/api/users", userRoute);
 app.use("/api/provider", providerRoute);
 app.use("/api/guide", guideRoute);
 app.use("/api/tours", tourRouter);
