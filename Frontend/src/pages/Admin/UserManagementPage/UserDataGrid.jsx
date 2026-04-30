@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { 
   MoreVertical, 
   LockOpen, 
@@ -28,7 +29,8 @@ import {
 
 const UserDataGrid = ({ users }) => {
   return (
-    <div className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm">
+    <Card className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <CardContent className="p-0">
       <Table>
         <TableHeader>
           <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
@@ -139,7 +141,8 @@ const UserDataGrid = ({ users }) => {
           </Button>
         </div>
       </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

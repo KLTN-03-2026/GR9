@@ -6,19 +6,21 @@ import TrackingLinkPrivacyNote from "./TrackingLinkPrivacyNote";
 
 export default function TrackingLinkManagement() {
   return (
-    <main className="mx-auto max-w-7xl space-y-10 text-on-surface">
-      <TrackingLinkHero />
+    <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface">
+      <div className="mx-auto w-full max-w-[1600px] space-y-10 px-6 pb-12 pt-24 text-on-surface md:px-10">
+        <TrackingLinkHero />
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-        <section className="space-y-8 lg:col-span-7">
-          <TrackingLinkOverviewSection />
-          <TrackingLinkVisualCards />
-        </section>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+          <section className="space-y-8 lg:col-span-7">
+            <TrackingLinkOverviewSection />
+            <TrackingLinkVisualCards />
+          </section>
 
-        <aside className="space-y-8 lg:col-span-5">
-          <TrackingLinkAccessCard />
-          <TrackingLinkPrivacyNote />
-        </aside>
+          <aside className="space-y-8 lg:col-span-5">
+            <TrackingLinkAccessCard />
+            <TrackingLinkPrivacyNote />
+          </aside>
+        </div>
       </div>
     </main>
   );

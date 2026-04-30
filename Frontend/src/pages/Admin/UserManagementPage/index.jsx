@@ -4,6 +4,7 @@ import UserDataGrid from "./UserDataGrid";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, ShieldAlert, Sparkles } from "lucide-react"; // Thay icon mới
+import PageHero from "@/components/shared/page-hero";
 
 const mockUsers = [
   {
@@ -51,6 +52,18 @@ const mockUsers = [
 const UserManagementPage = () => {
   return (
     <div className="pt-24 pb-12 max-w-[1600px] mx-auto space-y-8">
+      <PageHero
+        eyebrow="Identity Control"
+        heading={
+          <>
+            User{" "}
+            <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
+              Management
+            </span>
+          </>
+        }
+        description="Manage traveler, provider, and admin accounts with clearer filtering, moderation actions, and lifecycle controls."
+      />
       <FilterSelect />
 
       <UserDataGrid users={mockUsers} />

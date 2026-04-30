@@ -7,6 +7,8 @@ import DialogDeleteService from "./DialogDeleteService";
 import { getServices } from "@/services/api/service";
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import PageHero from "@/components/shared/page-hero";
 
 const typeLabels = {
   HOTEL: "Accommodation",
@@ -112,12 +114,36 @@ const ServiceManagement = () => {
   return (
     <main className="min-h-screen bg-slate-50/50">
       <div className="mx-auto w-full space-y-8">
+        <PageHero
+          eyebrow="Service Catalog"
+          heading={
+            <>
+              Service{" "}
+              <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
+                Management
+              </span>
+            </>
+          }
+          description="Organize transport, accommodation, dining, and support services that power each provider experience."
+          actions={
+            <Button
+              onClick={handleAdd}
+              className="w-full sm:w-auto rounded-full px-8 py-6 font-bold text-sm bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-900/10 transition-all group"
+            >
+              <span className="mr-2 group-hover:rotate-90 transition-transform">
+                <Plus className="h-4 w-4" />
+              </span>
+              ADD NEW SERVICE
+            </Button>
+          }
+        />
         <ServiceFilter
           category={category}
           onCategoryChange={setCategory}
           search={search}
           onSearchChange={setSearch}
           onAdd={handleAdd}
+          showAddButton={false}
         />
         <DialogCreateService
           open={createDialogOpen}

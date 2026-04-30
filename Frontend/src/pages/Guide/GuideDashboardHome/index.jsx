@@ -18,6 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import PageHero from "@/components/shared/page-hero";
 
 const summaryCards = [
   {
@@ -83,8 +84,7 @@ const assignedTours = [
     shift: "Morning Departure",
     shiftClass: "bg-tertiary-container/10 text-tertiary",
     status: "CONFIRMED",
-    statusClass:
-      "bg-primary-fixed-dim/20 text-on-primary-fixed-variant",
+    statusClass: "bg-primary-fixed-dim/20 text-on-primary-fixed-variant",
     dotClass: "bg-primary-container",
     time: "08:00 AM - 12:00 PM",
     passengers: "12 Adults, 2 Kids",
@@ -102,8 +102,7 @@ const assignedTours = [
     shift: "Evening Experience",
     shiftClass: "bg-secondary-container text-on-secondary-container",
     status: "PENDING START",
-    statusClass:
-      "bg-surface-container-highest text-on-surface-variant",
+    statusClass: "bg-surface-container-highest text-on-surface-variant",
     dotClass: "bg-slate-400",
     time: "06:30 PM - 09:30 PM",
     passengers: "6 Adults",
@@ -120,7 +119,9 @@ export default function GuideDashboardHome() {
   useEffect(() => {
     const previousTitle = document.title;
     const previousDescription =
-      document.querySelector('meta[name="description"]')?.getAttribute("content") ?? "";
+      document
+        .querySelector('meta[name="description"]')
+        ?.getAttribute("content") ?? "";
 
     document.title = "Guide Dashboard | Voyager AI";
 
@@ -145,20 +146,25 @@ export default function GuideDashboardHome() {
   }, []);
 
   return (
-    <main className="mx-auto w-full max-w-7xl space-y-10 text-on-surface">
-      <section className="relative overflow-hidden rounded-[2rem] bg-[radial-gradient(circle_at_top_left,_rgba(0,131,120,0.16),_transparent_38%),linear-gradient(135deg,_#ffffff,_#eef7f5)] p-6 shadow-[0_20px_50px_rgba(15,23,42,0.06)] ring-1 ring-slate-200/70 md:p-8">
-        <div className="absolute right-0 top-0 h-44 w-44 rounded-full bg-teal-200/20 blur-3xl" />
-        <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h1 className="font-headline text-3xl font-extrabold tracking-tight text-on-surface md:text-4xl">
-              Welcome back, Marcus
-            </h1>
-            <p className="mt-2 flex items-center gap-2 text-on-surface-variant">
-              <span className="inline-block h-2 w-2 rounded-full bg-primary-container animate-pulse" />
-              2 Tours Assigned Today
-            </p>
-          </div>
-
+    <main className="mx-auto w-full max-w-[1600px] space-y-10 pb-12 pt-24 text-on-surface">
+      <PageHero
+        eyebrow="Shift Overview"
+        heading={
+          <>
+            Welcome back,{" "}
+            <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
+              Marcus
+            </span>
+          </>
+        }
+        description="Track today's assignments, launch active tours, and keep field operations moving with a cleaner guide command surface."
+        meta={
+          <p className="flex items-center gap-2 text-on-surface-variant">
+            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary-container" />
+            2 Tours Assigned Today
+          </p>
+        }
+        actions={
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button
               variant="secondary"
@@ -170,8 +176,8 @@ export default function GuideDashboardHome() {
               Start Shift
             </Button>
           </div>
-        </div>
-      </section>
+        }
+      />
 
       <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
         {summaryCards.map((card) => {
@@ -235,7 +241,10 @@ export default function GuideDashboardHome() {
           <h2 className="font-headline text-2xl font-extrabold text-on-surface">
             Today&apos;s Assigned Tours
           </h2>
-          <Button variant="link" className="h-auto px-0 font-semibold text-primary">
+          <Button
+            variant="link"
+            className="h-auto px-0 font-semibold text-primary"
+          >
             View Full Calendar
           </Button>
         </div>
@@ -272,7 +281,9 @@ export default function GuideDashboardHome() {
                             <MapPin className="size-4" />
                             {tour.location}
                           </span>
-                          <span className="font-mono font-semibold">{tour.id}</span>
+                          <span className="font-mono font-semibold">
+                            {tour.id}
+                          </span>
                         </div>
                       </div>
 
@@ -280,7 +291,9 @@ export default function GuideDashboardHome() {
                         <span
                           className={`inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-bold ${tour.statusClass}`}
                         >
-                          <span className={`h-1.5 w-1.5 rounded-full ${tour.dotClass}`} />
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full ${tour.dotClass}`}
+                          />
                           {tour.status}
                         </span>
                       </div>
@@ -344,8 +357,6 @@ export default function GuideDashboardHome() {
           ))}
         </div>
       </section>
-
-     
     </main>
   );
 }

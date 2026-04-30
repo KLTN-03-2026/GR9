@@ -13,6 +13,7 @@ import {
 import TableGuide from "./TableGuide";
 import { Input } from "@/components/ui/input";
 import DialogDeleteGuide from "./DialogDeleteGuide";
+import PageHero from "@/components/shared/page-hero";
 
 const GuideManagementProvider = () => {
   const [guides, setGuides] = useState([]);
@@ -174,28 +175,37 @@ const GuideManagementProvider = () => {
 
   return (
     <div className="space-y-8 text-slate-900 font-sans">
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 text-left">
-          Guide Management
-        </h2>
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="relative w-full md:w-[260px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input
-              onChange={(e) => setSearchGuide(e.target.value)}
-              placeholder="Search guides..."
-              className="pl-9 h-10 rounded-xl bg-white border-none text-primary"
-            />
+      <PageHero
+        eyebrow="Team Directory"
+        heading={
+          <>
+            Guide{" "}
+            <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
+              Management
+            </span>
+          </>
+        }
+        description="Review active guides, update assignments, and keep your operating team ready for upcoming departures."
+        actions={
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="relative w-full md:w-[260px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                onChange={(e) => setSearchGuide(e.target.value)}
+                placeholder="Search guides..."
+                className="pl-9 h-10 rounded-xl bg-white border-none text-primary"
+              />
+            </div>
+            <Button
+              onClick={() => handleOpen()}
+              className="gap-2 bg-teal-600 hover:bg-teal-700 text-white shadow-md p-5"
+            >
+              <Plus className="size-4" />
+              Add Guide
+            </Button>
           </div>
-          <Button
-            onClick={() => handleOpen()}
-            className="gap-2 bg-teal-600 hover:bg-teal-700 text-white shadow-md p-5"
-          >
-            <Plus className="size-4" />
-            Add Guide
-          </Button>
-        </div>
-      </div>
+        }
+      />
       <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {cards.map((c) => (
           <div

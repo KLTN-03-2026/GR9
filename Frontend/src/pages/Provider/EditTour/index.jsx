@@ -32,8 +32,10 @@ export default function EditTour() {
   }, []);
 
   return (
-    <main className="mx-auto max-w-6xl space-y-10 text-on-surface">
-      <TourEditorContent />
+    <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface text-on-surface">
+      <div className="mx-auto w-full max-w-[1600px] px-6 pb-12 pt-24 md:px-10">
+        <TourEditorContent />
+      </div>
     </main>
   );
 }
