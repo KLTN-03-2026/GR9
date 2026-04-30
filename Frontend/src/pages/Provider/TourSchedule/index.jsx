@@ -13,7 +13,7 @@ import {
     updateTourSchedule,
     deleteTourSchedule,
 } from "@/services/api/tourSchedule";
-
+import ScheduleSkeleton from "./ScheduleSkeleton";
 export default function TourSchedulePage() {
     const { id: tourId } = useParams();
 
@@ -114,13 +114,12 @@ export default function TourSchedulePage() {
                 </div>
 
                 {/* TABLE */}
-                <ScheduleTable
-                    schedules={schedules}
-                    loading={isLoading}
-                    onEdit={handleOpenEdit}
-                    onDelete={handleDelete}
-                />
 
+                {isLoading ? (
+                    <ScheduleSkeleton />
+                ) : (
+                    <ScheduleTable schedules={schedules} onEdit={handleOpenEdit} onDelete={handleDelete} />
+                )}
             </div>
 
             {/* DIALOG */}

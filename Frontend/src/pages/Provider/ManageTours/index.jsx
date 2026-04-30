@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import { createTour, deleteTourById, updateTourById } from "@/services/api/tour";
 import { getTours } from "@/services/api/tour";
 import { syncTourImagesApi, uploadImagesApi } from "@/services/api/image";
+import ManageToursTableSkeleton from "./ManageToursTableSkeleton";
 const defaultTour = {
     location: "",
     price: {
@@ -58,7 +59,7 @@ export default function ManageTours() {
     const [selectedImage, setSelectedImage] = useState(null);
     const [newImages, setNewImages] = useState([]);
     const [existingImages, setExistingImages] = useState([]);
-
+    const [loadingTours, setLoadingTours] = useState(false);
     const handleOpenDialog = () => {
         setOpen(true);
         setEditingTourId(null);
@@ -195,11 +196,14 @@ export default function ManageTours() {
     };
     const loadTours = async () => {
         try {
+            setLoadingTours(true);
             const res = await getTours();
             setTours(res?.data?.data || []);
         } catch (err) {
             console.error(err);
             toast.error("Failed to load tours");
+        } finally {
+            setLoadingTours(false);
         }
     };
     const loadServices = async () => {
@@ -272,7 +276,11 @@ export default function ManageTours() {
                 </div>
             </section>
             <ManageToursStats />
-            <ManageToursTable tours={tours} handleDelete={handleDelete} handleEdit={handleEdit} />
+            {loadingTours ? (
+                <ManageToursTableSkeleton />
+            ) : (
+                <ManageToursTable tours={tours} handleDelete={handleDelete} handleEdit={handleEdit} />
+            )}
             <DialogCreateTour
                 open={open}
                 onOpenChange={setOpen}
