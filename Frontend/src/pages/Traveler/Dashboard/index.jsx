@@ -1,9 +1,95 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
+import { getTravelerDashboard } from "@/services/api/traveler";
+
+const FALLBACK_UPCOMING = [
+    {
+        id: "fallback-dn",
+        location: "Da Nang, Vietnam",
+        status: "ongoing",
+        startDay: "2026-03-29",
+        endDay: "2026-03-31",
+    },
+    {
+        id: "fallback-st",
+        location: "Santorini, Greece",
+        status: "upcoming",
+        startDay: "2026-06-12",
+        endDay: "2026-06-18",
+    },
+];
+
+const FALLBACK_RECOMMENDED = [
+    {
+        id: "da-nang-coastal",
+        title: "Da Nang, Vietnam",
+        description:
+            "A premium Da Nang itinerary blending airport support, landmark visits, local food and passenger tracking.",
+        price: "$289",
+        type: "Coastal",
+        icon: "temple_buddhist",
+    },
+    {
+        id: "hoi-an-lantern",
+        title: "Hoi An, Vietnam",
+        description:
+            "Private pickup, old town storytelling and a premium lantern workshop in Hoi An.",
+        price: "$148",
+        type: "Lanterns",
+        icon: "temple_buddhist",
+    },
+    {
+        id: "ha-long-cruise",
+        title: "Ha Long Bay, Vietnam",
+        description:
+            "Luxury cruise through Ha Long Bay with curated caves, lagoons and cultural immersion.",
+        price: "$1249",
+        type: "Cruise",
+        icon: "directions_boat",
+    },
+];
 
 const TravelerDashboard = () => {
+    const [dashboard, setDashboard] = useState(null);
+
+    useEffect(() => {
+        const fetchDashboard = async () => {
+            try {
+                const response = await getTravelerDashboard();
+                setDashboard(response?.data?.data || null);
+            } catch (error) {
+                setDashboard(null);
+            }
+        };
+
+        fetchDashboard();
+    }, []);
+
+    const upcomingTrips = useMemo(() => {
+        const apiUpcoming = dashboard?.upcomingTrips || [];
+        const apiOngoing = dashboard?.ongoingTrips || [];
+        const merged = [...apiOngoing, ...apiUpcoming];
+        return merged.length > 0 ? merged.slice(0, 2) : FALLBACK_UPCOMING;
+    }, [dashboard]);
+
+    const recommendedTours = useMemo(() => {
+        const list = dashboard?.recommendedTours || [];
+        if (!list.length) return FALLBACK_RECOMMENDED;
+
+        return list.slice(0, 3).map((item, idx) => ({
+            id: item.id,
+            title: item.location || item.title,
+            description: item.description,
+            price: item.price,
+            type: item.type || "Curated",
+            icon: idx === 2 ? "directions_boat" : "temple_buddhist",
+        }));
+    }, [dashboard]);
+
+    const totalTrips = dashboard?.quickStats?.totalTrips ?? 24;
+
     return (
         <div className="bg-surface font-body text-on-surface">
             <div className="flex min-h-screen pt-16">
@@ -63,75 +149,45 @@ const TravelerDashboard = () => {
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                    {/* Trip 1 */}
-                                    <Link
-                                        to="/traveler/traveler-tracking-link-management"
-                                        className="group rounded-3xl bg-surface-container-lowest p-4 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-                                    >
-                                        <div className="relative mb-4 h-48 overflow-hidden rounded-2xl">
-                                            <img
-                                                alt="Da Nang, Vietnam"
-                                                className="h-full w-full object-cover"
-                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS6t51F8tBzGfKatRaZGMBz9c6EWoMtM34PoKd1fW1vskfiUQSfgOtL8BtkGEmTTPPH_2Fz4CYhRjrA4PPLj7m67_RBU6bqHvuORg0t2ufLhhZnVVwfHJXRBaqYf-pK2wdpuWA2bWsVd8LV6X0YqDe_oz8ffqpgTura_qHk-N8spDxp74SzUgts2Xso-wn2vJmf64hvi63oE_1vpPQzfxDsDXrfWAvJUm_ZDKOVkqQlULl83FUWbVXyUwGgQ0X4JsWmnRGtMaFhFeF"
-                                            />
-                                            <div className="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-teal-700 backdrop-blur-md">
-                                                Ongoing
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className="mb-1 flex items-start justify-between">
-                                                <h3 className="font-headline text-lg font-bold">
-                                                    Da Nang, Vietnam
-                                                </h3>
-                                                <span className="material-symbols-outlined text-slate-400">
-                                                    more_horiz
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center space-x-4 text-sm text-slate-500">
-                                                <div className="flex items-center space-x-1">
-                                                    <span className="material-symbols-outlined text-[16px]">
-                                                        calendar_today
-                                                    </span>
-                                                    <span>Mar 29 - Mar 31</span>
+                                    {upcomingTrips.map((trip) => (
+                                        <Link
+                                            key={trip.id}
+                                            to="/traveler/traveler-tracking-link-management"
+                                            className="group rounded-3xl bg-surface-container-lowest p-4 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                                        >
+                                            <div className="relative mb-4 h-48 overflow-hidden rounded-2xl">
+                                                <img
+                                                    alt={trip.location}
+                                                    className="h-full w-full object-cover"
+                                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS6t51F8tBzGfKatRaZGMBz9c6EWoMtM34PoKd1fW1vskfiUQSfgOtL8BtkGEmTTPPH_2Fz4CYhRjrA4PPLj7m67_RBU6bqHvuORg0t2ufLhhZnVVwfHJXRBaqYf-pK2wdpuWA2bWsVd8LV6X0YqDe_oz8ffqpgTura_qHk-N8spDxp74SzUgts2Xso-wn2vJmf64hvi63oE_1vpPQzfxDsDXrfWAvJUm_ZDKOVkqQlULl83FUWbVXyUwGgQ0X4JsWmnRGtMaFhFeF"
+                                                />
+                                                <div className="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-teal-700 backdrop-blur-md">
+                                                    {trip.status === "ongoing" ? "Ongoing" : "Upcoming"}
                                                 </div>
                                             </div>
-                                        </div>
-                                    </Link>
-
-                                    {/* Trip 2 */}
-                                    <Link
-                                        to="/traveler/traveler-tracking-link-management"
-                                        className="group rounded-3xl bg-surface-container-lowest p-4 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-                                    >
-                                        <div className="relative mb-4 h-48 overflow-hidden rounded-2xl">
-                                            <img
-                                                alt="Santorini, Greece"
-                                                className="h-full w-full object-cover"
-                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS6t51F8tBzGfKatRaZGMBz9c6EWoMtM34PoKd1fW1vskfiUQSfgOtL8BtkGEmTTPPH_2Fz4CYhRjrA4PPLj7m67_RBU6bqHvuORg0t2ufLhhZnVVwfHJXRBaqYf-pK2wdpuWA2bWsVd8LV6X0YqDe_oz8ffqpgTura_qHk-N8spDxp74SzUgts2Xso-wn2vJmf64hvi63oE_1vpPQzfxDsDXrfWAvJUm_ZDKOVkqQlULl83FUWbVXyUwGgQ0X4JsWmnRGtMaFhFeF"
-                                            />
-                                            <div className="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-teal-700 backdrop-blur-md">
-                                                Upcoming
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className="mb-1 flex items-start justify-between">
-                                                <h3 className="font-headline text-lg font-bold">
-                                                    Santorini, Greece
-                                                </h3>
-                                                <span className="material-symbols-outlined text-slate-400">
-                                                    more_horiz
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center space-x-4 text-sm text-slate-500">
-                                                <div className="flex items-center space-x-1">
-                                                    <span className="material-symbols-outlined text-[16px]">
-                                                        calendar_today
+                                            <div>
+                                                <div className="mb-1 flex items-start justify-between">
+                                                    <h3 className="font-headline text-lg font-bold">
+                                                        {trip.location}
+                                                    </h3>
+                                                    <span className="material-symbols-outlined text-slate-400">
+                                                        more_horiz
                                                     </span>
-                                                    <span>Jun 12 - Jun 18</span>
+                                                </div>
+                                                <div className="flex items-center space-x-4 text-sm text-slate-500">
+                                                    <div className="flex items-center space-x-1">
+                                                        <span className="material-symbols-outlined text-[16px]">
+                                                            calendar_today
+                                                        </span>
+                                                        <span>
+                                                            {(trip.startDay || "").replaceAll("-", "/")} -{" "}
+                                                            {(trip.endDay || "").replaceAll("-", "/")}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </Link>
+                                        </Link>
+                                    ))}
                                 </div>
                             </section>
 
@@ -150,86 +206,33 @@ const TravelerDashboard = () => {
                                 </div>
 
                                 <div className="-mx-2 flex space-x-6 overflow-x-auto px-2 pb-6 no-scrollbar">
-                                    {/* Card 1 */}
-                                    <Link
-                                        to="/traveler/tour-detail"
-                                        className="flex w-72 shrink-0 cursor-pointer flex-col rounded-[2rem] bg-surface-container-low p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-                                    >
-                                        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm">
-                                            <span className="material-symbols-outlined text-3xl text-teal-600">
-                                                temple_buddhist
-                                            </span>
-                                        </div>
-                                        <h4 className="mb-1 font-headline text-xl font-bold text-slate-900">
-                                            Da Nang, Vietnam
-                                        </h4>
-                                        <p className="mb-6 line-clamp-2 text-sm text-slate-500">
-                                            A premium Da Nang itinerary blending airport support,
-                                            landmark visits, local food and passenger tracking.
-                                        </p>
-                                        <div className="mt-auto flex items-center justify-between">
-                                            <div className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm">
-                                                est. $289
+                                    {recommendedTours.map((tour) => (
+                                        <Link
+                                            key={tour.id}
+                                            to="/traveler/tour-list"
+                                            className="flex w-72 shrink-0 cursor-pointer flex-col rounded-[2rem] bg-surface-container-low p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                                        >
+                                            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm">
+                                                <span className="material-symbols-outlined text-3xl text-teal-600">
+                                                    {tour.icon}
+                                                </span>
                                             </div>
-                                            <div className="flex items-center text-xs font-bold text-teal-700">
-                                                Coastal
+                                            <h4 className="mb-1 font-headline text-xl font-bold text-slate-900">
+                                                {tour.title}
+                                            </h4>
+                                            <p className="mb-6 line-clamp-2 text-sm text-slate-500">
+                                                {tour.description}
+                                            </p>
+                                            <div className="mt-auto flex items-center justify-between">
+                                                <div className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm">
+                                                    est. {tour.price}
+                                                </div>
+                                                <div className="flex items-center text-xs font-bold text-teal-700">
+                                                    {tour.type}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </Link>
-
-                                    {/* Card 2 */}
-                                    <Link
-                                        to="/traveler/tour-detail"
-                                        className="flex w-72 shrink-0 cursor-pointer flex-col rounded-[2rem] bg-surface-container-low p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-                                    >
-                                        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm">
-                                            <span className="material-symbols-outlined text-3xl text-teal-600">
-                                                temple_buddhist
-                                            </span>
-                                        </div>
-                                        <h4 className="mb-1 font-headline text-xl font-bold text-slate-900">
-                                            Hoi An, Vietnam
-                                        </h4>
-                                        <p className="mb-6 line-clamp-2 text-sm text-slate-500">
-                                            Private pickup, old town storytelling and a premium
-                                            lantern workshop in Hoi An.
-                                        </p>
-                                        <div className="mt-auto flex items-center justify-between">
-                                            <div className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm">
-                                                est. $148
-                                            </div>
-                                            <div className="flex items-center text-xs font-bold text-teal-700">
-                                                Lanterns
-                                            </div>
-                                        </div>
-                                    </Link>
-
-                                    {/* Card 3 */}
-                                    <Link
-                                        to="/traveler/tour-detail"
-                                        className="flex w-72 shrink-0 cursor-pointer flex-col rounded-[2rem] bg-surface-container-low p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-                                    >
-                                        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm">
-                                            <span className="material-symbols-outlined text-3xl text-teal-600">
-                                                directions_boat
-                                            </span>
-                                        </div>
-                                        <h4 className="mb-1 font-headline text-xl font-bold text-slate-900">
-                                            Ha Long Bay, Vietnam
-                                        </h4>
-                                        <p className="mb-6 line-clamp-2 text-sm text-slate-500">
-                                            Luxury cruise through Ha Long Bay with curated caves,
-                                            lagoons and cultural immersion.
-                                        </p>
-                                        <div className="mt-auto flex items-center justify-between">
-                                            <div className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm">
-                                                est. $1249
-                                            </div>
-                                            <div className="flex items-center text-xs font-bold text-teal-700">
-                                                Cruise
-                                            </div>
-                                        </div>
-                                    </Link>
+                                        </Link>
+                                    ))}
                                 </div>
                             </section>
 
@@ -308,7 +311,7 @@ const TravelerDashboard = () => {
                                             Total Countries
                                         </p>
                                         <p className="font-headline text-2xl font-extrabold text-teal-800">
-                                            24
+                                            {totalTrips}
                                         </p>
                                     </div>
                                 </div>
