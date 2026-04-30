@@ -12,6 +12,7 @@ import serviceRoute from "./routes/service.route.js";
 import aiRoute from "./routes/ai.route.js";
 import locationRoute from "./routes/location.route.js";
 import imageRoute from "./routes/image.route.js";
+import travelerDashboardRoute from "./routes/travelerDashboard.route.js";
 dotenv.config();
 
 connectDB();
@@ -38,6 +39,7 @@ app.use("/api/services", serviceRoute);
 app.use("/api/ai", aiRoute);
 app.use("/api/location", locationRoute);
 app.use("/api/images", imageRoute);
+app.use("/api/traveler", travelerDashboardRoute);
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
