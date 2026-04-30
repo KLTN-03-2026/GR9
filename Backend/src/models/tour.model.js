@@ -30,6 +30,22 @@ const tourSchema = new Schema(
             required: true,
             index: true,
         },
+
+        location: { type: String, default: null, trim: true },
+        name: { type: String, default: null, trim: true },
+        description: { type: String, default: null },
+        numberOfDay: { type: Number, default: 1, min: 1 },
+        type: {
+            type: String,
+            enum: ["GROUP", "PRIVATE", "CUSTOM"],
+            default: "GROUP",
+        },
+
+        scheduleType: {
+            type: String,
+            enum: ["FIXED", "DAILY", "FLEXIBLE"],
+            default: "FIXED",
+        },
         quantity: {
             adults: { type: Number, default: 1, min: 1 },
             children: { type: Number, default: 0, min: 0 },
@@ -40,21 +56,11 @@ const tourSchema = new Schema(
             child: { type: Number, default: 0, min: 0 },
             infant: { type: Number, default: 0, min: 0 },
         },
-        location: { type: String, default: null, trim: true },
-        name: { type: String, default: null, trim: true },
-        description: { type: String, default: null },
-        numberOfDay: { type: Number, default: 1, min: 1 },
-        startDay: { type: Date, default: null },
-        type: {
-            type: String,
-            enum: ["PRIVATE", "GROUP", "CUSTOM"],
-            default: "GROUP",
-        },
-        minSlots: { type: Number, default: 1, min: 1 },
-        maxSlots: { type: Number, default: 1, min: 1 },
+
         isActive: { type: Boolean, default: true },
 
         itineraries: { type: [tourItinerarySchema], default: [] },
+        
         hotelServiceId: {
             type: Schema.Types.ObjectId,
             ref: "Service",
@@ -65,7 +71,7 @@ const tourSchema = new Schema(
             ref: "Service",
             default: null,
         },
-        leadGuideServiceId: {
+        leadDuideServiceId: {
             type: Schema.Types.ObjectId,
             ref: "User",
             default: null,

@@ -2,7 +2,6 @@ import { createGuide, deleteGuide, getGuides, updateGuide, getGuideById } from "
 
 import { error, success } from "../utils/response.js";
 
-
 export const createGuideController = async (req, res) => {
     try {
         const guide = await createGuide(req.user.id, req.body);
@@ -13,6 +12,7 @@ export const createGuideController = async (req, res) => {
     }
 };
 
+// GET ALL GUIDES (BY PROVIDER)
 export const getGuidesController = async (req, res) => {
     try {
         const guides = await getGuides(req.user.id);
