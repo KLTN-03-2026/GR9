@@ -55,28 +55,22 @@ export default function DialogCreateTour({
         };
     }, [newImages]);
     useEffect(() => {
-        const validDays = days
-            .map((d) => {
-                const validActivities = d.activities.filter((a) => a.serviceId && a.time);
-
-                if (validActivities.length === 0) return null;
-
-                return {
-                    dayNumber: d.dayNumber,
-                    description: d.description,
-                    activities: validActivities.map((a) => ({
-                        time: a.time,
-                        serviceId: a.serviceId,
-                        statusActivity: "NOT_DONE",
-                    })),
-                };
-            })
-            .filter(Boolean);
+        const itineraries = days.map((d) => ({
+            dayNumber: d.dayNumber,
+            description: d.description,
+            activities: d.activities
+                .filter((a) => a.serviceId && a.time)
+                .map((a) => ({
+                    time: a.time,
+                    serviceId: a.serviceId,
+                    statusActivity: "NOT_DONE",
+                })),
+        }));
 
         setTour((prev) => ({
             ...prev,
-            numberOfDay: validDays.length,
-            itineraries: validDays,
+            numberOfDay: days.length, // 👈 giữ nguyên số ngày
+            itineraries,
         }));
     }, [days]);
     useEffect(() => {
@@ -773,16 +767,17 @@ export default function DialogCreateTour({
                                         Basic Information
                                     </CardTitle>
                                     <p className="text-sm text-on-surface-variant">
-                                        Start with the essential details travelers and search engines use to understand
-                                        the experience.
+                                        Configure your tour details and how it will be scheduled.
                                     </p>
                                 </CardHeader>
 
                                 <CardContent className="grid grid-cols-1 gap-6 px-6 pb-6 md:grid-cols-2">
+                                    {/* IMAGE */}
                                     <div className="md:col-span-2">
                                         <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
                                             Tour Images
                                         </label>
+
                                         <Input
                                             type="file"
                                             multiple
@@ -792,20 +787,19 @@ export default function DialogCreateTour({
                                                 setNewImages((prev) => [...prev, ...files]);
                                                 e.target.value = null;
                                             }}
-                                        />{" "}
+                                        />
+
                                         <div className="mt-4 flex flex-wrap gap-4 items-center justify-center">
                                             {existingImages?.length > 0 || newImages?.length > 0 ? (
                                                 <>
-                                                    {existingImages?.map((img, i) => (
+                                                    {existingImages.map((img, i) => (
                                                         <div
-                                                            key={`existing-${img._id || i}`}
+                                                            key={i}
                                                             className="relative group w-32 h-32 rounded-2xl overflow-hidden border cursor-pointer"
-                                                            onClick={() =>
-                                                                setSelectedImage(img.imageUrl || img.url || img)
-                                                            }
+                                                            onClick={() => setSelectedImage(img.imageUrl)}
                                                         >
                                                             <img
-                                                                src={img.imageUrl || img.url || img}
+                                                                src={img.imageUrl}
                                                                 className="w-full h-full object-cover"
                                                             />
                                                             <button
@@ -822,17 +816,17 @@ export default function DialogCreateTour({
                                                             </button>
                                                         </div>
                                                     ))}
-                                                    {newImages?.map((file, i) => (
+
+                                                    {newImages.map((file, i) => (
                                                         <div
-                                                            key={`new-${i}`}
-                                                            className="relative group w-32 h-32 rounded-2xl overflow-hidden border-2 border-primary/50 bg-primary/5 cursor-pointer"
+                                                            key={i}
+                                                            className="relative group w-32 h-32 rounded-2xl overflow-hidden border-2 border-primary/50 cursor-pointer"
                                                             onClick={() => setSelectedImage(URL.createObjectURL(file))}
                                                         >
                                                             <img
                                                                 src={URL.createObjectURL(file)}
                                                                 className="w-full h-full object-cover"
                                                             />
-                                                            <div className="absolute inset-0 bg-primary/10"></div>
                                                             <button
                                                                 type="button"
                                                                 onClick={(e) => {
@@ -853,125 +847,123 @@ export default function DialogCreateTour({
                                             )}
                                         </div>
                                     </div>
+
+                                    {/* NAME */}
                                     <div>
-                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                        <label className="mb-2 text-xs font-bold uppercase text-slate-500">
                                             Tour Name
                                         </label>
                                         <Input
                                             value={tour.name}
                                             onChange={(e) => setTour({ ...tour, name: e.target.value })}
-                                            placeholder="e.g. Ba Na Hills Adventure"
-                                            className="h-14 rounded-2xl bg-surface-container-low px-4 font-semibold"
                                         />
                                     </div>
 
+                                    {/* LOCATION */}
                                     <div>
-                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                        <label className="mb-2 text-xs font-bold uppercase text-slate-500">
                                             Location
                                         </label>
                                         <Input
                                             value={tour.location}
                                             onChange={(e) => setTour({ ...tour, location: e.target.value })}
-                                            placeholder="e.g. Da Nang, Vietnam"
-                                            className="h-14 rounded-2xl bg-surface-container-low px-4 font-semibold"
                                         />
                                     </div>
 
+                                    {/* DESCRIPTION */}
                                     <div className="md:col-span-2">
-                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                        <label className="mb-2 text-xs font-bold uppercase text-slate-500">
                                             Description
                                         </label>
                                         <Textarea
                                             value={tour.description}
                                             onChange={(e) => setTour({ ...tour, description: e.target.value })}
-                                            placeholder="Describe your tour experience..."
-                                            className="min-h-[100px] rounded-xl bg-surface-container-low"
                                         />
                                     </div>
 
+                                    {/* PRICE */}
                                     <div>
-                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
-                                            Base Price (USD)
-                                        </label>
-
-                                        <div className="grid grid-cols-3 gap-4">
-                                            {["adult", "child", "infant"].map((type) => (
-                                                <div key={type}>
-                                                    <label className="text-xs font-semibold text-slate-500 uppercase">
-                                                        {type}
-                                                    </label>
-                                                    <Input
-                                                        type="number"
-                                                        value={tour.price[type]}
-                                                        onChange={(e) => handlePriceChange(type, e.target.value)}
-                                                    />
-                                                </div>
+                                        <label className="mb-2 text-xs font-bold uppercase text-slate-500">Price</label>
+                                        <div className="grid grid-cols-3 gap-3">
+                                            {["adult", "child", "infant"].map((t) => (
+                                                <Input
+                                                    key={t}
+                                                    type="number"
+                                                    value={tour.price[t]}
+                                                    onChange={(e) =>
+                                                        setTour({
+                                                            ...tour,
+                                                            price: { ...tour.price, [t]: Number(e.target.value) },
+                                                        })
+                                                    }
+                                                    placeholder={t}
+                                                />
                                             ))}
                                         </div>
                                     </div>
 
+                                    {/* TYPE */}
                                     <div>
                                         <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
-                                            Max Capacity
-                                        </label>
-                                        <Input
-                                            type="number"
-                                            value={tour.maxSlots}
-                                            onChange={(e) => setTour({ ...tour, maxSlots: Number(e.target.value) })}
-                                            className="h-12 rounded-xl bg-surface-container-low"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
-                                            Min Capacity
-                                        </label>
-                                        <Input
-                                            type="number"
-                                            value={tour.minSlots}
-                                            onChange={(e) => setTour({ ...tour, minSlots: Number(e.target.value) })}
-                                            className="h-12 rounded-xl bg-surface-container-low"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
-                                            Duration (Days)
-                                        </label>
-                                        <Input
-                                            value={tour.numberOfDay}
-                                            readOnly
-                                            className="h-12 rounded-xl bg-surface-container-low opacity-70"
-                                        />
-                                    </div>
-
-                                    <div className="md:col-span-2">
-                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
-                                            Difficulty Level
+                                            Tour Type
                                         </label>
 
                                         <Select
-                                            value={tour.difficulty || "EASY"}
-                                            onValueChange={(value) => setTour({ ...tour, difficulty: value })}
+                                            value={tour.type}
+                                            onValueChange={(value) => setTour({ ...tour, type: value })}
                                         >
-                                            <SelectTrigger className="h-14 w-full rounded-2xl border-outline-variant/20 bg-surface-container-low px-4 py-6 font-semibold">
-                                                <SelectValue placeholder="Select difficulty" />
+                                            <SelectTrigger className="h-14 w-full rounded-2xl bg-surface-container-low px-4 font-semibold">
+                                                <SelectValue placeholder="Select tour type" />
                                             </SelectTrigger>
 
                                             <SelectContent className="rounded-xl">
-                                                <SelectItem value="EASY" className="font-semibold">
-                                                    <span>Easy</span>
-                                                </SelectItem>
-
-                                                <SelectItem value="MEDIUM" className="font-semibold">
-                                                    <span>Medium</span>
-                                                </SelectItem>
-
-                                                <SelectItem value="HARD" className="font-semibold">
-                                                    <span>Hard</span>
-                                                </SelectItem>
+                                                <SelectItem value="GROUP">Group</SelectItem>
+                                                <SelectItem value="PRIVATE">Private</SelectItem>
+                                                <SelectItem value="CUSTOM">Custom</SelectItem>
                                             </SelectContent>
                                         </Select>
+
+                                        <p className="mt-1 text-xs text-slate-500">
+                                            {tour.type === "GROUP" && "Tour ghép đoàn, cần đủ người"}
+                                            {tour.type === "PRIVATE" && "Tour riêng, luôn khởi hành"}
+                                            {tour.type === "CUSTOM" && "Tour tùy chỉnh theo nhu cầu"}
+                                        </p>
+                                    </div>
+
+                                    {/* SCHEDULE TYPE */}
+                                    <div>
+                                        <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
+                                            Schedule Type
+                                        </label>
+
+                                        <Select
+                                            value={tour.scheduleType}
+                                            onValueChange={(value) => setTour({ ...tour, scheduleType: value })}
+                                        >
+                                            <SelectTrigger className="h-14 w-full rounded-2xl bg-surface-container-low px-4 font-semibold">
+                                                <SelectValue placeholder="Select schedule type" />
+                                            </SelectTrigger>
+
+                                            <SelectContent className="rounded-xl">
+                                                <SelectItem value="FIXED">Fixed</SelectItem>
+                                                <SelectItem value="DAILY">Daily</SelectItem>
+                                                <SelectItem value="FLEXIBLE">Flexible</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+
+                                        <p className="mt-1 text-xs text-slate-500">
+                                            {tour.scheduleType === "FIXED" && "Chạy theo ngày cố định"}
+                                            {tour.scheduleType === "DAILY" && "Ngày nào cũng có"}
+                                            {tour.scheduleType === "FLEXIBLE" && "Khách tự chọn ngày"}
+                                        </p>
+                                    </div>
+
+                                    {/* DURATION */}
+                                    <div>
+                                        <label className="mb-2 text-xs font-bold uppercase text-slate-500">
+                                            Duration (Days)
+                                        </label>
+                                        <Input value={tour.numberOfDay} readOnly />
                                     </div>
                                 </CardContent>
                             </Card>

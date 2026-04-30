@@ -19,14 +19,15 @@ const defaultTour = {
         infant: 0,
     },
     numberOfDay: 1,
-    maxSlots: 1,
     itineraries: [],
     hotelServiceId: "",
     transportServiceId: "",
     leadDuideServiceId: "",
     description: "",
-    minSlots: 1,
     name: "",
+
+    type: "GROUP",
+    scheduleType: "FIXED",
 };
 const defaultDays = [
     {
@@ -55,8 +56,8 @@ export default function ManageTours() {
     const [open, setOpen] = useState(false);
     const [editingTourId, setEditingTourId] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
-    const [newImages, setNewImages] = useState([]); 
-    const [existingImages, setExistingImages] = useState([]); 
+    const [newImages, setNewImages] = useState([]);
+    const [existingImages, setExistingImages] = useState([]);
 
     const handleOpenDialog = () => {
         setOpen(true);
@@ -105,10 +106,18 @@ export default function ManageTours() {
             };
             const res = await createTour(payload);
             const newTour = res?.data?.data;
-            setTours((prev) => [newTour, ...prev]);
+            let updatedTour;
             if (newImages.length > 0) {
-                await uploadImagesApi(newImages, "TOUR", newTour._id);
+                const uploadRes = await uploadImagesApi(newImages, "TOUR", newTour._id);
+
+                const uploadedUrls = (uploadRes?.data?.data || []).map((img) => img.imageUrl);
+
+                updatedTour = {
+                    ...newTour,
+                    images: uploadedUrls.map((url) => ({ imageUrl: url })),
+                };
             }
+            setTours((prev) => [updatedTour, ...prev]);
             toast.success("Create tour successfully!");
             setTour(defaultTour);
             setDays(defaultDays);

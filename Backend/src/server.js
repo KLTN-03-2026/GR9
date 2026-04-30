@@ -13,6 +13,7 @@ import serviceRoute from "./routes/service.route.js";
 import aiRoute from "./routes/ai.route.js";
 import locationRoute from "./routes/location.route.js";
 import imageRoute from "./routes/image.route.js";
+import tourScheduleRoute from "./routes/tourSchedule.route.js";
 dotenv.config();
 
 connectDB();
@@ -36,6 +37,7 @@ app.use("/api/users", userRoute);
 app.use("/api/provider", providerRoute);
 app.use("/api/guide", guideRoute);
 app.use("/api/tours", tourRouter);
+app.use("/api/tours", tourScheduleRoute);
 app.use("/api/services", serviceRoute);
 app.use("/api/ai", aiRoute);
 app.use("/api/location", locationRoute);
