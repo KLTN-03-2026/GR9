@@ -46,11 +46,6 @@ const tourSchema = new Schema(
             enum: ["FIXED", "DAILY", "FLEXIBLE"],
             default: "FIXED",
         },
-        quantity: {
-            adults: { type: Number, default: 1, min: 1 },
-            children: { type: Number, default: 0, min: 0 },
-            infants: { type: Number, default: 0, min: 0 },
-        },
         price: {
             adult: { type: Number, default: 0, min: 0 },
             child: { type: Number, default: 0, min: 0 },
