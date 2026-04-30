@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
+import PageHero from "@/components/shared/page-hero";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -76,13 +77,7 @@ export default function TourList() {
 
     if (q) {
       result = result.filter((t) => {
-        const haystack = [
-          t.title,
-          t.location,
-          t.category,
-          t.duration,
-          t.group,
-        ]
+        const haystack = [t.title, t.location, t.category, t.duration, t.group]
           .join(" ")
           .toLowerCase();
         return haystack.includes(q);
@@ -91,7 +86,9 @@ export default function TourList() {
 
     if (sortBy === "popular") {
       // Rough heuristic: rating + review count
-      result.sort((a, b) => b.rating * 10000 + b.reviews - (a.rating * 10000 + a.reviews));
+      result.sort(
+        (a, b) => b.rating * 10000 + b.reviews - (a.rating * 10000 + a.reviews),
+      );
     } else if (sortBy === "priceLow") {
       const toNumber = (price) => {
         const clean = String(price).replace(/[^0-9.]/g, "");
@@ -107,52 +104,57 @@ export default function TourList() {
   }, [search, sortBy]);
 
   return (
-    <main className="mx-auto w-full max-w-[1400px] p-6 md:p-10">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-        <div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-on-surface">
-            Curated Tours
-          </h1>
-          <p className="mt-3 text-on-surface-variant max-w-lg leading-relaxed">
-            Discover handcrafted experiences designed by our travel experts and AI
-            planning engine.
-          </p>
-        </div>
+    <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface">
+      <div className="mx-auto w-full max-w-[1600px] px-6 pb-12 pt-24 md:px-10">
+        <PageHero
+          className="mb-12"
+          contentClassName="xl:items-center"
+          eyebrow="Traveler Collection"
+          heading={
+            <>
+              Curated{" "}
+              <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
+                Tours
+              </span>
+            </>
+          }
+          description="Discover handcrafted experiences designed by our travel experts and AI planning engine."
+          rightSlot={
+            <div className="flex w-full max-w-2xl flex-col gap-3 xl:items-end">
+              <div className="w-full md:w-[360px]">
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search tours..."
+                  className="h-11 rounded-full border-outline-variant/20 bg-white/95 text-slate-900 placeholder:text-slate-500"
+                />
+              </div>
 
-        <div className="flex flex-col gap-3 md:items-end">
-          <div className="w-full md:w-[320px]">
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search tours..."
-              className="h-11 rounded-full bg-white/95 border-outline-variant/20 text-slate-900 placeholder:text-slate-500"
-            />
-          </div>
+              <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                <span className="text-sm font-medium text-on-surface-variant">
+                  Sort by:
+                </span>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="h-auto w-full rounded-xl bg-white px-4 py-2 text-slate-900 shadow-sm ring-1 ring-inset ring-outline-variant/10 sm:w-[280px]">
+                    <SelectValue placeholder="Most Popular" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="popular">Most Popular</SelectItem>
+                    <SelectItem value="ratingHigh">Top Rated</SelectItem>
+                    <SelectItem value="priceLow">Price: Low to High</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          }
+        />
 
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-on-surface-variant">
-              Sort by:
-            </span>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="h-auto px-4 py-2 rounded-xl bg-white text-slate-900 shadow-sm ring-1 ring-inset ring-outline-variant/10 w-[250px]">
-                <SelectValue placeholder="Most Popular" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="popular">Most Popular</SelectItem>
-                <SelectItem value="ratingHigh">Top Rated</SelectItem>
-                <SelectItem value="priceLow">Price: Low to High</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </header>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-        {tours.map((tour) => (
-          <article
-            key={tour.id}
-            className="group relative bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
-          >
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
+          {tours.map((tour) => (
+            <article
+              key={tour.id}
+              className="group relative bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
+            >
             <div className="aspect-[4/5] overflow-hidden relative">
               <img
                 alt={tour.title}
@@ -191,7 +193,9 @@ export default function TourList() {
                   <span className="text-2xl font-extrabold text-primary">
                     {tour.price}
                   </span>
-                  <span className="text-xs text-on-surface-variant">/ person</span>
+                  <span className="text-xs text-on-surface-variant">
+                    / person
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-1">
@@ -232,8 +236,8 @@ export default function TourList() {
                 </Link>
               </Button>
             </div>
-          </article>
-        ))}
+            </article>
+          ))}
 
         <article className="group relative bg-primary-container rounded-xl overflow-hidden shadow-lg p-8 flex flex-col justify-center text-on-primary-container">
           <div className="absolute -top-10 -right-10 h-40 w-40 bg-white/10 rounded-full blur-3xl" />
@@ -245,8 +249,8 @@ export default function TourList() {
               Can't find your perfect match?
             </h3>
             <p className="text-on-primary-container/80 text-sm mb-8 leading-relaxed">
-              Let our AI Concierge design a bespoke itinerary based on your unique
-              travel style, interests, and budget.
+              Let our AI Concierge design a bespoke itinerary based on your
+              unique travel style, interests, and budget.
             </p>
             <Button
               asChild
@@ -264,22 +268,34 @@ export default function TourList() {
         </Button>
 
         <div className="flex items-center gap-2">
-          <button className="h-10 w-10 flex items-center justify-center rounded-lg bg-primary text-on-primary font-bold" type="button">
+          <button
+            className="h-10 w-10 flex items-center justify-center rounded-lg bg-primary text-on-primary font-bold"
+            type="button"
+          >
             1
           </button>
-          <button className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface font-semibold" type="button">
+          <button
+            className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface font-semibold"
+            type="button"
+          >
             2
           </button>
-          <button className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface font-semibold" type="button">
+          <button
+            className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface font-semibold"
+            type="button"
+          >
             3
           </button>
           <span className="px-2 text-on-surface-variant">...</span>
-          <button className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface font-semibold" type="button">
+          <button
+            className="h-10 w-10 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface font-semibold"
+            type="button"
+          >
             12
           </button>
+        </div>
         </div>
       </div>
     </main>
   );
 }
-

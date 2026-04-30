@@ -55,7 +55,7 @@ export default function ProviderProfile() {
   };
 
   return (
-    <div className="relative overflow-hidden text-on-surface">
+    <div className="relative overflow-hidden bg-surface text-on-surface">
       <div className="pointer-events-none absolute -top-24 right-0 h-96 w-96 rounded-full bg-primary-fixed-dim/20 blur-3xl" />
       <div className="pointer-events-none absolute bottom-20 left-10 h-72 w-72 rounded-full bg-tertiary-fixed/20 blur-3xl" />
 

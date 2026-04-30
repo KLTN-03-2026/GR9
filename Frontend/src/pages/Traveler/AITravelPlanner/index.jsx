@@ -154,7 +154,7 @@ export default function AITravelPlanner() {
 
 
   return (
-    <div>
+    <div className="bg-surface">
       <div className="flex h-screen pt-16">
         <main className="flex flex-1 overflow-hidden">
           <PlannerSidebar
@@ -176,7 +176,7 @@ export default function AITravelPlanner() {
           <section
             className={`scrollbar-hide relative h-full flex-1 overflow-y-auto ${
               itinerary
-                ? "bg-surface p-8 xl:flex xl:flex-col xl:overflow-y-auto"
+                ? "bg-surface px-6 pb-12 pt-24 md:px-10 xl:flex xl:flex-col xl:overflow-y-auto"
                 : "bg-black/5 p-0"
             }`}
           >
