@@ -30,8 +30,8 @@ const sanitizeAuthPayload = (user, tokens) => ({
   user: {
     id: user._id,
     email: user.email,
-    full_name: user.fullName,
-    avatar: user.avatarUrl,
+    fullName: user.fullName,
+    avatarUrl: user.avatarUrl,
     role: user.role,
     isActive: user.isActive,
     firstJoin: user.firstJoin,
