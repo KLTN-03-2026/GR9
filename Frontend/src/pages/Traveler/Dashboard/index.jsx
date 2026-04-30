@@ -1,8 +1,56 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import PageHero from "@/components/shared/page-hero";
 import { Button } from "@/components/ui/button";
+import { getTravelerDashboard } from "@/services/api/traveler";
+
+const FALLBACK_UPCOMING = [
+    {
+        id: "fallback-dn",
+        location: "Da Nang, Vietnam",
+        status: "ongoing",
+        startDay: "2026-03-29",
+        endDay: "2026-03-31",
+    },
+    {
+        id: "fallback-st",
+        location: "Santorini, Greece",
+        status: "upcoming",
+        startDay: "2026-06-12",
+        endDay: "2026-06-18",
+    },
+];
+
+const FALLBACK_RECOMMENDED = [
+    {
+        id: "da-nang-coastal",
+        title: "Da Nang, Vietnam",
+        description:
+            "A premium Da Nang itinerary blending airport support, landmark visits, local food and passenger tracking.",
+        price: "$289",
+        type: "Coastal",
+        icon: "temple_buddhist",
+    },
+    {
+        id: "hoi-an-lantern",
+        title: "Hoi An, Vietnam",
+        description:
+            "Private pickup, old town storytelling and a premium lantern workshop in Hoi An.",
+        price: "$148",
+        type: "Lanterns",
+        icon: "temple_buddhist",
+    },
+    {
+        id: "ha-long-cruise",
+        title: "Ha Long Bay, Vietnam",
+        description:
+            "Luxury cruise through Ha Long Bay with curated caves, lagoons and cultural immersion.",
+        price: "$1249",
+        type: "Cruise",
+        icon: "directions_boat",
+    },
+];
 
 const TravelerDashboard = () => {
   return (
