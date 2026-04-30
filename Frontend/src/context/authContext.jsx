@@ -207,15 +207,14 @@ export const AuthContextProvider = ({ children }) => {
   const logOutContext = async () => {
     try {
       await logOut();
+      localStorage.removeItem("user");
+      setUser(null);
       toast.success("User logged out successfully");
+      navigate("/");
     } catch (error) {
       toast.error(
         error?.response?.data?.message || "Logout failed. Please try again.",
       );
-    } finally {
-      localStorage.removeItem("user");
-      setUser(null);
-      navigate("/");
     }
   };
 
