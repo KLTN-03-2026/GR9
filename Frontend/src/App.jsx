@@ -41,7 +41,6 @@ import TourDetail from "./pages/Traveler/TourDetail";
 import GuideDashboardHome from "./pages/Guide/GuideDashboardHome";
 import ProviderProfile from "./pages/Provider/ProviderProfile";
 import ProviderApplicationForm from "./pages/Guest/ProviderApplicationForm";
-import ProviderApplicationForm from "./pages/LandingHome/ProviderApplicationForm";
 import TravelerProfile from "./pages/Traveler/TravelerProfile";
 import GuideProfile from "./pages/Guide/GuideProfile";
 import AdminProfile from "./pages/Admin/AdminProfile";
