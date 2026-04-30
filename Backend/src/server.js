@@ -14,6 +14,7 @@ import aiRoute from "./routes/ai.route.js";
 import locationRoute from "./routes/location.route.js";
 import imageRoute from "./routes/image.route.js";
 import tourScheduleRoute from "./routes/tourSchedule.route.js";
+import travelerDashboardRoute from "./routes/travelerDashboard.route.js";
 dotenv.config();
 
 connectDB();
@@ -31,7 +32,6 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static(path.resolve("uploads")));
-
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
 app.use("/api/provider", providerRoute);
@@ -42,6 +42,7 @@ app.use("/api/services", serviceRoute);
 app.use("/api/ai", aiRoute);
 app.use("/api/location", locationRoute);
 app.use("/api/images", imageRoute);
+app.use("/api/traveler", travelerDashboardRoute);
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
