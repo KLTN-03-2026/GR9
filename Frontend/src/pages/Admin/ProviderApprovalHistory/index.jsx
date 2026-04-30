@@ -1,4 +1,5 @@
 import ProcessedProvidersList from "../ProviderApprovalPage/ProcessedProvidersList";
+import PageHero from "@/components/shared/page-hero";
 
 const mockHistory = [
   {
@@ -29,15 +30,19 @@ const mockHistory = [
 
 const ProviderApprovalHistory = () => {
   return (
-    <div className="pt-24 pb-12 max-w-6xl mx-auto space-y-12">
-      <section>
-        <h3 className="text-3xl font-extrabold tracking-tight text-slate-900 font-headline">
-          Approval History
-        </h3>
-        <p className="text-slate-500 mt-2 max-w-2xl text-sm">
-          Xem lại lịch sử các hồ sơ đăng ký đối tác đã được duyệt hoặc từ chối.
-        </p>
-      </section>
+    <div className="mx-auto max-w-[1600px] space-y-8 pb-12 pt-24">
+      <PageHero
+        eyebrow="Audit Trail"
+        heading={
+          <>
+            Approval{" "}
+            <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
+              History
+            </span>
+          </>
+        }
+        description="Xem lại lịch sử các hồ sơ đăng ký đối tác đã được duyệt hoặc từ chối."
+      />
 
       <ProcessedProvidersList data={mockHistory} />
     </div>

@@ -28,6 +28,7 @@ const ServiceFilter = ({
   search,
   onSearchChange,
   onAdd,
+  showAddButton = true,
 }) => {
   return (
     <div className="flex flex-col lg:flex-row gap-4 items-center justify-between bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
@@ -68,17 +69,19 @@ const ServiceFilter = ({
         </div>
       </div>
 
-      <div className="w-full lg:w-auto">
-        <Button
-          onClick={onAdd}
-          className="w-full lg:w-auto rounded-full px-8 py-6 font-bold text-sm bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-900/10 transition-all group"
-        >
-          <span className=" mr-2 group-hover:rotate-90 transition-transform">
-            <Plus className="h-4 w-4" />
-          </span>
-          ADD NEW SERVICE
-        </Button>
-      </div>
+      {showAddButton ? (
+        <div className="w-full lg:w-auto">
+          <Button
+            onClick={onAdd}
+            className="w-full lg:w-auto rounded-full px-8 py-6 font-bold text-sm bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-900/10 transition-all group"
+          >
+            <span className=" mr-2 group-hover:rotate-90 transition-transform">
+              <Plus className="h-4 w-4" />
+            </span>
+            ADD NEW SERVICE
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 };

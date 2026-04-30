@@ -15,46 +15,41 @@ import {
   WandSparkles,
 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import PageHero from "@/components/shared/page-hero";
 
 export default function TourEditorContent() {
   return (
-    <div className="space-y-10 text-on-surface">
-      <section className="relative overflow-hidden rounded-[2rem] bg-[radial-gradient(circle_at_top_left,_rgba(0,131,120,0.18),_transparent_38%),linear-gradient(135deg,_#ffffff,_#eef7f5)] p-6 shadow-[0_20px_50px_rgba(15,23,42,0.06)] ring-1 ring-slate-200/70 md:p-8">
-        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
-            <nav
-              aria-label="Breadcrumb"
-              className="mb-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant"
-            >
-              <span>Tours</span>
-              <ChevronRight className="size-3.5" />
-              <span>Manage Tours</span>
-              <ChevronRight className="size-3.5" />
-              <span className="text-primary">Create New Tour</span>
-            </nav>
-
-            <h1 className="font-headline text-4xl font-extrabold tracking-tight text-on-surface md:text-5xl">
-              Craft Your Experience
-            </h1>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-on-surface-variant md:text-base">
-              Design a journey travelers will remember with strong structure,
-              rich itinerary details, and conversion-friendly content that also
-              reads cleanly for search engines.
-            </p>
-
-            <div className="mt-5 flex flex-wrap gap-2">
-              <Badge className="rounded-full bg-primary/50 px-3 py-1 text-primary" />
-              <Badge className="rounded-full bg-tertiary/50 px-3 py-1 text-tertiary" />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row">
+    <div className="space-y-10 pt-3 text-on-surface">
+      <PageHero
+        contentClassName="xl:items-center"
+        eyebrow={
+          <nav
+            aria-label="Breadcrumb"
+            className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant"
+          >
+            <span>Tours</span>
+            <ChevronRight className="size-3.5" />
+            <span>Manage Tours</span>
+            <ChevronRight className="size-3.5" />
+            <span className="text-primary">Create New Tour</span>
+          </nav>
+        }
+        heading={
+          <>
+            Craft Your{" "}
+            <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
+              Experience
+            </span>
+          </>
+        }
+        description="Design a journey travelers will remember with strong structure, rich itinerary details, and conversion-friendly content that also reads cleanly for search engines."
+        actions={
+          <div className="flex w-full flex-col gap-3 sm:flex-row xl:w-auto">
             <Button
               variant="outline"
               className="h-12 rounded-2xl border-outline-variant/30 bg-white px-6 font-semibold text-slate-600"
@@ -65,8 +60,8 @@ export default function TourEditorContent() {
               Publish Tour
             </Button>
           </div>
-        </div>
-      </section>
+        }
+      />
 
       <div className="space-y-10" aria-label="Edit tour form">
         <Card className="rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
