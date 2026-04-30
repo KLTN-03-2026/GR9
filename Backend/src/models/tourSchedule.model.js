@@ -33,6 +33,6 @@ const tourScheduleSchema = new Schema(
     { timestamps: true },
 );
 
-const TourSchedule = model("tourScheduleSchema", tourScheduleSchema);
+const TourSchedule = model("TourSchedule", tourScheduleSchema);
 
 export default TourSchedule;
