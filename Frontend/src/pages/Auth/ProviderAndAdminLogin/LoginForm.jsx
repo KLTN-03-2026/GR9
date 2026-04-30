@@ -15,8 +15,7 @@ export default function LoginForm({
   loading,
   onSubmit,
 }) {
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
 
     // Validate email and password
     const trimmedEmail = email?.trim() || "";
@@ -56,7 +55,7 @@ export default function LoginForm({
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <div  className="space-y-6">
         <div className="space-y-2">
           <Label
             htmlFor="email"
@@ -126,7 +125,8 @@ export default function LoginForm({
         </div>
 
         <Button
-          type="submit"
+          type="button"
+          onClick={handleSubmit}
           disabled={loading}
           className="h-14 w-full rounded-xl bg-gradient-to-r from-primary to-primary-container px-6 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] disabled:opacity-50"
         >
@@ -135,7 +135,7 @@ export default function LoginForm({
             arrow_forward
           </span>
         </Button>
-      </form>
+      </div>
 
       <Card className="mt-8 rounded-xl border border-secondary-container/50 bg-secondary-container/30 py-0 shadow-none">
         <CardContent className="flex items-start gap-3 p-4">

@@ -52,6 +52,7 @@ const MENU = {
       icon: LinkIcon,
     },
     { name: "Tour Tracking", href: "/tour-tracking", icon: MapPin },
+    { name: "Traveler Profile", href: "/profile", icon: UserCog },
   ],
 
   admin: [
@@ -68,6 +69,7 @@ const MENU = {
       href: "/content-moderation",
       icon: ShieldAlert,
     },
+    { name: "Admin Profile", href: "/profile", icon: UserCog },
   ],
 
   guide: [
@@ -82,6 +84,7 @@ const MENU = {
       href: "/live-tour-tracking",
       icon: Share2,
     },
+    { name: "Guide Profile", href: "/profile", icon: UserCog },
   ],
 
   provider: [

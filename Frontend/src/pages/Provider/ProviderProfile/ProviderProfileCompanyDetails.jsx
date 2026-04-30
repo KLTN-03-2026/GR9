@@ -2,7 +2,20 @@ import { Building2, Globe, MapPin, ShieldCheck } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 
-export default function ProviderProfileCompanyDetails() {
+const company = {
+  legalName: "Skyline Tours Co., Ltd",
+  website: "www.skylinetours.vn",
+  headquarters: "123 Vo Nguyen Giap St, Son Tra District, Da Nang, Vietnam",
+  licenseNumber: "DN-99482-STA-2024",
+};
+
+export default function ProviderProfileCompanyDetails({ profile }) {
+  const displayCompany = {
+    ...company,
+    legalName: profile?.fullName || company.legalName,
+    headquarters: profile?.address || company.headquarters,
+  };
+
   return (
     <Card className="rounded-[2rem] border border-outline-variant/20 bg-surface-container-lowest py-0 shadow-[0_18px_40px_rgba(25,28,30,0.04)] transition-shadow duration-300 hover:shadow-[0_24px_50px_rgba(25,28,30,0.08)]">
       <CardContent className="p-8">
@@ -16,21 +29,45 @@ export default function ProviderProfileCompanyDetails() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <div className="space-y-1">
             <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/60">
-              Legal Name
+              Email
             </p>
-            <p className="text-lg font-semibold">Skyline Tours Co., Ltd</p>
+            <p className="break-words text-lg font-semibold">
+              {profile?.email || "Not provided"}
+            </p>
           </div>
 
           <div className="space-y-1">
             <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/60">
-              Website
+              Phone
+            </p>
+            <p className="text-lg font-semibold">
+              {profile?.phone || "Not provided"}
+            </p>
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/60">
+              Legal Name
+            </p>
+            <p className="text-lg font-semibold">{displayCompany.legalName}</p>
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/60">
+              Gender
             </p>
             <div className="flex items-center gap-2">
-              <Globe className="size-4 text-primary" />
-              <p className="text-lg font-semibold text-primary">
-                www.skylinetours.vn
+              <p className="text-lg font-semibold">
+                {profile?.gender || "OTHER"}
               </p>
             </div>
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/60">
+              Auth Type
+            </p>
+            <p className="text-lg font-semibold">{profile?.authType || "LOCAL"}</p>
           </div>
 
           <div className="space-y-1 md:col-span-2">
@@ -40,7 +77,7 @@ export default function ProviderProfileCompanyDetails() {
             <div className="flex items-start gap-2">
               <MapPin className="mt-1 size-4 text-on-surface-variant" />
               <p className="text-lg font-semibold">
-                123 Vo Nguyen Giap St, Son Tra District, Da Nang, Vietnam
+                {displayCompany.headquarters}
               </p>
             </div>
           </div>
@@ -51,9 +88,21 @@ export default function ProviderProfileCompanyDetails() {
             </p>
             <div className="flex items-center gap-2">
               <span className="text-lg font-mono font-bold tracking-tight">
-                DN-99482-STA-2024
+                {displayCompany.licenseNumber}
               </span>
               <ShieldCheck className="size-4 text-teal-600" />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant/60">
+              Website
+            </p>
+            <div className="flex items-center gap-2">
+              <Globe className="size-4 text-primary" />
+              <p className="text-lg font-semibold text-primary">
+                {displayCompany.website}
+              </p>
             </div>
           </div>
         </div>
