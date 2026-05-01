@@ -21,12 +21,10 @@ const defaultTour = {
     },
     numberOfDay: 1,
     itineraries: [],
-    hotelServiceId: "",
-    transportServiceId: "",
-    leadDuideServiceId: "",
+    availableServices: [],
     description: "",
     name: "",
-
+    leadDuideServiceId: "",
     type: "GROUP",
     scheduleType: "FIXED",
 };
@@ -68,6 +66,7 @@ export default function ManageTours() {
         setExistingImages([]);
         setNewImages([]);
     };
+    
     const mapTourToDays = (tour, services) => {
         return tour.itineraries.map((d) => ({
             dayNumber: d.dayNumber,
@@ -170,8 +169,30 @@ export default function ManageTours() {
         }
     };
     const handleEdit = (tour) => {
-        setTour(tour);
+        if (services.length === 0) {
+            toast.error("Services chưa load xong");
+            return;
+        }
+        const normalizedServices = (tour.availableServices || []).map((s, index, arr) => {
+            const serviceId = s.serviceId?._id || s.serviceId;
+
+            const serviceData = services.find((ser) => ser._id === serviceId) || s.serviceData || s.serviceId || null;
+
+            return {
+                ...s,
+                serviceId,
+                serviceData, // 🔥 luôn có data
+                isDefault: s.isDefault ?? arr.filter((x) => x.type === s.type).findIndex((x) => x === s) === 0,
+            };
+        });
+
+        setTour({
+            ...tour,
+            availableServices: normalizedServices,
+        });
+
         setDays(mapTourToDays(tour, services));
+
         setExistingImages(
             (tour.images || []).map((img) => {
                 if (typeof img === "string") return { imageUrl: img };
@@ -179,6 +200,7 @@ export default function ManageTours() {
                 return { imageUrl: "", _id: img._id };
             }),
         );
+
         setNewImages([]);
         setEditingTourId(tour._id);
         setOpen(true);

@@ -18,6 +18,7 @@ import {
     ImagePlus,
     Mountain,
     ShieldCheck,
+    Star,
     Sun,
     UtensilsCrossed,
     WandSparkles,
@@ -27,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { formatPrice } from "@/utils/formatPrice";
 
 export default function DialogCreateTour({
     open,
@@ -74,18 +76,19 @@ export default function DialogCreateTour({
         }));
     }, [days]);
     useEffect(() => {
-        const price = calculateTourPrice(days, services);
+        const price = calculateTourPrice(days, services, tour.availableServices);
 
         setTour((prev) => ({
             ...prev,
             price,
         }));
-    }, [days, services]);
-    const calculateTourPrice = (days, services) => {
+    }, [days, services, tour.availableServices]);
+    const calculateTourPrice = (days, services, availableServices) => {
         let adult = 0;
         let child = 0;
         let infant = 0;
 
+        // 👉 Activity price
         days.forEach((day) => {
             day.activities.forEach((act) => {
                 const service = services.find((s) => s._id === act.serviceId);
@@ -97,14 +100,40 @@ export default function DialogCreateTour({
             });
         });
 
+        // 👉 ONLY default hotel + transport
+        const defaultServices = availableServices?.filter((s) => s.isDefault);
+
+        const defaultHotel = availableServices?.find((s) => s.type === "HOTEL" && s.isDefault);
+
+        const defaultTransport = availableServices?.find((s) => s.type === "TRANSPORT" && s.isDefault);
+
+        const defaultList = [defaultHotel, defaultTransport].filter(Boolean);
+
+        defaultList.forEach((s) => {
+            const service = services.find((ser) => ser._id === s.serviceId) || s.serviceData;
+
+            if (!service) return;
+
+            adult += service.total?.find((t) => t.type === "ADULT")?.price || 0;
+            child += service.total?.find((t) => t.type === "CHILD")?.price || 0;
+            infant += service.total?.find((t) => t.type === "INFANT")?.price || 0;
+        });
+
         return { adult, child, infant };
     };
+    const getPrice = (service, type) => service?.serviceData?.total?.find((t) => t.type === type)?.price || 0;
     const serviceMap = services.reduce((acc, s) => {
         acc[s._id] = s;
         return acc;
     }, {});
-    const selectedHotel = services.find((s) => s._id === tour.hotelServiceId);
-    const selectedTransport = services.find((s) => s._id === tour.transportServiceId);
+    const getServiceByType = (type) => {
+        return tour.availableServices?.find((s) => s.type === type && s.isDefault);
+    };
+
+    const selectedHotel = getServiceByType("HOTEL");
+    const hotelServices = tour.availableServices?.filter((s) => s.type === "HOTEL");
+    const selectedTransport = getServiceByType("TRANSPORT");
+    const transportServices = tour.availableServices?.filter((s) => s.type === "TRANSPORT");
     const selectedGuide = guides.find((s) => s._id === tour.leadDuideServiceId);
     const handlePriceChange = (type, value) => {
         setTour((prev) => ({
@@ -113,6 +142,23 @@ export default function DialogCreateTour({
                 ...prev.price,
                 [type]: value === "" ? "" : Number(value),
             },
+        }));
+    };
+    // set default
+    const setDefaultService = (type, serviceId) => {
+        setTour((prev) => ({
+            ...prev,
+            availableServices: prev.availableServices.map((s) =>
+                s.type === type ? { ...s, isDefault: s.serviceId === serviceId } : s,
+            ),
+        }));
+    };
+
+    // remove service
+    const removeService = (type, serviceId) => {
+        setTour((prev) => ({
+            ...prev,
+            availableServices: prev.availableServices.filter((s) => !(s.type === type && s.serviceId === serviceId)),
         }));
     };
     const handleAddActivity = (dayIndex) => {
@@ -432,11 +478,18 @@ export default function DialogCreateTour({
                                                                                                 <span className="font-medium">
                                                                                                     {s.name}
                                                                                                 </span>
-                                                                                                <span className="text-primary font-semibold text-sm">
-                                                                                                    {price
-                                                                                                        ? `$${price}`
-                                                                                                        : "Free"}
-                                                                                                </span>
+                                                                                                <div className="flex flex-col text-end">
+                                                                                                    <span className="text-primary font-semibold text-sm">
+                                                                                                        {price
+                                                                                                            ? `${formatPrice(price)}đ`
+                                                                                                            : "Free"}
+                                                                                                    </span>
+                                                                                                    <span className="font-semibold text-sm">
+                                                                                                        {s.type
+                                                                                                            ? `${s.type}`
+                                                                                                            : "Free"}
+                                                                                                    </span>
+                                                                                                </div>
                                                                                             </div>
                                                                                             <p className="text-xs text-slate-500">
                                                                                                 {s.address}
@@ -492,7 +545,7 @@ export default function DialogCreateTour({
                                                                                             {t.type}
                                                                                         </p>
                                                                                         <p className="text-sm font-bold text-slate-800">
-                                                                                            ${t.price}
+                                                                                            {formatPrice(t.price)}đ
                                                                                         </p>
                                                                                     </div>
                                                                                 ),
@@ -559,13 +612,39 @@ export default function DialogCreateTour({
 
                                         <CardContent className="space-y-5 px-6 pb-6">
                                             <Select
-                                                value={tour.hotelServiceId}
-                                                onValueChange={(value) =>
-                                                    setTour((prev) => ({
-                                                        ...prev,
-                                                        hotelServiceId: value,
-                                                    }))
-                                                }
+                                                value={selectedHotel?.serviceId || hotelServices?.[0]?.serviceId || ""}
+                                                onValueChange={(value) => {
+                                                    const service = services.find((s) => s._id === value);
+
+                                                    setTour((prev) => {
+                                                        const exists = prev.availableServices?.some(
+                                                            (s) => s.type === "HOTEL" && s.serviceId === value,
+                                                        );
+
+                                                        if (exists) return prev;
+
+                                                        return {
+                                                            ...prev,
+                                                            availableServices: [
+                                                                ...(prev.availableServices || []),
+                                                                {
+                                                                    type: "HOTEL",
+                                                                    serviceId: service._id,
+                                                                    serviceData: service,
+                                                                    isDefault:
+                                                                        prev.availableServices?.filter(
+                                                                            (s) => s.type === "HOTEL",
+                                                                        ).length === 0,
+                                                                    extraPrice: {
+                                                                        adult: 0,
+                                                                        child: 0,
+                                                                        infant: 0,
+                                                                    },
+                                                                },
+                                                            ],
+                                                        };
+                                                    });
+                                                }}
                                             >
                                                 <SelectTrigger className="h-12 rounded-2xl border-outline-variant/20 bg-surface-container-low px-4 text-sm font-semibold w-full">
                                                     <SelectValue placeholder="Select hotel" />
@@ -581,39 +660,84 @@ export default function DialogCreateTour({
                                                         ))}
                                                 </SelectContent>
                                             </Select>
+                                            <div className="space-y-3 mt-3">
+                                                {hotelServices?.length === 0 && (
+                                                    <p className="text-xs text-muted-foreground">No hotel selected</p>
+                                                )}
 
+                                                {hotelServices?.map((s) => (
+                                                    <div
+                                                        key={s.serviceId}
+                                                        className={`flex justify-between items-center rounded-xl border p-3 transition ${
+                                                            s.isDefault
+                                                                ? "border-primary bg-primary/5"
+                                                                : "hover:bg-muted/40"
+                                                        }`}
+                                                    >
+                                                        <p className="text-sm font-semibold">{s.serviceData?.name}</p>
+
+                                                        <div className="flex items-center gap-2">
+                                                            <Button
+                                                                size="icon"
+                                                                variant="ghost"
+                                                                onClick={() => setDefaultService("HOTEL", s.serviceId)}
+                                                            >
+                                                                <Star
+                                                                    className={`w-4 h-4 ${
+                                                                        s.isDefault
+                                                                            ? "fill-primary text-primary"
+                                                                            : "text-gray-400"
+                                                                    }`}
+                                                                />
+                                                            </Button>
+
+                                                            <Button
+                                                                size="icon"
+                                                                variant="ghost"
+                                                                onClick={() => removeService("HOTEL", s.serviceId)}
+                                                            >
+                                                                <X className="w-4 h-4 text-red-500" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
                                             <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-surface-container-low p-4 transition-all">
                                                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                                                     <BedDouble className="size-5" />
                                                 </div>
 
-                                                <div className="min-w-0 flex-1">
-                                                    {selectedHotel ? (
-                                                        <>
+                                                {selectedHotel ? (
+                                                    <>
+                                                        <div>
                                                             <p className="truncate text-sm font-bold text-on-surface">
-                                                                {selectedHotel.name}
+                                                                {selectedHotel.serviceData?.name}
                                                             </p>
 
                                                             <p className="text-xs text-slate-500 line-clamp-2">
-                                                                {selectedHotel.description}
+                                                                {selectedHotel.serviceData?.description}
                                                             </p>
 
                                                             <p className="mt-1 text-[11px] font-semibold text-primary">
-                                                                {selectedHotel.address}
+                                                                {selectedHotel.serviceData?.address}
                                                             </p>
-                                                        </>
-                                                    ) : (
-                                                        <p className="text-sm text-slate-400">Chưa chọn khách sạn</p>
-                                                    )}
-                                                </div>
+                                                        </div>
 
-                                                {selectedHotel?.total?.[0]?.price && (
-                                                    <div className="text-right">
-                                                        <p className="text-xs font-bold text-primary">
-                                                            ${selectedHotel?.total?.[0]?.price}
-                                                        </p>
-                                                        <p className="text-[10px] text-slate-500">starting</p>
-                                                    </div>
+                                                        <div className="text-right mt-2">
+                                                            <p className="text-xs font-bold text-primary">
+                                                                Adult: {formatPrice(getPrice(selectedHotel, "ADULT"))}đ
+                                                            </p>
+                                                            <p className="text-xs text-slate-600">
+                                                                Child: {formatPrice(getPrice(selectedHotel, "CHILD"))}đ
+                                                            </p>
+                                                            <p className="text-xs text-slate-600">
+                                                                Infant: {formatPrice(getPrice(selectedHotel, "INFANT"))}
+                                                                đ
+                                                            </p>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <p className="text-sm text-slate-400">Chưa chọn khách sạn</p>
                                                 )}
                                             </div>
                                         </CardContent>
@@ -634,13 +758,43 @@ export default function DialogCreateTour({
 
                                         <CardContent className="space-y-5 px-6 pb-6">
                                             <Select
-                                                value={tour.transportServiceId}
-                                                onValueChange={(value) =>
-                                                    setTour((prev) => ({
-                                                        ...prev,
-                                                        transportServiceId: value,
-                                                    }))
+                                                value={
+                                                    selectedTransport?.serviceId ||
+                                                    transportServices?.[0]?.serviceId ||
+                                                    ""
                                                 }
+                                                onValueChange={(value) => {
+                                                    const service = services.find((s) => s._id === value);
+
+                                                    setTour((prev) => {
+                                                        const exists = prev.availableServices?.some(
+                                                            (s) => s.type === "TRANSPORT" && s.serviceId === value,
+                                                        );
+
+                                                        if (exists) return prev;
+
+                                                        return {
+                                                            ...prev,
+                                                            availableServices: [
+                                                                ...(prev.availableServices || []),
+                                                                {
+                                                                    type: "TRANSPORT",
+                                                                    serviceId: service._id,
+                                                                    serviceData: service,
+                                                                    isDefault:
+                                                                        prev.availableServices?.filter(
+                                                                            (s) => s.type === "TRANSPORT",
+                                                                        ).length === 0,
+                                                                    extraPrice: {
+                                                                        adult: 0,
+                                                                        child: 0,
+                                                                        infant: 0,
+                                                                    },
+                                                                },
+                                                            ],
+                                                        };
+                                                    });
+                                                }}
                                             >
                                                 <SelectTrigger className="h-12 rounded-2xl border-outline-variant/20 bg-surface-container-low px-4 text-sm font-semibold w-full">
                                                     <SelectValue placeholder="Select transport" />
@@ -656,39 +810,91 @@ export default function DialogCreateTour({
                                                         ))}
                                                 </SelectContent>
                                             </Select>
+                                            {/* 🔥 LIST TRANSPORT */}
+                                            <div className="space-y-3 mt-3">
+                                                {transportServices?.length === 0 && (
+                                                    <p className="text-xs text-muted-foreground">
+                                                        No transport selected
+                                                    </p>
+                                                )}
 
+                                                {transportServices?.map((s) => (
+                                                    <div
+                                                        key={s.serviceId}
+                                                        className={`flex justify-between items-center rounded-xl border p-3 transition ${
+                                                            s.isDefault
+                                                                ? "border-secondary bg-secondary/5"
+                                                                : "hover:bg-muted/40"
+                                                        }`}
+                                                    >
+                                                        <p className="text-sm font-semibold">{s.serviceData?.name}</p>
+
+                                                        <div className="flex items-center gap-2">
+                                                            <Button
+                                                                size="icon"
+                                                                variant="ghost"
+                                                                onClick={() =>
+                                                                    setDefaultService("TRANSPORT", s.serviceId)
+                                                                }
+                                                            >
+                                                                <Star
+                                                                    className={`w-4 h-4 ${
+                                                                        s.isDefault
+                                                                            ? "fill-primary text-primary"
+                                                                            : "text-gray-400"
+                                                                    }`}
+                                                                />
+                                                            </Button>
+
+                                                            <Button
+                                                                size="icon"
+                                                                variant="ghost"
+                                                                onClick={() => removeService("TRANSPORT", s.serviceId)}
+                                                            >
+                                                                <X className="w-4 h-4 text-red-500" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
                                             <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-surface-container-low p-4 transition-all">
                                                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                                                     <CarFront className="size-5" />
                                                 </div>
 
-                                                <div className="min-w-0 flex-1">
-                                                    {selectedTransport ? (
-                                                        <>
+                                                {selectedTransport ? (
+                                                    <>
+                                                        <div>
                                                             <p className="truncate text-sm font-bold text-on-surface">
-                                                                {selectedTransport.name}
+                                                                {selectedTransport.serviceData?.name}
                                                             </p>
 
                                                             <p className="text-xs text-slate-500 line-clamp-2">
-                                                                {selectedTransport.description}
+                                                                {selectedTransport.serviceData?.description}
                                                             </p>
 
                                                             <p className="mt-1 text-[11px] font-semibold text-slate-500">
-                                                                {selectedTransport.address}
+                                                                {selectedTransport.serviceData?.address}
                                                             </p>
-                                                        </>
-                                                    ) : (
-                                                        <p className="text-sm text-slate-400">Chưa chọn phương tiện</p>
-                                                    )}
-                                                </div>
+                                                        </div>
 
-                                                {selectedTransport?.total?.[0]?.price && (
-                                                    <div className="text-right">
-                                                        <p className="text-xs font-bold text-primary">
-                                                            ${selectedTransport?.total?.[0]?.price}
-                                                        </p>
-                                                        <p className="text-[10px] text-slate-500">trip</p>
-                                                    </div>
+                                                        <div className="text-right mt-2">
+                                                            <p className="text-xs font-bold text-primary">
+                                                                Adult:{" "}
+                                                                {formatPrice(getPrice(selectedTransport, "ADULT"))}đ
+                                                            </p>
+                                                            <p className="text-xs text-slate-600">
+                                                                Child:{" "}
+                                                                {formatPrice(getPrice(selectedTransport, "CHILD"))}đ
+                                                            </p>
+                                                            <p className="text-xs text-slate-600">
+                                                                Infant:{" "}
+                                                                {formatPrice(getPrice(selectedTransport, "INFANT"))}đ
+                                                            </p>
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <p className="text-sm text-slate-400">Chưa chọn phương tiện</p>
                                                 )}
                                             </div>
                                         </CardContent>
