@@ -13,7 +13,6 @@ const router = express.Router();
 router.use(protect, authorize("PROVIDER"));
 router.get("/all", getAllTourController);
 router.get("/", getToursByProviderController);
-router.get("/:id", getTourController);
 router.post("/", createTourController);
 router.put("/:id", updateTourController);
 router.delete("/:id", deleteTourController);
