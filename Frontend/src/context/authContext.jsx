@@ -11,7 +11,7 @@ import {
   verifyEmailOtp,
   verifyResetPasswordOtp,
 } from "../services/api/auth";
-import { applyProvider } from "../services/api/provider";
+import { getMyProfile } from "../services/api/user";
 import { useNavigate } from "react-router-dom";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/firebase";
@@ -28,6 +28,26 @@ export const AuthContextProvider = ({ children }) => {
   const persistUserSession = (payload) => {
     setUser(payload);
     localStorage.setItem("user", JSON.stringify(payload));
+  };
+
+  const syncUserProfile = (profile) => {
+    setUser((currentUser) => {
+      if (!currentUser) return currentUser;
+
+      const nextUser = {
+        ...currentUser,
+        user: {
+          ...(currentUser.user || {}),
+          fullName: profile.fullName,
+          avatarUrl: profile.avatarUrl,
+          email: profile.email,
+          role: profile.role,
+        },
+      };
+
+      localStorage.setItem("user", JSON.stringify(nextUser));
+      return nextUser;
+    });
   };
 
   const loginGoogle = async () => {
@@ -47,9 +67,9 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
 
-  const loginUser = async (email, password) => {
+  const loginUser = async (email, password, role) => {
     try {
-      const response = await login(email, password);
+      const response = await login(email, password, role);
       const payload = response.data.data;
       persistUserSession(payload);
       toast.success("User logged in successfully");
@@ -64,7 +84,9 @@ export const AuthContextProvider = ({ children }) => {
         navigate("/admin");
       } else if (payload?.user?.role === "PROVIDER") {
         navigate("/provider");
-      } else {
+      } else if (payload?.user?.role === "GUIDE") {
+        navigate("/guide");
+      } else if (payload?.user?.role === "TRAVELER") {
         navigate("/traveler");
       }
 
@@ -219,11 +241,25 @@ export const AuthContextProvider = ({ children }) => {
     }
   };
 
+  const getMyProfileContext = async () => {
+    try {
+      const response = await getMyProfile();
+      return response.data.data;
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Unable to load profile.",
+      );
+      throw error;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
+        syncUserProfile,
         loginGoogle,
+        getMyProfileContext,
         logOutContext,
         loginUser,
         signUpUser,

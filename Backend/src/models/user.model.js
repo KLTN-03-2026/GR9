@@ -12,10 +12,14 @@ const userSchema = new Schema(
       required: true,
       default: "LOCAL",
     },
-
+    supervisorId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
     email: { type: String, required: true, unique: true, trim: true },
     password: { type: String, default: null },
-    
+
     fullName: { type: String, trim: true, default: null },
     avatarUrl: {
       type: String,
@@ -51,6 +55,7 @@ const userSchema = new Schema(
       ],
       default: "NOT_STARTED",
     },
+    language: { type: String, default: "vi" },
     isActive: { type: Boolean, default: false },
     codeVerify: { type: String, default: null },
     codeVerifyExpiresAt: { type: Date, default: null },
@@ -59,6 +64,7 @@ const userSchema = new Schema(
     emailVerifiedAt: { type: Date, default: null },
     address: { type: String, default: null },
     phone: { type: String, default: null },
+    supervisorId: { type: Schema.Types.ObjectId, ref: "User", default: null },
   },
   {
     timestamps: true,

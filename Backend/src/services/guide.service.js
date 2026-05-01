@@ -1,61 +1,70 @@
 import User from "../models/user.model.js";
 import { throwError } from "../utils/throwError.js";
+import { ensureProvider } from "../middlewares/authorizeProvider.js";
 
-export const createGuide = async (guideData) => {
-  try {
+export const createGuide = async (providerId, guideData) => {
+    await ensureProvider(providerId);
+
     const existingGuide = await User.findOne({ email: guideData.email });
+
     if (existingGuide) {
-      throw throwError("Email đã tồn tại", 400, "EMAIL_ALREADY_EXISTS");
+        throw throwError("Email đã tồn tại", 400, "EMAIL_ALREADY_EXISTS");
     }
-    const data = await User.create({ ...guideData, role: "GUIDE" });
-    return data;
-  } catch (error) {
-    throw throwError(error.message, error.status, "CREATE_GUIDE_ERROR");
-  }
+    
+    return await User.create({
+        ...guideData,
+        role: "GUIDE",
+        supervisorId: providerId,
+    });
 };
 
-export const getGuides = async () => {
-  try {
-    const guides = await User.find({ role: "GUIDE" });
-    return guides;
-  } catch (error) {
-    throw throwError(error.message, error.status, "GET_GUIDES_ERROR");
-  }
+export const getGuides = async (providerId) => {
+    await ensureProvider(providerId);
+
+    return await User.find({
+        role: "GUIDE",
+        supervisorId: providerId,
+    });
 };
 
 export const getGuideById = async (id) => {
-  try {
     const guide = await User.findById(id);
+
+    if (!guide) {
+        throw throwError("Không tìm thấy guide", 404, "GUIDE_NOT_FOUND");
+    }
+
     return guide;
-  } catch (error) {
-    throw throwError(error.message, error.status, "GET_GUIDE_BY_ID_ERROR");
-  }
 };
 
-export const deleteGuide = async (id) => {
-  try {
-    const existingGuide = await User.findById(id);
-    if (!existingGuide) {
-      throw throwError("Không tìm thấy guide", 404, "GUIDE_NOT_FOUND");
-    }
-    const guide = await User.findByIdAndDelete(id);
-    return guide;
-  } catch (error) {
-    throw throwError(error.message, error.status, "DELETE_GUIDE_ERROR");
-  }
-};
+export const deleteGuide = async (providerId, guideId) => {
+    await ensureProvider(providerId);
 
-export const updateGuide = async (_id, guideData) => {
-  try {
-    const existingGuide = await User.findById(_id);
-    if (!existingGuide) {
-      throw throwError("Không tìm thấy guide", 404, "GUIDE_NOT_FOUND");
-    }
-    const guide = await User.findByIdAndUpdate(_id, guideData, {
-      returnDocument: "after",
+    const guide = await User.findOne({
+        _id: guideId,
+        supervisorId: providerId,
     });
-    return guide;
-  } catch (error) {
-    throw throwError(error.message, error.status, "UPDATE_GUIDE_ERROR");
-  }
+
+    if (!guide) {
+        throw throwError("Không tìm thấy guide", 404, "GUIDE_NOT_FOUND");
+    }
+
+    return await User.findByIdAndDelete(guideId);
+};
+
+export const updateGuide = async (providerId, guideId, guideData) => {
+    await ensureProvider(providerId);
+
+    const guide = await User.findOne({
+        _id: guideId,
+        supervisorId: providerId,
+    });
+
+    if (!guide) {
+        throw throwError("Không tìm thấy guide", 404, "GUIDE_NOT_FOUND");
+    }
+
+    return await User.findByIdAndUpdate(guideId, guideData, {
+        new: true,
+    });
 };

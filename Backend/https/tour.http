@@ -74,18 +74,18 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZTBhMmZjZ
 
 ###
 GET http://localhost:3000/api/tours
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZTBhMmZjZjcyMWEzZjdhMzg5YWJkMyIsImlhdCI6MTc3NjMyOTQ2OCwiZXhwIjoxNzc2MzMwMzY4fQ.RKcoO_voQJoUsHCF7xe6T7ntNQP97yMtUfmmBoNRZOU
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZWI3YThkMWI3MzM0YTI5MGYwZWVhNCIsImlhdCI6MTc3NzIxNzU3MCwiZXhwIjoxNzc3MjE4NDcwfQ.q4celfhG3Ve82wNZd6Z8C6pOZpGWfXKWoS_pYofN37A
 
 
 ###
 GET http://localhost:3000/api/tours/69de1a884f6678778d99639a
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjE2NDc5MSwiZXhwIjoxNzc2MTY1NjkxfQ.jlCV19XX45k1XGEIufuoixggTdON7rxyiNFkMu1UXcY
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZWI3YThkMWI3MzM0YTI5MGYwZWVhNCIsImlhdCI6MTc3NzIxNzU3MCwiZXhwIjoxNzc3MjE4NDcwfQ.q4celfhG3Ve82wNZd6Z8C6pOZpGWfXKWoS_pYofN37A
 
 
 ###
 PUT http://localhost:3000/api/tours/69de1a884f6678778d99639a
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjE2NDc5MSwiZXhwIjoxNzc2MTY1NjkxfQ.jlCV19XX45k1XGEIufuoixggTdON7rxyiNFkMu1UXcY
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZWI3YThkMWI3MzM0YTI5MGYwZWVhNCIsImlhdCI6MTc3NzIxNzU3MCwiZXhwIjoxNzc3MjE4NDcwfQ.q4celfhG3Ve82wNZd6Z8C6pOZpGWfXKWoS_pYofN37A
 
 {
   "price": 2000000,
@@ -105,6 +105,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhN
 }
 
 ###
-DELETE http://localhost:3000/api/tours/69de1a884f6678778d99639a
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGI0NjhhNjU2Mjc3YzFlZDk1NzUyOSIsImlhdCI6MTc3NjE2NDc5MSwiZXhwIjoxNzc2MTY1NjkxfQ.jlCV19XX45k1XGEIufuoixggTdON7rxyiNFkMu1UXcY
+DELETE http://localhost:3000/api/tours/69e0a3b65cdbdbfab89bac8a
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZWI3YThkMWI3MzM0YTI5MGYwZWVhNCIsImlhdCI6MTc3NzIxNzU3MCwiZXhwIjoxNzc3MjE4NDcwfQ.q4celfhG3Ve82wNZd6Z8C6pOZpGWfXKWoS_pYofN37A
 
+###
+POST https://bwmnzhppmg.execute-api.us-west-2.amazonaws.com/dev/chat
+Content-Type: application/json
+
+{
+  "message": "Đặt sân"
+}

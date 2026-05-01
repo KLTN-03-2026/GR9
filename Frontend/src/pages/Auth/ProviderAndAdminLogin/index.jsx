@@ -6,17 +6,17 @@ import AuthContext from "@/context/authContext";
 import LoginForm from "./LoginForm";
 
 export default function ProviderAndAdminLogin() {
-  const [activeRole, setActiveRole] = useState("provider");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { loginUser } = useContext(AuthContext);
-
+  const location = useLocation();
   const handleSignIn = async (trimmedEmail, trimmedPassword) => {
     try {
+      const role = location.pathname === "/admin-login" ? "ADMIN" : "PROVIDER";
       setLoading(true);
-      await loginUser(trimmedEmail, trimmedPassword);
+      await loginUser(trimmedEmail, trimmedPassword, role);
     } catch (error) {
       console.error("Login error:", error);
     } finally {
@@ -76,34 +76,16 @@ export default function ProviderAndAdminLogin() {
           </div>
 
           <CardContent className="w-full p-8 md:w-1/2 md:p-16">
-            <Tabs
-              value={activeRole}
-              onValueChange={setActiveRole}
-              className="w-full"
-            >
-              <LoginForm
-                role="provider"
-                email={email}
-                password={password}
-                setEmail={setEmail}
-                setPassword={setPassword}
-                showPassword={showPassword}
-                setShowPassword={setShowPassword}
-                loading={loading}
-                onSubmit={handleSignIn}
-              />
-              <LoginForm
-                role="admin"
-                email={email}
-                password={password}
-                setEmail={setEmail}
-                setPassword={setPassword}
-                showPassword={showPassword}
-                setShowPassword={setShowPassword}
-                loading={loading}
-                onSubmit={handleSignIn}
-              />
-            </Tabs>
+            <LoginForm
+              email={email}
+              password={password}
+              setEmail={setEmail}
+              setPassword={setPassword}
+              showPassword={showPassword}
+              setShowPassword={setShowPassword}
+              loading={loading}
+              onSubmit={handleSignIn}
+            />
           </CardContent>
         </Card>
       </main>
