@@ -1,7 +1,7 @@
 # ### Get provider services
 # GET http://localhost:3000/api/services
 # Authorization: Bearer {{token}}
-### Create a new service
+### Create a new service (WITH CHILDREN PRICING)
 POST http://localhost:3000/api/services
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGUzMTc0NmJiNTliYmFkNjI5OGFlNyIsImlhdCI6MTc3NjE2OTMzMiwiZXhwIjoxNzc2MTcwMjMyfQ.tE0YfI_kOr4oo0RWjLQedmka3Fx5KYV8BLQ8GxOtVik
@@ -11,14 +11,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZGUzMTc0N
   "name": "Demo Hotel Service",
   "type": "HOTEL",
   "description": "Test service created from API.http",
-  "location": {
-    "type": "Point",
-    "coordinates": [108.2208, 16.0678]
-  },
   "address": "123 Demo Street",
-  "city": "Da Nang",
-  "basePrice": 1200000,
-  "duration": 24,
+  "lat": 16.0678,
+  "long": 108.2208,
+  "total": [
+    { "type": "ADULT", "price": 1200000 },
+    { "type": "CHILD", "price": 800000 },
+    { "type": "INFANT", "price": 200000 }
+  ],
   "status": "ACTIVE"
 }
 

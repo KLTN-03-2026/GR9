@@ -53,6 +53,7 @@ const serviceSchema = new Schema(
       trim: true,
     },
     total: { type: [totalSchema], default: [] },
+    image: { type: String, default: null },
     status: {
       type: String,
       enum: ["DRAFT", "ACTIVE", "INACTIVE", "BLOCKED"],
