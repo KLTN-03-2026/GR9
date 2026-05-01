@@ -1,9 +1,9 @@
 import { useContext, useState } from "react";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs } from "@/components/ui/tabs" ;
 import AuthContext from "@/context/authContext";
 import LoginForm from "./LoginForm";
-import { useLocation } from "react-router-dom";
 
 export default function ProviderAndAdminLogin() {
   const [email, setEmail] = useState("");
