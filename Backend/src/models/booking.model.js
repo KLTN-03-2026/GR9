@@ -2,6 +2,32 @@ import mongoose from "mongoose";
 
 const { Schema, model } = mongoose;
 
+const bookingServiceSchema = new Schema({
+    serviceType: {
+        type: String,
+        enum: ["HOTEL", "TRANSPORT", "EXTRA"],
+        required: true,
+    },
+
+    serviceId: {
+        type: Schema.Types.ObjectId,
+        ref: "Service",
+        required: true,
+    },
+
+    optionName: String,
+
+    price: {
+        type: Number,
+        default: 0,
+    },
+
+    isIncluded: {
+        type: Boolean,
+        default: false,
+    },
+});
+
 const bookingSchema = new Schema(
     {
         travelerId: {

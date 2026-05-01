@@ -55,17 +55,25 @@ const tourSchema = new Schema(
         isActive: { type: Boolean, default: true },
 
         itineraries: { type: [tourItinerarySchema], default: [] },
-        
-        hotelServiceId: {
-            type: Schema.Types.ObjectId,
-            ref: "Service",
-            default: null,
-        },
-        transportServiceId: {
-            type: Schema.Types.ObjectId,
-            ref: "Service",
-            default: null,
-        },
+
+        availableServices: [
+            {
+                type: {
+                    type: String,
+                    enum: ["HOTEL", "TRANSPORT", "FOOD", "ACTIVITY"],
+                    required: true,
+                },
+                serviceId: {
+                    type: Schema.Types.ObjectId,
+                    ref: "Service",
+                    required: true,
+                },
+                isDefault: {
+                    type: Boolean,
+                    default: false,
+                },
+            },
+        ],
         leadDuideServiceId: {
             type: Schema.Types.ObjectId,
             ref: "User",
