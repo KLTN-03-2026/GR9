@@ -4,8 +4,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const roleMeta = {
+  provider: {
+    label: "Provider",
+    description: "Enter your credentials to access the provider portal.",
+    icon: "person_check",
+  },
+  admin: {
+    label: "Admin",
+    description: "Enter your credentials to access the admin portal.",
+    icon: "admin_panel_settings",
+  },
+};
 
 export default function LoginForm({
+  role,
   email,
   password,
   setEmail,
@@ -15,7 +30,10 @@ export default function LoginForm({
   loading,
   onSubmit,
 }) {
-  const handleSubmit = () => {
+  const currentRole = roleMeta[role];
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
     // Validate email and password
     const trimmedEmail = email?.trim() || "";
@@ -45,20 +63,36 @@ export default function LoginForm({
   };
 
   return (
-    <div>
+    <TabsContent value={role} className="mt-0">
       <div className="mb-10">
         <h2 className="mb-2 font-headline text-3xl font-bold text-on-surface">
           Welcome Back
         </h2>
-        <p className="text-on-surface-variant">
-          Enter your credentials to access your portal.
-        </p>
+        <p className="text-on-surface-variant">{currentRole.description}</p>
       </div>
 
-      <div  className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-2">
+          <Label className="ml-1 block text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+            Access Role
+          </Label>
+          <TabsList className="grid h-auto w-full grid-cols-2 gap-3 rounded-xl bg-transparent p-0">
+            {Object.entries(roleMeta).map(([value, item]) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                className="rounded-xl border border-outline-variant/30 bg-surface-container-low p-3 text-on-surface-variant data-[state=active]:border-primary data-[state=active]:bg-primary/5 data-[state=active]:text-primary data-[state=active]:shadow-none"
+              >
+                <span className="material-symbols-outlined">{item.icon}</span>
+                <span className="text-sm font-medium">{item.label}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
+
         <div className="space-y-2">
           <Label
-            htmlFor="email"
+            htmlFor={`email-${role}`}
             className="ml-1 block text-xs font-semibold uppercase tracking-wider text-on-surface-variant"
           >
             Work Email
@@ -68,7 +102,7 @@ export default function LoginForm({
               mail
             </span>
             <Input
-              id="email"
+              id={`email-${role}`}
               type="email"
               value={email || ""}
               onChange={(e) => setEmail(e.target.value)}
@@ -82,7 +116,7 @@ export default function LoginForm({
         <div className="space-y-2">
           <div className="ml-1 flex items-center justify-between">
             <Label
-              htmlFor="password"
+              htmlFor={`password-${role}`}
               className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant"
             >
               Password
@@ -101,7 +135,7 @@ export default function LoginForm({
               lock
             </span>
             <Input
-              id="password"
+              id={`password-${role}`}
               type={showPassword ? "text" : "password"}
               value={password || ""}
               onChange={(e) => setPassword(e.target.value)}
@@ -125,8 +159,7 @@ export default function LoginForm({
         </div>
 
         <Button
-          type="button"
-          onClick={handleSubmit}
+          type="submit"
           disabled={loading}
           className="h-14 w-full rounded-xl bg-gradient-to-r from-primary to-primary-container px-6 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] disabled:opacity-50"
         >
@@ -135,7 +168,7 @@ export default function LoginForm({
             arrow_forward
           </span>
         </Button>
-      </div>
+      </form>
 
       <Card className="mt-8 rounded-xl border border-secondary-container/50 bg-secondary-container/30 py-0 shadow-none">
         <CardContent className="flex items-start gap-3 p-4">
@@ -148,6 +181,6 @@ export default function LoginForm({
           </CardDescription>
         </CardContent>
       </Card>
-    </div>
+    </TabsContent>
   );
 }

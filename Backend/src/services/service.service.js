@@ -121,3 +121,31 @@ export const deleteService = async (serviceId, user) => {
     );
   }
 };
+
+export const uploadServiceImage = async (serviceId, imageUrl, user) => {
+  try {
+    const filter = buildOwnershipFilter(serviceId, user);
+
+    const updatedService = await Service.findOneAndUpdate(
+      filter,
+      { image: imageUrl },
+      { new: true, runValidators: true },
+    );
+
+    if (!updatedService) {
+      throwError(
+        "Không tìm thấy dịch vụ hoặc không có quyền",
+        404,
+        "SERVICE_NOT_FOUND",
+      );
+    }
+
+    return updatedService;
+  } catch (error) {
+    throwError(
+      "Không thể tải ảnh lên",
+      error.status || 500,
+      "UPLOAD_IMAGE_ERROR",
+    );
+  }
+};
