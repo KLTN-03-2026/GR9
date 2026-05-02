@@ -17,7 +17,5 @@ export const deleteService = async (id) => {
 };
 
 export const uploadServiceImage = async (serviceId, formData) => {
-  return await api.post(`/services/${serviceId}/upload-image`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  return await api.post(`/services/${serviceId}/upload-image`, formData);
 };

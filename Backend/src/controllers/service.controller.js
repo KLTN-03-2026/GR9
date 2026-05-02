@@ -1,4 +1,5 @@
 import { success, error } from "../utils/response.js";
+import cloudinary from "../config/cloudinary.js";
 import {
   getServices as getServicesService,
   createService as createServiceService,
@@ -6,6 +7,19 @@ import {
   deleteService as deleteServiceService,
   uploadServiceImage as uploadServiceImageService,
 } from "../services/service.service.js";
+
+const uploadToCloudinary = (buffer, folder) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      },
+    );
+    stream.end(buffer);
+  });
+};
 
 export const getServices = async (req, res) => {
   try {
@@ -76,7 +90,9 @@ export const uploadServiceImage = async (req, res) => {
       );
     }
 
-    const imageUrl = `/uploads/services/${req.file.filename}`;
+    const uploadResult = await uploadToCloudinary(req.file.buffer, "services");
+    const imageUrl = uploadResult.secure_url;
+
     const updatedService = await uploadServiceImageService(
       id,
       imageUrl,
