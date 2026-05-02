@@ -6,7 +6,6 @@ import {
   createService,
   updateService,
   deleteService,
-  uploadServiceImage,
 } from "../controllers/service.controller.js";
 
 const router = express.Router();
@@ -19,7 +18,6 @@ const upload = multer({
 router.use(protect, authorize("PROVIDER"));
 router.get("/", getServices);
 router.post("/", createService);
-router.post("/:id/upload-image", upload.single("image"), uploadServiceImage);
 router.put("/:id", updateService);
 router.delete("/:id", deleteService);
 

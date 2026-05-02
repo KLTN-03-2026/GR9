@@ -17,5 +17,7 @@ export const deleteService = async (id) => {
 };
 
 export const uploadServiceImage = async (serviceId, formData) => {
-  return await api.post(`/services/${serviceId}/upload-image`, formData);
+  formData.append("entityType", "SERVICE");
+  formData.append("entityId", serviceId);
+  return await api.post("/images", formData);
 };
