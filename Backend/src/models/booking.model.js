@@ -35,11 +35,6 @@ const bookingSchema = new Schema(
             ref: "User",
             required: true,
         },
-        guideId: {
-            type: Schema.Types.ObjectId,
-            ref: "User",
-            default: null,
-        },
         tourId: {
             type: Schema.Types.ObjectId,
             ref: "Tour",
@@ -48,14 +43,14 @@ const bookingSchema = new Schema(
         tourScheduleId: {
             type: Schema.Types.ObjectId,
             ref: "TourSchedule",
-            required: true,
+            required: false,
         },
         quantity: {
             adults: { type: Number, default: 1, min: 1 },
             children: { type: Number, default: 0, min: 0 },
             infants: { type: Number, default: 0, min: 0 },
         },
-
+        startDate: { type: Date },
         bookingDate: { type: Date, default: Date.now },
         status: {
             type: String,
@@ -68,14 +63,14 @@ const bookingSchema = new Schema(
             enum: ["UNPAID", "PARTIAL", "PAID", "REFUNDED"],
             default: "UNPAID",
         },
-
         totalAmount: { type: Number, default: 0, min: 0 },
-
         orderCode: { type: String, default: null, trim: true },
         trackingCode: { type: String, default: null, trim: true },
-
-        bookingActivities: { type: [bookingActivitySchema], default: [] },
         selectedServices: { type: [bookingServiceSchema], default: [] },
+        isPrivate: {
+            type: Boolean,
+            default: false,
+        },
     },
     {
         timestamps: true,

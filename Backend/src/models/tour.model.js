@@ -51,11 +51,12 @@ const tourSchema = new Schema(
             child: { type: Number, default: 0, min: 0 },
             infant: { type: Number, default: 0, min: 0 },
         },
-
+        privateMultiplier: {
+            type: Number,
+            default: 1.5,
+        },
         isActive: { type: Boolean, default: true },
-
         itineraries: { type: [tourItinerarySchema], default: [] },
-
         availableServices: [
             {
                 type: {
