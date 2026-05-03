@@ -27,7 +27,21 @@ import {
   AlertCircle 
 } from "lucide-react";
 
-const UserDataGrid = ({ users }) => {
+const UserDataGrid = ({
+  users,
+  pagination,
+  loading,
+  onPageChange,
+  onUpdateStatus,
+  onDeleteUser,
+}) => {
+  const total = pagination?.total || 0;
+  const page = pagination?.page || 1;
+  const limit = pagination?.limit || 10;
+  const totalPages = pagination?.totalPages || 1;
+  const start = total === 0 ? 0 : (page - 1) * limit + 1;
+  const end = Math.min(page * limit, total);
+
   return (
     <Card className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
       <CardContent className="p-0">
@@ -42,7 +56,19 @@ const UserDataGrid = ({ users }) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((user) => (
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan={5} className="px-6 py-10 text-center text-sm font-semibold text-slate-500">
+                Loading users...
+              </TableCell>
+            </TableRow>
+          ) : users.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} className="px-6 py-10 text-center text-sm font-semibold text-slate-500">
+                No users found.
+              </TableCell>
+            </TableRow>
+          ) : users.map((user) => (
             <TableRow key={user.id} className="hover:bg-slate-50/50 transition-colors group">
               <TableCell className="px-6 py-4">
                 <div className="flex items-center gap-4">
@@ -87,16 +113,30 @@ const UserDataGrid = ({ users }) => {
               <TableCell className="px-6 py-4 text-right">
                 <div className="flex items-center justify-end gap-2">
                   {user.status === 'Pending' ? (
-                    <Button size="sm" className="h-8 bg-teal-50 text-teal-700 hover:bg-teal-600 hover:text-white font-bold text-[11px] rounded-full px-4 shadow-none border-none">
+                    <Button
+                      size="sm"
+                      className="h-8 bg-teal-50 text-teal-700 hover:bg-teal-600 hover:text-white font-bold text-[11px] rounded-full px-4 shadow-none border-none"
+                      onClick={() => onUpdateStatus(user.id, "ACTIVE")}
+                    >
                       Activate
                     </Button>
                   ) : (
                     <>
-                      <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg"
+                        onClick={() => onUpdateStatus(user.id, "ACTIVE")}
+                      >
                         {user.status === 'Banned' ? <RotateCcw className="h-5 w-5" /> : <LockOpen className="h-5 w-5" />}
                       </Button>
                       {user.status !== 'Banned' && (
-                        <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-9 w-9 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                          onClick={() => onUpdateStatus(user.id, "BANNED")}
+                        >
                           <Ban className="h-5 w-5" />
                         </Button>
                       )}
@@ -112,7 +152,12 @@ const UserDataGrid = ({ users }) => {
                     <DropdownMenuContent align="end" className="rounded-xl w-40">
                       <DropdownMenuItem className="text-sm font-medium">View Profile</DropdownMenuItem>
                       <DropdownMenuItem className="text-sm font-medium">Edit Details</DropdownMenuItem>
-                      <DropdownMenuItem className="text-sm font-medium text-red-600">Delete User</DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-sm font-medium text-red-600"
+                        onClick={() => onDeleteUser(user.id)}
+                      >
+                        Delete User
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -124,19 +169,28 @@ const UserDataGrid = ({ users }) => {
       
       <div className="px-6 py-4 bg-slate-50/30 flex items-center justify-between border-t border-slate-100">
         <span className="text-sm text-slate-500 font-medium">
-          Showing <span className="text-slate-900">1</span> to <span className="text-slate-900">10</span> of 1,248 users
+          Showing <span className="text-slate-900">{start}</span> to <span className="text-slate-900">{end}</span> of {total} users
         </span>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg border-slate-200 disabled:opacity-50" disabled>
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8 rounded-lg border-slate-200 disabled:opacity-50"
+            disabled={page <= 1}
+            onClick={() => onPageChange(page - 1)}
+          >
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button className="h-8 w-8 rounded-lg bg-teal-900 text-white text-xs font-bold shadow-sm hover:bg-teal-800">
-            1
+            {page}
           </Button>
-          <Button variant="ghost" className="h-8 w-8 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-200">
-            2
-          </Button>
-          <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg border-slate-200 hover:bg-slate-200">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8 rounded-lg border-slate-200 hover:bg-slate-200"
+            disabled={page >= totalPages}
+            onClick={() => onPageChange(page + 1)}
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

@@ -147,8 +147,8 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-2xl rounded-2xl">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[calc(100vh-2rem)] flex-col overflow-hidden rounded-2xl sm:max-w-2xl">
+        <DialogHeader className="shrink-0 pr-8">
           <DialogTitle className="text-lg font-semibold">
             Tạo dịch vụ mới
           </DialogTitle>
@@ -157,7 +157,7 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2">
+        <div className="grid grid-cols-1 gap-4 overflow-y-auto py-2 pr-1 sm:grid-cols-2">
           <div className="grid gap-2">
             <Label>Tên dịch vụ</Label>
             <Input
@@ -283,7 +283,7 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
           </div>
         </div>
 
-        <DialogFooter className="mt-2">
+        <DialogFooter className="mt-2 shrink-0">
           <DialogClose asChild>
             <Button variant="outline">Hủy</Button>
           </DialogClose>

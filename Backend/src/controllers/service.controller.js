@@ -6,6 +6,7 @@ import {
   deleteService as deleteServiceService,
   uploadServiceImage as uploadServiceImageService,
 } from "../services/service.service.js";
+import { uploadToCloudinary } from "../services/image.service.js";
 
 export const getServices = async (req, res) => {
   try {
@@ -76,7 +77,9 @@ export const uploadServiceImage = async (req, res) => {
       );
     }
 
-    const imageUrl = `/uploads/services/${req.file.filename}`;
+    const uploadResult = await uploadToCloudinary(req.file.buffer, "services");
+    const imageUrl = uploadResult.secure_url;
+
     const updatedService = await uploadServiceImageService(
       id,
       imageUrl,
