@@ -136,14 +136,14 @@ export default function TourDetail() {
         try {
             const payload = {
                 tourId: tour?._id,
-                tourScheduleId: selectedScheduleId, // thêm state này bên dưới
+                tourScheduleId: selectedScheduleId,
                 quantity: {
                     adults,
                     children,
                     infants,
                 },
                 totalAmount: total,
-                isPrivate, // <--- add this line
+                isPrivate, 
                 selectedServices,
                 startDate: selectedDate,
             };
