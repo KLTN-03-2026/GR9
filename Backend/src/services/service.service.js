@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Service from "../models/service.model.js";
 import User from "../models/user.model.js";
 import { throwError } from "../utils/throwError.js";
+import { deleteImagesByEntity } from "../services/image.service.js";
 
 const allowCreateRoles = ["PROVIDER", "ADMIN", "USER"];
 
@@ -102,15 +103,19 @@ export const updateService = async (serviceId, payload, user) => {
 export const deleteService = async (serviceId, user) => {
   try {
     const filter = buildOwnershipFilter(serviceId, user);
-    const deletedService = await Service.findOneAndDelete(filter);
+    const serviceToDelete = await Service.findOne(filter);
 
-    if (!deletedService) {
+    if (!serviceToDelete) {
       throwError(
         "Không tìm thấy dịch vụ hoặc không có quyền",
         404,
         "SERVICE_NOT_FOUND",
       );
     }
+
+    await deleteImagesByEntity("SERVICE", serviceToDelete._id);
+
+    const deletedService = await Service.findOneAndDelete(filter);
 
     return deletedService;
   } catch (error) {
