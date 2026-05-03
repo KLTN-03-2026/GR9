@@ -55,6 +55,11 @@ const userSchema = new Schema(
       ],
       default: "NOT_STARTED",
     },
+    accountStatus: {
+      type: String,
+      enum: ["ACTIVE", "PENDING", "BANNED"],
+      default: null,
+    },
     language: { type: String, default: "vi" },
     isActive: { type: Boolean, default: false },
     codeVerify: { type: String, default: null },
