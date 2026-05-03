@@ -1,55 +1,118 @@
-import React from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import FilterSelect from "./FilterSelect";
 import UserDataGrid from "./UserDataGrid";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, ShieldAlert, Sparkles } from "lucide-react"; // Thay icon mới
+import { TrendingUp, ShieldAlert, Sparkles } from "lucide-react";
 import PageHero from "@/components/shared/page-hero";
+import {
+  deleteAdminUser,
+  getAdminUsers,
+  updateAdminUserStatus,
+} from "@/services/api/user";
+import toast from "react-hot-toast";
 
-const mockUsers = [
-  {
-    id: 1,
-    name: "Elena Rodriguez",
-    email: "elena.rodriguez@example.com",
-    role: "Traveler",
-    status: "Active",
-    date: "Oct 24, 2023",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuACxN4w0Rte3WFyQXfczPeS_GVCqKCno1C4X28PUA4NFGwEFv8coag8oy85PbhrzLT71CPJEDwMyKjgOIQjwSx4BXA4it6U3GiLaO5MOBT-OXa5ozy-GJRJe5AlPBImruz1ePEa3lvItHvzz29aqlZx5n7vOlLcNG6PJ-zUDpg1LgbGWPh-vFMun6b3QqDDrxCmKp99AHUV5LXC5EmLJwzSqZ5BVMiuzoDBntUilHbYjeU_0jMlbYPDvwMyUeSbl6cbxkR70RB_4M6E",
-  },
-  {
-    id: 2,
-    name: "Marco Valenti",
-    email: "marco@skylinetours.com",
-    role: "Provider",
-    status: "Pending",
-    date: "Nov 12, 2023",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCVEP3x9cWfobPB6CGLhyfowINEsyCYHM6h6Vt7nAc5JRPXGFthH3Yu6zPY846Vnegs7IbN2vCaru85vMV9nPDhp0QeNLlfEa62uAwV1d9ou-W-Qd6hpqsUNOuzcpzW0mNHPU_mbHEi6CP0c_0Ur1KM8D8hLjjx5XI4_2u7EaUZppaNLBI_H24qSPV2OZOf9ayZFZu8kdhf9Zc7veP0Jv_ImLWfQ7-4Jd17oyg-9jzq50r40Gs8shuHSwy8j8TX4YCqSK73xlWyLAKC",
-  },
-  {
-    id: 3,
-    name: "Thomas K.",
-    email: "thomas.k@junkmail.net",
-    role: "Traveler",
-    status: "Banned",
-    date: "Aug 05, 2023",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuADKps97TefsMcbCIZW4uCBfQPvdnrmVhr5Je-l1jLLXLWUmIummnK1weVWtRpJiVOSCN05cwSJGni-Eok-EHDBBP_io7N6O6A9eGGg5J2jSy_yuvQnJlWXVHWiSVK2cOuyp33MRUItJVMbQ8qSjdYwL0iubz1kAXGHaKG777WVwX-ou6zHiUEkZn12iJsu89AJ3WYVOloiKrRqZPaqpNCD1bpcG6Erk1KWQQ5P5xisv1rlO50RwGZ5AD-pCNFhTTPo32qBjNI38xRB",
-  },
-  {
-    id: 4,
-    name: "Alex Rivera",
-    email: "alex.rivera@premium.com",
-    role: "Admin",
-    status: "Active",
-    date: "Jan 10, 2023",
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDYDY9E5J8_8l7x3ZlZWcz0DQKpGun-uCOsnIb8UNmBI243HtWVm6hXTLGX74UmXnrrYKSAAe2GDu7uEvdaeuzxpa9Nb4wvS1-AvrL-8YZibp7QGX_jsTzO1YUAq-DNWSKP3K4eGDVw7HIMzvXE0WiXRIXhlZAphUhXRbqsGQMj2p-AxuKUw4GYYOLnE3p3so7IVfHm-2T4JdEPhxsu-opHFlMD4yrh7Sm0-51kum6Zj2HjkpGVCBiX63mB2BJXl2wKq2SVJtoq4uHs",
-  },
-];
+const formatRole = (role) =>
+  String(role || "TRAVELER")
+    .toLowerCase()
+    .replace(/^\w/, (char) => char.toUpperCase());
+
+const formatStatus = (status) =>
+  String(status || "PENDING")
+    .toLowerCase()
+    .replace(/^\w/, (char) => char.toUpperCase());
+
+const formatDate = (value) => {
+  if (!value) return "N/A";
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  }).format(new Date(value));
+};
 
 const UserManagementPage = () => {
+  const [users, setUsers] = useState([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1,
+  });
+  const [filters, setFilters] = useState({
+    role: "all",
+    status: "all",
+    page: 1,
+    limit: 10,
+  });
+  const [loading, setLoading] = useState(false);
+
+  const mappedUsers = useMemo(
+    () =>
+      users.map((user) => ({
+        id: user.id,
+        name: user.fullName || user.email,
+        email: user.email,
+        role: formatRole(user.role),
+        status: formatStatus(user.accountStatus),
+        date: formatDate(user.createdAt),
+        avatar: user.avatarUrl,
+      })),
+    [users],
+  );
+
+  const loadUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await getAdminUsers(filters);
+      setUsers(res.data?.data?.users || []);
+      setPagination(
+        res.data?.data?.pagination || {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 1,
+        },
+      );
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Cannot load users");
+    } finally {
+      setLoading(false);
+    }
+  }, [filters]);
+
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
+
+  const handleFilterChange = (nextFilters) => {
+    setFilters((current) => ({ ...current, ...nextFilters }));
+  };
+
+  const handlePageChange = (page) => {
+    setFilters((current) => ({ ...current, page }));
+  };
+
+  const handleUpdateStatus = async (id, accountStatus) => {
+    try {
+      await updateAdminUserStatus(id, accountStatus);
+      toast.success("User status updated");
+      await loadUsers();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Cannot update user status");
+    }
+  };
+
+  const handleDeleteUser = async (id) => {
+    try {
+      await deleteAdminUser(id);
+      toast.success("User deleted");
+      await loadUsers();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Cannot delete user");
+    }
+  };
+
   return (
     <div className="pt-24 pb-12 max-w-[1600px] mx-auto space-y-8">
       <PageHero
@@ -64,9 +127,16 @@ const UserManagementPage = () => {
         }
         description="Manage traveler, provider, and admin accounts with clearer filtering, moderation actions, and lifecycle controls."
       />
-      <FilterSelect />
+      <FilterSelect filters={filters} onFilterChange={handleFilterChange} />
 
-      <UserDataGrid users={mockUsers} />
+      <UserDataGrid
+        users={mappedUsers}
+        pagination={pagination}
+        loading={loading}
+        onPageChange={handlePageChange}
+        onUpdateStatus={handleUpdateStatus}
+        onDeleteUser={handleDeleteUser}
+      />
 
       <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
@@ -78,9 +148,9 @@ const UserManagementPage = () => {
               </p>
             </div>
             <div>
-              <h2 className="text-3xl font-extrabold text-slate-900">+24%</h2>
+              <h2 className="text-3xl font-extrabold text-slate-900">Live</h2>
               <p className="mt-1 text-xs font-medium text-slate-500">
-                More signups than last month
+                Loaded from admin user records
               </p>
             </div>
           </CardContent>
@@ -91,13 +161,15 @@ const UserManagementPage = () => {
             <div className="flex items-center gap-3 mb-4 text-orange-600">
               <ShieldAlert className="h-5 w-5" />
               <p className="text-[11px] font-bold uppercase tracking-wider">
-                Suspicious Logs
+                Moderation
               </p>
             </div>
             <div>
-              <h2 className="text-3xl font-extrabold text-slate-900">12</h2>
+              <h2 className="text-3xl font-extrabold text-slate-900">
+                {pagination.total}
+              </h2>
               <p className="mt-1 text-xs font-medium text-slate-500">
-                Pending security reviews
+                Total matching users
               </p>
             </div>
           </CardContent>
@@ -107,10 +179,10 @@ const UserManagementPage = () => {
           <CardContent className="p-8 relative z-10 h-full flex flex-col justify-between">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider opacity-60">
-                Automated Moderation
+                Account Lifecycle
               </p>
               <h2 className="mt-2 text-2xl font-extrabold tracking-tight">
-                Voyager AI Guard Active
+                Activate, ban, restore, or remove users
               </h2>
             </div>
             <div className="mt-6">
@@ -118,7 +190,7 @@ const UserManagementPage = () => {
                 variant="outline"
                 className="bg-white/10 hover:bg-white/20 text-white border-white/20 rounded-xl text-xs font-bold px-6 h-10 shadow-none"
               >
-                Adjust AI Sensitivity
+                Admin Controls Active
               </Button>
             </div>
           </CardContent>
