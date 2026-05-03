@@ -163,7 +163,7 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
       // Upload image if new file selected
       if (imageFile) {
         const formDataImage = new FormData();
-        formDataImage.append("image", imageFile);
+        formDataImage.append("images", imageFile);
         await uploadServiceImage(service._id, formDataImage);
       }
 
@@ -181,15 +181,15 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-2xl rounded-2xl">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[calc(100vh-2rem)] flex-col overflow-hidden rounded-2xl sm:max-w-2xl">
+        <DialogHeader className="shrink-0 pr-8">
           <DialogTitle>Chỉnh sửa dịch vụ</DialogTitle>
           <DialogDescription>
             Cập nhật nội dung và trạng thái dịch vụ.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2">
+        <div className="grid grid-cols-1 gap-4 overflow-y-auto py-2 pr-1 sm:grid-cols-2">
           <div className="grid gap-2">
             <Label>Tên dịch vụ</Label>
             <Input
@@ -315,7 +315,7 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
           </div>
         </div>
 
-        <DialogFooter className="mt-2">
+        <DialogFooter className="mt-2 shrink-0">
           <DialogClose asChild>
             <Button variant="outline">Hủy</Button>
           </DialogClose>

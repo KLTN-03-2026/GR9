@@ -1,4 +1,5 @@
 import {
+  deleteImagesByEntity,
   syncTourImagesService,
   uploadImages,
 } from "../services/image.service.js";
@@ -8,6 +9,10 @@ import { success, error } from "../utils/response.js";
 export const uploadImageController = async (req, res) => {
   try {
     const { entityType, entityId } = req.body;
+
+    if (entityType === "SERVICE") {
+      await deleteImagesByEntity(entityType, entityId);
+    }
 
     const images = await uploadImages({
       files: req.files,
