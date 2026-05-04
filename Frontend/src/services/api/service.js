@@ -15,3 +15,9 @@ export const updateService = async (id, payload) => {
 export const deleteService = async (id) => {
   return await api.delete(`/services/${id}`);
 };
+
+export const uploadServiceImage = async (serviceId, formData) => {
+  formData.append("entityType", "SERVICE");
+  formData.append("entityId", serviceId);
+  return await api.post("/images", formData);
+};

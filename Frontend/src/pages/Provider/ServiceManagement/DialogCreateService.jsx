@@ -19,8 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createService } from "@/services/api/service";
+import { createService, uploadServiceImage } from "@/services/api/service";
 import { toast } from "react-hot-toast";
+import { Upload, X } from "lucide-react";
 
 const serviceTypes = [
   { value: "HOTEL", label: "Accommodation" },
@@ -47,12 +48,33 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
     address: "",
     description: "",
     status: "ACTIVE",
-    price: "",
+    priceAdult: "",
+    priceChild: "",
+    priceInfant: "",
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (key, value) => {
     setServiceData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
   };
 
   const handleSubmit = async () => {
@@ -63,23 +85,45 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
 
     setLoading(true);
     try {
+      const total = [];
+      if (serviceData.priceAdult) {
+        total.push({
+          type: "ADULT",
+          price: Number(serviceData.priceAdult) || 0,
+        });
+      }
+      if (serviceData.priceChild) {
+        total.push({
+          type: "CHILD",
+          price: Number(serviceData.priceChild) || 0,
+        });
+      }
+      if (serviceData.priceInfant) {
+        total.push({
+          type: "INFANT",
+          price: Number(serviceData.priceInfant) || 0,
+        });
+      }
+
       const payload = {
         name: serviceData.name,
         type: serviceData.type,
         address: serviceData.address,
         description: serviceData.description,
         status: serviceData.status,
-        total: serviceData.price
-          ? [
-              {
-                type: "ADULT",
-                price: Number(serviceData.price) || 0,
-              },
-            ]
-          : [],
+        total,
       };
 
-      await createService(payload);
+      const serviceRes = await createService(payload);
+      const newServiceId = serviceRes.data.data._id;
+
+      // Upload image if provided
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("image", imageFile);
+        await uploadServiceImage(newServiceId, formData);
+      }
+
       toast.success("Tạo dịch vụ thành công.");
       setOpen(false);
       setServiceData({
@@ -88,8 +132,11 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
         address: "",
         description: "",
         status: "ACTIVE",
-        price: "",
+        priceAdult: "",
+        priceChild: "",
+        priceInfant: "",
       });
+      removeImage();
       onCreated?.();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Không thể tạo dịch vụ.");
@@ -100,8 +147,8 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-2xl rounded-2xl">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[calc(100vh-2rem)] flex-col overflow-hidden rounded-2xl sm:max-w-2xl">
+        <DialogHeader className="shrink-0 pr-8">
           <DialogTitle className="text-lg font-semibold">
             Tạo dịch vụ mới
           </DialogTitle>
@@ -110,7 +157,7 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2">
+        <div className="grid grid-cols-1 gap-4 overflow-y-auto py-2 pr-1 sm:grid-cols-2">
           <div className="grid gap-2">
             <Label>Tên dịch vụ</Label>
             <Input
@@ -148,19 +195,37 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
           <div className="col-span-1 sm:col-span-2 grid gap-2">
             <Label>Mô tả</Label>
             <Textarea
-              className="min-h-[140px]"
+              className="min-h-35"
               value={serviceData.description}
               onChange={(e) => handleChange("description", e.target.value)}
               placeholder="Mô tả ngắn gọn về dịch vụ"
             />
           </div>
           <div className="grid gap-2">
-            <Label>Giá trị</Label>
+            <Label>Giá người lớn</Label>
             <Input
               type="number"
-              value={serviceData.price}
-              onChange={(e) => handleChange("price", e.target.value)}
-              placeholder="Nhập giá dịch vụ"
+              value={serviceData.priceAdult}
+              onChange={(e) => handleChange("priceAdult", e.target.value)}
+              placeholder="Nhập giá người lớn"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Giá trẻ em</Label>
+            <Input
+              type="number"
+              value={serviceData.priceChild}
+              onChange={(e) => handleChange("priceChild", e.target.value)}
+              placeholder="Nhập giá trẻ em"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Giá trẻ sơ sinh</Label>
+            <Input
+              type="number"
+              value={serviceData.priceInfant}
+              onChange={(e) => handleChange("priceInfant", e.target.value)}
+              placeholder="Nhập giá trẻ sơ sinh"
             />
           </div>
           <div className="grid gap-2">
@@ -181,9 +246,44 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
               </SelectContent>
             </Select>
           </div>
+          <div className="col-span-1 sm:col-span-2 grid gap-2">
+            <Label>Hình ảnh dịch vụ</Label>
+            {imagePreview ? (
+              <div className="relative">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full h-48 object-cover rounded-lg"
+                />
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2 rounded-full"
+                  onClick={removeImage}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <label className="flex items-center justify-center w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-lg appearance-none cursor-pointer hover:border-gray-400 focus:outline-none">
+                <div className="flex items-center space-x-2">
+                  <Upload className="w-5 h-5 text-gray-400" />
+                  <span className="text-gray-500 text-sm">
+                    Nhấp để chọn ảnh
+                  </span>
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+              </label>
+            )}
+          </div>
         </div>
 
-        <DialogFooter className="mt-2">
+        <DialogFooter className="mt-2 shrink-0">
           <DialogClose asChild>
             <Button variant="outline">Hủy</Button>
           </DialogClose>

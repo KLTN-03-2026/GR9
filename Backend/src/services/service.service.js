@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Service from "../models/service.model.js";
 import User from "../models/user.model.js";
 import { throwError } from "../utils/throwError.js";
+import { deleteImagesByEntity } from "../services/image.service.js";
 
 const allowCreateRoles = ["PROVIDER", "ADMIN", "USER"];
 
@@ -102,9 +103,9 @@ export const updateService = async (serviceId, payload, user) => {
 export const deleteService = async (serviceId, user) => {
   try {
     const filter = buildOwnershipFilter(serviceId, user);
-    const deletedService = await Service.findOneAndDelete(filter);
+    const serviceToDelete = await Service.findOne(filter);
 
-    if (!deletedService) {
+    if (!serviceToDelete) {
       throwError(
         "Không tìm thấy dịch vụ hoặc không có quyền",
         404,
@@ -112,12 +113,44 @@ export const deleteService = async (serviceId, user) => {
       );
     }
 
+    await deleteImagesByEntity("SERVICE", serviceToDelete._id);
+
+    const deletedService = await Service.findOneAndDelete(filter);
+
     return deletedService;
   } catch (error) {
     throwError(
       "Không thể xóa dịch vụ",
       error.status || 500,
       "DELETE_SERVICE_ERROR",
+    );
+  }
+};
+
+export const uploadServiceImage = async (serviceId, imageUrl, user) => {
+  try {
+    const filter = buildOwnershipFilter(serviceId, user);
+
+    const updatedService = await Service.findOneAndUpdate(
+      filter,
+      { image: imageUrl },
+      { new: true, runValidators: true },
+    );
+
+    if (!updatedService) {
+      throwError(
+        "Không tìm thấy dịch vụ hoặc không có quyền",
+        404,
+        "SERVICE_NOT_FOUND",
+      );
+    }
+
+    return updatedService;
+  } catch (error) {
+    throwError(
+      "Không thể tải ảnh lên",
+      error.status || 500,
+      "UPLOAD_IMAGE_ERROR",
     );
   }
 };

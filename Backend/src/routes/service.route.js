@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import { authorize, protect } from "../middlewares/auth.middleware.js";
 import {
   getServices,
@@ -8,6 +9,11 @@ import {
 } from "../controllers/service.controller.js";
 
 const router = express.Router();
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 
 router.use(protect, authorize("PROVIDER"));
 router.get("/", getServices);

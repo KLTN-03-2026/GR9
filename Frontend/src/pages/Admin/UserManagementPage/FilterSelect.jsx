@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Calendar as CalendarIcon, UserPlus, ChevronDown } from "lucide-react";
 
-const FilterSelect = () => {
+const FilterSelect = ({ filters, onFilterChange }) => {
   return (
     <Card className="rounded-3xl border-slate-200 bg-white shadow-sm">
       <CardContent className="flex flex-col gap-6 p-6 md:flex-row md:items-end">
@@ -20,7 +20,10 @@ const FilterSelect = () => {
             <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 px-1">
               Filter by Role
             </Label>
-            <Select>
+            <Select
+              value={filters.role}
+              onValueChange={(value) => onFilterChange({ role: value, page: 1 })}
+            >
               <SelectTrigger className="w-full bg-white border-slate-200 rounded-xl h-12 focus:ring-2 focus:ring-teal-500/40 shadow-sm text-slate-900 font-semibold">
                 <SelectValue placeholder="All Roles" />
               </SelectTrigger>
@@ -37,7 +40,10 @@ const FilterSelect = () => {
             <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 px-1">
               Filter by Status
             </Label>
-            <Select>
+            <Select
+              value={filters.status}
+              onValueChange={(value) => onFilterChange({ status: value, page: 1 })}
+            >
               <SelectTrigger className="w-full bg-white border-slate-200 rounded-xl h-12 focus:ring-2 focus:ring-teal-500/40 shadow-sm text-slate-900 font-semibold">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>

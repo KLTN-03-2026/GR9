@@ -85,7 +85,7 @@ export default function ScheduleTable({ schedules, onEdit, onDelete }) {
                                     {/* SLOTS */}
                                     <TableCell className="px-6 py-5">
                                         <div className="text-sm text-slate-700 font-medium">
-                                            {item.minSlots} → {item.maxSlots}
+                                            {item.maxSlots}
                                         </div>
                                         <p className="text-xs text-slate-400">capacity</p>
                                     </TableCell>

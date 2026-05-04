@@ -14,8 +14,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useNavigate } from "react-router-dom";
 
 export default function BookingTableSection() {
+  const navigate = useNavigate();
   return (
     <Card className="overflow-hidden rounded-xl border border-outline-variant/5 bg-surface-container-lowest py-0 shadow-[0px_20px_40px_rgba(25,28,30,0.06)]">
       <CardHeader className="flex flex-row items-center justify-between border-b border-surface-container p-6">
@@ -23,6 +25,7 @@ export default function BookingTableSection() {
           Active Bookings
         </CardTitle>
         <Button
+          onClick={() => navigate('/traveler/tour-list')}
           type="button"
           variant="secondary"
           className="h-10 gap-2 rounded-lg bg-surface-container-low px-4 text-sm font-semibold text-on-surface-variant hover:bg-surface-container"

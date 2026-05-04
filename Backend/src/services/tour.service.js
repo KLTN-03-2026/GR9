@@ -74,24 +74,39 @@ export const deleteTourService = async (tourId, userId) => {
         throwError(err.message, err.status || 500, "DELETE_TOUR_ERROR");
     }
 };
+import TourSchedule from "../models/tourSchedule.model.js";
+
 export const getTourService = async (tourId) => {
     try {
-        const tour = await Tour.findById(tourId).populate("providerId", "name email").populate({
-            path: "itineraries.activities.serviceId",
-            select: "name price",
-        });
+        const tour = await Tour.findById(tourId)
+            .populate("providerId", "name email")
+            .populate({
+                path: "itineraries.activities.serviceId",
+                select: "name price",
+            })
+            .populate({
+                path: "availableServices.serviceId",
+                select: "name type total",
+            });
 
         if (!tour) {
             throwError("Tour not found", 404, "TOUR_NOT_FOUND");
         }
+
         const images = await Image.find({
-            entityType: "tour",
+            entityType: "TOUR",
             entityId: tourId,
         });
+
+        const schedules = await TourSchedule.find({
+            tourId,
+            status: { $ne: "CANCELLED" },
+        }).sort({ departureDate: 1 });
 
         return {
             ...tour.toObject(),
             images,
+            schedules,
         };
     } catch (err) {
         throwError(err.message, err.status || 500, "GET_TOUR_ERROR");
@@ -102,16 +117,27 @@ export const getAllTourService = async () => {
         const tours = await Tour.find()
             .populate("providerId", "name email")
             .populate({
-                path: "itineraries",
-                populate: {
-                    path: "activities",
-                    populate: {
-                        path: "serviceId",
-                    },
-                },
+                path: "itineraries.activities.serviceId",
+            })
+            .populate({
+                path: "availableServices.serviceId",
             });
+        // Fetch all images for all tours
+        const images = await Image.find({
+            entityType: "TOUR",
+            entityId: { $in: tours.map((t) => t._id) },
+        });
 
-        return tours;
+        // Attach images to each tour
+        const toursWithImages = tours.map((tour) => {
+            const tourImages = images.filter((img) => img.entityId.toString() === tour._id.toString());
+            return {
+                ...tour.toObject(),
+                images: tourImages,
+            };
+        });
+
+        return toursWithImages;
     } catch (err) {
         throwError(err.message, err.status || 500, "GET_ALL_TOUR_ERROR");
     }
