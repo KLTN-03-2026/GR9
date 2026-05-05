@@ -68,3 +68,26 @@ export const updateGuide = async (providerId, guideId, guideData) => {
         new: true,
     });
 };
+
+export const uploadGuideAvatar = async (providerId, guideId, imageUrl) => {
+    await ensureProvider(providerId);
+
+    const guide = await User.findOneAndUpdate(
+        {
+            _id: guideId,
+            role: "GUIDE",
+            supervisorId: providerId,
+        },
+        { avatarUrl: imageUrl },
+        {
+            new: true,
+            runValidators: true,
+        },
+    );
+
+    if (!guide) {
+        throw throwError("Không tìm thấy guide", 404, "GUIDE_NOT_FOUND");
+    }
+
+    return guide;
+};

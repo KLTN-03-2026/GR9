@@ -10,6 +10,7 @@ import {
   getGuides,
   updateGuideById,
 } from "@/services/api/guide";
+import { uploadImagesApi } from "@/services/api/image";
 import TableGuide from "./TableGuide";
 import { Input } from "@/components/ui/input";
 import DialogDeleteGuide from "./DialogDeleteGuide";
@@ -29,7 +30,7 @@ const GuideManagementProvider = () => {
       { label: "Assigned Bookings", value: "2" },
       { label: "Avg Rating", value: "4.8" },
     ],
-    [],
+    [guides],
   );
 
   const [open, setOpen] = useState(false);
@@ -43,10 +44,16 @@ const GuideManagementProvider = () => {
   const [loading, setLoading] = useState(false);
   const [debounced, setDebounced] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState("");
   const [title, setTitle] = useState("");
   const [guideId, setGuideId] = useState("");
 
   const checkAvatar = () => {
+    if (avatarUrl) {
+      return avatarUrl;
+    }
+
     if (gender === "OTHER") {
       return "https://lh3.googleusercontent.com/aida-public/AB6AXuD0BfviMsRmGSM1xnCOiLAjEB-Xdb5zdVkaJer9i8EJDmcHyk3B_cx3NNEUzYZx5eeXLb3knh4GSyKV1fU2pKt6dX7NkkJOM-qqssY1oLkNGpRLgm3AiSVVcnGdAVSqgMJeL-mStHglR2Rc9V12kuRO9iwN7ZjrDqchBTD7BWXOm-mCLk6H7Q8mnXUOH5vIX9avqy2wQ7x_g34-VVu4BanY1QQ1qVm-2_PkEjdf_nz1PHmI3pTuP8jQkRkJa9qDZRvYGjv8ySp5VHSG";
     } else if (gender === "MALE") {
@@ -57,26 +64,51 @@ const GuideManagementProvider = () => {
 
     return avatarUrl;
   };
+
+  const buildGuidePayload = (nextAvatarUrl) => {
+    return {
+      fullName,
+      email,
+      phone,
+      specialty,
+      isActive,
+      gender,
+      avatarUrl: nextAvatarUrl,
+    };
+  };
+
+  const resetGuideForm = () => {
+    setFullName("");
+    setEmail("");
+    setPhone("");
+    setSpecialty("");
+    setIsActive(true);
+    setGender("OTHER");
+    setAvatarUrl("");
+    setAvatarFile(null);
+    setAvatarPreview("");
+    setGuideId("");
+  };
+
   const handleAddGuide = async () => {
     try {
       setLoading(true);
       const nextAvatarUrl = checkAvatar();
       setAvatarUrl(nextAvatarUrl);
-      await createGuide({
-        fullName,
-        email,
-        phone,
-        specialty,
-        isActive,
-        gender,
-        avatarUrl: nextAvatarUrl,
-      });
+      const response = await createGuide(buildGuidePayload(nextAvatarUrl));
+      const newGuideId = response?.data?.data?._id;
+
+      if (avatarFile && newGuideId) {
+        await uploadImagesApi([avatarFile], "GUIDE", newGuideId);
+      }
+
       toast.success("thêm mới thành công");
     } catch (error) {
       toast.error("Lỗi khi thêm mới guide");
     } finally {
       setLoading(false);
-      setOpen(!open);
+      setOpen(false);
+      resetGuideForm();
       handleGetGuides();
     }
   };
@@ -86,21 +118,19 @@ const GuideManagementProvider = () => {
       setLoading(true);
       const nextAvatarUrl = checkAvatar();
       setAvatarUrl(nextAvatarUrl);
-      await updateGuideById(guideId, {
-        fullName,
-        email,
-        phone,
-        specialty,
-        isActive,
-        gender,
-        avatarUrl: nextAvatarUrl,
-      });
+      await updateGuideById(guideId, buildGuidePayload(nextAvatarUrl));
+
+      if (avatarFile) {
+        await uploadImagesApi([avatarFile], "GUIDE", guideId);
+      }
+
       toast.success("Cập nhật guide thành công");
     } catch (error) {
       toast.error("Lỗi khi cập nhật guide");
     } finally {
       setLoading(false);
-      setOpen(!open);
+      setOpen(false);
+      resetGuideForm();
       handleGetGuides();
     }
   };
@@ -137,8 +167,16 @@ const GuideManagementProvider = () => {
     );
   }, [debounced, guides]);
   const handleOpen = () => {
+    resetGuideForm();
     setTitle("Add new guide");
-    setOpen(!open);
+    setOpen(true);
+  };
+  const handleDialogOpenChange = (nextOpen) => {
+    setOpen(nextOpen);
+
+    if (!nextOpen) {
+      resetGuideForm();
+    }
   };
   const handleDelete = (_id) => {
     setTitle("Delete the guide");
@@ -156,10 +194,24 @@ const GuideManagementProvider = () => {
     setIsActive(guide.isActive);
     setGender(guide.gender);
     setAvatarUrl(guide.avatarUrl);
+    setAvatarFile(null);
+    setAvatarPreview(guide.avatarUrl || "");
     setGuideId(_id);
     setTitle("Update the guide");
-    setOpen(!open);
+    setOpen(true);
   };
+
+  useEffect(() => {
+    if (!avatarFile) {
+      setAvatarPreview(avatarUrl || "");
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(avatarFile);
+    setAvatarPreview(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [avatarFile, avatarUrl]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -234,7 +286,7 @@ const GuideManagementProvider = () => {
       </section>
       <DialogGuide
         open={open}
-        onOpenChange={setOpen}
+        onOpenChange={handleDialogOpenChange}
         fullName={fullName}
         email={email}
         phone={phone}
@@ -251,6 +303,9 @@ const GuideManagementProvider = () => {
         handleAddGuide={handleAddGuide}
         handleUpdateGuide={handleUpdateGuide}
         title={title}
+        avatarFile={avatarFile}
+        avatarPreview={avatarPreview}
+        setAvatarFile={setAvatarFile}
       />
 
       <DialogDeleteGuide
