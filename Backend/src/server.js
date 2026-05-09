@@ -19,6 +19,7 @@ import travelerDashboardRoute from "./routes/travelerDashboard.route.js";
 import guestRouter from "./routes/guest.route.js";
 import bookingRouter from "./routes/booking.route.js";
 import reviewRouter from "./routes/review.route.js";
+import chatbotRouter from "./routes/chatbot.route.js";
 dotenv.config();
 
 connectDB();
@@ -51,6 +52,7 @@ app.use("/api/traveler", travelerDashboardRoute);
 app.use("/api/guest", guestRouter);
 app.use("/api/booking", bookingRouter);
 app.use("/api/reviews", reviewRouter);
+app.use("/api/chatbot", chatbotRouter);
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

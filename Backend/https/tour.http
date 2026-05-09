@@ -115,3 +115,17 @@ Content-Type: application/json
 {
   "message": "Đặt sân"
 }
+
+###
+POST http://localhost:3000/api/chatbot/kb
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZjFiNjI1NzMxNThjNGUzMzFlYzgzMSIsImlhdCI6MTc3ODMyMzk0OCwiZXhwIjoxNzc4MzI0ODQ4fQ.jiYSlIwjEcWEKAELXC84u1V5D_mv3ZHMsaZxKDwCWZc
+Content-Type: application/json
+
+{
+  "title": "Chính sách hủy booking",
+  "content": "Traveler có thể hủy booking trước khi thanh toán. Nếu đã thanh toán, chính sách hoàn tiền phụ thuộc vào provider.",
+  "sourceType": "policy",
+  "metadata": {
+    "topic": "booking"
+  }
+}
