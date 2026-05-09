@@ -4,6 +4,7 @@ import {
   getMyProfile,
   updateMyProfile,
 } from "@/services/api/user";
+import { getTravelerDashboard } from "@/services/api/traveler";
 import AuthContext from "@/context/authContext";
 import toast from "react-hot-toast";
 
@@ -14,12 +15,22 @@ import TravelerStats from "./TravelerStats";
 
 export default function TravelerProfile() {
   const [profile, setProfile] = useState(null);
+  const [stats, setStats] = useState(null);
   const { syncUserProfile } = useContext(AuthContext);
 
   const loadProfile = async () => {
     try {
-      const response = await getMyProfile();
-      setProfile(response.data.data);
+      const [profileResponse, dashboardResponse] = await Promise.all([
+        getMyProfile(),
+        getTravelerDashboard(),
+      ]);
+
+      setProfile(profileResponse.data.data);
+      setStats(
+        dashboardResponse.data.data?.profileStats ||
+          dashboardResponse.data.data?.quickStats ||
+          null,
+      );
     } catch (error) {
       toast.error(
         error?.response?.data?.message || "Unable to load profile.",
@@ -65,7 +76,7 @@ export default function TravelerProfile() {
           profile={profile}
           onUpdateProfile={handleUpdateProfile}
         />
-        <TravelerStats />
+        <TravelerStats stats={stats} />
 
         <div className="grid gap-6 lg:grid-cols-12">
           <div className="space-y-6 lg:col-span-7">

@@ -1,4 +1,4 @@
-import { getTravelerDashboard } from "../services/travelerDashboard.service.js";
+import { getTravelerDashboard } from "../services/dashboard.service.js";
 import { error, success } from "../utils/response.js";
 
 export const getTravelerDashboardController = async (req, res) => {

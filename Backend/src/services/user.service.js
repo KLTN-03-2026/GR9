@@ -16,6 +16,7 @@ const toUserProfilePayload = (user) => ({
   specialty: user.specialty,
   gender: user.gender,
   rate: user.rate,
+  language: user.language,
   status: user.status,
   isActive: user.isActive,
   emailVerifiedAt: user.emailVerifiedAt,
