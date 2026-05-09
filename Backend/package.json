@@ -17,6 +17,7 @@
     "@google/genai": "^1.50.1",
     "@google/generative-ai": "^0.24.1",
     "@payos/node": "^2.0.5",
+    "@supabase/supabase-js": "^2.105.4",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.10.0",
     "cookie-parser": "^1.4.7",
