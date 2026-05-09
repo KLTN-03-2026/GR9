@@ -15,8 +15,62 @@ const generateOrderCode = () => {
 const normalizeAmount = (amount) => Math.max(Math.round(Number(amount) || 0), 0);
 const PAYMENT_EXPIRES_IN_SECONDS = 5 * 60;
 
-const releaseBookingSlots = async (booking) => {
+const updateScheduleStatus = async (schedule) => {
+  if (!schedule) return;
+
+  if (schedule.currentBooked >= schedule.maxSlots) {
+    schedule.status = "FULL";
+  } else if (schedule.currentBooked >= Math.ceil(schedule.maxSlots / 2)) {
+    schedule.status = "CONFIRMED";
+  } else {
+    schedule.status = "PENDING";
+  }
+
+  await schedule.save();
+};
+
+const reserveBookingSlots = async (booking) => {
+  if (booking.slotsReserved) {
+    return;
+  }
+
   if (booking.isPrivate || !booking.tourScheduleId) {
+    booking.slotsReserved = true;
+    await booking.save();
+    return;
+  }
+
+  const totalPeople =
+    (Number(booking.quantity?.adults) || 0) +
+    (Number(booking.quantity?.children) || 0) +
+    (Number(booking.quantity?.infants) || 0);
+
+  if (totalPeople <= 0) {
+    return;
+  }
+
+  const schedule = await TourSchedule.findOneAndUpdate(
+    {
+      _id: booking.tourScheduleId,
+      $expr: {
+        $lte: [{ $add: ["$currentBooked", totalPeople] }, "$maxSlots"],
+      },
+    },
+    { $inc: { currentBooked: totalPeople } },
+    { new: true },
+  );
+
+  if (!schedule) {
+    throwError("Tour schedule not found", 404, "TOUR_SCHEDULE_NOT_FOUND");
+  }
+
+  await updateScheduleStatus(schedule);
+  booking.slotsReserved = true;
+  await booking.save();
+};
+
+const releaseBookingSlots = async (booking) => {
+  if (!booking.slotsReserved || booking.isPrivate || !booking.tourScheduleId) {
     return;
   }
 
@@ -39,15 +93,11 @@ const releaseBookingSlots = async (booking) => {
     return;
   }
 
-  if (schedule.currentBooked >= schedule.maxSlots) {
-    schedule.status = "FULL";
-  } else if (schedule.currentBooked >= Math.ceil(schedule.maxSlots / 2)) {
-    schedule.status = "CONFIRMED";
-  } else {
-    schedule.status = "PENDING";
+  if (schedule.currentBooked < 0) {
+    schedule.currentBooked = 0;
   }
 
-  await schedule.save();
+  await updateScheduleStatus(schedule);
 };
 
 const cancelUnpaidBooking = async (booking) => {
@@ -60,6 +110,22 @@ const cancelUnpaidBooking = async (booking) => {
   booking.status = "CANCELLED";
   booking.checkoutUrl = null;
   booking.qrCode = null;
+  booking.slotsReserved = false;
+  await booking.save();
+  return booking;
+};
+
+const markBookingPaid = async (booking, paymentLinkId = null) => {
+  if (booking.payment === "PAID") {
+    return booking;
+  }
+
+  await reserveBookingSlots(booking);
+  booking.payment = "PAID";
+  booking.status = "PAID";
+  booking.paidAt = booking.paidAt || new Date();
+  booking.trackingCode = paymentLinkId || booking.trackingCode;
+  booking.paymentLinkId = paymentLinkId || booking.paymentLinkId;
   await booking.save();
   return booking;
 };
@@ -78,6 +144,10 @@ export const createBookingPaymentLink = async (bookingId, travelerId = null) => 
 
     if (travelerId && String(booking.travelerId) !== String(travelerId)) {
       throwError("Booking not found", 404, "BOOKING_NOT_FOUND");
+    }
+
+    if (booking.status === "CANCELLED") {
+      throwError("Booking was cancelled", 400, "BOOKING_CANCELLED");
     }
 
     if (booking.payment === "PAID") {
@@ -155,12 +225,7 @@ export const handlePayOSWebhook = async (payload) => {
     }
 
     if (webhookData.code === "00") {
-      booking.payment = "PAID";
-      booking.status = "PAID";
-      booking.paidAt = new Date();
-      booking.trackingCode = webhookData.paymentLinkId || booking.trackingCode;
-      booking.paymentLinkId = webhookData.paymentLinkId || booking.paymentLinkId;
-      await booking.save();
+      await markBookingPaid(booking, webhookData.paymentLinkId);
     } else if (["CANCELLED", "EXPIRED"].includes(webhookData.status)) {
       await cancelUnpaidBooking(booking);
     }
@@ -191,21 +256,16 @@ export const syncPayOSPaymentStatus = async (orderCode, travelerId) => {
       return booking;
     }
 
-    if (
-      booking.paymentExpiredAt &&
-      new Date(booking.paymentExpiredAt).getTime() <= Date.now()
-    ) {
-      return await cancelUnpaidBooking(booking);
-    }
-
     const paymentInfo = await payOS.paymentRequests.get(Number(orderCode));
 
     if (paymentInfo?.status === "PAID") {
-      booking.payment = "PAID";
-      booking.status = "PAID";
-      booking.paidAt = booking.paidAt || new Date();
-      await booking.save();
+      await markBookingPaid(booking);
     } else if (["CANCELLED", "EXPIRED"].includes(paymentInfo?.status)) {
+      await cancelUnpaidBooking(booking);
+    } else if (
+      booking.paymentExpiredAt &&
+      new Date(booking.paymentExpiredAt).getTime() <= Date.now()
+    ) {
       await cancelUnpaidBooking(booking);
     }
 
