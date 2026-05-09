@@ -118,14 +118,24 @@ Content-Type: application/json
 
 ###
 POST http://localhost:3000/api/chatbot/kb
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZjFiNjI1NzMxNThjNGUzMzFlYzgzMSIsImlhdCI6MTc3ODMyMzk0OCwiZXhwIjoxNzc4MzI0ODQ4fQ.jiYSlIwjEcWEKAELXC84u1V5D_mv3ZHMsaZxKDwCWZc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZjFiNjI1NzMxNThjNGUzMzFlYzgzMSIsImlhdCI6MTc3ODMyNTc1MiwiZXhwIjoxNzc4MzI2NjUyfQ.Hj8LPG-KdI2zYYOtCmkqfmVbWFfaT5z0B27G_ZwRVdE
 Content-Type: application/json
 
 {
-  "title": "Chính sách hủy booking",
-  "content": "Traveler có thể hủy booking trước khi thanh toán. Nếu đã thanh toán, chính sách hoàn tiền phụ thuộc vào provider.",
-  "sourceType": "policy",
+  "title": "Provider quản lý tour",
+  "content": "Provider có thể tạo tour, chỉnh sửa tour, quản lý lịch khởi hành, quản lý dịch vụ đi kèm, quản lý hướng dẫn viên và xem danh sách booking. Tour nên có tên, địa điểm, mô tả, số ngày, giá theo người lớn, trẻ em, em bé, lịch trình từng ngày và dịch vụ mặc định.",
+  "sourceType": "guide",
+  "sourceId": "provider-tour-management",
   "metadata": {
-    "topic": "booking"
+    "topic": "provider",
+    "lang": "vi"
   }
 }
+
+
+
+
+
+
+
+
