@@ -19,102 +19,42 @@ export const generateItinerary = async (data) => {
     const startDate = data?.startDate || "2023-08-01";
 
     const prompt = `
-      Bạn là Senior Travel Planner chuyên nghiệp.
-      Nhiệm vụ của bạn là tạo ra một tour du lịch hợp lý, thực tế và tối ưu theo các dữ kiện đầu vào sau.
-      Nếu không có data đầu vào từ người dùng, hãy tạo dữ liệu mẫu tương ứng với:
-        destination: "Da Nang"
-        numberDay: 3
-        budget: 5000000
-        describe: ""
-        quantity: 4
-        startDate: "2023-08-01"
- 
+      Tạo 1 tour du lịch bằng JSON hợp lệ, không markdown, không giải thích.
+
       Input:
-        destination: "${destination}"
-        numberDay: ${numberDay}
-        budget: ${budget}
-        describe: "${describe}"
-        quantity: ${JSON.stringify(quantity)}
-        startDate: ${JSON.stringify(startDate)}
+      - destination: "${destination}"
+      - numberDay: ${numberDay}
+      - budget: ${budget}
+      - describe: "${describe}"
+      - quantity: ${JSON.stringify(quantity)}
+      - startDate: ${JSON.stringify(startDate)}
 
-      Yêu cầu:
-      1. Tạo tour du lịch phù hợp với điểm đến, số ngày, ngân sách, phong cách du lịch, số lượng người, thời tiết và nhu cầu ăn uống.
-      2. Lịch trình phải hợp lý theo từng ngày.
-      3. Các hoạt động phải phân bổ theo mốc giờ cụ thể.
-      4. Từ dò thời tiết kể từ theo ${numberDay} bắt đầu từ ${startDate} để tạo các hoạt động, ưu tiên các hoạt động trong nhà hoặc hoạt động phù hợp thời tiết.
-      5. Nếu delicious là true hoặc có mô tả món ăn yêu thích, hãy thêm các hoạt động liên quan đến ăn uống, đặc sản, quán ăn nổi bật.
-      6. Tổng chi phí ước tính của tour phải cố gắng không vượt quá budget.
-      7. price trong JSON output phải cùng đơn vị với budget input, không được tự ý đổi đơn vị tiền.
-      8. Nếu budget = 3999 thì price phải là số quanh mức đó hoặc thấp hơn, không được trả về kiểu 3650000.
-      9. Dữ liệu trả về phải là JSON hợp lệ, không thêm giải thích, không thêm markdown, không thêm text ngoài JSON.
-      10. Các field phải bám sát format mẫu dưới đây.
-      11. Chỉ sử dụng TÊN DỊCH VỤ và ĐỊA CHỈ thực tế có trên Google Maps. Với khách sạn, bắt buộc phải là khách sạn có thật, tên và địa chỉ phải trùng khớp với Google Maps.
-      12. Nếu không xác nhận được địa chỉ khách sạn, hãy chọn khách sạn khác có thật trên Google Maps.
-      13. Địa chỉ của mỗi serviceId phải chi tiết, cụ thể, gồm: số nhà, tên đường, phường/xã, quận/huyện, thành phố, và nếu có thể thì mã bưu chính.
-      14. Ưu tiên sắp xếp tour theo yêu cầu của traveler thông qua ${describe}.
+      Quy tắc:
+      - Bám model Tour: location, description, numberOfDay, type, price, isActive, itineraries.
+      - Bám model TourSchedule: startDay là departureDate ISO, minSlots/maxSlots dùng cho số chỗ, currentBooked = 0, status mặc định "PENDING".
+      - quantity và price dùng key "ADULT", "CHILD", "INFANT"; price cùng đơn vị với budget và tổng giá cố gắng <= budget. Nếu budget nhỏ như 3999 thì price cũng quanh 3999, không đổi sang 3999000.
+      - Tổng số khách = ADULT + CHILD + INFANT. Nếu input quantity là số thì xem là ADULT.
+      - type = "PRIVATE" nếu tổng khách <= 5, ngược lại "GROUP"; minSlots = tổng khách nếu PRIVATE, ngược lại 1; maxSlots = tổng khách nếu PRIVATE, ngược lại tổng khách + 5.
+      - Mỗi ngày có dayNumber, description, activities; mỗi activity có time dạng "HH:mm", statusActivity = "NOT_DONE", serviceId là object dịch vụ.
+      - serviceId.type chỉ dùng: "HOTEL", "TRANSPORT", "RESTAURANT", "ACTIVITY", "FOOD", "ATTRACTION", "ATTRACTION_TICKET", "COMBO", "OTHER".
+      - Độ chính xác tên địa điểm là bắt buộc: mỗi serviceId, hotelServiceId, transportServiceId phải có name là tên chính thức của địa điểm/doanh nghiệp có thật, khớp với destination.
+      - Không bịa tên, không dùng tên chung như "local hotel", "restaurant near beach", "night market", "city tour"; phải dùng tên riêng cụ thể có thể tìm trên Google Maps.
+      - Nếu không chắc 100% về name của một service, hãy thay bằng địa điểm nổi tiếng hơn mà bạn chắc chắn.
+      - address nên cụ thể nếu biết; long và lat có thể để 0 vì hệ thống sẽ dùng Google API để lấy tọa độ khi render UI.
+      - Trước khi trả JSON, tự kiểm tra từng service: name có thật, type đúng enum. Nếu name không chắc, đổi service khác rồi mới trả kết quả.
+      - Ưu tiên yêu cầu trong describe, món ăn/đặc sản nếu có, và lịch trình phù hợp thời tiết theo startDate.
 
-      Quy tắc tạo dữ liệu:
-      - location = destination
-      - quantity = số người tham gia
-      - price = tổng chi phí ước tính của tour
-      - description = mô tả ngắn gọn về tour
-      - numberOfDay = số ngày du lịch
-      - type:
-        - "PRIVATE" nếu quantity <= 5
-        - "GROUP" nếu quantity > 5
-      - minSlots = quantity nếu là tour private, hoặc tối thiểu 1 nếu là group
-      - maxSlots = quantity nếu là private, hoặc quantity + 5 nếu là group
-      - isActive = true
-      - startDay = ngày hiện tại hoặc ngày gần nhất hợp lý ở dạng ISO string
-      - itineraries gồm danh sách từng ngày
-      - mỗi ngày gồm:
-        - dayNumber
-        - description
-        - activities
-      - mỗi activity gồm:
-        - time
-        - statusActivity: mặc định "NOT_DONE"
-        - serviceId
-      - serviceId là object mô tả dịch vụ/địa điểm, gồm:
-        - name
-        - type
-        - address
-        - long
-        - lat
-        - description
-        - total: mảng giá, mỗi phần tử gồm:
-          - price
-          - type: "ADULT" hoặc "CHILD"
-        - status: "ACTIVE"
-
-      Các loại serviceId.type có thể dùng:
-      - "HOTEL",
-      - "TRANSPORT",
-      - "TOUR_GUIDE",
-      - "FOOD",
-      - "ATTRACTION_TICKET",
-      - "COMBO",
-      - "OTHER",
-
-      Format JSON mẫu:
+      Trả đúng schema này:
       {
-        "quantity": {
-          "ADULT": 0,
-          "CHILD": 0,
-          "INFANT": 0
-        },
-        "price": {
-          "ADULT": 0,
-          "CHILD": 0,
-          "INFANT": 0
-        },
+        "quantity": { "ADULT": 0, "CHILD": 0, "INFANT": 0 },
+        "price": { "ADULT": 0, "CHILD": 0, "INFANT": 0 },
         "location": "",
         "description": "",
         "numberOfDay": 0,
         "startDay": "",
         "type": "GROUP",
-        "minSlots": 0,
-        "maxSlots": 0,
+        "minSlots": 1,
+        "maxSlots": 1,
         "isActive": true,
         "itineraries": [
           {
@@ -131,18 +71,13 @@ export const generateItinerary = async (data) => {
                   "long": 0,
                   "lat": 0,
                   "description": "",
-                  "total": [
-                    {
-                      "price": 0,
-                      "type": "ADULT"
-                    }
-                  ],
+                  "total": [{ "price": 0, "type": "ADULT" }],
                   "status": "ACTIVE"
                 }
               }
             ]
           }
-        ]
+        ],
         "hotelServiceId": {
           "name": "",
           "type": "HOTEL",
@@ -151,18 +86,9 @@ export const generateItinerary = async (data) => {
           "lat": 0,
           "description": "",
           "total": [
-            {
-              "price": 0,
-              "type": "ADULT"
-            },
-            {
-              "price": 0,
-              "type": "CHILD"
-            },
-            {
-              "price": 0,
-              "type": "INFANT"
-            }
+            { "price": 0, "type": "ADULT" },
+            { "price": 0, "type": "CHILD" },
+            { "price": 0, "type": "INFANT" }
           ],
           "status": "ACTIVE"
         },
@@ -174,47 +100,23 @@ export const generateItinerary = async (data) => {
           "lat": 0,
           "description": "",
           "total": [
-            {
-              "price": 0,
-              "type": "ADULT"
-            },
-            {
-              "price": 0,
-              "type": "CHILD"
-            },
-            {
-              "price": 0,
-              "type": "INFANT"
-            }
+            { "price": 0, "type": "ADULT" },
+            { "price": 0, "type": "CHILD" },
+            { "price": 0, "type": "INFANT" }
           ],
           "status": "ACTIVE"
         },
-        leadGuideServiceId: {
+        "leadGuideServiceId": {
           "name": "",
-          "type": "TOUR_GUIDE",
+          "type": "OTHER",
           "address": "",
           "long": 0,
           "lat": 0,
           "description": "",
-          "total": [
-            {
-              "price": 0,
-              "type": "ADULT"
-            },
-            {
-              "price": 0,
-              "type": "CHILD"
-            },
-            {
-              "price": 0,
-              "type": "INFANT"
-            }
-          ],
+          "total": [{ "price": 0, "type": "ADULT" }],
           "status": "ACTIVE"
-        },
+        }
       }
-
-      Chỉ trả về JSON hợp lệ.
     `;
 
     const result = await ai.models.generateContent({
