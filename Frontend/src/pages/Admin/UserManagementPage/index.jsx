@@ -9,7 +9,7 @@ import {
   deleteAdminUser,
   getAdminUsers,
   updateAdminUserStatus,
-} from "@/services/api/user";
+} from "@/services/api/admin";
 import toast from "react-hot-toast";
 
 const formatRole = (role) =>

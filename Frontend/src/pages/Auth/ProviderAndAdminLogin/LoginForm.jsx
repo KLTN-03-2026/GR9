@@ -106,18 +106,20 @@ export default function LoginForm({
               value={password || ""}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="h-14 rounded-xl border-transparent bg-surface-container-low pl-12 pr-12 text-on-surface placeholder:text-outline-variant focus-visible:border-primary focus-visible:ring-primary/10"
+              className="h-14 rounded-xl border-transparent bg-surface-container-low pl-12 pr-14 text-on-surface placeholder:text-outline-variant focus-visible:border-primary focus-visible:ring-primary/10"
               disabled={loading}
             />
             <Button
               type="button"
               variant="ghost"
               size="icon-sm"
+              onMouseDown={(event) => event.preventDefault()}
               onClick={() => setShowPassword((value) => !value)}
               disabled={loading}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:bg-transparent hover:text-primary"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full text-on-surface-variant hover:bg-transparent hover:text-primary"
             >
-              <span className="material-symbols-outlined">
+              <span className="material-symbols-outlined text-lg">
                 {showPassword ? "visibility_off" : "visibility"}
               </span>
             </Button>

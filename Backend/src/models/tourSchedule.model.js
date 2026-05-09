@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { model, Schema } from "mongoose";
+const { Schema, model } = mongoose;
 
 const tourScheduleSchema = new Schema(
     {
@@ -14,13 +14,17 @@ const tourScheduleSchema = new Schema(
             required: true,
         },
 
+        maxSlots: {
+            type: Number,
+            required: true,
+            min: 1,
+        },
+
         currentBooked: {
             type: Number,
             default: 0,
+            min: 0,
         },
-
-        minSlots: Number,
-        maxSlots: Number,
 
         status: {
             type: String,

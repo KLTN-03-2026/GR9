@@ -3,7 +3,7 @@ import {
     createTourScheduleService,
     updateTourScheduleService,
     deleteTourScheduleService,
-} from "../services/tourSchedule.services.js";
+} from "../services/tourSchedule.service.js";
 
 import { success, error } from "../utils/response.js";
 

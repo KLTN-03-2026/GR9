@@ -1,5 +1,9 @@
 import api from "./index";    
 
+export const getGuideDashboard = async () => {
+  return await api.get("/guide/dashboard");
+};
+
 export const createGuide = async (guide) => {
   return await api.post("/guide", guide);
 };

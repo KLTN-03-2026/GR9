@@ -8,6 +8,10 @@ import { getTourById } from "@/services/api/guest";
 import { formatPrice } from "@/utils/formatPrice";
 import { formatDateISO, formatDateDisplay } from "@/utils/date";
 import TourDetailSkeleton from "./TourDetailSkeleton";
+import { createBooking } from "@/services/api/booking";
+import { Switch } from "@/components/ui/switch";
+import toast from "react-hot-toast";
+
 const FEATURE_CARDS = [
     { icon: "temple_buddhist", title: "Old town heritage" },
     { icon: "light", title: "Lantern workshop" },
@@ -77,18 +81,20 @@ const REVIEW_ARTICLES = [
     },
 ];
 
-function parseMoney(priceStr) {
-    const clean = String(priceStr ?? "").replace(/[^0-9.]/g, "");
-    const n = Number(clean);
-    return Number.isFinite(n) ? n : 0;
-}
-
 export default function TourDetail() {
     const { tourId } = useParams();
     const [tour, setTour] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-
+    const [isPrivate, setIsPrivate] = useState(false);
+    const resetBooking = () => {
+        setSelectedDate("");
+        setSelectedScheduleId(null);
+        setAdults(2);
+        setChildren(0);
+        setInfants(0);
+        setIsPrivate(false);
+    };
     useEffect(() => {
         if (!tourId) return;
         setLoading(true);
@@ -103,9 +109,9 @@ export default function TourDetail() {
             .finally(() => setLoading(false));
     }, [tourId]);
 
-    const basePrice = useMemo(() => {
-        return tour?.price?.adult || 0;
-    }, [tour?.price]);
+    const basePrice = useMemo(() => Number(tour?.price?.adult) || 0, [tour]);
+    const childPrice = Number(tour?.price?.child) || 0;
+    const privateMultiplier = Number(tour?.privateMultiplier) || 1.5;
     const [selectedDate, setSelectedDate] = useState("2026-04-05");
     const [dateDialogOpen, setDateDialogOpen] = useState(false);
     const [travelers, setTravelers] = useState(2);
@@ -114,9 +120,43 @@ export default function TourDetail() {
     const [adults, setAdults] = useState(2);
     const [children, setChildren] = useState(0);
     const [infants, setInfants] = useState(0);
-    const childPrice = tour?.price?.child || 0;
     const [defaultHotelPrice, setDefaultHotelPrice] = useState(0);
     const [defaultTransportPrice, setDefaultTransportPrice] = useState(0);
+    const [selectedScheduleId, setSelectedScheduleId] = useState(null);
+    const filteredSchedules = useMemo(() => {
+        if (!tour?.schedules) return [];
+
+        return tour.schedules.filter((s) => s.isPrivate === isPrivate);
+    }, [tour, isPrivate]);
+    useEffect(() => {
+        setSelectedScheduleId(null);
+        setSelectedDate("");
+    }, [isPrivate]);
+    const handleBooking = async () => {
+        try {
+            const payload = {
+                tourId: tour?._id,
+                tourScheduleId: selectedScheduleId,
+                quantity: {
+                    adults,
+                    children,
+                    infants,
+                },
+                totalAmount: total,
+                isPrivate, 
+                selectedServices,
+                startDate: selectedDate,
+            };
+            console.log(payload);
+            
+            await createBooking(payload);
+
+            toast.success("Booking success");
+            resetBooking();
+        } catch (err) {
+            toast.error(err?.response?.data?.message || "Booking failed");
+        }
+    };
     const hotelOptions = useMemo(() => {
         return (
             tour?.availableServices
@@ -180,8 +220,24 @@ export default function TourDetail() {
     const adultUnit = basePrice + hotelUnitPrice + transportUnitPrice;
     const childUnit = childPrice + hotelUnitPrice + transportUnitPrice;
 
-    const total = adults * adultUnit + children * childUnit + serviceFee;
-
+    const totalBase = adults * adultUnit + children * childUnit + serviceFee;
+    const total = isPrivate ? Math.round(totalBase * privateMultiplier) : totalBase;
+    const selectedServices = [
+        {
+            serviceType: "HOTEL",
+            serviceId: selectedHotel?.id,
+            optionName: selectedHotel?.label,
+            price: hotelUnitPrice,
+            isIncluded: selectedHotel?.isDefault || false,
+        },
+        {
+            serviceType: "TRANSPORT",
+            serviceId: selectedTransport?.id,
+            optionName: selectedTransport?.label,
+            price: transportUnitPrice,
+            isIncluded: selectedTransport?.isDefault || false,
+        },
+    ];
     if (loading) {
         return <TourDetailSkeleton />;
     }
@@ -410,7 +466,9 @@ export default function TourDetail() {
                                                             <span className="material-symbols-outlined text-on-surface-variant">
                                                                 calendar_today
                                                             </span>
-                                                            <span className="font-medium">{selectedDate}</span>
+                                                            <span className="font-medium">
+                                                                {selectedDate || formatDateISO(Date.now())}
+                                                            </span>
                                                         </div>
                                                         <span className="material-symbols-outlined text-on-surface-variant">
                                                             expand_more
@@ -424,8 +482,8 @@ export default function TourDetail() {
                                                                 Pick a date
                                                             </p>
                                                             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
-                                                                {tour?.schedules.length > 0 ? (
-                                                                    tour?.schedules?.map((s) => {
+                                                                {filteredSchedules.length > 0 ? (
+                                                                    filteredSchedules.map((s) => {
                                                                         const isSelected =
                                                                             formatDateISO(s.departureDate) ===
                                                                             selectedDate;
@@ -435,17 +493,22 @@ export default function TourDetail() {
                                                                         return (
                                                                             <button
                                                                                 key={s._id}
+                                                                                disabled={s.status === "FULL"} // ✅ disable
                                                                                 onClick={() => {
-                                                                                    const date = formatDateISO(
-                                                                                        s.departureDate,
+                                                                                    if (s.status === "FULL") return; // extra safety
+
+                                                                                    setSelectedDate(
+                                                                                        formatDateISO(s.departureDate),
                                                                                     );
-                                                                                    setSelectedDate(date);
+                                                                                    setSelectedScheduleId(s._id);
                                                                                     setDateDialogOpen(false);
                                                                                 }}
                                                                                 className={`w-full text-left p-4 rounded-xl border transition ${
-                                                                                    isSelected
-                                                                                        ? "border-primary bg-primary/5"
-                                                                                        : "border-outline-variant/30 hover:bg-surface-container-low"
+                                                                                    s.status === "FULL"
+                                                                                        ? "border-outline-variant/20 bg-gray-100 cursor-not-allowed opacity-60"
+                                                                                        : isSelected
+                                                                                          ? "border-primary bg-primary/5"
+                                                                                          : "border-outline-variant/30 hover:bg-surface-container-low"
                                                                                 }`}
                                                                             >
                                                                                 <div className="flex justify-between items-center">
@@ -659,16 +722,38 @@ export default function TourDetail() {
                                             </div>
                                         </div>
 
+                                        <div className="flex items-center gap-4 mb-6">
+                                            <Switch
+                                                checked={isPrivate}
+                                                onCheckedChange={setIsPrivate}
+                                                id="private-switch"
+                                            />
+                                            <label
+                                                htmlFor="private-switch"
+                                                className="font-semibold text-base cursor-pointer"
+                                            >
+                                                Book as{" "}
+                                                <span className={isPrivate ? "text-primary" : "text-slate-500"}>
+                                                    {isPrivate ? "Private" : "Group"}
+                                                </span>{" "}
+                                                Tour
+                                            </label>
+                                            {isPrivate && (
+                                                <span className="ml-2 text-sm text-primary font-semibold">
+                                                    x{privateMultiplier} price
+                                                </span>
+                                            )}
+                                        </div>
+
                                         <button
-                                            className="w-full py-4 rounded-xl editorial-gradient text-white font-bold text-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                            className={`w-full py-4 rounded-xl editorial-gradient text-white font-bold text-lg shadow-lg transition-all ${
+                                                !selectedScheduleId
+                                                    ? "opacity-50 cursor-not-allowed"
+                                                    : "hover:scale-[1.02] active:scale-[0.98]"
+                                            }`}
                                             type="button"
-                                            onClick={() => {
-                                                alert(
-                                                    `Confirm Booking\nTour: ${tour?.name}\nDate: ${selectedDate}\nTravelers: ${travelers}\nTotal: ${formatPrice(
-                                                        total,
-                                                    )}`,
-                                                );
-                                            }}
+                                            onClick={handleBooking}
+                                            disabled={!selectedScheduleId}
                                         >
                                             Confirm Booking
                                         </button>

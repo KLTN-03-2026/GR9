@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import AuthContext from "@/context/authContext";
+import { getGuideDashboard } from "@/services/api/guide";
 import {
   changeMyPassword,
   getMyProfile,
@@ -16,12 +17,18 @@ import GuideStats from "./GuideStats";
 
 export default function GuideProfile() {
   const [profile, setProfile] = useState(null);
+  const [stats, setStats] = useState(null);
   const { syncUserProfile } = useContext(AuthContext);
 
   const loadProfile = async () => {
     try {
-      const response = await getMyProfile();
-      setProfile(response.data.data);
+      const [profileResponse, dashboardResponse] = await Promise.all([
+        getMyProfile(),
+        getGuideDashboard(),
+      ]);
+
+      setProfile(profileResponse.data.data);
+      setStats(dashboardResponse.data.data?.guideStats || null);
     } catch (error) {
       toast.error(error?.response?.data?.message || "Unable to load profile.");
     }
@@ -63,7 +70,7 @@ export default function GuideProfile() {
           profile={profile}
           onUpdateProfile={handleUpdateProfile}
         />
-        <GuideStats />
+        <GuideStats stats={stats} profile={profile} />
 
         <div className="grid gap-6 lg:grid-cols-12">
           <div className="space-y-6 lg:col-span-7">

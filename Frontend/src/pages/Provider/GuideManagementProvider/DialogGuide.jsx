@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { ImagePlus, X } from "lucide-react";
 import React from "react";
 
 export const DialogGuide = ({
@@ -39,7 +40,15 @@ export const DialogGuide = ({
   setGender,
   title,
   handleUpdateGuide,
+  avatarFile,
+  avatarPreview,
+  setAvatarFile,
 }) => {
+  const handleAvatarChange = (event) => {
+    const file = event.target.files?.[0] || null;
+    setAvatarFile(file);
+  };
+
   return (
     <div>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -49,7 +58,7 @@ export const DialogGuide = ({
               {title}
             </DialogTitle>
             <DialogDescription className="text-slate-500">
-              {title === "Add the guide"
+              {title === "Add new guide"
                 ? "Fill in the details to add a new guide to your roster"
                 : "Fill in the details to update a guide in your roster"}
             </DialogDescription>
@@ -153,11 +162,45 @@ export const DialogGuide = ({
               <label className="text-xs font-bold uppercase tracking-widest text-slate-600">
                 Upload Avatar
               </label>
-              <Input
-                type="file"
-                accept="image/*"
-                className="text-slate-900 bg-slate-50 border-slate-200 focus-visible:ring-teal-500 cursor-pointer file:text-teal-600 file:font-semibold file:bg-teal-50 file:border-0 file:rounded-md file:px-2 file:py-1 file:mr-3"
-              />
+              <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div className="h-16 w-16 overflow-hidden rounded-2xl bg-white border border-slate-200 shrink-0">
+                  {avatarPreview ? (
+                    <img
+                      src={avatarPreview}
+                      alt="Guide avatar preview"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-slate-400">
+                      <ImagePlus className="size-6" />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="text-slate-900 bg-white border-slate-200 focus-visible:ring-teal-500 cursor-pointer file:text-teal-600 file:font-semibold file:bg-teal-50 file:border-0 file:rounded-md file:px-2 file:py-1 file:mr-3"
+                  />
+                  {avatarFile ? (
+                    <p className="mt-2 truncate text-xs text-slate-500">
+                      {avatarFile.name}
+                    </p>
+                  ) : null}
+                </div>
+                {avatarFile ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setAvatarFile(null)}
+                    className="text-slate-500 hover:text-red-600"
+                  >
+                    <X className="size-4" />
+                  </Button>
+                ) : null}
+              </div>
             </div>
 
             <DialogFooter className="pt-6">
@@ -185,7 +228,7 @@ export const DialogGuide = ({
                   ? title === "Update the guide"
                     ? "Updating..."
                     : "Adding..."
-                  : title
+                  : title === "Update the guide"
                     ? "Update"
                     : "Add"}
               </Button>
