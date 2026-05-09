@@ -3,6 +3,33 @@ import Booking from "../models/booking.model.js";
 import TourSchedule from "../models/tourSchedule.model.js";
 import Image from "../models/image.model.js";
 
+const addDays = (date, days) =>
+    new Date(date.getTime() + Math.max(Number(days) || 0, 0) * 86400000);
+
+const getBookingStartDate = (booking) =>
+    booking.isPrivate
+        ? booking.startDate
+        : booking.tourScheduleId?.departureDate || booking.startDate || booking.bookingDate;
+
+const getBookingLifecycleStatus = (booking) => {
+    if (booking.status === "CANCELLED" || booking.status === "REFUNDED") {
+        return booking.status;
+    }
+
+    if (booking.payment !== "PAID") {
+        return booking.status;
+    }
+
+    const start = new Date(getBookingStartDate(booking));
+    if (Number.isNaN(start.getTime())) {
+        return "CONFIRMED";
+    }
+
+    const end = addDays(start, (Number(booking.tourId?.numberOfDay) || 1) - 1);
+
+    return Date.now() > end.getTime() ? "COMPLETED" : "CONFIRMED";
+};
+
 /**
  * CREATE BOOKING (ANTI OVERBOOKING)
  */
@@ -155,9 +182,15 @@ export const getMyBookingsService = async (travelerId) => {
         imageMap[key].push(img);
     });
 
-    return bookings.map((booking) => ({
-        ...booking,
+    return bookings.map((booking) => {
+        const displayStatus = getBookingLifecycleStatus(booking);
 
-        tourImages: imageMap[String(booking.tourId?._id)] || [],
-    }));
+        return {
+            ...booking,
+            displayStatus,
+            canReview: displayStatus === "COMPLETED",
+            canTrack: displayStatus === "CONFIRMED",
+            tourImages: imageMap[String(booking.tourId?._id)] || [],
+        };
+    });
 };
