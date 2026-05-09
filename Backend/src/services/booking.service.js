@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Booking from "../models/booking.model.js";
 import TourSchedule from "../models/tourSchedule.model.js";
+import Image from "../models/image.model.js";
 
 /**
  * CREATE BOOKING (ANTI OVERBOOKING)
@@ -63,6 +64,15 @@ export const createBookingService = async (data) => {
         // =========================
         // 🔥 PRIVATE BOOKING
         // =========================
+        let bookingStatus = "PENDING";
+
+        if (!isPrivate && schedule) {
+            if (schedule.status === "CONFIRMED" || schedule.status === "FULL") {
+                bookingStatus = "CONFIRMED";
+            } else {
+                bookingStatus = "PENDING";
+            }
+        }
         if (isPrivate) {
             if (!startDate) {
                 throw new Error("Start date is required for private booking");
@@ -89,12 +99,12 @@ export const createBookingService = async (data) => {
                 {
                     travelerId,
                     tourId,
-                    tourScheduleId: isPrivate ? null : tourScheduleId,
+                    tourScheduleId: tourScheduleId,
                     startDate: isPrivate ? startDate : null,
                     quantity,
                     totalAmount,
                     selectedServices,
-                    status: "PENDING", // ✅ luôn PENDING
+                    status: bookingStatus,
                     payment: "UNPAID",
                     isPrivate,
                 },
@@ -150,5 +160,37 @@ export const cancelBookingService = async (bookingId) => {
 };
 
 export const getMyBookingsService = async (travelerId) => {
-    return await Booking.find({ travelerId }).populate("tourId").populate("tourScheduleId").sort({ createdAt: -1 });
+    const bookings = await Booking.find({ travelerId })
+        .populate({
+            path: "tourId",
+            select: "name location price numberOfDay",
+        })
+        .populate("tourScheduleId")
+        .sort({ createdAt: -1 })
+        .lean();
+
+    const tourIds = bookings.map((b) => b.tourId?._id).filter(Boolean);
+
+    const images = await Image.find({
+        entityType: "TOUR",
+        entityId: { $in: tourIds },
+    }).lean();
+
+    const imageMap = {};
+
+    images.forEach((img) => {
+        const key = String(img.entityId);
+
+        if (!imageMap[key]) {
+            imageMap[key] = [];
+        }
+
+        imageMap[key].push(img);
+    });
+
+    return bookings.map((booking) => ({
+        ...booking,
+
+        tourImages: imageMap[String(booking.tourId?._id)] || [],
+    }));
 };

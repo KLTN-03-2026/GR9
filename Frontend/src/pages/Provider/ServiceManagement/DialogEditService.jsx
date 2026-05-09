@@ -163,7 +163,7 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
       // Upload image if new file selected
       if (imageFile) {
         const formDataImage = new FormData();
-        formDataImage.append("image", imageFile);
+        formDataImage.append("images", imageFile);
         await uploadServiceImage(service._id, formDataImage);
       }
 

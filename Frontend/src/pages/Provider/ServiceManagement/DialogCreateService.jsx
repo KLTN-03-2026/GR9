@@ -120,7 +120,7 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
       // Upload image if provided
       if (imageFile) {
         const formData = new FormData();
-        formData.append("image", imageFile);
+        formData.append("images", imageFile);
         await uploadServiceImage(newServiceId, formData);
       }
 

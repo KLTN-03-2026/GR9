@@ -147,7 +147,8 @@ export default function TourDetail() {
                 selectedServices,
                 startDate: selectedDate,
             };
-
+            console.log(payload);
+            
             await createBooking(payload);
 
             toast.success("Booking success");
