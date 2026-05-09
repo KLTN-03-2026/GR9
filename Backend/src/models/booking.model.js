@@ -71,6 +71,7 @@ const bookingSchema = new Schema(
         qrCode: { type: String, default: null },
         paidAt: { type: Date, default: null },
         paymentExpiredAt: { type: Date, default: null },
+        slotsReserved: { type: Boolean, default: false },
         selectedServices: { type: [bookingServiceSchema], default: [] },
         isPrivate: {
             type: Boolean,

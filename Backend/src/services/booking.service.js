@@ -26,39 +26,19 @@ export const createBookingService = async (data) => {
                 throw new Error("Tour schedule is required for group booking");
             }
 
-            schedule = await TourSchedule.findOneAndUpdate(
+            schedule = await TourSchedule.findOne(
                 {
                     _id: tourScheduleId,
                     isPrivate: false,
                     $expr: {
                         $lte: [{ $add: ["$currentBooked", totalPeople] }, "$maxSlots"],
                     },
-                },
-                {
-                    $inc: { currentBooked: totalPeople },
-                },
-                {
-                    new: true,
-                    session,
-                },
-            );
+                }
+            ).session(session);
 
             if (!schedule) {
                 throw new Error("Hết chỗ hoặc không đủ slot");
             }
-
-            // 🔥 update status schedule
-            const halfSlots = Math.ceil(schedule.maxSlots / 2);
-
-            if (schedule.currentBooked >= schedule.maxSlots) {
-                schedule.status = "FULL";
-            } else if (schedule.currentBooked >= halfSlots) {
-                schedule.status = "CONFIRMED";
-            } else {
-                schedule.status = "PENDING";
-            }
-
-            await schedule.save({ session });
         }
 
         // =========================
@@ -66,28 +46,9 @@ export const createBookingService = async (data) => {
         // =========================
         let bookingStatus = "PENDING";
 
-        if (!isPrivate && schedule) {
-            if (schedule.status === "CONFIRMED" || schedule.status === "FULL") {
-                bookingStatus = "CONFIRMED";
-            } else {
-                bookingStatus = "PENDING";
-            }
-        }
         if (isPrivate) {
             if (!startDate) {
                 throw new Error("Start date is required for private booking");
-            }
-
-            if (tourScheduleId) {
-                schedule = await TourSchedule.findOne({
-                    _id: tourScheduleId,
-                    isPrivate: true,
-                }).session(session);
-
-                if (schedule) {
-                    schedule.status = "FULL";
-                    await schedule.save({ session });
-                }
             }
         }
 
@@ -106,6 +67,7 @@ export const createBookingService = async (data) => {
                     selectedServices,
                     status: bookingStatus,
                     payment: "UNPAID",
+                    slotsReserved: false,
                     isPrivate,
                 },
             ],
@@ -132,8 +94,8 @@ export const cancelBookingService = async (bookingId) => {
 
         if (!booking) throw new Error("Booking not found");
 
-        // 🔥 ONLY GROUP mới trả slot
-        if (!booking.isPrivate && booking.tourScheduleId) {
+        // 🔥 ONLY paid/reserved GROUP bookings return slots
+        if (!booking.isPrivate && booking.tourScheduleId && booking.slotsReserved) {
             const totalPeople = booking.quantity.adults + booking.quantity.children + booking.quantity.infants;
 
             await TourSchedule.findByIdAndUpdate(
@@ -146,6 +108,7 @@ export const cancelBookingService = async (bookingId) => {
         }
 
         booking.status = "CANCELLED";
+        booking.slotsReserved = false;
         await booking.save({ session });
 
         await session.commitTransaction();

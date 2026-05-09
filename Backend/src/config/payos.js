@@ -6,9 +6,9 @@ dotenv.config();
 let payOSClient = null;
 
 export const getPayOSClient = () => {
-  const clientId = process.env.PAYOS_CLIENT_ID;
-  const apiKey = process.env.PAYOS_API_KEY;
-  const checksumKey = process.env.PAYOS_CHECKSUM_KEY;
+  const clientId = process.env.PAYOS_CLIENT_ID || process.env.CLIENT_ID;
+  const apiKey = process.env.PAYOS_API_KEY || process.env.API_KEY;
+  const checksumKey = process.env.PAYOS_CHECKSUM_KEY || process.env.CHECKSUM_KEY;
 
   if (!clientId || !apiKey || !checksumKey) {
     const error = new Error(
