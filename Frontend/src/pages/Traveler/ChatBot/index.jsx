@@ -14,9 +14,10 @@ import { cn } from "@/lib/utils";
 import { askChatbot } from "@/services/api/chatbot";
 
 const suggestions = [
-  "Find vegetarian spots in Hoi An",
-  "Optimize route for tomorrow",
-  "Best sunset view bars",
+  "Giới thiệu Voyager AI cho tôi",
+  "Travel_AI có những tính năng gì?",
+  "Tôi có thể đặt tour và theo dõi tour như thế nào?",
+  "Hãy giới thiệu các tour phù hợp cho gia đình",
 ];
 
 export default function ChatBot() {
@@ -29,15 +30,15 @@ export default function ChatBot() {
       id: "welcome",
       role: "assistant",
       content:
-        "Hello. I can help you compare tours, plan routes, prepare for your bookings, and answer questions about your trip.",
+        "Chào bạn, tôi là Voyager AI. Tôi có thể giới thiệu hệ thống Travel_AI, giải thích cách đặt tour, gợi ý lịch trình và hỗ trợ bạn tìm thông tin trong dữ liệu tour.",
       sources: [],
     },
     {
       id: "insight",
       role: "assistant",
       content:
-        "For Da Nang, morning departures usually keep the route smoother and leave more time for beach stops before sunset.",
-      label: "Trip insight",
+        "Bạn có thể bắt đầu bằng các câu hỏi giới thiệu như: Travel_AI dùng để làm gì, cách đặt tour, điều kiện đánh giá tour, hoặc gợi ý tour theo nhu cầu.",
+      label: "Gợi ý bắt đầu",
       sources: [],
     },
   ]);
@@ -211,7 +212,7 @@ export default function ChatBot() {
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/40" />
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary/70 [animation-delay:0.2s]" />
                 <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary [animation-delay:0.4s]" />
-                Voyager AI is searching KB...
+                Voyager AI đang tìm trong KB...
               </div>
             ) : null}
           </div>
@@ -229,7 +230,7 @@ export default function ChatBot() {
                   }
                 }}
                 className="h-12 w-full rounded-xl border border-outline-variant/30 bg-white pl-11 pr-14 text-sm outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-                placeholder="Ask your concierge..."
+                placeholder="Hỏi Voyager AI..."
                 type="text"
               />
               <Button
