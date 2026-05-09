@@ -1,22 +1,22 @@
 import {
-  deleteAdminUser,
-  getAdminUsers,
-  updateAdminUserStatus,
-} from "../services/adminUser.service.js";
+  deleteUser,
+  getUsers,
+  updateUserStatus,
+} from "../services/admin.service.js";
 import { success, error } from "../utils/response.js";
 
-export const getAdminUsersController = async (req, res) => {
+export const getUsersController = async (req, res) => {
   try {
-    const result = await getAdminUsers(req.query);
+    const result = await getUsers(req.query);
     return success(res, "Users loaded successfully", result, 200);
   } catch (err) {
     return error(res, err.message, err.status, err.errorCode);
   }
 };
 
-export const updateAdminUserStatusController = async (req, res) => {
+export const updateUserStatusController = async (req, res) => {
   try {
-    const user = await updateAdminUserStatus(
+    const user = await updateUserStatus(
       req.user._id,
       req.params.id,
       req.body.accountStatus,
@@ -27,9 +27,9 @@ export const updateAdminUserStatusController = async (req, res) => {
   }
 };
 
-export const deleteAdminUserController = async (req, res) => {
+export const deleteUserController = async (req, res) => {
   try {
-    const result = await deleteAdminUser(req.user._id, req.params.id);
+    const result = await deleteUser(req.user._id, req.params.id);
     return success(res, result.message, result, 200);
   } catch (err) {
     return error(res, err.message, err.status, err.errorCode);

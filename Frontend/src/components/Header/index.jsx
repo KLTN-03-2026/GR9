@@ -135,6 +135,11 @@ function resolveBreadcrumbTitle(pathname, fallbackTitle) {
 const Header = () => {
   const location = useLocation();
   const { user, logOutContext } = useContext(AuthContext);
+  const currentRole =
+    ["admin", "traveler", "guide", "provider"].find((role) =>
+      location.pathname.startsWith(`/${role}`),
+    ) || "provider";
+  const profilePath = PROFILE_PATHS[currentRole];
 
   const baseMeta =
     Object.entries(PAGE_META).find(([path]) =>
@@ -204,7 +209,7 @@ const Header = () => {
               className="w-48 rounded-xl border-outline-variant/30 bg-white p-1 shadow-xl"
             >
               <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
-                <Link to="" className="flex items-center gap-2">
+                <Link to={profilePath} className="flex items-center gap-2">
                   <UserRound className="h-4 w-4" />
                   <span>Profile</span>
                 </Link>

@@ -2,31 +2,53 @@ import { History, Languages, Star } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 
-const stats = [
-  {
-    label: "Average Rating",
-    value: "4.9",
-    note: "From 1,240 verified reviews",
-    icon: Star,
-  },
-  {
-    label: "Total Tours",
-    value: "482",
-    note: "100% completion rate",
-    icon: History,
-  },
-  {
-    label: "Languages",
-    value: "3",
-    note: "VN, EN, KR supported",
-    icon: Languages,
-  },
-];
+const formatNumber = (value) => String(Number(value) || 0);
 
-export default function GuideStats() {
+const formatRating = (value) => {
+  const rating = Number(value) || 0;
+  return rating ? rating.toFixed(1) : "0.0";
+};
+
+const getLanguageList = (stats, profile) => {
+  if (Array.isArray(stats?.languages) && stats.languages.length > 0) {
+    return stats.languages;
+  }
+
+  return String(profile?.language || "")
+    .split(/[,\s/|]+/)
+    .map((item) => item.trim().toUpperCase())
+    .filter(Boolean);
+};
+
+const getStats = (stats, profile) => {
+  const languages = getLanguageList(stats, profile);
+
+  return [
+    {
+      label: "Average Rating",
+      value: formatRating(stats?.averageRating ?? profile?.rate),
+      note: `From ${formatNumber(stats?.reviewCount)} verified reviews`,
+      icon: Star,
+    },
+    {
+      label: "Total Tours",
+      value: formatNumber(stats?.totalTours),
+      note: `${formatNumber(stats?.completionRate)}% completion rate`,
+      icon: History,
+    },
+    {
+      label: "Languages",
+      value: formatNumber(stats?.languageCount ?? languages.length),
+      note: languages.length ? `${languages.join(", ")} supported` : "No languages provided",
+      icon: Languages,
+    },
+  ];
+};
+
+export default function GuideStats({ stats, profile }) {
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      {stats.map((stat) => {
+      {getStats(stats, profile).map((stat) => {
         const Icon = stat.icon;
 
         return (
