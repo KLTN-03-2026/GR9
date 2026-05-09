@@ -1,6 +1,6 @@
 import Booking from "../models/booking.model.js";
 import TourSchedule from "../models/tourSchedule.model.js";
-import payOS from "../config/payos.js";
+import getPayOSClient from "../config/payos.js";
 import { throwError } from "../utils/throwError.js";
 
 const getFrontendUrl = () =>
@@ -66,6 +66,7 @@ const cancelUnpaidBooking = async (booking) => {
 
 export const createBookingPaymentLink = async (bookingId, travelerId = null) => {
   try {
+    const payOS = getPayOSClient();
     const booking = await Booking.findById(bookingId).populate(
       "tourId",
       "name location",
@@ -139,6 +140,7 @@ export const createBookingPaymentLink = async (bookingId, travelerId = null) => 
 
 export const handlePayOSWebhook = async (payload) => {
   try {
+    const payOS = getPayOSClient();
     const webhookData = await payOS.webhooks.verify(payload);
     const orderCode = webhookData?.orderCode;
 
@@ -175,6 +177,7 @@ export const handlePayOSWebhook = async (payload) => {
 
 export const syncPayOSPaymentStatus = async (orderCode, travelerId) => {
   try {
+    const payOS = getPayOSClient();
     const booking = await Booking.findOne({
       orderCode: String(orderCode),
       travelerId,
