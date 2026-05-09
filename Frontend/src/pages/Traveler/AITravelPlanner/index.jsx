@@ -79,7 +79,7 @@ export default function AITravelPlanner() {
   const handleChangeCompanion = (role, value) => {
     setQuantity((prev) => ({
       ...prev,
-      [role]: Number(value),
+      [role]: Math.max(Number(value) || 0, 0),
     }));
   };
 
@@ -94,6 +94,14 @@ export default function AITravelPlanner() {
   };
 
   const handleGenerateTour = async () => {
+    const bookablePeople =
+      (Number(quantity.adult) || 0) + (Number(quantity.child) || 0);
+
+    if (bookablePeople < 5) {
+      toast.error("Vui lòng chọn tổng số người lớn và trẻ em ít nhất 5 người");
+      return;
+    }
+
     try {
       const payload = {
         destination,
