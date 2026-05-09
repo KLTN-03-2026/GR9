@@ -160,7 +160,7 @@ export const cancelBookingService = async (bookingId) => {
 };
 
 export const getMyBookingsService = async (travelerId) => {
-    const bookings = await Booking.find({ travelerId })
+    const bookings = await Booking.find({ travelerId, payment: "PAID" })
         .populate({
             path: "tourId",
             select: "name location price numberOfDay leadDuideServiceId",
