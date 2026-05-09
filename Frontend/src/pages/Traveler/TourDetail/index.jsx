@@ -123,10 +123,15 @@ export default function TourDetail() {
             };
             console.log(payload);
             
-            await createBooking(payload);
+            const response = await createBooking(payload);
+            const checkoutUrl = response.data.data?.payment?.checkoutUrl;
 
-            toast.success("Booking success");
+            toast.success("Booking success. Redirecting to payment...");
             resetBooking();
+
+            if (checkoutUrl) {
+                window.location.href = checkoutUrl;
+            }
         } catch (err) {
             toast.error(err?.response?.data?.message || "Booking failed");
         }
