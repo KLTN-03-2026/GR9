@@ -9,6 +9,7 @@ import { formatPrice } from "@/utils/formatPrice";
 import { formatDateISO, formatDateDisplay } from "@/utils/date";
 import TourDetailSkeleton from "./TourDetailSkeleton";
 import { createBooking } from "@/services/api/booking";
+import { getReviewsByTour } from "@/services/api/review";
 import { Switch } from "@/components/ui/switch";
 import toast from "react-hot-toast";
 
@@ -42,51 +43,13 @@ const MEMORY_CARDS = [
     },
 ];
 
-const REVIEW_ARTICLES = [
-    {
-        name: "Sarah Jenkins",
-        avatarImg:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuDU7YwwRvUOBXLYQjN_cM1YWy09AbSm03jXIOg3q3WcekEqtIyyPVwY41_4fkcqIJfq-qUP6nGitJSII0KXqEpAJ1lLdsm2fkp2RyDHAV-dtSTNwf2sIdFaSfMjcGgK4Hg7vduHPdVnHdsKwL8g5foEEREl8qm0hykb9eNtpo-A8Gfp9pF5nRHRUgCoJEhqCZZWuNxcK0270R9gZDvsyH-AHdBGRHw4qE6NkM38BoalfWWuBIwdt_02QJVOSNHki_1_Wup76Y8ioWQz",
-        meta: "Traveled Sept 2023",
-        type: "Solo Traveler",
-        starsFill: 5,
-        timeAgo: "2 weeks ago",
-        title: "Magical morning and incredibly smooth pacing",
-        body: "We arrived early enough to enjoy the signature viewpoints without feeling rushed. The guide handled timing beautifully, gave local context throughout the route, and even helped with photos. The included meal stop was better than expected and the whole experience felt polished from pickup to drop-off.",
-        helpful: 42,
-    },
-    {
-        name: "Marcus Thompson",
-        avatarImg:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuBWTcwySFLGvX2Lm7ZATrrlUVXj2iXb00eRLLlUe5Lz-ptg4ViE4CoflTIKwWc6VV-UR7444XXzjus2JSAaQU3aFi2eupFuV1maAtEsOnSYrjEZKKiPdKU6khzg9EfcLzqzuGj_471AEL59wMvmArMn8Wmbi7G6GvDse9iwTzhAG5FbL5oU-Md199SsGYE51Cnqok_9Jc4LRkuniULhOwdcnbT1KCZBKMcv-GV3SDq-ZcUzcLvZfO2DzcKj1LLbwuB1Cw8VMYmruaT0",
-        meta: "Traveled Aug 2023",
-        type: "Couple Trip",
-        starsFill: 4,
-        timeAgo: "1 month ago",
-        title: "Beautiful route, best on a quieter day",
-        body: "The scenery absolutely lives up to the hype and the transport logistics were effortless. Some portions felt busy during peak hours, so I would still recommend a weekday departure if possible. Even then, the overall route quality, comfort level and guide communication were excellent.",
-        helpful: 15,
-    },
-    {
-        name: "Elena Rodriguez",
-        avatarImg:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuBB1CIW0lgj3-GXGbmcicwtZ7Na0WpLDOLJzYDYIsnmjzn0eX4D4mXGV4l3mNt255gfH3nkITPVstCFT3-A0d1MSocMoJMgyJ-zFw-zxxLvocjLNaja_nx5--VO0eRCTR69sBAVlkobOIdX8e9RDWtsWfA1Am7q3Rhp88v54cKK0CLl8tingFN4LqAnYVFyZWqKnursXvC0nfL7ctO-6KTM0_Zj5fsqxUloU5FCMi11Rukj2H4e0DRb-jTMJEviZCvQRszFLlB1JZOt",
-        meta: "Traveled July 2023",
-        type: "Family of 4",
-        starsFill: 5,
-        timeAgo: "2 months ago",
-        title: "Very easy for families to enjoy together",
-        body: "What stood out most was how family-friendly the pacing felt. We had enough structure to keep the day smooth, but never felt pushed. Our guide was patient, helped us navigate meal choices for the kids, and made the stops feel engaging for adults and children alike.",
-        helpful: 28,
-    },
-];
-
 export default function TourDetail() {
     const { tourId } = useParams();
     const [tour, setTour] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [isPrivate, setIsPrivate] = useState(false);
+    const [reviews, setReviews] = useState([]);
     const resetBooking = () => {
         setSelectedDate("");
         setSelectedScheduleId(null);
@@ -107,6 +70,17 @@ export default function TourDetail() {
                 setError("Failed to load tour details");
             })
             .finally(() => setLoading(false));
+    }, [tourId]);
+    useEffect(() => {
+        if (!tourId) return;
+
+        getReviewsByTour(tourId)
+            .then((res) => {
+                setReviews(res.data.data || []);
+            })
+            .catch(() => {
+                setReviews([]);
+            });
     }, [tourId]);
 
     const basePrice = useMemo(() => Number(tour?.price?.adult) || 0, [tour]);
@@ -222,6 +196,14 @@ export default function TourDetail() {
 
     const totalBase = adults * adultUnit + children * childUnit + serviceFee;
     const total = isPrivate ? Math.round(totalBase * privateMultiplier) : totalBase;
+    const reviewCount = reviews.length;
+    const averageTourRating =
+        reviewCount > 0
+            ? (
+                  reviews.reduce((sum, review) => sum + (Number(review.ratingTour) || 0), 0) /
+                  reviewCount
+              ).toFixed(1)
+            : tour?.rating || 0;
     const selectedServices = [
         {
             serviceType: "HOTEL",
@@ -315,7 +297,7 @@ export default function TourDetail() {
                                     </span>
                                     <span className="flex items-center gap-1">
                                         <span className="material-symbols-outlined text-primary-fixed">star</span>
-                                        {tour?.rating || 4.8} ({tour?.reviews || 120} Reviews)
+                                        {averageTourRating || 4.8} ({reviewCount || tour?.reviews || 0} Reviews)
                                     </span>
                                 </div>
                             </div>
@@ -811,7 +793,7 @@ export default function TourDetail() {
                             <div className="lg:col-span-4 bg-surface-container-lowest rounded-2xl p-8 shadow-sm">
                                 <div className="text-center mb-8">
                                     <div className="text-6xl font-headline font-black text-on-surface mb-2">
-                                        {tour?.rating}
+                                        {averageTourRating || "0.0"}
                                     </div>
                                     <div className="flex justify-center gap-1 mb-2">
                                         {Array.from({ length: 5 }).map((_, idx) => (
@@ -825,7 +807,7 @@ export default function TourDetail() {
                                         ))}
                                     </div>
                                     <p className="text-on-surface-variant font-medium">
-                                        {tour?.reviews} authentic reviews
+                                        {reviewCount} authentic reviews
                                     </p>
                                 </div>
 
@@ -947,94 +929,98 @@ export default function TourDetail() {
                                 </div>
 
                                 <div className="space-y-6 mt-8">
-                                    {REVIEW_ARTICLES.map((r) => (
-                                        <article
-                                            key={r.name}
-                                            className="bg-surface-container-lowest rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow duration-300"
-                                        >
-                                            <div className="flex flex-col md:flex-row gap-6">
-                                                <div className="md:w-48 shrink-0">
-                                                    <div className="flex items-center gap-3 mb-4">
-                                                        <div className="h-12 w-12 rounded-full overflow-hidden bg-slate-200">
-                                                            <img
-                                                                alt={r.name}
-                                                                className="w-full h-full object-cover"
-                                                                src={r.avatarImg}
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <h4 className="font-bold text-on-surface text-sm">
-                                                                {r.name}
-                                                            </h4>
-                                                            <div className="flex items-center gap-1 text-[10px] text-teal-600 font-bold uppercase tracking-wider">
-                                                                <span
-                                                                    className="material-symbols-outlined text-xs"
-                                                                    style={{ fontVariationSettings: '"FILL" 1' }}
-                                                                >
-                                                                    verified
-                                                                </span>
-                                                                Verified
+                                    {reviews.length === 0 ? (
+                                        <div className="bg-surface-container-lowest rounded-2xl p-8 text-center text-on-surface-variant">
+                                            No reviews for this tour yet.
+                                        </div>
+                                    ) : (
+                                        reviews.map((r) => (
+                                            <article
+                                                key={r._id}
+                                                className="bg-surface-container-lowest rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow duration-300"
+                                            >
+                                                <div className="flex flex-col md:flex-row gap-6">
+                                                    <div className="md:w-48 shrink-0">
+                                                        <div className="flex items-center gap-3 mb-4">
+                                                            <div className="h-12 w-12 rounded-full overflow-hidden bg-slate-200">
+                                                                <img
+                                                                    alt={r.reviewerId?.fullName || "Traveler"}
+                                                                    className="w-full h-full object-cover"
+                                                                    src={
+                                                                        r.reviewerId?.avatarUrl ||
+                                                                        "https://lh3.googleusercontent.com/aida-public/AB6AXuD0BfviMsRmGSM1xnCOiLAjEB-Xdb5zdVkaJer9i8EJDmcHyk3B_cx3NNEUzYZx5eeXLb3knh4GSyKV1fU2pKt6dX7NkkJOM-qqssY1oLkNGpRLgm3AiSVVcnGdAVSqgMJeL-mStHglR2Rc9V12kuRO9iwN7ZjrDqchBTD7BWXOm-mCLk6H7Q8mnXUOH5vIX9avqy2wQ7x_g34-VVu4BanY1QQ1qVm-2_PkEjdf_nz1PHmI3pTuP8jQkRkJa9qDZRvYGjv8ySp5VHSG"
+                                                                    }
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <h4 className="font-bold text-on-surface text-sm">
+                                                                    {r.reviewerId?.fullName || "Traveler"}
+                                                                </h4>
+                                                                <div className="flex items-center gap-1 text-[10px] text-teal-600 font-bold uppercase tracking-wider">
+                                                                    <span
+                                                                        className="material-symbols-outlined text-xs"
+                                                                        style={{ fontVariationSettings: '"FILL" 1' }}
+                                                                    >
+                                                                        verified
+                                                                    </span>
+                                                                    Verified
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <p className="text-xs text-on-surface-variant mb-1">{r.meta}</p>
-                                                    <p className="text-xs text-on-surface-variant">{r.type}</p>
-                                                </div>
-
-                                                <div className="flex-1">
-                                                    <div className="flex items-center justify-between mb-3">
-                                                        <div className="flex gap-0.5">
-                                                            {Array.from({ length: 5 }).map((_, idx) => (
-                                                                <span
-                                                                    key={idx}
-                                                                    className="material-symbols-outlined text-tertiary text-sm"
-                                                                    style={{
-                                                                        fontVariationSettings:
-                                                                            idx < r.starsFill ? '"FILL" 1' : '"FILL" 0',
-                                                                    }}
-                                                                >
-                                                                    star
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                        <time className="text-xs text-on-surface-variant">
-                                                            {r.timeAgo}
-                                                        </time>
+                                                        <p className="text-xs text-on-surface-variant mb-1">
+                                                            Tour rating: {r.ratingTour}/5
+                                                        </p>
+                                                        <p className="text-xs text-on-surface-variant">
+                                                            Guide rating: {r.ratingGuide}/5
+                                                        </p>
                                                     </div>
 
-                                                    <h3 className="text-lg font-headline font-bold text-on-surface mb-3">
-                                                        {r.title}
-                                                    </h3>
-                                                    <p className="text-on-surface-variant leading-relaxed mb-6">
-                                                        {r.body}
-                                                    </p>
-
-                                                    <div className="flex items-center justify-between pt-6 border-t border-outline-variant/10">
-                                                        <div className="flex items-center gap-6">
-                                                            <button className="flex items-center gap-2 text-xs font-bold text-on-surface-variant hover:text-primary transition-colors">
-                                                                <span className="material-symbols-outlined text-lg">
-                                                                    thumb_up
-                                                                </span>
-                                                                Helpful ({r.helpful})
-                                                            </button>
-                                                            <button className="flex items-center gap-2 text-xs font-bold text-on-surface-variant hover:text-primary transition-colors">
-                                                                <span className="material-symbols-outlined text-lg">
-                                                                    share
-                                                                </span>
-                                                                Share
-                                                            </button>
+                                                    <div className="flex-1">
+                                                        <div className="flex items-center justify-between mb-3">
+                                                            <div className="flex gap-0.5">
+                                                                {Array.from({ length: 5 }).map((_, idx) => (
+                                                                    <span
+                                                                        key={idx}
+                                                                        className="material-symbols-outlined text-tertiary text-sm"
+                                                                        style={{
+                                                                            fontVariationSettings:
+                                                                                idx < r.ratingTour ? '"FILL" 1' : '"FILL" 0',
+                                                                        }}
+                                                                    >
+                                                                        star
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                            <time className="text-xs text-on-surface-variant">
+                                                                {r.createdAt
+                                                                    ? new Date(r.createdAt).toLocaleDateString("en", {
+                                                                          month: "short",
+                                                                          day: "2-digit",
+                                                                          year: "numeric",
+                                                                      })
+                                                                    : ""}
+                                                            </time>
                                                         </div>
-                                                        <button className="text-xs font-bold text-on-surface-variant hover:text-error transition-colors flex items-center gap-1">
-                                                            <span className="material-symbols-outlined text-lg">
-                                                                flag
-                                                            </span>
-                                                            Report
-                                                        </button>
+
+                                                        <h3 className="text-lg font-headline font-bold text-on-surface mb-3">
+                                                            {r.tourId?.name || tour?.name}
+                                                        </h3>
+                                                        <p className="text-on-surface-variant leading-relaxed mb-4">
+                                                            {r.contentTour || "No tour feedback."}
+                                                        </p>
+                                                        <div className="rounded-xl bg-surface-container-low p-4">
+                                                            <p className="text-xs font-bold uppercase tracking-wider text-primary">
+                                                                Guide Feedback
+                                                            </p>
+                                                            <p className="mt-2 text-sm text-on-surface-variant">
+                                                                {r.contentGuide || "No guide feedback."}
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </article>
-                                    ))}
+                                            </article>
+                                        ))
+                                    )}
                                 </div>
                             </div>
                         </div>

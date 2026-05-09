@@ -163,7 +163,11 @@ export const getMyBookingsService = async (travelerId) => {
     const bookings = await Booking.find({ travelerId })
         .populate({
             path: "tourId",
-            select: "name location price numberOfDay",
+            select: "name location price numberOfDay leadDuideServiceId",
+            populate: {
+                path: "leadDuideServiceId",
+                select: "fullName email avatarUrl",
+            },
         })
         .populate("tourScheduleId")
         .sort({ createdAt: -1 })

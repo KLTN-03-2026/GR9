@@ -2,14 +2,40 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyBookings } from "@/services/api/booking";
 import { formatPrice } from "@/utils/formatPrice";
-import { format } from "date-fns";
 
 export default function BookingTableSection({bookings, loading, error}) {
     const navigate = useNavigate();
+
+    const formatBookingDate = (value) => {
+        if (!value) return "-";
+
+        return new Date(value).toLocaleDateString("en", {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+        });
+    };
+
+    const getGuideId = (booking) => {
+        const guide = booking.tourId?.leadDuideServiceId;
+        return typeof guide === "string" ? guide : guide?._id;
+    };
+
+    const goToReview = (booking) => {
+        const guideId = getGuideId(booking);
+        if (!booking.tourId?._id || !guideId) return;
+
+        const params = new URLSearchParams({
+            tourId: booking.tourId._id,
+            guideId,
+            bookingId: booking._id,
+        });
+
+        navigate(`/traveler/review?${params.toString()}`);
+    };
+
     return (
         <Card className="overflow-hidden rounded-xl border border-outline-variant/5 bg-surface-container-lowest py-0 shadow-[0px_20px_40px_rgba(25,28,30,0.06)]">
             <CardHeader className="flex flex-row items-center justify-between border-b border-surface-container p-6">
@@ -93,7 +119,7 @@ export default function BookingTableSection({bookings, loading, error}) {
                                         </div>
                                     </TableCell>
                                     <TableCell className="px-6 py-5 text-sm font-medium text-on-surface">
-                                        {b.bookingDate ? format(new Date(b.bookingDate), "MMM dd, yyyy") : "-"}
+                                        {formatBookingDate(b.bookingDate)}
                                     </TableCell>
                                     <TableCell className="px-6 py-5">
                                         <Badge
@@ -125,15 +151,29 @@ export default function BookingTableSection({bookings, loading, error}) {
                                             {b.payment?.toLowerCase()}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="px-6 py-5 text-right">
-                                        <Button
-                                            type="button"
-                                            variant="link"
-                                            className="h-auto px-0 text-[12px] font-bold uppercase tracking-tight text-primary"
-                                            onClick={() => navigate(`/traveler/booking/${b._id}`)}
-                                        >
-                                            View Detail
-                                        </Button>
+                                    <TableCell className="px-6 py-5">
+                                        <div className="flex justify-end gap-3">
+                                            {b.status === "CONFIRMED" ? (
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                    disabled={!getGuideId(b)}
+                                                    title={!getGuideId(b) ? "This tour has no assigned guide yet" : undefined}
+                                                    className="h-8 rounded-lg px-3 text-[12px] font-bold uppercase tracking-tight"
+                                                    onClick={() => goToReview(b)}
+                                                >
+                                                    Review
+                                                </Button>
+                                            ) : null}
+                                            <Button
+                                                type="button"
+                                                variant="link"
+                                                className="h-auto px-0 text-[12px] font-bold uppercase tracking-tight text-primary"
+                                                onClick={() => navigate(`/traveler/booking/${b._id}`)}
+                                            >
+                                                View Detail
+                                            </Button>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ))
