@@ -4,6 +4,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import Header from "@/components/Header";
 import HeaderGuest from "@/components/HeaderGuest";
+import ChatBot from "@/pages/Traveler/ChatBot";
 
 export default function Layout() {
     const location = useLocation();
@@ -18,6 +19,7 @@ export default function Layout() {
                 {hasAppShell && <AppSidebar />}
                 <div className="flex-1 min-w-0 flex flex-col">
                     {hasAppShell ? <Header /> : <HeaderGuest />}
+                    {roleCurrent === "traveler" ? <ChatBot /> : null}
                     <div className="app-shell-page w-full pt-22 px-3 pb-24 md:px-4 md:pb-8 lg:px-5">
                         <div className="flex min-h-screen w-full bg-surface">
                             <AnimatePresence mode="wait">

@@ -24,7 +24,7 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
     const [search, setSearch] = useState("");
     const [status, setStatus] = useState("all");
     const [sort, setSort] = useState("latest");
-    const [priceRange, setPriceRange] = useState([100000, 100000000]);
+    const [priceRange, setPriceRange] = useState([10000, 100000000]);
     const filteredTours = tours
         .filter((tour) => {
             const matchSearch =
@@ -95,7 +95,7 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                             <p className="text-xs font-semibold text-on-surface-variant">Price Range</p>
 
                             <Slider
-                                min={100000}
+                                min={10000}
                                 max={100000000}
                                 step={50000}
                                 value={priceRange}
