@@ -18,6 +18,7 @@ import tourScheduleRoute from "./routes/tourSchedule.route.js";
 import travelerDashboardRoute from "./routes/travelerDashboard.route.js";
 import guestRouter from "./routes/guest.route.js";
 import bookingRouter from "./routes/booking.route.js";
+import reviewRouter from "./routes/review.route.js";
 dotenv.config();
 
 connectDB();
@@ -49,6 +50,7 @@ app.use("/api/images", imageRoute);
 app.use("/api/traveler", travelerDashboardRoute);
 app.use("/api/guest", guestRouter);
 app.use("/api/booking", bookingRouter);
+app.use("/api/reviews", reviewRouter);
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
