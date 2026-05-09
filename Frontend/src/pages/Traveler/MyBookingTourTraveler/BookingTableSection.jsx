@@ -69,6 +69,7 @@ export default function BookingTableSection({ bookings, loading, error }) {
   const getStatusBadgeClass = (status) => {
     if (status === "PENDING") return "bg-tertiary-container/10 text-tertiary-container";
     if (status === "CANCELLED") return "bg-error/10 text-error";
+    if (status === "COMPLETED") return "bg-teal-50 text-teal-700";
     if (status === "PAID") return "bg-primary/10 text-primary";
     return "bg-secondary-container/30 text-secondary";
   };
@@ -175,10 +176,10 @@ export default function BookingTableSection({ bookings, loading, error }) {
                   <TableCell className="px-6 py-5">
                     <Badge
                       className={`rounded-full border-0 px-3 py-1 text-[11px] font-bold capitalize ${getStatusBadgeClass(
-                        booking.status,
+                        booking.displayStatus || booking.status,
                       )}`}
                     >
-                      {booking.status?.toLowerCase()}
+                      {(booking.displayStatus || booking.status)?.toLowerCase()}
                     </Badge>
                   </TableCell>
 
@@ -194,7 +195,7 @@ export default function BookingTableSection({ bookings, loading, error }) {
 
                   <TableCell className="px-6 py-5 text-right">
                     <div className="flex justify-end gap-3">
-                      {booking.status === "CONFIRMED" ? (
+                      {booking.canReview || booking.displayStatus === "COMPLETED" ? (
                         <Button
                           type="button"
                           variant="secondary"
@@ -208,6 +209,21 @@ export default function BookingTableSection({ bookings, loading, error }) {
                           onClick={() => goToReview(booking)}
                         >
                           Review
+                        </Button>
+                      ) : null}
+
+                      {booking.canTrack || booking.displayStatus === "CONFIRMED" ? (
+                        <Button
+                          type="button"
+                          variant="link"
+                          className="h-auto px-0 text-[12px] font-bold uppercase tracking-tight text-primary"
+                          onClick={() =>
+                            navigate(
+                              `/traveler/tour-tracking?bookingId=${booking._id}`,
+                            )
+                          }
+                        >
+                          Tracking
                         </Button>
                       ) : null}
 

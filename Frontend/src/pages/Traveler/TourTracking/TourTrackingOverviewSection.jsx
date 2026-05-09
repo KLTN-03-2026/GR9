@@ -1,16 +1,22 @@
 import { Card, CardContent } from "@/components/ui/card";
 
-export default function TourTrackingOverviewSection() {
+export default function TourTrackingOverviewSection({ tracking }) {
+  const activities = tracking?.today?.activities || [];
+  const labels = activities.slice(0, 3);
+
   return (
     <Card className="relative overflow-hidden rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-sm ring-0">
       <CardContent className="relative z-10 space-y-10 p-8">
         <div className="absolute right-0 top-0 p-8">
           <div className="text-right">
             <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
-              Local Time
+              Start Date
             </span>
             <span className="font-headline text-2xl font-extrabold text-teal-800">
-              01:03 PM
+              {tracking?.schedule?.startDay || "-"}
+            </span>
+            <span className="mt-1 block text-xs font-semibold text-on-surface-variant">
+              Local time {tracking?.schedule?.localTime || "--:--"}
             </span>
           </div>
         </div>
@@ -25,29 +31,34 @@ export default function TourTrackingOverviewSection() {
             </span>
           </div>
           <div>
-            <h3 className="text-xl font-bold">Tour Progress: Day 1 of 2</h3>
+            <h3 className="text-xl font-bold">
+              Tour Progress: Day {tracking?.schedule?.currentDay || 1} of{" "}
+              {tracking?.tour?.numberOfDay || 1}
+            </h3>
             <p className="text-on-surface-variant">
-              This is a self-guided AI itinerary. You follow the route
-              personally and handle payments directly at each stop.
+              {tracking?.today?.description ||
+                "Follow the route and keep your trusted contacts updated."}
             </p>
           </div>
         </div>
 
         <div className="space-y-3">
           <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-            <span>Arashiyama Bamboo Grove</span>
-            <span>Shigetsu (Zen cuisine)</span>
-            <span>Tenryu-ji Temple</span>
+            {labels.length ? (
+              labels.map((item) => <span key={`${item.time}-${item.name}`}>{item.name}</span>)
+            ) : (
+              <span>No activities</span>
+            )}
           </div>
 
           <div className="relative h-3 overflow-hidden rounded-full bg-surface-container">
             <div
               className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-teal-400 to-primary"
-              style={{ width: "0%" }}
+              style={{ width: `${tracking?.progress?.percent || 0}%` }}
             />
             <div
               className="absolute -top-0.5 -ml-2 h-4 w-4 rounded-full border-2 border-primary bg-white shadow-md"
-              style={{ left: "0%" }}
+              style={{ left: `${tracking?.progress?.percent || 0}%` }}
             />
           </div>
 
@@ -57,7 +68,8 @@ export default function TourTrackingOverviewSection() {
                 check_circle
               </span>
               <span className="text-sm font-semibold">
-                Completed: Planner ready
+                Completed: {tracking?.progress?.completedActivities || 0}/
+                {tracking?.progress?.totalActivities || 0}
               </span>
             </div>
 
@@ -66,7 +78,7 @@ export default function TourTrackingOverviewSection() {
                 arrow_forward
               </span>
               <span className="text-sm font-semibold">
-                Next: Arashiyama Bamboo Grove
+                Next: {tracking?.progress?.nextActivity?.name || "No next activity"}
               </span>
             </div>
           </div>

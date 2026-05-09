@@ -7,7 +7,27 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function TourTrackingItinerarySection() {
+const getBadge = (state) => {
+  if (state === "ongoing") {
+    return "bg-primary text-white animate-pulse";
+  }
+
+  if (state === "completed") {
+    return "bg-teal-50 text-teal-700";
+  }
+
+  return "bg-surface-container text-on-surface-variant";
+};
+
+const getIconClass = (state) => {
+  if (state === "ongoing") return "bg-primary text-white";
+  if (state === "completed") return "bg-teal-50 text-teal-700";
+  return "bg-surface-container-high text-on-surface-variant";
+};
+
+export default function TourTrackingItinerarySection({ tracking }) {
+  const activities = tracking?.today?.activities || [];
+
   return (
     <section className="space-y-6">
       <h4 className="flex items-center font-headline text-lg font-bold text-on-surface">
@@ -18,108 +38,85 @@ export default function TourTrackingItinerarySection() {
       <div className="relative space-y-0">
         <div className="absolute bottom-8 left-6 top-8 w-[2px] bg-outline-variant/30" />
 
-        <div className="group relative flex items-start space-x-8 pb-8">
-          <div className="relative z-10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary text-white">
-            <span className="material-symbols-outlined">tour</span>
-          </div>
-
-          <Card className="flex-1 rounded-2xl border-none bg-white py-0 shadow-md ring-2 ring-primary/10 transition-all hover:translate-x-1">
-            <CardContent className="p-6">
-              <div className="mb-2 flex items-start justify-between gap-3">
-                <span className="text-xs font-bold uppercase text-primary">
-                  Morning · 08:30
+        {activities.length ? (
+          activities.map((activity) => (
+            <div
+              key={`${activity.time}-${activity.name}`}
+              className="group relative flex items-start space-x-8 pb-8"
+            >
+              <div
+                className={`relative z-10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${getIconClass(
+                  activity.state,
+                )}`}
+              >
+                <span className="material-symbols-outlined">
+                  {activity.state === "completed" ? "check_circle" : "schedule"}
                 </span>
-
-                <Badge className="animate-pulse rounded-full border-0 bg-primary px-3 py-1 text-[10px] font-bold uppercase text-white">
-                  Ongoing
-                </Badge>
               </div>
 
-              <CardTitle className="mb-2 text-lg font-bold">
-                Arashiyama Bamboo Grove
-              </CardTitle>
-              <CardDescription className="mb-4 text-sm leading-relaxed text-on-surface-variant">
-                Walk the bamboo corridor early to avoid crowd density and
-                capture softer light.
-              </CardDescription>
+              <Card className="flex-1 rounded-2xl border-none bg-surface-container-lowest py-0 shadow-sm transition-all hover:translate-x-1">
+                <CardContent className="p-6">
+                  <div className="mb-2 flex items-start justify-between gap-3">
+                    <span className="text-xs font-bold uppercase text-primary">
+                      {activity.type} · {activity.time}
+                    </span>
 
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center space-x-2 rounded-lg border border-outline-variant/10 bg-surface-container-low px-3 py-1.5">
-                  <span className="material-symbols-outlined text-sm text-primary">
-                    restaurant
-                  </span>
-                  <span className="text-xs font-bold text-on-surface">
-                    Activity in progress
-                  </span>
-                </div>
+                    <Badge
+                      className={`rounded-full border-0 px-3 py-1 text-[10px] font-bold uppercase ${getBadge(
+                        activity.state,
+                      )}`}
+                    >
+                      {activity.state}
+                    </Badge>
+                  </div>
 
-                <Button
-                  type="button"
-                  variant="link"
-                  className="h-auto px-0 text-xs font-bold text-primary"
-                >
-                  Follow route
-                </Button>
-              </div>
+                  <CardTitle className="mb-2 text-lg font-bold">
+                    {activity.name}
+                  </CardTitle>
+                  <CardDescription className="mb-4 text-sm leading-relaxed text-on-surface-variant">
+                    {activity.description || activity.address || "No description available."}
+                  </CardDescription>
+
+                  {activity.address ? (
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center space-x-2 rounded-lg border border-outline-variant/10 bg-surface-container-low px-3 py-1.5">
+                        <span className="material-symbols-outlined text-sm text-primary">
+                          location_on
+                        </span>
+                        <span className="line-clamp-1 text-xs font-bold text-on-surface">
+                          {activity.address}
+                        </span>
+                      </div>
+
+                      <Button
+                        asChild
+                        type="button"
+                        variant="link"
+                        className="h-auto px-0 text-xs font-bold text-primary"
+                      >
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                            activity.address,
+                          )}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Follow route
+                        </a>
+                      </Button>
+                    </div>
+                  ) : null}
+                </CardContent>
+              </Card>
+            </div>
+          ))
+        ) : (
+          <Card className="rounded-2xl border-none bg-white py-0 shadow-sm">
+            <CardContent className="p-6 text-sm text-on-surface-variant">
+              No itinerary is available for this tour.
             </CardContent>
           </Card>
-        </div>
-
-        <div className="group relative flex items-start space-x-8 pb-8">
-          <div className="relative z-10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant">
-            <span className="material-symbols-outlined">schedule</span>
-          </div>
-
-          <Card className="flex-1 rounded-2xl border-none bg-surface-container-lowest py-0 shadow-none ring-0 transition-all hover:translate-x-1">
-            <CardContent className="p-6">
-              <div className="mb-2 flex items-start justify-between gap-3">
-                <span className="text-xs font-bold uppercase text-on-surface-variant">
-                  Lunch · 12:30
-                </span>
-
-                <Badge className="rounded-full border-0 bg-surface-container px-3 py-1 text-[10px] font-bold uppercase text-on-surface-variant">
-                  Pending
-                </Badge>
-              </div>
-
-              <CardTitle className="mb-2 text-lg font-bold">
-                Shigetsu (Zen cuisine)
-              </CardTitle>
-              <CardDescription className="text-sm leading-relaxed text-on-surface-variant">
-                Shojin Ryori lunch inside the temple grounds keeps the day
-                compact and calm.
-              </CardDescription>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="group relative flex items-start space-x-8 pb-8">
-          <div className="relative z-10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-surface-container-high text-on-surface-variant">
-            <span className="material-symbols-outlined">schedule</span>
-          </div>
-
-          <Card className="flex-1 rounded-2xl border-none bg-surface-container-lowest py-0 shadow-none ring-0 transition-all hover:translate-x-1">
-            <CardContent className="p-6">
-              <div className="mb-2 flex items-start justify-between gap-3">
-                <span className="text-xs font-bold uppercase text-on-surface-variant">
-                  Afternoon · 14:30
-                </span>
-
-                <Badge className="rounded-full border-0 bg-surface-container px-3 py-1 text-[10px] font-bold uppercase text-on-surface-variant">
-                  Pending
-                </Badge>
-              </div>
-
-              <CardTitle className="mb-2 text-lg font-bold">
-                Tenryu-ji Temple
-              </CardTitle>
-              <CardDescription className="text-sm leading-relaxed text-on-surface-variant">
-                The AI keeps the garden circuit after lunch for better pacing
-                and fewer transfers.
-              </CardDescription>
-            </CardContent>
-          </Card>
-        </div>
+        )}
       </div>
     </section>
   );
