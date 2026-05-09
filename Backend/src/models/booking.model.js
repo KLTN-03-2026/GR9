@@ -66,6 +66,8 @@ const bookingSchema = new Schema(
         totalAmount: { type: Number, default: 0, min: 0 },
         orderCode: { type: String, default: null, trim: true },
         trackingCode: { type: String, default: null, trim: true },
+        trackingShareCode: { type: String, default: null, trim: true, index: true },
+        trackingEnabled: { type: Boolean, default: true },
         paymentLinkId: { type: String, default: null, trim: true },
         checkoutUrl: { type: String, default: null, trim: true },
         qrCode: { type: String, default: null },

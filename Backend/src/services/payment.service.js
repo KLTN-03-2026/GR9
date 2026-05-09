@@ -122,7 +122,7 @@ const markBookingPaid = async (booking, paymentLinkId = null) => {
 
   await reserveBookingSlots(booking);
   booking.payment = "PAID";
-  booking.status = "PAID";
+  booking.status = "CONFIRMED";
   booking.paidAt = booking.paidAt || new Date();
   booking.trackingCode = paymentLinkId || booking.trackingCode;
   booking.paymentLinkId = paymentLinkId || booking.paymentLinkId;

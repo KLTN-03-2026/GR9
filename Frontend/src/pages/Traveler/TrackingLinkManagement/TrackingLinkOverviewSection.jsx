@@ -4,7 +4,16 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-export default function TrackingLinkOverviewSection() {
+const formatPrice = (value) =>
+  new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  }).format(Number(value) || 0);
+
+export default function TrackingLinkOverviewSection({ tracking }) {
+  const highlights = tracking?.highlights || [];
+
   return (
     <Card className="relative overflow-hidden rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_20px_40px_rgba(25,28,30,0.04)]">
       <div className="absolute -right-14 -top-14 h-32 w-32 rounded-full bg-primary/5" />
@@ -23,7 +32,7 @@ export default function TrackingLinkOverviewSection() {
           <div className="text-left sm:text-right">
             <p className="text-sm text-on-surface-variant">Total Amount</p>
             <p className="font-headline text-3xl font-bold text-primary">
-              $4,250.00
+              {formatPrice(tracking?.payment?.totalAmount)}
             </p>
           </div>
         </div>
@@ -38,9 +47,9 @@ export default function TrackingLinkOverviewSection() {
                 <UserRound className="size-4" />
               </div>
               <div>
-                <p className="font-semibold">Alexander Wright</p>
+                <p className="font-semibold">{tracking?.traveler?.name || "-"}</p>
                 <p className="text-sm text-on-surface-variant">
-                  alex.w@example.com
+                  {tracking?.traveler?.email || "-"}
                 </p>
               </div>
             </div>
@@ -55,9 +64,13 @@ export default function TrackingLinkOverviewSection() {
                 <Users className="size-4" />
               </div>
               <div>
-                <p className="font-semibold">4 Adults</p>
+                <p className="font-semibold">
+                  {tracking?.group?.adults || 0} Adults
+                  {tracking?.group?.children ? `, ${tracking.group.children} Children` : ""}
+                  {tracking?.group?.infants ? `, ${tracking.group.infants} Infants` : ""}
+                </p>
                 <p className="text-sm text-on-surface-variant">
-                  Private Suite Tier
+                  {tracking?.group?.label || "-"}
                 </p>
               </div>
             </div>
@@ -72,37 +85,33 @@ export default function TrackingLinkOverviewSection() {
           </h3>
 
           <div className="space-y-4">
-            <article className="flex items-center gap-4 rounded-2xl p-4 transition-colors hover:bg-surface-container-low">
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFh3tgNtojKN3KV0ilWZk2rIobYX6kIELbau1C-uCVw-c4fevQpyh-Z6uSLU6wu0JbaPA6a-9eHi8qekfsGCNBoRoNZWGjxCOvsTZGYdFS-DWhikNq0z8Ayea5n2oqztXiR54FedHoyMoTlkFr7a6rtwBcZY3B6TbqivnN2Eqq2vdFPRdWqKDaGVBxXPbKMDLj2ymnKznsKcJmR2VBPsoTYEGcSoIkl9S1zMmEMcQhxg2M65-GYUclFaxx17TJGF7gpelGfTmPCVx7"
-                alt="Private Sunset Cruise"
-                className="h-12 w-12 rounded-xl object-cover"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-on-surface">
-                  Private Sunset Cruise
-                </p>
-                <p className="text-sm text-on-surface-variant">
-                  Day 1 • 18:00 PM
-                </p>
-              </div>
-              <CheckCircle2 className="size-5 text-primary" />
-            </article>
-
-            <article className="flex items-center gap-4 rounded-2xl p-4 transition-colors hover:bg-surface-container-low">
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgS2I6Cgm-8k4IOx6sQWs2gsXkCnUdr5av8OWwlYDgNi0O5PvDUuvD_fHpM1ySP7uiRerl5u3_6WmWwTTTwBuNEm_Xk8RjebnMRPu6aLKYNk8Gxgqgh1y9lqceY5VJn5bVujjJhtJ0m7zIjxnqDYe9N1RVRv_fj4Q_m_Ty98ro2hL1OKrzcqD7JWniRicYn0j4KnqrYlTp0xsZetTjjYTqyQfKNnYGZreJNMVZKI4IE7hqCKbx4qZ4HszphEM37-61Sf7E1vKsjgfZ"
-                alt="Oia Heritage Walk"
-                className="h-12 w-12 rounded-xl object-cover"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-on-surface">Oia Heritage Walk</p>
-                <p className="text-sm text-on-surface-variant">
-                  Day 2 • 09:00 AM
-                </p>
-              </div>
-              <div className="h-4 w-4 rounded-full border border-outline-variant" />
-            </article>
+            {highlights.length ? (
+              highlights.map((item, index) => (
+                <article
+                  key={`${item.dayNumber}-${item.time}-${item.name}`}
+                  className="flex items-center gap-4 rounded-2xl p-4 transition-colors hover:bg-surface-container-low"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    {item.dayNumber}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-on-surface">{item.name}</p>
+                    <p className="text-sm text-on-surface-variant">
+                      Day {item.dayNumber} • {item.time}
+                    </p>
+                  </div>
+                  {index === 0 ? (
+                    <CheckCircle2 className="size-5 text-primary" />
+                  ) : (
+                    <div className="h-4 w-4 rounded-full border border-outline-variant" />
+                  )}
+                </article>
+              ))
+            ) : (
+              <p className="text-sm text-on-surface-variant">
+                No itinerary highlights available.
+              </p>
+            )}
           </div>
         </div>
       </CardContent>

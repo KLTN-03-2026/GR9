@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export default function TourTrackingSidebar() {
+export default function TourTrackingSidebar({ tracking }) {
   return (
     <div className="space-y-8 lg:col-span-4">
       <Card className="relative aspect-square overflow-hidden rounded-[2rem] border border-outline-variant/10 bg-surface-container-lowest py-0 shadow-sm">
@@ -27,10 +27,10 @@ export default function TourTrackingSidebar() {
               </span>
             </div>
             <Badge className="mt-2 rounded-full border-0 bg-white px-3 py-1 text-[10px] font-bold text-on-surface shadow-sm">
-              Group Alpha
+              {tracking?.tour?.type || "TOUR"}
             </Badge>
             <Badge className="mt-2 rounded-full border-0 bg-white px-3 py-1 text-[10px] font-bold text-on-surface shadow-sm">
-              COUPLE
+              {tracking?.group?.label || "GROUP"}
             </Badge>
           </div>
         </div>
@@ -64,7 +64,7 @@ export default function TourTrackingSidebar() {
             Traveler Pulse
           </CardTitle>
           <Badge className="rounded-md border-0 bg-teal-50 px-2 py-1 text-xs font-bold text-teal-600">
-            2/2 Present
+            {tracking?.group?.total || 0}/{tracking?.group?.total || 0} Present
           </Badge>
         </CardHeader>
 
@@ -75,14 +75,18 @@ export default function TourTrackingSidebar() {
                 <Avatar size="lg" className="after:border-transparent">
                   <AvatarImage
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuCC_zlc7Pc3ATNIDM5wW1KXIsuJRmZwzesQsSG_FA6az9HLNjfQQHqyre0AqMUwETzJLFTPfUq9QKkmg3U5Uo_KTE6Nad6zLSpfkrX0wfC5RLzWmi_EB9WhqI3YaKCUzKwa2jfH6wk9yrfe0ijt7WWg_03crFx60sEP7yS7O_xcGOmd1DSZy4BSiiqXfZmyx80ZG9I4CAgsUSGKTGfbEqCNPEw-16CU8CZqefn8pw6tAFqoK7dD3jSHGRVTrVTL6ghH3Ez-8NTVgLuC"
-                    alt="Alex Rivera"
+                    alt={tracking?.traveler?.name || "Lead traveler"}
                   />
-                  <AvatarFallback>AR</AvatarFallback>
+                  <AvatarFallback>
+                    {(tracking?.traveler?.name || "LT").slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
                   <AvatarBadge className="bg-teal-500 ring-2 ring-white" />
                 </Avatar>
 
                 <div>
-                  <p className="text-sm font-bold">Alex Rivera</p>
+                  <p className="text-sm font-bold">
+                    {tracking?.traveler?.name || "Lead traveler"}
+                  </p>
                   <p className="text-[10px] font-medium text-on-surface-variant">
                     Lead traveler
                   </p>
@@ -112,18 +116,19 @@ export default function TourTrackingSidebar() {
             <div className="group flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <Avatar size="lg" className="after:border-transparent">
-                  <AvatarImage
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDx_YrV98skFMZO011p-nMRKeJKDXpbftiN-Zh9tO1zlfOk_znKM61xgfEd9tWLybD9sYwWeWlpl525T1oNvfH11WZ3iZ605VJ7WkhAU5-MN5YnF-kASxthuHmGyRz9emOMyZTg0j8ZlvPlTgUdbLUeU2httbGbpDhw1kqdt11jCRMjO9pgyuSyqYFuJa727YrWEDQNAZEoEOUEMA_qt-M1cuG9DqOnn0Rk940-comU5leQhTB9U32fX26TBUbwkQqgs65o33SwxB9e"
-                    alt="Mia Lopez"
-                  />
-                  <AvatarFallback>ML</AvatarFallback>
+                  <AvatarImage src={tracking?.guide?.avatarUrl} alt={tracking?.guide?.name} />
+                  <AvatarFallback>
+                    {(tracking?.guide?.name || "GD").slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
                   <AvatarBadge className="bg-teal-500 ring-2 ring-white" />
                 </Avatar>
 
                 <div>
-                  <p className="text-sm font-bold">Mia Lopez</p>
+                  <p className="text-sm font-bold">
+                    {tracking?.guide?.name || "Guide not assigned"}
+                  </p>
                   <p className="text-[10px] font-medium text-on-surface-variant">
-                    Passenger
+                    Guide
                   </p>
                 </div>
               </div>

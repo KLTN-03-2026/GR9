@@ -3,7 +3,14 @@ import { Copy, LocateFixed, RefreshCcw, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function TrackingLinkAccessCard() {
+export default function TrackingLinkAccessCard({ tracking, onRegenerate }) {
+  const trackingUrl = tracking?.trackingUrl || "";
+
+  const copyLink = async () => {
+    if (!trackingUrl) return;
+    await navigator.clipboard.writeText(trackingUrl);
+  };
+
   return (
     <Card className="overflow-hidden rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
       <CardHeader className="px-6 pt-6 md:px-8">
@@ -31,7 +38,7 @@ export default function TrackingLinkAccessCard() {
 
           <div className="flex items-center gap-2">
             <code className="min-w-0 flex-1 truncate font-mono text-sm font-bold text-primary">
-              voyager.ai/track/azh-99281-x9f2
+              {trackingUrl || "No tracking link yet"}
             </code>
             <Button
               type="button"
@@ -39,6 +46,8 @@ export default function TrackingLinkAccessCard() {
               size="icon"
               className="rounded-xl text-on-surface-variant hover:bg-white"
               title="Copy link"
+              onClick={copyLink}
+              disabled={!trackingUrl}
             >
               <Copy className="size-4" />
             </Button>
@@ -49,6 +58,8 @@ export default function TrackingLinkAccessCard() {
           <Button
             type="button"
             className="h-12 flex-1 rounded-2xl bg-gradient-to-br from-primary to-primary-container font-bold text-on-primary shadow-lg shadow-primary/20"
+            onClick={copyLink}
+            disabled={!trackingUrl}
           >
             Copy link
           </Button>
@@ -56,6 +67,8 @@ export default function TrackingLinkAccessCard() {
             type="button"
             variant="secondary"
             className="h-12 rounded-2xl bg-secondary-container px-5 font-bold text-on-secondary-container"
+            onClick={onRegenerate}
+            disabled={!tracking?.bookingId}
           >
             <RefreshCcw className="size-4" />
             Regenerate
