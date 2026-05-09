@@ -1,6 +1,18 @@
 import { createGuide, deleteGuide, getGuides, updateGuide, getGuideById } from "../services/guide.service.js";
+import { getGuideDashboard } from "../services/dashboard.service.js";
 
 import { error, success } from "../utils/response.js";
+
+export const getGuideDashboardController = async (req, res) => {
+    try {
+        const userId = req.user?.id || req.user?._id;
+        const dashboard = await getGuideDashboard(userId);
+
+        return success(res, "Get guide dashboard successfully", dashboard, 200);
+    } catch (err) {
+        return error(res, err.message, err.status, err.errorCode);
+    }
+};
 
 export const createGuideController = async (req, res) => {
     try {

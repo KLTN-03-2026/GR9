@@ -2,17 +2,43 @@ import { CalendarDays, MapPinned, Plane, Trophy } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 
-const stats = [
-  { label: "Cities Visited", value: "24", icon: MapPinned },
-  { label: "Upcoming Trips", value: "12", icon: CalendarDays },
-  { label: "Completed Tours", value: "38", icon: Plane },
-  { label: "Reward Points", value: "8.4k", icon: Trophy },
+const formatNumber = (value) => {
+  const number = Number(value) || 0;
+
+  if (number >= 1000) {
+    return `${(number / 1000).toFixed(number >= 10000 ? 0 : 1)}k`;
+  }
+
+  return String(number);
+};
+
+const getStats = (stats) => [
+  {
+    label: "Cities Visited",
+    value: formatNumber(stats?.citiesVisited),
+    icon: MapPinned,
+  },
+  {
+    label: "Upcoming Trips",
+    value: formatNumber(stats?.upcomingTrips),
+    icon: CalendarDays,
+  },
+  {
+    label: "Completed Tours",
+    value: formatNumber(stats?.completedTours),
+    icon: Plane,
+  },
+  {
+    label: "Reward Points",
+    value: formatNumber(stats?.rewardPoints),
+    icon: Trophy,
+  },
 ];
 
-export default function TravelerStats() {
+export default function TravelerStats({ stats }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {stats.map((stat) => {
+      {getStats(stats).map((stat) => {
         const Icon = stat.icon;
 
         return (

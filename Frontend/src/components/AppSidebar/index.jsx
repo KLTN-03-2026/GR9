@@ -1,9 +1,7 @@
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
@@ -52,7 +50,6 @@ const MENU = {
       icon: LinkIcon,
     },
     { name: "Tour Tracking", href: "/tour-tracking", icon: MapPin },
-    { name: "Traveler Profile", href: "/profile", icon: UserCog },
   ],
 
   admin: [
@@ -69,7 +66,6 @@ const MENU = {
       href: "/content-moderation",
       icon: ShieldAlert,
     },
-    { name: "Admin Profile", href: "/profile", icon: UserCog },
   ],
 
   guide: [
@@ -84,7 +80,6 @@ const MENU = {
       href: "/live-tour-tracking",
       icon: Share2,
     },
-    { name: "Guide Profile", href: "/profile", icon: UserCog },
   ],
 
   provider: [
@@ -110,35 +105,22 @@ const MENU = {
       href: "/guide-management",
       icon: Users,
     },
-    {
-      name: "Provider Profile",
-      href: "/profile",
-      icon: UserCog,
-    },
   ],
 };
 
 const ROLE_META = {
   traveler: {
     subtitle: "Traveler Suite",
-    userName: "Alex Traveler",
-    userLabel: "Premium Member",
   },
   admin: {
     subtitle: "Admin Console",
-    userName: "System Admin",
-    userLabel: "Platform Control",
   },
 
   guide: {
     subtitle: "Guide Workspace",
-    userName: "Tour Guide",
-    userLabel: "Field Operations",
   },
   provider: {
     subtitle: "Provider Hub",
-    userName: "Tour Provider",
-    userLabel: "Operations Center",
   },
 };
 
@@ -227,24 +209,6 @@ export function AppSidebar() {
         </nav>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 pt-2">
-        <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-low px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-              {role.charAt(0).toUpperCase()}
-            </div>
-
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold text-on-surface">
-                {roleMeta.userName}
-              </p>
-              <p className="truncate text-xs text-on-surface-variant">
-                {roleMeta.userLabel}
-              </p>
-            </div>
-          </div>
-        </div>
-      </SidebarFooter>
     </Sidebar>
   );
 }
