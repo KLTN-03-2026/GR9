@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { getMyBookings } from "@/services/api/booking";
+import { useSearchParams } from "react-router-dom";
+import toast from "react-hot-toast";
+import { getMyBookings, syncPaymentStatus } from "@/services/api/booking";
 import BookingActionsSection from "./BookingActionsSection";
 import BookingHeader from "./BookingHeader";
 import BookingStatsSection from "./BookingStatsSection";
@@ -9,16 +11,40 @@ export default function MyBookingTourTraveler() {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [searchParams, setSearchParams] = useSearchParams();
 
-    useEffect(() => {
+    const loadBookings = () => {
         setLoading(true);
-        getMyBookings()
+        return getMyBookings()
             .then((res) => {
                 setBookings(res.data.data || []);
                 setError("");
             })
             .catch(() => setError("Không thể tải danh sách booking"))
             .finally(() => setLoading(false));
+    };
+
+    useEffect(() => {
+        const payment = searchParams.get("payment");
+        const orderCode = searchParams.get("orderCode");
+
+        if (payment === "success" && orderCode) {
+            syncPaymentStatus(orderCode)
+                .then(() => toast.success("Thanh toán thành công"))
+                .catch(() => toast.error("Không thể cập nhật trạng thái thanh toán"))
+                .finally(() => {
+                    setSearchParams({});
+                    loadBookings();
+                });
+            return;
+        }
+
+        if (payment === "cancel") {
+            toast.error("Bạn đã hủy thanh toán");
+            setSearchParams({});
+        }
+
+        loadBookings();
     }, []);
 
     return (

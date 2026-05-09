@@ -54,7 +54,7 @@ const bookingSchema = new Schema(
         bookingDate: { type: Date, default: Date.now },
         status: {
             type: String,
-            enum: ["PENDING", "CANCELLED", "CONFIRMED", "COMPLETED"],
+            enum: ["PENDING", "CANCELLED", "CONFIRMED", "PAID", "REFUNDED", "COMPLETED"],
             default: "PENDING",
         },
 
@@ -66,6 +66,11 @@ const bookingSchema = new Schema(
         totalAmount: { type: Number, default: 0, min: 0 },
         orderCode: { type: String, default: null, trim: true },
         trackingCode: { type: String, default: null, trim: true },
+        paymentLinkId: { type: String, default: null, trim: true },
+        checkoutUrl: { type: String, default: null, trim: true },
+        qrCode: { type: String, default: null },
+        paidAt: { type: Date, default: null },
+        paymentExpiredAt: { type: Date, default: null },
         selectedServices: { type: [bookingServiceSchema], default: [] },
         isPrivate: {
             type: Boolean,
