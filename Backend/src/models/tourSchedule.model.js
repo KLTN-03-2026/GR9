@@ -9,6 +9,12 @@ const tourScheduleSchema = new Schema(
             required: true,
         },
 
+        leadGuideServiceId: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+
         departureDate: {
             type: Date,
             required: true,

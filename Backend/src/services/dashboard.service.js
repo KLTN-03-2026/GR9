@@ -2,6 +2,7 @@ import AiTourRequest from "../models/aiTourRequest.model.js";
 import Booking from "../models/booking.model.js";
 import Review from "../models/review.model.js";
 import Tour from "../models/tour.model.js";
+import TourSchedule from "../models/tourSchedule.model.js";
 import User from "../models/user.model.js";
 import { throwError } from "../utils/throwError.js";
 
@@ -180,10 +181,19 @@ export const getGuideDashboard = async (guideId) => {
       throwError("Guide not found", 404, "GUIDE_NOT_FOUND");
     }
 
-    const assignedTours = await Tour.find({ leadGuideServiceId: guideId }).select(
-      "_id numberOfDay",
-    );
-    const tourIds = assignedTours.map((tour) => tour._id);
+    const assignedSchedules = await TourSchedule.find({
+      leadGuideServiceId: guideId,
+      status: { $ne: "CANCELLED" },
+    })
+      .populate("tourId", "_id numberOfDay")
+      .select("_id tourId departureDate");
+    const tourIdMap = new Map();
+    assignedSchedules.forEach((schedule) => {
+      const id = schedule.tourId?._id || schedule.tourId;
+      if (id) tourIdMap.set(String(id), id);
+    });
+    const tourIds = [...tourIdMap.values()];
+    const scheduleIds = assignedSchedules.map((schedule) => schedule._id);
 
     const reviewStats = await Review.aggregate([
       { $match: { tourId: { $in: tourIds } } },
@@ -197,7 +207,7 @@ export const getGuideDashboard = async (guideId) => {
     ]);
 
     const bookings = await Booking.find({
-      tourId: { $in: tourIds },
+      tourScheduleId: { $in: scheduleIds },
       status: { $nin: ["CANCELLED", "REFUNDED"] },
     })
       .populate("tourId", "numberOfDay")
@@ -224,7 +234,7 @@ export const getGuideDashboard = async (guideId) => {
       }
     });
 
-    const totalTours = assignedTours.length;
+    const totalTours = assignedSchedules.length;
     const completedTours = completedTourIds.size;
     const languages = parseLanguages(guide.language);
     const stats = reviewStats[0] || {};

@@ -3,6 +3,8 @@ import { authorize, protect } from "../middlewares/auth.middleware.js";
 import {
     createGuideController,
     deleteGuideByIdController,
+    getGuideAssignedToursController,
+    getAvailableGuidesController,
     getGuideDashboardController,
     getGuideLiveTrackingController,
     getGuideByIdController,
@@ -13,6 +15,7 @@ import {
 const router = express.Router();
 
 router.get("/dashboard", protect, authorize("GUIDE"), getGuideDashboardController);
+router.get("/assigned-tours", protect, authorize("GUIDE"), getGuideAssignedToursController);
 router.get("/live-tracking", protect, authorize("GUIDE"), getGuideLiveTrackingController);
 router.patch(
     "/live-tracking/:bookingId/activities/:activityId",
@@ -23,6 +26,7 @@ router.patch(
 
 router.use(protect, authorize("PROVIDER"));
 router.post("/", createGuideController);
+router.get("/available", getAvailableGuidesController);
 router.get("/", getGuidesController);
 router.get("/:id", getGuideByIdController);
 router.put("/:id", updateGuideByIdController);

@@ -5,7 +5,6 @@ import ManageToursTable from "./ManageToursTable";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getGuides } from "@/services/api/guide";
 import { getServices } from "@/services/api/service";
 import toast from "react-hot-toast";
 import { createTour, deleteTourById, updateTourById } from "@/services/api/tour";
@@ -24,7 +23,6 @@ const defaultTour = {
     availableServices: [],
     description: "",
     name: "",
-    leadGuideServiceId: "",
     type: "GROUP",
     scheduleType: "FIXED",
 };
@@ -46,7 +44,6 @@ const defaultDays = [
     },
 ];
 export default function ManageTours() {
-    const [guides, setGuides] = useState([]);
     const [loading, setLoading] = useState(false);
     const [tours, setTours] = useState([]);
     const [tour, setTour] = useState(defaultTour);
@@ -102,6 +99,7 @@ export default function ManageTours() {
             setLoading(true);
             const payload = {
                 ...tour,
+                leadGuideServiceId: undefined,
                 itineraries: mapDaysToItineraries(days),
             };
             const res = await createTour(payload);
@@ -136,6 +134,7 @@ export default function ManageTours() {
 
             const payload = {
                 ...tour,
+                leadGuideServiceId: undefined,
                 itineraries: mapDaysToItineraries(days),
             };
 
@@ -168,7 +167,7 @@ export default function ManageTours() {
             setLoading(false);
         }
     };
-    const handleEdit = (tour) => {
+    const handleEdit = async (tour) => {
         if (services.length === 0) {
             toast.error("Services chưa load xong");
             return;
@@ -223,7 +222,7 @@ export default function ManageTours() {
             setTours(res?.data?.data || []);
         } catch (err) {
             console.error(err);
-            toast.error("Failed to load tours");
+            toast.error(err?.response?.data?.message || "Failed to load tours");
         } finally {
             setLoadingTours(false);
         }
@@ -240,17 +239,8 @@ export default function ManageTours() {
             setLoading(false);
         }
     };
-    const loadGuides = async () => {
-        try {
-            const res = await getGuides();
-            setGuides(res?.data?.data || []);
-        } catch (err) {
-            console.error("Failed to load guides", err);
-        }
-    };
     useEffect(() => {
         loadServices();
-        loadGuides();
         loadTours();
     }, []);
     return (
@@ -310,7 +300,6 @@ export default function ManageTours() {
                 setTour={setTour}
                 services={services}
                 handleClick={editingTourId ? handleUpdateTour : handleCreateTour}
-                guides={guides}
                 days={days}
                 setDays={setDays}
                 loading={loading}

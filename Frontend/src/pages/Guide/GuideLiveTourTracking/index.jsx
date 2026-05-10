@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useSearchParams } from "react-router-dom";
 import GuideLiveTourTrackingFooterActions from "./GuideLiveTourTrackingFooterActions";
 import GuideLiveTourTrackingSidebar from "./GuideLiveTourTrackingSidebar";
 import GuideLiveTourTrackingTimeline from "./GuideLiveTourTrackingTimeline";
@@ -15,6 +16,7 @@ export default function GuideLiveTourTracking() {
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingActivityId, setUpdatingActivityId] = useState(null);
+  const [searchParams] = useSearchParams();
 
   const loadTracking = async (bookingId) => {
     setLoading(true);
@@ -30,8 +32,8 @@ export default function GuideLiveTourTracking() {
   };
 
   useEffect(() => {
-    loadTracking();
-  }, []);
+    loadTracking(searchParams.get("bookingId"));
+  }, [searchParams]);
 
   const handleUpdateActivityStatus = async (activityId, statusActivity) => {
     if (!tracking?.bookingId || !activityId) return;

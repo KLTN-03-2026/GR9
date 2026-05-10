@@ -28,7 +28,7 @@ export default function BookingTableSection({ bookings, loading, error }) {
   };
 
   const getGuideId = (booking) => {
-    const guide = booking.tourId?.leadGuideServiceId;
+    const guide = booking.tourScheduleId?.leadGuideServiceId || booking.tourId?.leadGuideServiceId;
     return typeof guide === "string" ? guide : guide?._id;
   };
 

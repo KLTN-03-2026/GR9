@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import Booking from "../models/booking.model.js";
 import Review from "../models/review.model.js";
 import Tour from "../models/tour.model.js";
+import TourSchedule from "../models/tourSchedule.model.js";
 import User from "../models/user.model.js";
 import { throwError } from "../utils/throwError.js";
 
@@ -45,17 +46,13 @@ const ensureReferences = async ({ tourId, GuideId, bookingId }, reviewerId) => {
     if (!GuideId) throwError("GuideId is required", 400, "GUIDE_ID_REQUIRED");
     if (!bookingId) throwError("bookingId is required", 400, "BOOKING_ID_REQUIRED");
 
-    const tour = await Tour.findById(tourId).select("_id leadGuideServiceId");
+    const tour = await Tour.findById(tourId).select("_id");
     if (!tour) throwError("Tour not found", 404, "TOUR_NOT_FOUND");
 
     const guide = await User.findOne({ _id: GuideId, role: "GUIDE" }).select("_id");
     if (!guide) throwError("Guide not found", 404, "GUIDE_NOT_FOUND");
 
-    if (tour.leadGuideServiceId && String(tour.leadGuideServiceId) !== String(GuideId)) {
-        throwError("Guide does not belong to this tour", 400, "GUIDE_NOT_MATCH_TOUR");
-    }
-
-    const booking = await Booking.findById(bookingId).select("_id travelerId tourId status");
+    const booking = await Booking.findById(bookingId).select("_id travelerId tourId tourScheduleId status");
     if (!booking) throwError("Booking not found", 404, "BOOKING_NOT_FOUND");
 
     if (String(booking.travelerId) !== String(reviewerId)) {
@@ -64,6 +61,16 @@ const ensureReferences = async ({ tourId, GuideId, bookingId }, reviewerId) => {
 
     if (String(booking.tourId) !== String(tourId)) {
         throwError("Booking does not belong to this tour", 400, "BOOKING_TOUR_MISMATCH");
+    }
+
+    const schedule = await TourSchedule.findOne({
+        _id: booking.tourScheduleId,
+        tourId,
+        leadGuideServiceId: GuideId,
+    }).select("_id");
+
+    if (!schedule) {
+        throwError("Guide does not belong to this tour schedule", 400, "GUIDE_NOT_MATCH_TOUR_SCHEDULE");
     }
 
     if (booking.status !== "CONFIRMED") {

@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import Booking from "../models/booking.model.js";
+import Image from "../models/image.model.js";
 import { throwError } from "../utils/throwError.js";
 
 const getFrontendUrl = () =>
@@ -40,6 +41,9 @@ const getTotalTravelers = (booking) =>
   (Number(booking.quantity?.infants) || 0);
 
 const getDocumentId = (value) => String(value?._id || value || "");
+
+const getBookingGuide = (booking) =>
+  booking.tourScheduleId?.leadGuideServiceId || null;
 
 const getActivityStatusMap = (booking) =>
   new Map(
@@ -205,9 +209,9 @@ const buildTrackingDetail = async (booking) => {
       avatarUrl: booking.travelerId?.avatarUrl || "",
     },
     guide: {
-      name: tour.leadGuideServiceId?.fullName || "Guide not assigned",
-      email: tour.leadGuideServiceId?.email || "",
-      avatarUrl: tour.leadGuideServiceId?.avatarUrl || "",
+      name: getBookingGuide(booking)?.fullName || "Guide not assigned",
+      email: getBookingGuide(booking)?.email || "",
+      avatarUrl: getBookingGuide(booking)?.avatarUrl || "",
     },
     group: {
       adults: Number(booking.quantity?.adults) || 0,
@@ -252,19 +256,21 @@ const getPaidTrackingBookings = (travelerId) =>
   Booking.find({ travelerId, payment: "PAID", status: { $ne: "CANCELLED" } })
     .populate({
       path: "tourId",
-      select: "name location description numberOfDay type itineraries leadGuideServiceId",
+      select: "name location description numberOfDay type itineraries",
       populate: [
         {
           path: "itineraries.activities.serviceId",
           select: "name type address description lat long",
         },
-        {
-          path: "leadGuideServiceId",
-          select: "fullName email avatarUrl",
-        },
       ],
     })
-    .populate("tourScheduleId")
+    .populate({
+      path: "tourScheduleId",
+      populate: {
+        path: "leadGuideServiceId",
+        select: "fullName email avatarUrl",
+      },
+    })
     .populate("travelerId", "fullName email avatarUrl")
     .sort({ paidAt: -1, createdAt: -1 });
 
@@ -331,19 +337,21 @@ export const getPublicTrackingByCode = async (trackingCode) => {
     })
       .populate({
         path: "tourId",
-        select: "name location description numberOfDay type itineraries leadGuideServiceId",
+        select: "name location description numberOfDay type itineraries",
         populate: [
           {
             path: "itineraries.activities.serviceId",
             select: "name type address description lat long",
           },
-          {
-            path: "leadGuideServiceId",
-            select: "fullName email avatarUrl",
-          },
         ],
       })
-      .populate("tourScheduleId")
+      .populate({
+        path: "tourScheduleId",
+        populate: {
+          path: "leadGuideServiceId",
+          select: "fullName email avatarUrl",
+        },
+      })
       .populate("travelerId", "fullName email avatarUrl");
 
     if (!booking) {
@@ -401,26 +409,145 @@ export const regenerateTrackingLink = async (travelerId, bookingId) => {
   }
 };
 
-const getGuideTrackingBookings = (guideId) =>
-  Booking.find({ payment: "PAID", status: { $ne: "CANCELLED" } })
+const getGuideTrackingBookings = async (guideId) => {
+  const bookings = await Booking.find({ payment: "PAID", status: { $ne: "CANCELLED" } })
     .populate({
       path: "tourId",
-      match: { leadGuideServiceId: guideId },
-      select: "name location description numberOfDay type itineraries leadGuideServiceId",
+      select: "name location description numberOfDay type itineraries",
       populate: [
         {
           path: "itineraries.activities.serviceId",
           select: "name type address description lat long",
         },
-        {
-          path: "leadGuideServiceId",
-          select: "fullName email avatarUrl",
-        },
       ],
     })
-    .populate("tourScheduleId")
+    .populate({
+      path: "tourScheduleId",
+      populate: {
+        path: "leadGuideServiceId",
+        select: "fullName email avatarUrl",
+      },
+    })
     .populate("travelerId", "fullName email avatarUrl phone")
     .sort({ paidAt: -1, createdAt: -1 });
+
+  return bookings.filter(
+    (booking) => getDocumentId(getBookingGuide(booking)) === getDocumentId(guideId),
+  );
+};
+
+const formatDateLabel = (value) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
+const getDateRangeLabel = (booking) => {
+  const start = new Date(getBookingStartDate(booking));
+  if (Number.isNaN(start.getTime())) return "No start date";
+
+  const end = addDays(start, (Number(booking.tourId?.numberOfDay) || 1) - 1);
+  const startLabel = formatDateLabel(start);
+  const endLabel = formatDateLabel(end);
+
+  return startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`;
+};
+
+const getGuideAssignedStatus = (booking) => {
+  const status = getBookingStatus(booking);
+  if (status === "upcoming") return "scheduled";
+  return status;
+};
+
+const buildAssignedTour = (booking, tourImage, listRole) => {
+  const tour = booking.tourId || {};
+  const startDate = toIsoDate(getBookingStartDate(booking));
+  const endDate = toIsoDate(
+    addDays(new Date(getBookingStartDate(booking)), (Number(tour.numberOfDay) || 1) - 1),
+  );
+  const imageUrl =
+    tourImage?.imageUrl ||
+    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=1200&q=80";
+
+  return {
+    id: String(booking._id),
+    bookingId: String(booking._id),
+    tourId: String(tour._id),
+    code: booking.orderCode ? `#${booking.orderCode}` : `#${String(booking._id).slice(-6)}`,
+    title: tour.name || "Unnamed tour",
+    status: getGuideAssignedStatus(booking),
+    listRole,
+    region: String(tour.location || "unknown").toLowerCase(),
+    heroImage: imageUrl,
+    cardImage: imageUrl,
+    pickup: tour.location || "No pickup location",
+    locationShortLabel: tour.location || "Unknown location",
+    guideName: getBookingGuide(booking)?.fullName || "You",
+    passengerCount: getTotalTravelers(booking),
+    dateRangeLabel: getDateRangeLabel(booking),
+    startDate,
+    endDate,
+    passengers: [
+      {
+        id: String(booking.travelerId?._id || booking.travelerId || ""),
+        name: booking.travelerId?.fullName || "Traveler",
+        avatar: booking.travelerId?.avatarUrl || "",
+        tags: [],
+      },
+    ],
+    activitiesCount:
+      tour.itineraries?.reduce((total, day) => total + (day.activities?.length || 0), 0) || 0,
+    progressStatus: booking.status,
+    trackingCode: booking.trackingShareCode || null,
+  };
+};
+
+export const getGuideAssignedTours = async (guideId) => {
+  try {
+    const bookings = (await getGuideTrackingBookings(guideId)).filter(
+      (booking) => booking.tourId,
+    );
+    const tourIds = bookings.map((booking) => booking.tourId?._id).filter(Boolean);
+    const images = await Image.find({
+      entityType: "TOUR",
+      entityId: { $in: tourIds },
+    }).lean();
+    const imageMap = new Map();
+
+    images.forEach((image) => {
+      const key = String(image.entityId);
+      if (!imageMap.has(key)) imageMap.set(key, image);
+    });
+
+    const orderedBookings = [...bookings].sort((a, b) => {
+      const statusOrder = { ongoing: 0, upcoming: 1, completed: 2 };
+      const aStatus = getBookingStatus(a);
+      const bStatus = getBookingStatus(b);
+      const statusDiff = (statusOrder[aStatus] ?? 9) - (statusOrder[bStatus] ?? 9);
+      if (statusDiff) return statusDiff;
+      return new Date(getBookingStartDate(a)) - new Date(getBookingStartDate(b));
+    });
+
+    return orderedBookings.map((booking, index) => {
+      const listRole = index === 0 ? "hero" : index <= 2 ? "sidebar" : "later";
+      return buildAssignedTour(
+        booking,
+        imageMap.get(String(booking.tourId?._id)),
+        listRole,
+      );
+    });
+  } catch (err) {
+    throwError(
+      err.message || "Cannot get guide assigned tours",
+      err.status || 500,
+      err.errorCode || "GET_GUIDE_ASSIGNED_TOURS_ERROR",
+    );
+  }
+};
 
 const toGuideLiveTracking = async (booking) => {
   const detail = await buildTrackingDetail(booking);
@@ -495,24 +622,28 @@ export const updateGuideActivityStatus = async (
       _id: bookingId,
       payment: "PAID",
       status: { $nin: ["CANCELLED", "REFUNDED"] },
-    }).populate({
-      path: "tourId",
-      select: "name location description numberOfDay type itineraries leadGuideServiceId",
-      populate: [
-        {
-          path: "itineraries.activities.serviceId",
-          select: "name type address description lat long",
-        },
-        {
+    })
+      .populate({
+        path: "tourId",
+        select: "name location description numberOfDay type itineraries",
+        populate: [
+          {
+            path: "itineraries.activities.serviceId",
+            select: "name type address description lat long",
+          },
+        ],
+      })
+      .populate({
+        path: "tourScheduleId",
+        populate: {
           path: "leadGuideServiceId",
           select: "fullName email avatarUrl",
         },
-      ],
-    });
+      });
 
     if (
       !booking ||
-      getDocumentId(booking.tourId?.leadGuideServiceId) !== getDocumentId(guideId)
+      getDocumentId(getBookingGuide(booking)) !== getDocumentId(guideId)
     ) {
       throwError("Live tracking tour not found", 404, "GUIDE_TRACKING_NOT_FOUND");
     }
@@ -562,19 +693,21 @@ export const updateGuideActivityStatus = async (
     const refreshedBooking = await Booking.findById(bookingId)
       .populate({
         path: "tourId",
-        select: "name location description numberOfDay type itineraries leadGuideServiceId",
+        select: "name location description numberOfDay type itineraries",
         populate: [
           {
             path: "itineraries.activities.serviceId",
             select: "name type address description lat long",
           },
-          {
-            path: "leadGuideServiceId",
-            select: "fullName email avatarUrl",
-          },
         ],
       })
-      .populate("tourScheduleId")
+      .populate({
+        path: "tourScheduleId",
+        populate: {
+          path: "leadGuideServiceId",
+          select: "fullName email avatarUrl",
+        },
+      })
       .populate("travelerId", "fullName email avatarUrl phone");
 
     return await toGuideLiveTracking(refreshedBooking);

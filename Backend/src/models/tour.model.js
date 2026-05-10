@@ -75,11 +75,6 @@ const tourSchema = new Schema(
                 },
             },
         ],
-        leadGuideServiceId: {
-            type: Schema.Types.ObjectId,
-            ref: "User",
-            default: null,
-        },
     },
     {
         timestamps: true,

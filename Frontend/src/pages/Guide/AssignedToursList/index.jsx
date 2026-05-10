@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -44,11 +45,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import {
-  GUIDE_ASSIGNED_TOURS,
-  filterToursBySegment,
-} from "@/data/guideAssignedTours";
 import PageHero from "@/components/shared/page-hero";
+import { getGuideAssignedTours } from "@/services/api/guide";
 
 const SEGMENTS = [
   { id: "all", label: "All" },
@@ -63,6 +61,37 @@ const STATUS_LABEL = {
   scheduled: "Scheduled",
   completed: "Completed",
 };
+
+function parseIso(d) {
+  const x = new Date(`${d}T12:00:00`);
+  return Number.isNaN(x.getTime()) ? null : x;
+}
+
+function isTourActiveOnDate(tour, now = new Date()) {
+  const s = parseIso(tour.startDate);
+  const e = parseIso(tour.endDate);
+  if (!s || !e) return false;
+  const start = new Date(s.getFullYear(), s.getMonth(), s.getDate()).getTime();
+  const end = new Date(e.getFullYear(), e.getMonth(), e.getDate()).getTime();
+  const t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  return t0 >= start && t0 <= end;
+}
+
+function filterToursBySegment(tours, segment, now = new Date()) {
+  if (segment === "all") return tours;
+  if (segment === "today") return tours.filter((t) => isTourActiveOnDate(t, now));
+  if (segment === "upcoming")
+    return tours.filter((t) => {
+      const s = parseIso(t.startDate);
+      if (!s) return false;
+      const start = new Date(s.getFullYear(), s.getMonth(), s.getDate()).getTime();
+      const t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      return t0 < start && t.status !== "completed";
+    });
+  if (segment === "ongoing") return tours.filter((t) => t.status === "ongoing");
+  if (segment === "completed") return tours.filter((t) => t.status === "completed");
+  return tours;
+}
 
 function statusBadgeClass(status) {
   if (status === "ongoing") return "bg-primary/90 text-on-primary border-0";
@@ -92,11 +121,22 @@ const AssignedToursList = () => {
   const [proposalTitle, setProposalTitle] = useState("");
   const [proposalRegion, setProposalRegion] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [assignedTours, setAssignedTours] = useState([]);
+  const [loadingTours, setLoadingTours] = useState(true);
+
+  useEffect(() => {
+    getGuideAssignedTours()
+      .then((response) => setAssignedTours(response.data.data || []))
+      .catch((error) =>
+        toast.error(error?.response?.data?.message || "Cannot load assigned tours"),
+      )
+      .finally(() => setLoadingTours(false));
+  }, []);
 
   const filtered = useMemo(() => {
-    let list = filterToursBySegment(GUIDE_ASSIGNED_TOURS, segment);
+    let list = filterToursBySegment(assignedTours, segment);
     if (filterRegion !== "all")
-      list = list.filter((t) => t.region === filterRegion);
+      list = list.filter((t) => String(t.region || "").includes(filterRegion));
     list = list.filter((t) => {
       if (t.status === "ongoing") return showOngoing;
       if (t.status === "scheduled") return showScheduled;
@@ -111,11 +151,12 @@ const AssignedToursList = () => {
     showOngoing,
     showScheduled,
     showCompleted,
+    assignedTours,
   ]);
 
   const activeFleetCount = useMemo(
-    () => GUIDE_ASSIGNED_TOURS.filter((t) => t.status === "ongoing").length,
-    [],
+    () => assignedTours.filter((t) => t.status === "ongoing").length,
+    [assignedTours],
   );
 
   const heroTour = useMemo(() => {
@@ -299,7 +340,9 @@ const AssignedToursList = () => {
       {!heroTour && (
         <Card className="border-dashed border-outline-variant/40 bg-surface-container-lowest/50 py-12 text-center ring-0">
           <CardContent className="text-on-surface-variant">
-            No tours match these filters. Try another tab or reset filters.
+            {loadingTours
+              ? "Loading assigned tours..."
+              : "No tours match these filters. Try another tab or reset filters."}
           </CardContent>
         </Card>
       )}
@@ -375,12 +418,20 @@ const AssignedToursList = () => {
                   <Button
                     size="lg"
                     className="rounded-xl px-8 py-3 font-bold shadow-lg shadow-primary/20"
+                    disabled={heroTour.status === "completed"}
                     asChild
                   >
-                    <Link to={`/guide/tour-detail-ops/${heroTour.id}`}>
-                      View Full Itinerary
-                      <ArrowRight className="size-4" />
-                    </Link>
+                    {heroTour.status === "completed" ? (
+                      <span>
+                        Completed
+                        <ArrowRight className="size-4" />
+                      </span>
+                    ) : (
+                      <Link to={`/guide/live-tour-tracking?bookingId=${heroTour.bookingId}`}>
+                        Open Live Tracking
+                        <ArrowRight className="size-4" />
+                      </Link>
+                    )}
                   </Button>
                 </div>
               </CardContent>
@@ -431,11 +482,16 @@ const AssignedToursList = () => {
                   <Button
                     variant="outline"
                     className="mt-6 w-full rounded-xl border-outline-variant/30 font-bold text-primary hover:bg-primary/5"
+                    disabled={t.status === "completed"}
                     asChild
                   >
-                    <Link to={`/guide/tour-detail-ops/${t.id}`}>
-                      View Details
-                    </Link>
+                    {t.status === "completed" ? (
+                      <span>Completed</span>
+                    ) : (
+                      <Link to={`/guide/live-tour-tracking?bookingId=${t.bookingId}`}>
+                        View Details
+                      </Link>
+                    )}
                   </Button>
                 </CardContent>
               </Card>
@@ -512,11 +568,16 @@ const AssignedToursList = () => {
                       <Button
                         variant="link"
                         className="h-auto p-0 text-xs font-semibold"
+                        disabled={t.status === "completed"}
                         asChild
                       >
-                        <Link to={`/guide/tour-detail-ops/${t.id}`}>
-                          Manage Tour
-                        </Link>
+                        {t.status === "completed" ? (
+                          <span>Completed</span>
+                        ) : (
+                          <Link to={`/guide/live-tour-tracking?bookingId=${t.bookingId}`}>
+                            Manage Tour
+                          </Link>
+                        )}
                       </Button>
                     </div>
                   </CardContent>

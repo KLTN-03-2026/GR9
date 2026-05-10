@@ -27,7 +27,7 @@ const TableGuide = ({ guides, handleUpdate, handleDelete }) => {
               Contact Info
             </TableHead>
             <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
-              Assigned Booking
+              Assignment
             </TableHead>
             <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
               Status
@@ -93,6 +93,9 @@ const TableGuide = ({ guides, handleUpdate, handleDelete }) => {
                     </p>
                     <p className="text-slate-500 text-xs mt-1">
                       {g.bookingCode}
+                    </p>
+                    <p className="text-slate-400 text-xs mt-1">
+                      {g.assignedTourCount || 0} tours · {g.activeBookingCount || 0} active bookings
                     </p>
                   </div>
                 </TableCell>
