@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowRight,
   CalendarDays,
@@ -8,6 +8,7 @@ import {
   Loader2,
   MapPin,
   Plus,
+  Search,
   Users,
 } from "lucide-react";
 
@@ -110,6 +111,8 @@ function sortTours(list, sortBy) {
 }
 
 const AssignedToursList = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get("search") || "");
   const [segment, setSegment] = useState("all");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [filterRegion, setFilterRegion] = useState("all");
@@ -133,8 +136,42 @@ const AssignedToursList = () => {
       .finally(() => setLoadingTours(false));
   }, []);
 
+  useEffect(() => {
+    const urlSearch = searchParams.get("search") || "";
+    setSearch((current) => (current === urlSearch ? current : urlSearch));
+  }, [searchParams]);
+
+  const handleSearchChange = (value) => {
+    setSearch(value);
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (value.trim()) {
+        next.set("search", value.trim());
+      } else {
+        next.delete("search");
+      }
+      return next;
+    }, { replace: true });
+  };
+
   const filtered = useMemo(() => {
     let list = filterToursBySegment(assignedTours, segment);
+    const keyword = search.trim().toLowerCase();
+    if (keyword) {
+      list = list.filter((tour) =>
+        [
+          tour.title,
+          tour.code,
+          tour.pickup,
+          tour.guideName,
+          tour.locationShortLabel,
+          tour.dateRangeLabel,
+          tour.status,
+        ]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(keyword)),
+      );
+    }
     if (filterRegion !== "all")
       list = list.filter((t) => String(t.region || "").includes(filterRegion));
     list = list.filter((t) => {
@@ -146,6 +183,7 @@ const AssignedToursList = () => {
     return sortTours(list, sortBy);
   }, [
     segment,
+    search,
     filterRegion,
     sortBy,
     showOngoing,
@@ -212,13 +250,24 @@ const AssignedToursList = () => {
         }
         description="Review assigned journeys, filter by schedule state, and move from planning to live operations without leaving the guide workspace."
         actions={
-          <Button
-            onClick={() => setProposeOpen(true)}
-            className="rounded-2xl bg-gradient-to-br from-primary to-primary-container px-6 py-3 font-bold text-on-primary shadow-lg shadow-primary/15"
-          >
-            <Plus className="size-4" />
-            Propose New Tour
-          </Button>
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+            <div className="relative w-full sm:w-[280px]">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-on-surface-variant" />
+              <Input
+                value={search}
+                onChange={(event) => handleSearchChange(event.target.value)}
+                placeholder="Search assigned tours..."
+                className="h-11 rounded-2xl border-outline-variant/30 bg-white pl-10"
+              />
+            </div>
+            <Button
+              onClick={() => setProposeOpen(true)}
+              className="rounded-2xl bg-gradient-to-br from-primary to-primary-container px-6 py-3 font-bold text-on-primary shadow-lg shadow-primary/15"
+            >
+              <Plus className="size-4" />
+              Propose New Tour
+            </Button>
+          </div>
         }
       />
 

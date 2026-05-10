@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { getProviderBookings } from "@/services/api/booking";
+import { useSearchParams } from "react-router-dom";
 
 const statusConfig = {
   PENDING: {
@@ -73,9 +74,13 @@ const formatTime = (value) => {
 };
 
 export default function ProviderBookingTable() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState(searchParams.get("search") || "");
+  const [tourFilter, setTourFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     const loadBookings = async () => {
@@ -94,24 +99,75 @@ export default function ProviderBookingTable() {
     loadBookings();
   }, []);
 
+  useEffect(() => {
+    const urlSearch = searchParams.get("search") || "";
+    setKeyword((current) => (current === urlSearch ? current : urlSearch));
+  }, [searchParams]);
+
+  const handleKeywordChange = (value) => {
+    setKeyword(value);
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (value.trim()) {
+        next.set("search", value.trim());
+      } else {
+        next.delete("search");
+      }
+      return next;
+    }, { replace: true });
+  };
+
   const filteredBookings = useMemo(() => {
     const q = keyword.trim().toLowerCase();
-    if (!q) return bookings;
+    return bookings.filter((booking) => {
+      const matchesSearch =
+        !q ||
+        [
+          booking.traveler?.name,
+          booking.traveler?.email,
+          booking.tour?.name,
+          booking.tour?.location,
+          booking.bookingCode,
+          booking.status,
+          booking.payment,
+        ]
+          .filter(Boolean)
+          .some((value) => String(value).toLowerCase().includes(q));
 
-    return bookings.filter((booking) =>
-      [
-        booking.traveler?.name,
-        booking.traveler?.email,
-        booking.tour?.name,
-        booking.tour?.location,
-        booking.bookingCode,
-        booking.status,
-        booking.payment,
-      ]
-        .filter(Boolean)
-        .some((value) => String(value).toLowerCase().includes(q)),
-    );
-  }, [bookings, keyword]);
+      const matchesTour =
+        tourFilter === "all" || String(booking.tour?.id) === tourFilter;
+      const bookingDate = booking.bookingDate ? new Date(booking.bookingDate) : null;
+      const matchesDate =
+        !dateFilter ||
+        (bookingDate &&
+          !Number.isNaN(bookingDate.getTime()) &&
+          bookingDate.toISOString().slice(0, 10) === dateFilter);
+      const displayStatus = getDisplayStatus(booking).label.toLowerCase();
+      const matchesStatus =
+        statusFilter === "all" ||
+        displayStatus.includes(statusFilter) ||
+        String(booking.status || "").toLowerCase() === statusFilter;
+
+      return matchesSearch && matchesTour && matchesDate && matchesStatus;
+    });
+  }, [bookings, keyword, tourFilter, dateFilter, statusFilter]);
+
+  const tourOptions = useMemo(() => {
+    const map = new Map();
+    bookings.forEach((booking) => {
+      if (booking.tour?.id && booking.tour?.name) {
+        map.set(booking.tour.id, booking.tour.name);
+      }
+    });
+    return [...map.entries()].map(([id, name]) => ({ id, name }));
+  }, [bookings]);
+
+  const resetFilters = () => {
+    setTourFilter("all");
+    setDateFilter("");
+    setStatusFilter("all");
+    handleKeywordChange("");
+  };
 
   return (
     <Card className="overflow-hidden rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_20px_40px_rgba(25,28,30,0.04)]">
@@ -130,14 +186,57 @@ export default function ProviderBookingTable() {
           </span>
         </div>
 
-        <div className="relative min-w-[140px] flex-1 md:min-w-[200px]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-on-surface-variant" />
+        <div className="grid gap-3 md:grid-cols-[1.4fr_1fr_1fr_1fr_auto] md:items-end">
+          <div className="relative min-w-[140px]">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-on-surface-variant" />
+            <Input
+              value={keyword}
+              onChange={(event) => handleKeywordChange(event.target.value)}
+              placeholder="Search tours, travelers, status..."
+              className="h-11 border-outline-variant/30 bg-surface-container-low pl-10"
+            />
+          </div>
+
+          <select
+            value={tourFilter}
+            onChange={(event) => setTourFilter(event.target.value)}
+            className="h-11 rounded-xl border border-outline-variant/30 bg-surface-container-low px-3 text-sm text-on-surface outline-none"
+          >
+            <option value="all">All tours</option>
+            {tourOptions.map((tour) => (
+              <option key={tour.id} value={tour.id}>
+                {tour.name}
+              </option>
+            ))}
+          </select>
+
           <Input
-            value={keyword}
-            onChange={(event) => setKeyword(event.target.value)}
-            placeholder="Search tours, travelers, status..."
-            className="h-11 border-outline-variant/30 bg-surface-container-low pl-10"
+            value={dateFilter}
+            onChange={(event) => setDateFilter(event.target.value)}
+            className="h-11 border-outline-variant/30 bg-surface-container-low"
+            type="date"
           />
+
+          <select
+            value={statusFilter}
+            onChange={(event) => setStatusFilter(event.target.value)}
+            className="h-11 rounded-xl border border-outline-variant/30 bg-surface-container-low px-3 text-sm text-on-surface outline-none"
+          >
+            <option value="all">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="refunded">Refunded</option>
+          </select>
+
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="h-11 rounded-xl border border-outline-variant/30 bg-white px-4 text-sm font-bold text-on-surface-variant hover:bg-surface-container-low"
+          >
+            Reset
+          </button>
         </div>
 
         <div className="overflow-hidden rounded-[1.5rem] border border-outline-variant/20">

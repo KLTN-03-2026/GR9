@@ -120,7 +120,7 @@ const isInTravelAiScope = (message) => {
 
 const buildCleanOutOfScopeAnswer = () =>
   [
-    "Mình chỉ hỗ trợ các câu hỏi liên quan đến Travel_AI, tour du lịch, booking, thanh toán, đánh giá, chính sách và Knowledge Base của hệ thống.",
+    "Mình chỉ hỗ trợ các câu hỏi liên quan đến Travel_AI, tour du lịch, đặt tour, thanh toán, đánh giá, chính sách và hướng dẫn sử dụng hệ thống.",
     "",
     "Bạn có thể hỏi mình ví dụ:",
     "- Gợi ý tour phù hợp cho gia đình",
@@ -261,8 +261,9 @@ const searchKbTool = async (message) => {
   } catch (error) {
     return [
       {
-        title: "KB unavailable",
-        content: error.message || "Knowledge Base is not available.",
+        title: "System information unavailable",
+        content:
+          "Hiện tại hệ thống chưa lấy được thông tin hướng dẫn. Vui lòng thử lại sau ít phút.",
         similarity: 0,
       },
     ];
@@ -396,6 +397,19 @@ const isGeminiQuotaError = (error) => {
   );
 };
 
+const isGeminiHighDemandError = (error) => {
+  const message = String(error?.message || "");
+  const status = error?.status || error?.code;
+
+  return (
+    status === 503 ||
+    message.includes('"code":503') ||
+    message.includes("UNAVAILABLE") ||
+    message.includes("high demand") ||
+    message.includes("try again later")
+  );
+};
+
 const formatMoney = (value) => {
   const amount = Number(value || 0);
   return amount > 0 ? `${amount.toLocaleString("vi-VN")} VND` : "Chưa có giá";
@@ -440,7 +454,9 @@ const buildCleanQuotaFallbackAnswer = (toolResults, tools = []) => {
 
   const kbDocs =
     shouldShowKb
-      ? toolResults.kb_search?.filter((doc) => doc.title !== "KB unavailable") ||
+      ? toolResults.kb_search?.filter(
+          (doc) => doc.title !== "System information unavailable",
+        ) ||
         []
       : [];
 
@@ -458,6 +474,18 @@ const buildCleanQuotaFallbackAnswer = (toolResults, tools = []) => {
   }
 
   return lines.join("\n");
+};
+
+const buildCleanHighDemandFallbackAnswer = (toolResults, tools = []) => {
+  const fallbackAnswer = buildCleanQuotaFallbackAnswer(toolResults, tools);
+
+  return [
+    "Voyager AI đang có nhiều yêu cầu cùng lúc nên phần tạo câu trả lời chi tiết tạm thời chưa ổn định. Bạn vui lòng thử lại sau ít phút.",
+    "",
+    fallbackAnswer,
+  ]
+    .filter(Boolean)
+    .join("\n");
 };
 
 export const askChatbotService = async (message, user = null, history = []) => {
@@ -541,6 +569,16 @@ ${effectiveMessage}
           sources: flattenSources(toolResults, tools),
           fallback: true,
           errorCode: "GEMINI_QUOTA_EXCEEDED",
+        };
+      }
+
+      if (isGeminiHighDemandError(error)) {
+        return {
+          answer: buildCleanHighDemandFallbackAnswer(toolResults, tools),
+          tools,
+          sources: flattenSources(toolResults, tools),
+          fallback: true,
+          errorCode: "GEMINI_HIGH_DEMAND",
         };
       }
 

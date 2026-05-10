@@ -11,6 +11,7 @@ import {
   updateAdminUserStatus,
 } from "@/services/api/admin";
 import toast from "react-hot-toast";
+import { useSearchParams } from "react-router-dom";
 
 const formatRole = (role) =>
   String(role || "TRAVELER")
@@ -32,6 +33,7 @@ const formatDate = (value) => {
 };
 
 const UserManagementPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [users, setUsers] = useState([]);
   const [pagination, setPagination] = useState({
     page: 1,
@@ -40,8 +42,10 @@ const UserManagementPage = () => {
     totalPages: 1,
   });
   const [filters, setFilters] = useState({
+    search: searchParams.get("search") || "",
     role: "all",
     status: "all",
+    dateRange: "all",
     page: 1,
     limit: 10,
   });
@@ -85,8 +89,28 @@ const UserManagementPage = () => {
     loadUsers();
   }, [loadUsers]);
 
+  useEffect(() => {
+    const urlSearch = searchParams.get("search") || "";
+    setFilters((current) =>
+      current.search === urlSearch
+        ? current
+        : { ...current, search: urlSearch, page: 1 },
+    );
+  }, [searchParams]);
+
   const handleFilterChange = (nextFilters) => {
     setFilters((current) => ({ ...current, ...nextFilters }));
+    if (Object.prototype.hasOwnProperty.call(nextFilters, "search")) {
+      setSearchParams((current) => {
+        const next = new URLSearchParams(current);
+        if (String(nextFilters.search || "").trim()) {
+          next.set("search", String(nextFilters.search).trim());
+        } else {
+          next.delete("search");
+        }
+        return next;
+      }, { replace: true });
+    }
   };
 
   const handlePageChange = (page) => {
