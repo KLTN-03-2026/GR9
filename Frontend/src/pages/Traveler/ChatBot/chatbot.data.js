@@ -26,3 +26,29 @@ export const chatbotProps = {
     },
   ],
 };
+
+export const landingChatbotProps = {
+  ...chatbotProps,
+  memoryKey: "voyager-ai-landing-chat-memory-v1",
+  guestMode: true,
+  guestLimit: 3,
+  guestCountKey: "voyager-ai-landing-guest-count-v1",
+  loginPath: "/login",
+  defaultMessages: [
+    {
+      id: "landing-welcome",
+      role: "assistant",
+      content:
+        "Chào bạn, tôi là Voyager AI. Bạn có **3 lượt hỏi miễn phí** để tìm hiểu nhanh về Travel_AI, tour, booking và các tính năng chính.",
+      sources: [],
+    },
+    {
+      id: "landing-insight",
+      role: "assistant",
+      content:
+        "Nếu muốn hỏi sâu hơn theo lịch sử đặt tour, tracking hoặc gợi ý cá nhân hóa, bạn cần đăng nhập tài khoản traveler.",
+      label: "Dành cho khách",
+      sources: [],
+    },
+  ],
+};

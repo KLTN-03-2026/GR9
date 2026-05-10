@@ -22,6 +22,26 @@ export const protect = async (req, res, next) => {
   }
 };
 
+export const optionalProtect = async (req, res, next) => {
+  try {
+    const authorization = req.header("Authorization");
+    if (!authorization?.startsWith("Bearer ")) {
+      return next();
+    }
+
+    const token = authorization.replace("Bearer ", "");
+    const decode = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    const user = await User.findById(decode.id).select("-password");
+    if (user) {
+      req.user = user;
+    }
+
+    return next();
+  } catch {
+    return next();
+  }
+};
+
 export const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
