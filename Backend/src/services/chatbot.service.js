@@ -12,6 +12,13 @@ const ai = new GoogleGenAI({
 });
 
 const normalizeText = (value) => String(value || "").toLowerCase();
+const normalizeForMatch = (value) =>
+  normalizeText(value)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const buildSearchTerms = (message) => {
@@ -76,6 +83,33 @@ const buildSearchTerms = (message) => {
   return [...terms].slice(0, 12);
 };
 
+const buildHistoryText = (history = []) => {
+  if (!Array.isArray(history)) return "";
+
+  return history.map((item) => String(item?.content || "")).join(" ");
+};
+
+const isTourFollowUp = (message, history = []) => {
+  const text = normalizeText(message);
+  const historyText = normalizeText(buildHistoryText(history));
+
+  const asksForMore =
+    /(còn|con|khác|khac|nữa|nua|thêm|them|tiếp|tiep|another|more|cái nào khác|cai nao khac|tour nào khác|tour nao khac)/i.test(
+      text,
+    );
+  const previousWasTour =
+    /(tour|gợi ý|goi y|địa điểm|dia diem|gia đình|gia dinh|nha trang|đà nẵng|da nang|hội an|hoi an|hà nội|ha noi|sa pa|sapa|hạ long|ha long|huế|hue|đà lạt|da lat|phú quốc|phu quoc)/i.test(
+      historyText,
+    );
+
+  return asksForMore && previousWasTour;
+};
+
+const buildEffectiveMessage = (message, history = []) =>
+  isTourFollowUp(message, history)
+    ? `${message} - goi y them cac tour phu hop cho gia dinh`
+    : message;
+
 const isInTravelAiScope = (message) => {
   const text = normalizeText(message);
   const scopePattern =
@@ -84,7 +118,7 @@ const isInTravelAiScope = (message) => {
   return scopePattern.test(text);
 };
 
-const buildOutOfScopeAnswer = () =>
+const buildCleanOutOfScopeAnswer = () =>
   [
     "Mình chỉ hỗ trợ các câu hỏi liên quan đến Travel_AI, tour du lịch, booking, thanh toán, đánh giá, chính sách và Knowledge Base của hệ thống.",
     "",
@@ -112,16 +146,29 @@ const chooseTools = (message) => {
 
   const tools = new Set();
 
-  if (asksPolicyOrIntro || !asksTour) tools.add("kb_search");
   if (asksTour) tools.add("database_tours");
   if (asksBooking) tools.add("database_bookings");
+  if (!asksTour && asksPolicyOrIntro) tools.add("kb_search");
   if (tools.size === 0) tools.add("kb_search");
 
   return [...tools];
 };
 
-const searchToursTool = async (message) => {
+const hasTourAppearedInHistory = (tour, historyText) => {
+  const normalizedHistory = normalizeForMatch(historyText);
+  const normalizedName = normalizeForMatch(tour.name);
+  const normalizedLocation = normalizeForMatch(tour.location);
+
+  return (
+    (normalizedName.length >= 4 && normalizedHistory.includes(normalizedName)) ||
+    (normalizedLocation.length >= 3 &&
+      normalizedHistory.includes(normalizedLocation))
+  );
+};
+
+const searchToursTool = async (message, options = {}) => {
   const searchTerms = buildSearchTerms(message);
+  const historyText = buildHistoryText(options.history);
   const filter = {
     isActive: true,
   };
@@ -140,21 +187,37 @@ const searchToursTool = async (message) => {
     ];
   }
 
-  let tours = await Tour.find(filter)
-    .populate("leadDuideServiceId", "fullName email specialty")
-    .sort({ createdAt: -1 })
-    .limit(6)
-    .lean();
-
-  if (tours.length === 0 && searchTerms.length > 0) {
-    tours = await Tour.find({ isActive: true })
+  const queryTours = (mongoFilter, limit = 18) =>
+    Tour.find(mongoFilter)
       .populate("leadDuideServiceId", "fullName email specialty")
       .sort({ createdAt: -1 })
-      .limit(6)
+      .limit(limit)
       .lean();
+
+  let tours = await queryTours(filter);
+
+  if (tours.length === 0 && searchTerms.length > 0) {
+    tours = await queryTours({ isActive: true });
   }
 
-  return tours.map((tour) => ({
+  if (options.excludeSeenTours && historyText) {
+    let unseenTours = tours.filter(
+      (tour) => !hasTourAppearedInHistory(tour, historyText),
+    );
+
+    if (unseenTours.length < 3) {
+      const allTours = await queryTours({ isActive: true }, 30);
+      unseenTours = allTours.filter(
+        (tour) => !hasTourAppearedInHistory(tour, historyText),
+      );
+    }
+
+    if (unseenTours.length > 0) {
+      tours = unseenTours;
+    }
+  }
+
+  return tours.slice(0, 6).map((tour) => ({
     id: String(tour._id),
     name: tour.name,
     location: tour.location,
@@ -207,7 +270,7 @@ const searchKbTool = async (message) => {
   }
 };
 
-const runTools = async (tools, message, user) => {
+const runTools = async (tools, message, user, options = {}) => {
   const results = {};
 
   if (tools.includes("kb_search")) {
@@ -215,7 +278,7 @@ const runTools = async (tools, message, user) => {
   }
 
   if (tools.includes("database_tours")) {
-    results.database_tours = await searchToursTool(message);
+    results.database_tours = await searchToursTool(message, options);
   }
 
   if (tools.includes("database_bookings")) {
@@ -274,14 +337,18 @@ Departure: ${booking.departureDate || "Not scheduled"}`,
   return sections.join("\n\n---\n\n");
 };
 
-const flattenSources = (toolResults) => {
+const flattenSources = (toolResults, tools = []) => {
+  const shouldShowKbSources =
+    tools.includes("kb_search") && !tools.includes("database_tours");
   const kbSources =
-    toolResults.kb_search?.map((doc) => ({
-      id: doc.id,
-      title: doc.title,
-      type: "kb",
-      similarity: doc.similarity,
-    })) || [];
+    shouldShowKbSources && toolResults.kb_search
+      ? toolResults.kb_search.map((doc) => ({
+          id: doc.id,
+          title: doc.title,
+          type: "kb",
+          similarity: doc.similarity,
+        }))
+      : [];
 
   const tourSources =
     toolResults.database_tours?.map((tour) => ({
@@ -335,25 +402,33 @@ const formatMoney = (value) => {
   return amount > 0 ? `${amount.toLocaleString("vi-VN")} VND` : "Chưa có giá";
 };
 
-const buildQuotaFallbackAnswer = (toolResults) => {
-  const lines = [
-    "Mình đang trả lời nhanh dựa trên dữ liệu hiện có trong hệ thống Travel_AI.",
-  ];
+const buildCleanQuotaFallbackAnswer = (toolResults, tools = []) => {
+  const lines = [];
+  const hasTourResults = toolResults.database_tours?.length > 0;
+  const hasBookingResults = toolResults.database_bookings?.length > 0;
+  const shouldShowKb =
+    tools.includes("kb_search") && !tools.includes("database_tours");
 
-  if (toolResults.database_tours?.length) {
-    lines.push("", "**Tour phù hợp bạn có thể tham khảo:**");
+  if (hasTourResults) {
+    lines.push("Mình tìm được một số tour phù hợp trong hệ thống Travel_AI:");
     toolResults.database_tours.slice(0, 5).forEach((tour, index) => {
       lines.push(
+        "",
         `${index + 1}. **${tour.name || "Tour"}**`,
         `   - Địa điểm: ${tour.location || "Chưa cập nhật"}`,
         `   - Thời lượng: ${tour.numberOfDay || "?"} ngày`,
-        `   - Giá người lớn: ${formatMoney(tour.price?.adult)}`,
+        `   - Giá tour cơ bản người lớn: ${formatMoney(tour.price?.adult)}`,
         `   - Hướng dẫn viên: ${tour.guideName || "Chưa phân công"}`,
       );
     });
+
+    lines.push(
+      "",
+      "Lưu ý: giá trên là giá tour cơ bản. Khách sạn, xe đưa đón hoặc dịch vụ thêm sẽ được tính theo lựa chọn khi đặt tour.",
+    );
   }
 
-  if (toolResults.database_bookings?.length) {
+  if (hasBookingResults) {
     lines.push("", "**Booking gần đây của bạn:**");
     toolResults.database_bookings.slice(0, 3).forEach((booking, index) => {
       lines.push(
@@ -365,8 +440,10 @@ const buildQuotaFallbackAnswer = (toolResults) => {
   }
 
   const kbDocs =
-    toolResults.kb_search?.filter((doc) => doc.title !== "KB unavailable") ||
-    [];
+    shouldShowKb
+      ? toolResults.kb_search?.filter((doc) => doc.title !== "KB unavailable") ||
+        []
+      : [];
 
   if (kbDocs.length) {
     lines.push("", "**Thông tin liên quan:**");
@@ -375,21 +452,12 @@ const buildQuotaFallbackAnswer = (toolResults) => {
     });
   }
 
-  if (
-    !toolResults.database_tours?.length &&
-    !toolResults.database_bookings?.length &&
-    !kbDocs.length
-  ) {
+  if (!hasTourResults && !hasBookingResults && !kbDocs.length) {
     lines.push(
-      "",
       "Hiện hệ thống chưa có đủ dữ liệu phù hợp để trả lời câu hỏi này.",
     );
   }
 
-  lines.push(
-    "",
-    "Nếu bạn muốn mình phân tích chi tiết hơn, hãy thử hỏi lại sau một lúc.",
-  );
   return lines.join("\n");
 };
 
@@ -399,9 +467,12 @@ export const askChatbotService = async (message, user = null, history = []) => {
       throwError("Message is required", 400, "MESSAGE_REQUIRED");
     }
 
-    if (!isInTravelAiScope(message)) {
+    const effectiveMessage = buildEffectiveMessage(message, history);
+    const isFollowUpTourQuestion = isTourFollowUp(message, history);
+
+    if (!isInTravelAiScope(effectiveMessage)) {
       return {
-        answer: buildOutOfScopeAnswer(),
+        answer: buildCleanOutOfScopeAnswer(),
         tools: [],
         sources: [],
         refused: true,
@@ -409,8 +480,11 @@ export const askChatbotService = async (message, user = null, history = []) => {
       };
     }
 
-    const tools = chooseTools(message);
-    const toolResults = await runTools(tools, message, user);
+    const tools = chooseTools(effectiveMessage);
+    const toolResults = await runTools(tools, effectiveMessage, user, {
+      history,
+      excludeSeenTours: isFollowUpTourQuestion,
+    });
     const context = formatToolResults(toolResults);
     const memoryContext = formatMemoryWindow(history);
 
@@ -435,6 +509,8 @@ Quy tắc:
 Memory rule:
 - Use Conversation Memory Window only to understand follow-up questions.
 - If Conversation Memory Window conflicts with Tool Results, trust Tool Results.
+- If the user asks for more/other tours, suggest different tours from Tool Results and do not repeat tours or destinations already mentioned in Conversation Memory Window.
+- When suggesting tours, show 3 to 5 options when available and include the tour name, location, duration, adult base price, guide and short reason.
 
 Tools selected: ${tools.join(", ")}
 
@@ -446,6 +522,9 @@ ${context || "No tool results."}
 
 User question:
 ${message}
+
+Interpreted question:
+${effectiveMessage}
 `;
 
     let result;
@@ -458,9 +537,9 @@ ${message}
     } catch (error) {
       if (isGeminiQuotaError(error)) {
         return {
-          answer: buildQuotaFallbackAnswer(toolResults),
+          answer: buildCleanQuotaFallbackAnswer(toolResults, tools),
           tools,
-          sources: flattenSources(toolResults),
+          sources: flattenSources(toolResults, tools),
           fallback: true,
           errorCode: "GEMINI_QUOTA_EXCEEDED",
         };
@@ -472,7 +551,7 @@ ${message}
     return {
       answer: result.text,
       tools,
-      sources: flattenSources(toolResults),
+      sources: flattenSources(toolResults, tools),
     };
   } catch (error) {
     throwError(

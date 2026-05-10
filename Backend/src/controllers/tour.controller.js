@@ -22,10 +22,12 @@ export const createTourController = async (req, res) => {
 
 export const getAllTourController = async (req, res) => {
     try {
-        const { page = 1, limit = 10 } = req.query;
+        const { page = 1, limit = 9, search = "", sort = "popular" } = req.query;
         const tours = await getAllTourService({
             page: Number(page),
             limit: Number(limit),
+            search,
+            sort,
         });
         return success(res, "Get tours successfully", tours);
     } catch (err) {
