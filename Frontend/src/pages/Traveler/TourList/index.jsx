@@ -8,13 +8,15 @@ import { getAllTours } from "@/services/api/guest";
 import { formatPrice } from "@/utils/formatPrice";
 import TourListSkeleton from "./TourListSkeleton";
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE_OPTIONS = [9, 6];
 
 export default function TourList() {
     const [search, setSearch] = useState("");
     const [sortBy, setSortBy] = useState("popular");
+    const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
     const [tours, setTours] = useState([]);
     const [page, setPage] = useState(1);
+    const [totalTours, setTotalTours] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -35,13 +37,15 @@ export default function TourList() {
             try {
                 const res = await getAllTours({
                     page,
-                    limit: PAGE_SIZE,
+                    limit: pageSize,
                     search: debouncedSearch,
                     sort: sortBy,
                 });
 
-                setTours(res.data.data.docs || res.data.data || []);
-                setTotalPages(res.data.data.totalPages || 1);
+                const payload = res.data.data;
+                setTours(payload.docs || payload || []);
+                setTotalTours(payload.total || 0);
+                setTotalPages(payload.totalPages || 1);
             } catch (err) {
                 setError("Failed to load tours");
             } finally {
@@ -50,8 +54,14 @@ export default function TourList() {
         };
 
         fetch();
-    }, [page, sortBy, debouncedSearch]);
+    }, [page, pageSize, sortBy, debouncedSearch]);
     const filteredTours = useMemo(() => tours, [tours]);
+    const paginationPages = useMemo(
+        () => Array.from({ length: totalPages }, (_, index) => index + 1),
+        [totalPages],
+    );
+    const firstItem = totalTours === 0 ? 0 : (page - 1) * pageSize + 1;
+    const lastItem = Math.min(page * pageSize, totalTours);
 
     return (
         <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface">
@@ -79,7 +89,13 @@ export default function TourList() {
 
                             <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
                                 <span className="text-sm font-medium text-on-surface-variant">Sort by:</span>
-                                <Select value={sortBy} onValueChange={setSortBy}>
+                                <Select
+                                    value={sortBy}
+                                    onValueChange={(value) => {
+                                        setSortBy(value);
+                                        setPage(1);
+                                    }}
+                                >
                                     <SelectTrigger className="h-auto w-full rounded-xl bg-white px-4 py-2 text-slate-900 shadow-sm ring-1 ring-inset ring-outline-variant/10 sm:w-[280px]">
                                         <SelectValue placeholder="Most Popular" />
                                     </SelectTrigger>
@@ -87,6 +103,25 @@ export default function TourList() {
                                         <SelectItem value="popular">Most Popular</SelectItem>
                                         <SelectItem value="ratingHigh">Top Rated</SelectItem>
                                         <SelectItem value="priceLow">Price: Low to High</SelectItem>
+                                    </SelectContent>
+                                </Select>
+
+                                <Select
+                                    value={String(pageSize)}
+                                    onValueChange={(value) => {
+                                        setPageSize(Number(value));
+                                        setPage(1);
+                                    }}
+                                >
+                                    <SelectTrigger className="h-auto w-full rounded-xl bg-white px-4 py-2 text-slate-900 shadow-sm ring-1 ring-inset ring-outline-variant/10 sm:w-[150px]">
+                                        <SelectValue placeholder="9 / page" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {PAGE_SIZE_OPTIONS.map((option) => (
+                                            <SelectItem key={option} value={String(option)}>
+                                                {option} / page
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -108,7 +143,7 @@ export default function TourList() {
                                     <img
                                         alt={tour.name}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                        src={tour.images.imageUrl || tour.images?.[0]?.imageUrl || "/default-tour.jpg"}
+                                        src={tour.images?.imageUrl || tour.images?.[0]?.imageUrl || "/default-tour.jpg"}
                                     />
 
                                     <div className="absolute top-4 left-4">
@@ -179,55 +214,71 @@ export default function TourList() {
                                 </div>
                             </article>
                         ))}
-
-                        {/* AI Plan Card */}
-                        <article className="group relative bg-primary-container rounded-xl overflow-hidden shadow-lg p-8 flex flex-col justify-center text-on-primary-container">
-                            <div className="absolute -top-10 -right-10 h-40 w-40 bg-white/10 rounded-full blur-3xl" />
-                            <div className="relative z-10">
-                                <span className="material-symbols-outlined text-5xl mb-6">auto_awesome</span>
-                                <h3 className="text-2xl font-extrabold mb-4 leading-tight">
-                                    Can't find your perfect match?
-                                </h3>
-                                <p className="text-on-primary-container/80 text-sm mb-8 leading-relaxed">
-                                    Let our AI Concierge design a bespoke itinerary based on your unique travel style,
-                                    interests, and budget.
-                                </p>
-                                <Button
-                                    asChild
-                                    className="px-6 py-3 bg-white text-primary font-bold rounded-xl hover:shadow-xl hover:-translate-y-1 transition-all"
-                                >
-                                    <Link to="/traveler/ai-plan">Build Custom Trip</Link>
-                                </Button>
-                            </div>
-                        </article>
                     </div>
                 )}
 
+                {!loading && (
+                    <article className="mt-8 flex flex-col gap-6 overflow-hidden rounded-xl bg-primary-container p-8 text-on-primary-container shadow-lg md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <span className="material-symbols-outlined mb-4 text-5xl">auto_awesome</span>
+                            <h3 className="mb-3 text-2xl font-extrabold leading-tight">
+                                Can't find your perfect match?
+                            </h3>
+                            <p className="max-w-2xl text-sm leading-relaxed text-on-primary-container/80">
+                                Let our AI Concierge design a bespoke itinerary based on your unique travel style,
+                                interests, and budget.
+                            </p>
+                        </div>
+                        <Button
+                            asChild
+                            className="w-full rounded-xl bg-white px-6 py-3 font-bold text-primary transition-all hover:-translate-y-1 hover:shadow-xl md:w-auto"
+                        >
+                            <Link to="/traveler/ai-plan">Build Custom Trip</Link>
+                        </Button>
+                    </article>
+                )}
+
                 {/* Pagination */}
-                <div className="mt-20 flex flex-col items-center gap-6">
-                    <Button
-                        className="px-10 py-4 bg-surface-container-high text-on-surface font-bold rounded-xl hover:bg-outline-variant/20 transition-colors"
-                        onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-                        disabled={page >= totalPages}
-                    >
-                        Show More Adventures
-                    </Button>
+                <div className="mt-12 flex flex-col items-center gap-6">
+                    <p className="text-sm font-semibold text-on-surface-variant">
+                        Showing {firstItem}-{lastItem} of {totalTours} tours
+                    </p>
 
                     <div className="flex items-center gap-2">
-                        {Array.from({ length: totalPages }, (_, i) => (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="h-10 rounded-lg px-4 font-bold"
+                            onClick={() => setPage((current) => Math.max(current - 1, 1))}
+                            disabled={page <= 1}
+                        >
+                            Previous
+                        </Button>
+
+                        {paginationPages.map((pageNumber) => (
                             <button
-                                key={i}
+                                key={pageNumber}
                                 className={`h-10 w-10 flex items-center justify-center rounded-lg font-bold ${
-                                    page === i + 1
+                                    page === pageNumber
                                         ? "bg-primary text-on-primary"
                                         : "hover:bg-surface-container text-on-surface font-semibold"
                                 }`}
                                 type="button"
-                                onClick={() => setPage(i + 1)}
+                                onClick={() => setPage(pageNumber)}
                             >
-                                {i + 1}
+                                {pageNumber}
                             </button>
                         ))}
+
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="h-10 rounded-lg px-4 font-bold"
+                            onClick={() => setPage((current) => Math.min(current + 1, totalPages))}
+                            disabled={page >= totalPages}
+                        >
+                            Next
+                        </Button>
                     </div>
                 </div>
             </div>
