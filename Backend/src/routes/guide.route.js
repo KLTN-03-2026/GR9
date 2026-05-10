@@ -4,13 +4,22 @@ import {
     createGuideController,
     deleteGuideByIdController,
     getGuideDashboardController,
+    getGuideLiveTrackingController,
     getGuideByIdController,
     getGuidesController,
+    updateGuideActivityStatusController,
     updateGuideByIdController,
 } from "../controllers/guide.controller.js";
 const router = express.Router();
 
 router.get("/dashboard", protect, authorize("GUIDE"), getGuideDashboardController);
+router.get("/live-tracking", protect, authorize("GUIDE"), getGuideLiveTrackingController);
+router.patch(
+    "/live-tracking/:bookingId/activities/:activityId",
+    protect,
+    authorize("GUIDE"),
+    updateGuideActivityStatusController,
+);
 
 router.use(protect, authorize("PROVIDER"));
 router.post("/", createGuideController);

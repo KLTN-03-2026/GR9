@@ -227,11 +227,11 @@ export const loginUser = async (email, password, role) => {
   try {
     const normalizedEmail = normalizeEmail(email);
     const user = await User.findOne({ email: normalizedEmail });
-    if(user.role !== role) {
-      throw throwError("You are not allowed to login as this role", 403, "ROLE_NOT_ALLOWED");
-    }
     if (!user) {
-      throw throwError("User not found", 404, "USER_NOT_FOUND");
+      throw throwError("Sai email hoặc mật khẩu", 401, "INVALID_CREDENTIALS");
+    }
+    if (role && user.role !== role) {
+      throw throwError("Sai email hoặc mật khẩu", 401, "INVALID_CREDENTIALS");
     }
 
     if (!user.password && user.authType === "GOOGLE" ) {
@@ -251,7 +251,7 @@ export const loginUser = async (email, password, role) => {
     }
     const isPasswordMatch = await user.comparePassword(password);
     if (!isPasswordMatch) {
-      throw throwError("Sai mật khẩu", 401, "INVALID_PASSWORD");
+      throw throwError("Sai email hoặc mật khẩu", 401, "INVALID_CREDENTIALS");
     }
     const tokens = generateToken(user._id);
     user.refreshToken = tokens.refreshToken;

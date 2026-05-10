@@ -117,7 +117,7 @@ export default function DialogCreateTour({
     const hotelServices = tour.availableServices?.filter((s) => s.type === "HOTEL");
     const selectedTransport = getServiceByType("TRANSPORT");
     const transportServices = tour.availableServices?.filter((s) => s.type === "TRANSPORT");
-    const selectedGuide = guides.find((s) => s._id === tour.leadDuideServiceId);
+    const selectedGuide = guides.find((s) => s._id === tour.leadGuideServiceId);
     const handlePriceChange = (type, value) => {
         setTour((prev) => ({
             ...prev,
@@ -897,11 +897,11 @@ export default function DialogCreateTour({
 
                                         <CardContent className="space-y-5 px-6 pb-6">
                                             <Select
-                                                value={tour.leadDuideServiceId}
+                                                value={tour.leadGuideServiceId}
                                                 onValueChange={(value) =>
                                                     setTour((prev) => ({
                                                         ...prev,
-                                                        leadDuideServiceId: value,
+                                                        leadGuideServiceId: value,
                                                     }))
                                                 }
                                             >
@@ -1201,3 +1201,4 @@ export default function DialogCreateTour({
         </>
     );
 }
+

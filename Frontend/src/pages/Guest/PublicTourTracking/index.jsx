@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useSearchParams } from "react-router-dom";
-import { getPublicTracking } from "@/services/api/tracking";
+import { getGuestTracking } from "@/services/api/guest";
 import TourHeroCard from './TourHeroCard';
 import CurrentLocationMap from './CurrentLocationMap';
 import LatestUpdateBanner from './LatestUpdateBanner';
@@ -20,7 +20,7 @@ const PublicTourTracking = () => {
       return;
     }
 
-    getPublicTracking(trackingCode)
+    getGuestTracking(trackingCode)
       .then((response) => setTracking(response.data.data))
       .catch((error) =>
         toast.error(error?.response?.data?.message || "Không thể tải tracking public"),

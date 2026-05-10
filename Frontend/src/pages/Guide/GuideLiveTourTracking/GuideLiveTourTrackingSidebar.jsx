@@ -1,4 +1,5 @@
-import { Phone, Plus, Stethoscope, ZoomIn, ZoomOut } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Phone, Stethoscope } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -8,8 +9,69 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { geocodeAddress } from "@/services/api/location";
 
-export default function GuideLiveTourTrackingSidebar() {
+export default function GuideLiveTourTrackingSidebar({
+  tracking,
+  tours,
+  onSelectTour,
+}) {
+  const [mapQuery, setMapQuery] = useState("");
+  const activities = tracking?.today?.activities || [];
+  const activeActivity = useMemo(
+    () =>
+      activities.find((activity) => activity.state === "ongoing") ||
+      tracking?.progress?.nextActivity ||
+      activities.find((activity) => activity.address || activity.name) ||
+      null,
+    [activities, tracking],
+  );
+
+  useEffect(() => {
+    let ignore = false;
+
+    const resolveMap = async () => {
+      const query =
+        activeActivity?.address ||
+        [activeActivity?.name, tracking?.tour?.location].filter(Boolean).join(", ") ||
+        tracking?.tour?.location ||
+        "";
+
+      if (!query) {
+        setMapQuery("");
+        return;
+      }
+
+      if (activeActivity?.lat && activeActivity?.long) {
+        setMapQuery(`${activeActivity.lat},${activeActivity.long}`);
+        return;
+      }
+
+      try {
+        const response = await geocodeAddress(query);
+        const location = response.data?.data;
+
+        if (!ignore && location?.lat && location?.lng) {
+          setMapQuery(`${location.lat},${location.lng}`);
+        } else if (!ignore) {
+          setMapQuery(query);
+        }
+      } catch {
+        if (!ignore) setMapQuery(query);
+      }
+    };
+
+    resolveMap();
+
+    return () => {
+      ignore = true;
+    };
+  }, [activeActivity, tracking]);
+
+  const mapSrc = mapQuery
+    ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=15&output=embed`
+    : "";
+
   return (
     <div className="w-full space-y-6 md:w-[400px]">
       <Card className="overflow-hidden rounded-xl border border-outline-variant/10 py-0 shadow-sm">
@@ -18,34 +80,59 @@ export default function GuideLiveTourTrackingSidebar() {
             Live Tracking Map
           </CardTitle>
           <span className="rounded bg-teal-50 px-2 py-0.5 text-[10px] font-bold text-teal-600">
-            GPS ACTIVE
+            GOOGLE MAP
           </span>
         </CardHeader>
 
         <CardContent className="relative h-64 p-0">
-          <img
-            alt="Modern minimalist map interface showing a tropical island with a teal route line and a pulsing guide location marker"
-            className="h-full w-full object-cover grayscale-[0.2]"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZEiBR5evS2evQowx9eAJx1ypkkOToHcNRM6E24XelYO27Ep8Hup9QE51bAZ55hsusf0UmY8qW7Q-Ad8go_R9b5gT4tpmXDoP4hLyjmtBGzNwbm_c7GX-HITnRdfwIL0WhpqDfXEus4io7OY1S6ZwUV-5t7rhJcbDzFwlG_nAYXfz2PtgQWVeUK2exvHo7D8cjq1TR-cbLc-oPPapJwfoR1Dg0sUy69kSsKchQJPFQnhb82E4-VLgW3AzDQoTIPzweV5LfOYsjZvTG"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-primary/5" />
+          {mapSrc ? (
+            <iframe
+              title="Guide live tracking map"
+              className="h-full w-full border-0"
+              src={mapSrc}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-surface-container text-sm font-semibold text-on-surface-variant">
+              Map location is not available
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-          <div className="absolute right-4 top-4 flex flex-col gap-2 rounded-lg bg-white p-2 shadow-lg">
-            <Button
-              className="rounded-lg border border-transparent bg-surface-container-low shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/10 hover:bg-white hover:shadow-lg active:translate-y-0"
-              size="icon-sm"
-              variant="ghost"
-            >
-              <ZoomIn className="h-4 w-4" />
-            </Button>
-            <Button
-              className="rounded-lg border border-transparent bg-surface-container-low shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/10 hover:bg-white hover:shadow-lg active:translate-y-0"
-              size="icon-sm"
-              variant="ghost"
-            >
-              <ZoomOut className="h-4 w-4" />
-            </Button>
-          </div>
+      <Card className="rounded-xl border border-outline-variant/10 py-0 shadow-sm">
+        <CardHeader className="border-b border-outline-variant/10 px-4 py-4">
+          <CardTitle className="font-headline text-base font-bold text-on-surface">
+            Assigned Live Tours
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent className="space-y-3 p-4">
+          {tours?.length ? (
+            tours.map((tour) => (
+              <Button
+                key={tour.bookingId}
+                type="button"
+                variant="ghost"
+                onClick={() => onSelectTour(tour.bookingId)}
+                className={`h-auto w-full justify-start rounded-xl border px-4 py-3 text-left ${
+                  tour.bookingId === tracking?.bookingId
+                    ? "border-primary/20 bg-primary/8 text-primary"
+                    : "border-outline-variant/10 bg-surface-container-low text-on-surface"
+                }`}
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold">{tour.tourName}</p>
+                  <p className="mt-1 text-xs font-semibold text-on-surface-variant">
+                    {tour.travelerName} · {tour.groupTotal} guests · {tour.startDay}
+                  </p>
+                </div>
+              </Button>
+            ))
+          ) : (
+            <p className="text-sm text-on-surface-variant">No active assigned tours.</p>
+          )}
         </CardContent>
       </Card>
 
@@ -59,22 +146,25 @@ export default function GuideLiveTourTrackingSidebar() {
         <CardContent className="space-y-4 p-4">
           <div className="flex flex-wrap gap-2">
             <Button
-              className="rounded-full border border-transparent bg-secondary-container px-4 py-2 text-xs font-bold shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary/15 hover:bg-white hover:text-secondary hover:shadow-lg active:translate-y-0"
+              disabled
+              className="rounded-full border border-transparent bg-secondary-container px-4 py-2 text-xs font-bold"
               variant="ghost"
             >
               We are on the way
             </Button>
             <Button
-              className="rounded-full border border-transparent bg-secondary-container px-4 py-2 text-xs font-bold shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary/15 hover:bg-white hover:text-secondary hover:shadow-lg active:translate-y-0"
+              disabled
+              className="rounded-full border border-transparent bg-secondary-container px-4 py-2 text-xs font-bold"
               variant="ghost"
             >
-              Arrived at dock
+              Arrived at location
             </Button>
             <Button
-              className="rounded-full border border-transparent bg-secondary-container px-4 py-2 text-xs font-bold shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary/15 hover:bg-white hover:text-secondary hover:shadow-lg active:translate-y-0"
+              disabled
+              className="rounded-full border border-transparent bg-secondary-container px-4 py-2 text-xs font-bold"
               variant="ghost"
             >
-              Lunch is ready
+              Next activity updated
             </Button>
           </div>
 
@@ -103,7 +193,7 @@ export default function GuideLiveTourTrackingSidebar() {
                 </div>
 
                 <Button
-                  className="rounded-full border border-transparent bg-transparent text-error shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-error/10 hover:bg-white hover:shadow-lg active:translate-y-0"
+                  className="rounded-full border border-transparent bg-transparent text-error"
                   size="icon-sm"
                   variant="ghost"
                 >
@@ -122,13 +212,13 @@ export default function GuideLiveTourTrackingSidebar() {
                       Local Medical
                     </p>
                     <p className="text-[10px] font-medium text-on-surface-variant">
-                      +960 333-5335
+                      Emergency support
                     </p>
                   </div>
                 </div>
 
                 <Button
-                  className="rounded-full border border-transparent bg-transparent text-on-surface-variant shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/10 hover:bg-white hover:text-primary hover:shadow-lg active:translate-y-0"
+                  className="rounded-full border border-transparent bg-transparent text-on-surface-variant"
                   size="icon-sm"
                   variant="ghost"
                 >
