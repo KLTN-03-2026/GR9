@@ -190,6 +190,72 @@ export const getMyBookingsService = async (travelerId) => {
     });
 };
 
+export const getProviderBookingsService = async (providerId) => {
+    const bookings = await Booking.find({})
+        .populate("travelerId", "fullName email avatarUrl")
+        .populate({
+            path: "tourId",
+            match: { providerId },
+            select: "name location numberOfDay type providerId",
+        })
+        .populate({
+            path: "tourScheduleId",
+            select: "departureDate leadGuideServiceId",
+            populate: {
+                path: "leadGuideServiceId",
+                select: "fullName email avatarUrl",
+            },
+        })
+        .sort({ createdAt: -1 })
+        .lean();
+
+    return bookings
+        .filter((booking) => booking.tourId)
+        .map((booking) => ({
+            id: String(booking._id),
+            bookingCode: booking.orderCode ? `#${booking.orderCode}` : `#${String(booking._id).slice(-6)}`,
+            status: booking.status,
+            payment: booking.payment,
+            totalAmount: Number(booking.totalAmount) || 0,
+            quantity: booking.quantity,
+            totalTravelers:
+                (Number(booking.quantity?.adults) || 0) +
+                (Number(booking.quantity?.children) || 0) +
+                (Number(booking.quantity?.infants) || 0),
+            isPrivate: booking.isPrivate,
+            bookingDate: booking.bookingDate,
+            startDate: getBookingStartDate(booking),
+            paidAt: booking.paidAt,
+            traveler: {
+                id: String(booking.travelerId?._id || booking.travelerId || ""),
+                name: booking.travelerId?.fullName || "Traveler",
+                email: booking.travelerId?.email || "",
+                avatarUrl: booking.travelerId?.avatarUrl || "",
+            },
+            tour: {
+                id: String(booking.tourId?._id || ""),
+                name: booking.tourId?.name || "Unnamed tour",
+                location: booking.tourId?.location || "Unknown location",
+                numberOfDay: Number(booking.tourId?.numberOfDay) || 1,
+                type: booking.tourId?.type || "GROUP",
+            },
+            schedule: booking.tourScheduleId
+                ? {
+                      id: String(booking.tourScheduleId._id),
+                      departureDate: booking.tourScheduleId.departureDate,
+                  }
+                : null,
+            guide: booking.tourScheduleId?.leadGuideServiceId
+                ? {
+                      id: String(booking.tourScheduleId.leadGuideServiceId._id),
+                      name: booking.tourScheduleId.leadGuideServiceId.fullName || "",
+                      email: booking.tourScheduleId.leadGuideServiceId.email || "",
+                      avatarUrl: booking.tourScheduleId.leadGuideServiceId.avatarUrl || "",
+                  }
+                : null,
+        }));
+};
+
 export const getBookingSuccessService = async (travelerId, orderCode) => {
     const booking = await Booking.findOne({
         travelerId,

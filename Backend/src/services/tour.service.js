@@ -4,6 +4,7 @@ import { throwError } from "../utils/throwError.js";
 import { ensureProvider } from "../middlewares/authorizeProvider.js";
 import Image from "../models/image.model.js";
 import TourSchedule from "../models/tourSchedule.model.js";
+import Booking from "../models/booking.model.js";
 import cloudinary from "../config/cloudinary.js";
 
 const existUser = async (userId) => {
@@ -185,16 +186,55 @@ export const getToursByProvider = async (providerId) => {
         await ensureProvider(providerId);
 
         const tours = await Tour.find({ providerId }).populate("providerId", "name email");
+        const tourIds = tours.map((tour) => tour._id);
+        const bookings = await Booking.find({
+            tourId: { $in: tourIds },
+        })
+            .select("tourId status payment createdAt")
+            .sort({ createdAt: -1 })
+            .lean();
         const images = await Image.find({
             entityType: "TOUR",
-            entityId: { $in: tours.map((t) => t._id) },
+            entityId: { $in: tourIds },
         });
+        const bookingsByTour = new Map();
+
+        bookings.forEach((booking) => {
+            const key = String(booking.tourId);
+            const list = bookingsByTour.get(key) || [];
+            list.push(booking);
+            bookingsByTour.set(key, list);
+        });
+
+        const getBookingStatusSummary = (tourBookings = []) => {
+            if (!tourBookings.length) return "NO_BOOKING";
+            if (tourBookings.some((booking) => booking.status === "CONFIRMED" && booking.payment === "PAID")) {
+                return "CONFIRMED";
+            }
+            if (tourBookings.some((booking) => booking.status === "PENDING" || booking.payment !== "PAID")) {
+                return "PENDING";
+            }
+            if (tourBookings.every((booking) => booking.status === "COMPLETED")) {
+                return "COMPLETED";
+            }
+            if (tourBookings.every((booking) => booking.status === "CANCELLED")) {
+                return "CANCELLED";
+            }
+            if (tourBookings.some((booking) => booking.status === "COMPLETED")) {
+                return "COMPLETED";
+            }
+            return tourBookings[0]?.status || "NO_BOOKING";
+        };
+
         const toursWithImages = tours.map((tour) => {
             const tourImages = images.filter((img) => img.entityId.toString() === tour._id.toString());
+            const tourBookings = bookingsByTour.get(String(tour._id)) || [];
 
             return {
                 ...tour.toObject(),
                 images: tourImages,
+                bookingStatus: getBookingStatusSummary(tourBookings),
+                bookingCount: tourBookings.length,
             };
         });
         return toursWithImages;
