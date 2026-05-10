@@ -236,11 +236,11 @@ export default function ChatBotWidget({
 
       <div
         className={cn(
-          "fixed bottom-5 right-3 z-[80] w-[calc(100vw-1.5rem)] overflow-hidden rounded-2xl border border-slate-900/10 bg-white/95 shadow-[0_28px_80px_rgba(15,23,42,0.22)] backdrop-blur-2xl [animation:chatEnter_220ms_ease-out] md:bottom-6 md:right-6 md:w-[440px]",
-          minimized && "w-auto md:w-auto",
+          "fixed bottom-5 right-3 z-[80] flex h-[min(760px,calc(100dvh-2.5rem))] w-[calc(100vw-1.5rem)] flex-col overflow-hidden rounded-2xl border border-slate-900/10 bg-white/95 shadow-[0_28px_80px_rgba(15,23,42,0.22)] backdrop-blur-2xl [animation:chatEnter_220ms_ease-out] md:bottom-6 md:right-6 md:h-[min(760px,calc(100dvh-3rem))] md:w-[440px]",
+          minimized && "h-auto w-auto md:h-auto md:w-auto",
         )}
       >
-        <div className="relative overflow-hidden border-b border-teal-900/20 bg-gradient-to-r from-slate-950 via-teal-950 to-emerald-800 px-4 py-4 text-white">
+        <div className="relative shrink-0 overflow-hidden border-b border-teal-900/20 bg-gradient-to-r from-slate-950 via-teal-950 to-emerald-800 px-4 py-4 text-white">
           <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-teal-300/45 to-transparent" />
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
@@ -383,7 +383,7 @@ export default function ChatBotWidget({
               <div ref={scrollRef} />
             </div>
 
-            <div className="border-t border-slate-200/80 bg-white/85 p-4">
+            <div className="shrink-0 border-t border-slate-200/80 bg-white/85 p-4">
               {guestMode && guestQuestionCount >= guestLimit ? (
                 <div className="mb-3 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold leading-5 text-amber-800">
                   Bạn đã hết lượt hỏi miễn phí. Đăng nhập để tiếp tục dùng Voyager AI đầy đủ.

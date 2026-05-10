@@ -24,6 +24,7 @@ import EditTour from "./pages/Provider/EditTour";
 import GuideManagementProvider from "./pages/Provider/GuideManagementProvider";
 import ServiceManagement from "./pages/Provider/ServiceManagement";
 import ProviderBookingManagement from "./pages/Provider/ProviderBookingManagement";
+import AITourRequestDetail from "./pages/Provider/AITourRequestDetail";
 import GuideLiveTourTracking from "./pages/Guide/GuideLiveTourTracking";
 import PublicTourTracking from "./pages/Guest/PublicTourTracking";
 import AssignedToursList from "./pages/Guide/AssignedToursList";
@@ -106,6 +107,7 @@ function AppRoutes() {
                     <Route path="edit-tour" element={<EditTour />} />
                     <Route path="guide-management" element={<GuideManagementProvider />} />
                     <Route path="bookings-management" element={<ProviderBookingManagement />} />
+                    <Route path="ai-tour-requests/:id" element={<AITourRequestDetail />} />
                     <Route path="service-management" element={<ServiceManagement />} />
                     <Route path="profile" element={<ProviderProfile />} />
                     <Route path="*" element={<NotFound />} />

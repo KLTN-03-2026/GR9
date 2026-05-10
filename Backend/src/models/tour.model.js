@@ -75,6 +75,30 @@ const tourSchema = new Schema(
                 },
             },
         ],
+        sourceAiTourRequestId: {
+            type: Schema.Types.ObjectId,
+            ref: "AiTourRequest",
+            default: null,
+            index: true,
+        },
+        targetTravelerId: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            default: null,
+            index: true,
+        },
+        travelerApprovalStatus: {
+            type: String,
+            enum: ["PENDING", "APPROVED", "REJECTED"],
+            default: "APPROVED",
+            index: true,
+        },
+        bookingAccess: {
+            type: String,
+            enum: ["PUBLIC", "TARGET_TRAVELER_ONLY"],
+            default: "PUBLIC",
+            index: true,
+        },
     },
     {
         timestamps: true,

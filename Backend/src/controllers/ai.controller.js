@@ -1,8 +1,13 @@
 import {
   generateItinerary,
+  convertAiTourRequestToTour,
   getAiTourRequestById,
   getAiTourRequestHistory,
+  getProviderAiTourNotifications,
+  getProviderAiTourRequestById,
+  publishAiTourRequest,
   saveAiTourRequest,
+  updateTravelerAiProposalDecision,
 } from "../services/ai.service.js";
 import { error, success } from "../utils/response.js";
 
@@ -42,6 +47,56 @@ export const getAiTourRequestDetailController = async (req, res) => {
     }
 
     return success(res, "Get AI tour request detail successfully", request, 200);
+  } catch (err) {
+    return error(res, err.message, err.status, err.errorCode);
+  }
+};
+
+export const publishAiTourRequestController = async (req, res) => {
+  try {
+    const request = await publishAiTourRequest(req.params.id, req.user._id);
+    return success(res, "AI tour request sent to providers", request, 200);
+  } catch (err) {
+    return error(res, err.message, err.status, err.errorCode);
+  }
+};
+
+export const getProviderAiTourNotificationsController = async (req, res) => {
+  try {
+    const requests = await getProviderAiTourNotifications();
+    return success(res, "Get provider AI notifications successfully", requests, 200);
+  } catch (err) {
+    return error(res, err.message, err.status, err.errorCode);
+  }
+};
+
+export const getProviderAiTourRequestDetailController = async (req, res) => {
+  try {
+    const request = await getProviderAiTourRequestById(req.params.id, req.user._id);
+    return success(res, "Get provider AI request successfully", request, 200);
+  } catch (err) {
+    return error(res, err.message, err.status, err.errorCode);
+  }
+};
+
+export const convertAiTourRequestController = async (req, res) => {
+  try {
+    const result = await convertAiTourRequestToTour(req.params.id, req.user._id);
+    return success(res, "Create tour from AI request successfully", result, 201);
+  } catch (err) {
+    return error(res, err.message, err.status, err.errorCode);
+  }
+};
+
+export const updateTravelerAiProposalDecisionController = async (req, res) => {
+  try {
+    const request = await updateTravelerAiProposalDecision(
+      req.params.id,
+      req.user._id,
+      req.body?.decision,
+    );
+
+    return success(res, "Update AI proposal decision successfully", request, 200);
   } catch (err) {
     return error(res, err.message, err.status, err.errorCode);
   }

@@ -121,16 +121,33 @@ export const getAllTourService = async ({ page = 1, limit = 9, search = "", sort
         const pageLimit = Math.min(Math.max(Number(limit) || 9, 1), 50);
         const skip = (currentPage - 1) * pageLimit;
         const keyword = String(search || "").trim();
-        const filter = {};
+        const filter = {
+            $and: [
+                {
+                    $or: [
+                        { bookingAccess: "PUBLIC" },
+                        { bookingAccess: { $exists: false } },
+                    ],
+                },
+                {
+                    $or: [
+                        { travelerApprovalStatus: "APPROVED" },
+                        { travelerApprovalStatus: { $exists: false } },
+                    ],
+                },
+            ],
+        };
 
         if (keyword) {
             const keywordRegex = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
-            filter.$or = [
+            filter.$and.push({
+                $or: [
                 { name: keywordRegex },
                 { location: keywordRegex },
                 { description: keywordRegex },
                 { type: keywordRegex },
-            ];
+                ],
+            });
         }
 
         const sortMap = {

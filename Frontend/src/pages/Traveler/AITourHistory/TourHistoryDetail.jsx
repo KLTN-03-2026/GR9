@@ -1,6 +1,7 @@
-import { Hotel, MapPin, Route } from "lucide-react";
+import { CheckCircle2, Hotel, MapPin, Route, ShieldCheck, XCircle } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 function SummaryMetric({ label, value }) {
@@ -64,7 +65,14 @@ export default function TourHistoryDetail({
   formatDate,
   getTotal,
   totalActivities,
+  decisionLoading,
+  onDecision,
+  onViewProposal,
 }) {
+  const proposalTour = selectedTour?.convertedTourId;
+  const showProposalActions =
+    selectedTour?.status === "PROPOSED" && proposalTour?._id;
+
   return (
     <section className="min-h-[560px] rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
       {detailLoading ? (
@@ -73,11 +81,77 @@ export default function TourHistoryDetail({
         </div>
       ) : selectedTour ? (
         <div>
+          {proposalTour ? (
+            <Card className="mb-6 border-slate-200 shadow-none">
+              <CardContent className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <Badge variant={showProposalActions ? "warning" : "success"}>
+                      {selectedTour.status}
+                    </Badge>
+                    <Badge variant="outline">Provider Proposed Tour</Badge>
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-950">
+                    {proposalTour.name || proposalTour.location || "Tour proposal"}
+                  </h3>
+                  <p className="mt-1 text-sm text-slate-500">
+                    {showProposalActions
+                      ? "Provider đã dựng tour thật từ kế hoạch AI của bạn. Hãy xem và xác nhận trước khi booking."
+                      : selectedTour.status === "APPROVED"
+                        ? "Bạn đã đồng ý tour này. Chỉ tài khoản của bạn mới có thể booking."
+                        : "Tour đề xuất này hiện không còn chờ xác nhận."}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => onViewProposal?.(proposalTour._id)}
+                    className="rounded-xl"
+                  >
+                    Xem tour đề xuất
+                  </Button>
+
+                  {showProposalActions ? (
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={decisionLoading}
+                        onClick={() => onDecision?.("reject")}
+                        className="rounded-xl border-rose-200 text-rose-700 hover:bg-rose-50"
+                      >
+                        <XCircle className="h-4 w-4" />
+                        {decisionLoading ? "Đang xử lý..." : "Từ chối"}
+                      </Button>
+                      <Button
+                        type="button"
+                        disabled={decisionLoading}
+                        onClick={() => onDecision?.("approve")}
+                        className="rounded-xl bg-teal-600 font-semibold hover:bg-teal-700"
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                        {decisionLoading ? "Đang xử lý..." : "Đồng ý tour này"}
+                      </Button>
+                    </>
+                  ) : null}
+                </div>
+              </CardContent>
+            </Card>
+          ) : null}
+
           <div className="mb-6 flex flex-col gap-4 border-b border-slate-100 pb-6 xl:flex-row xl:items-start xl:justify-between">
             <div>
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <Badge variant="success">{selectedTour.status}</Badge>
                 <Badge variant="outline">{selectedTour.type}</Badge>
+                {proposalTour ? (
+                  <Badge variant={selectedTour.status === "APPROVED" ? "success" : "warning"}>
+                    <ShieldCheck className="mr-1 h-3 w-3" />
+                    {proposalTour.travelerApprovalStatus || "PENDING"}
+                  </Badge>
+                ) : null}
               </div>
               <h2 className="font-heading text-2xl font-bold text-slate-950">
                 {selectedTour.location || "Untitled destination"}
