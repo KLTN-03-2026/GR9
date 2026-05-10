@@ -1,14 +1,10 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { UploadCloud } from "lucide-react";
+import { FileText, UploadCloud, X } from "lucide-react";
 
 const UploadFile = ({ file, onFileChange }) => {
   const [fileName, setFileName] = useState(file?.name || "");
   const inputRef = useRef(null);
-
-  const handleSelectClick = () => {
-    inputRef.current?.click();
-  };
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files?.[0] || null;
@@ -16,8 +12,14 @@ const UploadFile = ({ file, onFileChange }) => {
     onFileChange?.(selectedFile);
   };
 
+  const clearFile = () => {
+    setFileName("");
+    onFileChange?.(null);
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
   return (
-    <div className="group relative border-2 border-dashed border-slate-200 rounded-2xl p-8 hover:bg-slate-50 hover:border-primary/40 transition-all text-center">
+    <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-6 transition hover:border-primary/40 hover:bg-teal-50/30">
       <input
         ref={inputRef}
         type="file"
@@ -25,21 +27,43 @@ const UploadFile = ({ file, onFileChange }) => {
         onChange={handleFileChange}
         className="hidden"
       />
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-          <UploadCloud className="text-primary w-6 h-6" />
+
+      <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            {fileName ? <FileText className="h-6 w-6" /> : <UploadCloud className="h-6 w-6" />}
+          </div>
+          <div>
+            <p className="text-base font-bold text-slate-900">
+              Giấy phép kinh doanh hoặc giấy tờ xác minh
+            </p>
+            <p className="mt-1 text-sm text-slate-500">
+              {fileName || "Tải lên PDF hoặc hình ảnh. Dung lượng tối đa 10MB."}
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="font-bold text-lg">Giấy phép kinh doanh</p>
-          <p className="text-sm text-muted-foreground">
-            {fileName
-              ? `Tệp đã chọn: ${fileName}`
-              : "Tải lên file PDF hoặc ảnh (Max 10MB)"}
-          </p>
+
+        <div className="flex gap-2">
+          {fileName ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-xl"
+              onClick={clearFile}
+            >
+              <X className="mr-2 h-4 w-4" />
+              Xoá
+            </Button>
+          ) : null}
+          <Button
+            type="button"
+            variant="secondary"
+            className="rounded-xl"
+            onClick={() => inputRef.current?.click()}
+          >
+            {fileName ? "Đổi tệp" : "Chọn tệp"}
+          </Button>
         </div>
-        <Button variant="secondary" size="sm" onClick={handleSelectClick}>
-          {fileName ? "Thay đổi tệp" : "Chọn tệp tin"}
-        </Button>
       </div>
     </div>
   );
