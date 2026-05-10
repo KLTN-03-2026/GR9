@@ -86,11 +86,14 @@ export const AuthContextProvider = ({ children }) => {
       persistUserSession(payload);
       toast.success("User logged in successfully");
 
-      if (payload?.user?.role === "PROVIDER" && payload?.user?.firstJoin) {
+      if (
+        ["PROVIDER", "GUIDE"].includes(payload?.user?.role) &&
+        payload?.user?.firstJoin
+      ) {
         navigate(
           `/first-join-password?email=${encodeURIComponent(
             String(payload?.user?.email || "").trim(),
-          )}`,
+          )}&role=${encodeURIComponent(payload?.user?.role || "")}`,
         );
       } else if (payload?.user?.role === "ADMIN") {
         navigate("/admin");
@@ -157,7 +160,20 @@ export const AuthContextProvider = ({ children }) => {
     try {
       const response = await firstJoinPassword(payload);
       toast.success(response?.data?.message || "Mật khẩu đã được cập nhật.");
-      navigate("/provider");
+
+      const storedSession = JSON.parse(localStorage.getItem("user") || "null");
+      const currentSession = storedSession || user;
+      const nextRole = currentSession?.user?.role;
+      const nextSession = {
+        ...currentSession,
+        user: {
+          ...(currentSession?.user || {}),
+          firstJoin: false,
+        },
+      };
+
+      persistUserSession(nextSession);
+      navigate(nextRole === "GUIDE" ? "/guide" : "/provider", { replace: true });
       return response.data.data;
     } catch (error) {
       toast.error(

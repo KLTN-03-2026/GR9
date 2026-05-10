@@ -47,3 +47,7 @@ export const updateGuideById = async (id, guide) => {
 export const deleteGuideById = async (id) => {
   return await api.delete(`/guide/${id}`);
 };
+
+export const sendGuidePassword = async (id) => {
+  return await api.post(`/guide/${id}/send-password`);
+};

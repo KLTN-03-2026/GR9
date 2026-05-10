@@ -65,6 +65,7 @@ export default function TourDetail() {
     const [tour, setTour] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [bookingSubmitting, setBookingSubmitting] = useState(false);
     const [isPrivate, setIsPrivate] = useState(false);
     const [reviews, setReviews] = useState([]);
     const resetBooking = () => {
@@ -125,7 +126,10 @@ export default function TourDetail() {
         setSelectedDate("");
     }, [isPrivate]);
     const handleBooking = async () => {
+        if (bookingSubmitting) return;
+
         try {
+            setBookingSubmitting(true);
             const payload = {
                 tourId: tour?._id,
                 tourScheduleId: selectedScheduleId,
@@ -139,8 +143,7 @@ export default function TourDetail() {
                 selectedServices,
                 startDate: selectedDate,
             };
-            console.log(payload);
-            
+
             const response = await createBooking(payload);
             const checkoutUrl = response.data.data?.payment?.checkoutUrl;
 
@@ -152,6 +155,8 @@ export default function TourDetail() {
             }
         } catch (err) {
             toast.error(err?.response?.data?.message || "Booking failed");
+        } finally {
+            setBookingSubmitting(false);
         }
     };
     const hotelOptions = useMemo(() => {
@@ -765,15 +770,15 @@ export default function TourDetail() {
 
                                         <button
                                             className={`w-full py-4 rounded-xl editorial-gradient text-white font-bold text-lg shadow-lg transition-all ${
-                                                !selectedScheduleId
+                                                !selectedScheduleId || bookingSubmitting
                                                     ? "opacity-50 cursor-not-allowed"
                                                     : "hover:scale-[1.02] active:scale-[0.98]"
                                             }`}
                                             type="button"
                                             onClick={handleBooking}
-                                            disabled={!selectedScheduleId}
+                                            disabled={!selectedScheduleId || bookingSubmitting}
                                         >
-                                            Confirm Booking
+                                            {bookingSubmitting ? "Creating payment..." : "Confirm Booking"}
                                         </button>
 
                                         <p className="text-center text-xs text-on-surface-variant px-4">

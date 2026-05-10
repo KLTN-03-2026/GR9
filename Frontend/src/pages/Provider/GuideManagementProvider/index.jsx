@@ -8,6 +8,7 @@ import {
   createGuide,
   deleteGuideById,
   getGuides,
+  sendGuidePassword,
   updateGuideById,
 } from "@/services/api/guide";
 import { uploadImagesApi } from "@/services/api/image";
@@ -24,8 +25,8 @@ const GuideManagementProvider = () => {
     () => [
       { label: "Total Guides", value: guides.length },
       {
-        label: "Active Now",
-        value: guides.filter((guide) => guide.isActive).length,
+        label: "Password Sent",
+        value: guides.filter((guide) => guide.hasPassword).length,
       },
       {
         label: "Assigned Tours",
@@ -48,6 +49,7 @@ const GuideManagementProvider = () => {
   const [isActive, setIsActive] = useState(true);
   const [gender, setGender] = useState("OTHER");
   const [loading, setLoading] = useState(false);
+  const [sendingPasswordId, setSendingPasswordId] = useState("");
   const [debounced, setDebounced] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [avatarFile, setAvatarFile] = useState(null);
@@ -164,6 +166,19 @@ const GuideManagementProvider = () => {
       setLoading(false);
       setOpenDelete(false);
       handleGetGuides();
+    }
+  };
+
+  const handleSendGuidePassword = async (id) => {
+    try {
+      setSendingPasswordId(id);
+      await sendGuidePassword(id);
+      toast.success("Đã gửi mật khẩu tạm thời cho guide qua email");
+      await handleGetGuides();
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Không thể gửi mật khẩu cho guide");
+    } finally {
+      setSendingPasswordId("");
     }
   };
 
@@ -287,6 +302,8 @@ const GuideManagementProvider = () => {
             guides={dataGuides}
             handleUpdate={handleUpdate}
             handleDelete={handleDelete}
+            handleSendPassword={handleSendGuidePassword}
+            sendingPasswordId={sendingPasswordId}
           />
         </div>
       </section>
