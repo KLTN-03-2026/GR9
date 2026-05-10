@@ -1,5 +1,9 @@
 import api from "./index";
 
+export const getProviderDashboard = async () => {
+  return await api.get("/provider/dashboard");
+};
+
 export const applyProvider = async (data) => {
   return await api.post("/provider/apply", data);
 };
