@@ -9,6 +9,7 @@ import {
     getGuideLiveTrackingController,
     getGuideByIdController,
     getGuidesController,
+    sendGuidePasswordController,
     updateGuideActivityStatusController,
     updateGuideByIdController,
 } from "../controllers/guide.controller.js";
@@ -28,6 +29,7 @@ router.use(protect, authorize("PROVIDER"));
 router.post("/", createGuideController);
 router.get("/available", getAvailableGuidesController);
 router.get("/", getGuidesController);
+router.post("/:id/send-password", sendGuidePasswordController);
 router.get("/:id", getGuideByIdController);
 router.put("/:id", updateGuideByIdController);
 router.delete("/:id", deleteGuideByIdController);

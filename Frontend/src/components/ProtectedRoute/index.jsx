@@ -58,6 +58,21 @@ export default function ProtectedRoute({ allowedRoles = [] }) {
     return <Navigate to={loginPath} replace state={{ from: location }} />;
   }
 
+  if (
+    ["PROVIDER", "GUIDE"].includes(role) &&
+    session?.user?.firstJoin &&
+    location.pathname !== "/first-join-password"
+  ) {
+    return (
+      <Navigate
+        to={`/first-join-password?email=${encodeURIComponent(
+          String(session?.user?.email || "").trim(),
+        )}&role=${encodeURIComponent(role)}`}
+        replace
+      />
+    );
+  }
+
   if (isForbidden) {
     return <Navigate to={fallbackPath} replace />;
   }

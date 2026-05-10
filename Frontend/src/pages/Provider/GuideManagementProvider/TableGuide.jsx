@@ -8,10 +8,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PencilLine, Search, Trash2 } from "lucide-react";
+import { KeyRound, MailCheck, PencilLine, Trash2 } from "lucide-react";
 import React from "react";
 
-const TableGuide = ({ guides, handleUpdate, handleDelete }) => {
+const TableGuide = ({
+  guides,
+  handleUpdate,
+  handleDelete,
+  handleSendPassword,
+  sendingPasswordId,
+}) => {
   if (!guides) return null;
   return (
     <div>
@@ -33,7 +39,7 @@ const TableGuide = ({ guides, handleUpdate, handleDelete }) => {
               Status
             </TableHead>
             <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
-              Active
+              Login Access
             </TableHead>
             <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">
               Actions
@@ -61,7 +67,7 @@ const TableGuide = ({ guides, handleUpdate, handleDelete }) => {
 
             return (
               <TableRow
-                key={g.id}
+                key={g._id}
                 className="hover:bg-slate-50 transition-colors"
               >
                 <TableCell className="px-6 py-5">
@@ -115,14 +121,36 @@ const TableGuide = ({ guides, handleUpdate, handleDelete }) => {
                   </span>
                 </TableCell>
                 <TableCell className="px-6 py-5">
-                  <span
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold capitalize ${activeClasses}`}
-                  >
-                    {g.isActive ? "Active" : "Inactive"}
-                  </span>
+                  <div className="flex min-w-[140px] flex-col items-start gap-2">
+                    <span
+                      className={`inline-flex min-w-[118px] items-center justify-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold capitalize ${activeClasses}`}
+                    >
+                      {g.isActive ? "Active" : "Inactive"}
+                    </span>
+                    <span
+                      className={`inline-flex min-w-[118px] items-center justify-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
+                        g.hasPassword
+                          ? "bg-teal-50 text-teal-700 border border-teal-200"
+                          : "bg-amber-50 text-amber-700 border border-amber-200"
+                      }`}
+                    >
+                      <KeyRound className="h-3.5 w-3.5" />
+                      {g.hasPassword ? "Password sent" : "No password"}
+                    </span>
+                  </div>
                 </TableCell>
                 <TableCell className="px-6 py-5 text-right">
                   <div className="flex items-center justify-end gap-2">
+                    <Button
+                      onClick={() => handleSendPassword(g._id)}
+                      variant="ghost"
+                      size="icon"
+                      disabled={sendingPasswordId === g._id}
+                      title={g.hasPassword ? "Resend guide password" : "Send guide password"}
+                      className="text-slate-500 hover:text-teal-700 bg-teal-50 hover:bg-teal-100 disabled:opacity-60"
+                    >
+                      <MailCheck className="size-4" />
+                    </Button>
                     <Button
                       onClick={() => handleUpdate(g._id)}
                       variant="ghost"

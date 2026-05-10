@@ -69,7 +69,6 @@ const userSchema = new Schema(
     emailVerifiedAt: { type: Date, default: null },
     address: { type: String, default: null },
     phone: { type: String, default: null },
-    supervisorId: { type: Schema.Types.ObjectId, ref: "User", default: null },
   },
   {
     timestamps: true,
