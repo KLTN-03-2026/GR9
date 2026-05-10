@@ -17,7 +17,6 @@ import {
     Focus,
     ImagePlus,
     Mountain,
-    ShieldCheck,
     Star,
     Sun,
     UtensilsCrossed,
@@ -36,7 +35,6 @@ export default function DialogCreateTour({
     tour,
     setTour,
     services,
-    guides,
     handleClick,
     loading,
     days,
@@ -117,7 +115,6 @@ export default function DialogCreateTour({
     const hotelServices = tour.availableServices?.filter((s) => s.type === "HOTEL");
     const selectedTransport = getServiceByType("TRANSPORT");
     const transportServices = tour.availableServices?.filter((s) => s.type === "TRANSPORT");
-    const selectedGuide = guides.find((s) => s._id === tour.leadGuideServiceId);
     const handlePriceChange = (type, value) => {
         setTour((prev) => ({
             ...prev,
@@ -879,71 +876,6 @@ export default function DialogCreateTour({
                                                 ) : (
                                                     <p className="text-sm text-slate-400">Chưa chọn phương tiện</p>
                                                 )}
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card className="rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
-                                        <CardHeader className="px-6 pt-6">
-                                            <div className="flex items-start justify-between">
-                                                <CardTitle className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
-                                                    Lead Guide
-                                                </CardTitle>
-
-                                                <span className="rounded-full bg-tertiary/10 px-3 py-1 text-[10px] font-bold text-tertiary">
-                                                    Assigned
-                                                </span>
-                                            </div>
-                                        </CardHeader>
-
-                                        <CardContent className="space-y-5 px-6 pb-6">
-                                            <Select
-                                                value={tour.leadGuideServiceId}
-                                                onValueChange={(value) =>
-                                                    setTour((prev) => ({
-                                                        ...prev,
-                                                        leadGuideServiceId: value,
-                                                    }))
-                                                }
-                                            >
-                                                <SelectTrigger className="h-12 rounded-2xl border-outline-variant/20 bg-surface-container-low px-4 text-sm font-semibold w-full">
-                                                    <SelectValue placeholder="Select lead guide" />
-                                                </SelectTrigger>
-
-                                                <SelectContent>
-                                                    {guides
-                                                        .filter((g) => g.role === "GUIDE")
-                                                        .map((g) => (
-                                                            <SelectItem key={g._id} value={g._id}>
-                                                                {g.fullName || g.email}
-                                                            </SelectItem>
-                                                        ))}
-                                                </SelectContent>
-                                            </Select>
-
-                                            <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-surface-container-low p-4 transition-all">
-                                                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-tertiary/10 text-tertiary">
-                                                    <ShieldCheck className="size-5" />
-                                                </div>
-
-                                                <div className="min-w-0 flex-1">
-                                                    {selectedGuide ? (
-                                                        <>
-                                                            <p className="truncate text-sm font-bold text-on-surface">
-                                                                {selectedGuide.fullName || selectedGuide.email}
-                                                            </p>
-
-                                                            <p className="text-xs text-slate-500 line-clamp-2">
-                                                                {selectedGuide.email}
-                                                            </p>
-
-                                                            <p className="mt-1 text-[11px] font-semibold text-tertiary">
-                                                                GUIDE • Certified
-                                                            </p>
-                                                        </>
-                                                    ) : (
-                                                        <p className="text-sm text-slate-400">Chưa chọn guide</p>
-                                                    )}
-                                                </div>
                                             </div>
                                         </CardContent>
                                     </Card>

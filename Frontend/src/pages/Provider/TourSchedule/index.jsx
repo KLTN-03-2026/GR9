@@ -73,7 +73,10 @@ export default function TourSchedulePage() {
             fetchSchedules();
         } catch (error) {
             console.error(error);
-            toast.error("Save failed");
+            toast.error(
+                error?.response?.data?.message ||
+                    "Không thể lưu lịch khởi hành. Vui lòng thử lại.",
+            );
         } finally {
             setIsSaving(false);
         }
@@ -129,6 +132,7 @@ export default function TourSchedulePage() {
                 onSubmit={handleSubmit}
                 loading={isSaving}
                 initialData={selectedSchedule}
+                tourId={tourId}
             />
         </section>
     );

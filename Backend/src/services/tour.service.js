@@ -3,6 +3,7 @@ import User from "../models/user.model.js";
 import { throwError } from "../utils/throwError.js";
 import { ensureProvider } from "../middlewares/authorizeProvider.js";
 import Image from "../models/image.model.js";
+import TourSchedule from "../models/tourSchedule.model.js";
 import cloudinary from "../config/cloudinary.js";
 
 const existUser = async (userId) => {
@@ -15,6 +16,7 @@ const existUser = async (userId) => {
 export const createTourService = async (payload, userId) => {
     try {
         await existUser(userId);
+        delete payload.leadGuideServiceId;
         const tour = await Tour.create({
             ...payload,
             providerId: userId,
@@ -37,6 +39,7 @@ export const updateTourService = async (tourId, payload, userId, files) => {
         if (!tour) {
             throwError("Tour not found or not authorized", 404, "TOUR_NOT_FOUND");
         }
+        delete payload.leadGuideServiceId;
         Object.assign(tour, payload);
         await tour.save();
         if (files && files.length > 0) {
@@ -74,7 +77,6 @@ export const deleteTourService = async (tourId, userId) => {
         throwError(err.message, err.status || 500, "DELETE_TOUR_ERROR");
     }
 };
-import TourSchedule from "../models/tourSchedule.model.js";
 
 export const getTourService = async (tourId) => {
     try {

@@ -105,16 +105,6 @@ export const generateItinerary = async (data) => {
             { "price": 0, "type": "INFANT" }
           ],
           "status": "ACTIVE"
-        },
-        "leadGuideServiceId": {
-          "name": "",
-          "type": "OTHER",
-          "address": "",
-          "long": 0,
-          "lat": 0,
-          "description": "",
-          "total": [{ "price": 0, "type": "ADULT" }],
-          "status": "ACTIVE"
         }
       }
     `;

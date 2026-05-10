@@ -1,6 +1,14 @@
-import { createGuide, deleteGuide, getGuides, updateGuide, getGuideById } from "../services/guide.service.js";
+import {
+    createGuide,
+    deleteGuide,
+    getAvailableGuides,
+    getGuides,
+    updateGuide,
+    getGuideById,
+} from "../services/guide.service.js";
 import { getGuideDashboard } from "../services/dashboard.service.js";
 import {
+    getGuideAssignedTours,
     getGuideLiveTracking,
     updateGuideActivityStatus,
 } from "../services/tracking.service.js";
@@ -13,6 +21,17 @@ export const getGuideDashboardController = async (req, res) => {
         const dashboard = await getGuideDashboard(userId);
 
         return success(res, "Get guide dashboard successfully", dashboard, 200);
+    } catch (err) {
+        return error(res, err.message, err.status, err.errorCode);
+    }
+};
+
+export const getGuideAssignedToursController = async (req, res) => {
+    try {
+        const userId = req.user?.id || req.user?._id;
+        const data = await getGuideAssignedTours(userId);
+
+        return success(res, "Get guide assigned tours successfully", data, 200);
     } catch (err) {
         return error(res, err.message, err.status, err.errorCode);
     }
@@ -63,6 +82,23 @@ export const getGuidesController = async (req, res) => {
         const guides = await getGuides(req.user.id);
         
         return success(res, "Lấy danh sách Guide", guides, 200);
+    } catch (err) {
+        return error(res, err.message, err.status, err.errorCode);
+    }
+};
+
+export const getAvailableGuidesController = async (req, res) => {
+    try {
+        const guides = await getAvailableGuides(req.user.id, {
+            startDate: req.query.startDate,
+            endDate: req.query.endDate,
+            tourId: req.query.tourId,
+            excludeTourId: req.query.excludeTourId,
+            excludeScheduleId: req.query.excludeScheduleId,
+            onlyAvailable: req.query.onlyAvailable === "true",
+        });
+
+        return success(res, "Lấy danh sách guide khả dụng", guides, 200);
     } catch (err) {
         return error(res, err.message, err.status, err.errorCode);
     }

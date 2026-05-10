@@ -76,7 +76,6 @@ export const searchKbDocumentsService = async (query, options = {}) => {
 export const ingestTourToKbService = async (tourId) => {
   const tour = await Tour.findById(tourId)
     .populate("providerId", "fullName email")
-    .populate("leadGuideServiceId", "fullName email specialty")
     .populate("availableServices.serviceId")
     .lean();
 
@@ -118,7 +117,6 @@ export const ingestTourToKbService = async (tourId) => {
       `Duration: ${tour.numberOfDay} days`,
       `Type: ${tour.type}`,
       `Description: ${tour.description || ""}`,
-      `Guide: ${tour.leadGuideServiceId?.fullName || ""}`,
       `Adult price: ${tour.price?.adult || 0}`,
       `Child price: ${tour.price?.child || 0}`,
       `Infant price: ${tour.price?.infant || 0}`,

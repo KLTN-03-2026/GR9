@@ -146,13 +146,15 @@ export const getMyBookingsService = async (travelerId) => {
     const bookings = await Booking.find({ travelerId, payment: "PAID" })
         .populate({
             path: "tourId",
-            select: "name location price numberOfDay leadGuideServiceId",
+            select: "name location price numberOfDay",
+        })
+        .populate({
+            path: "tourScheduleId",
             populate: {
                 path: "leadGuideServiceId",
                 select: "fullName email avatarUrl",
             },
         })
-        .populate("tourScheduleId")
         .sort({ createdAt: -1 })
         .lean();
 
@@ -197,13 +199,15 @@ export const getBookingSuccessService = async (travelerId, orderCode) => {
     })
         .populate({
             path: "tourId",
-            select: "name location description numberOfDay type leadGuideServiceId",
+            select: "name location description numberOfDay type",
+        })
+        .populate({
+            path: "tourScheduleId",
             populate: {
                 path: "leadGuideServiceId",
                 select: "fullName email avatarUrl",
             },
         })
-        .populate("tourScheduleId")
         .populate("travelerId", "fullName email avatarUrl")
         .lean(false);
 
@@ -219,6 +223,8 @@ export const getBookingSuccessService = async (travelerId, orderCode) => {
         entityType: "TOUR",
         entityId: booking.tourId?._id,
     }).lean();
+
+    const guide = booking.tourScheduleId?.leadGuideServiceId;
 
     return {
         bookingId: String(booking._id),
@@ -239,9 +245,9 @@ export const getBookingSuccessService = async (travelerId, orderCode) => {
             imageUrl: tourImage?.imageUrl || null,
         },
         guide: {
-            name: booking.tourId?.leadGuideServiceId?.fullName || "Guide not assigned",
-            email: booking.tourId?.leadGuideServiceId?.email || "",
-            avatarUrl: booking.tourId?.leadGuideServiceId?.avatarUrl || "",
+            name: guide?.fullName || "Guide not assigned",
+            email: guide?.email || "",
+            avatarUrl: guide?.avatarUrl || "",
         },
         traveler: {
             name: booking.travelerId?.fullName || "Traveler",
@@ -277,13 +283,15 @@ export const getGuestBookingSuccessService = async ({ orderCode, trackingCode })
     const booking = await Booking.findOne(query)
         .populate({
             path: "tourId",
-            select: "name location description numberOfDay type leadGuideServiceId",
+            select: "name location description numberOfDay type",
+        })
+        .populate({
+            path: "tourScheduleId",
             populate: {
                 path: "leadGuideServiceId",
                 select: "fullName avatarUrl",
             },
         })
-        .populate("tourScheduleId")
         .lean(false);
 
     if (!booking) {
@@ -300,6 +308,8 @@ export const getGuestBookingSuccessService = async ({ orderCode, trackingCode })
         entityType: "TOUR",
         entityId: booking.tourId?._id,
     }).lean();
+
+    const guide = booking.tourScheduleId?.leadGuideServiceId;
 
     return {
         bookingId: String(booking._id),
@@ -320,8 +330,8 @@ export const getGuestBookingSuccessService = async ({ orderCode, trackingCode })
             imageUrl: tourImage?.imageUrl || null,
         },
         guide: {
-            name: booking.tourId?.leadGuideServiceId?.fullName || "Guide not assigned",
-            avatarUrl: booking.tourId?.leadGuideServiceId?.avatarUrl || "",
+            name: guide?.fullName || "Guide not assigned",
+            avatarUrl: guide?.avatarUrl || "",
         },
         tracking: {
             code: trackingShareCode,
