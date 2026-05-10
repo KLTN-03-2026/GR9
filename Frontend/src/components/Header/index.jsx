@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Bell, ChevronDown, LogOut, Search, Sparkles, UserRound } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -248,6 +248,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logOutContext } = useContext(AuthContext);
+  const [globalSearch, setGlobalSearch] = useState("");
   const [aiNotifications, setAiNotifications] = useState([]);
   const currentRole =
     ["admin", "traveler", "guide", "provider"].find((role) =>
@@ -265,23 +266,65 @@ const Header = () => {
     title: resolveBreadcrumbTitle(location.pathname, baseMeta.title),
   };
 
+  const canSearchCurrentPage = SEARCHABLE_PATHS.some((path) =>
+    location.pathname.startsWith(path),
+  );
+
+  const targetSearchPath = useMemo(() => {
+    const intentPath = resolveSearchIntentPath(currentRole, globalSearch);
+    if (intentPath) return intentPath;
+    if (canSearchCurrentPage) return location.pathname;
+    return DEFAULT_SEARCH_PATHS[currentRole] || DEFAULT_SEARCH_PATHS.provider;
+  }, [canSearchCurrentPage, currentRole, globalSearch, location.pathname]);
+
   useEffect(() => {
-    const loadProviderNotifications = async () => {
-      if (user?.user?.role !== "PROVIDER") {
+    const params = new URLSearchParams(location.search);
+    setGlobalSearch(params.get("search") || "");
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    const loadAiNotifications = async () => {
+      if (currentRole !== "provider") {
         setAiNotifications([]);
         return;
       }
 
       try {
-        const res = await getProviderAiNotifications();
-        setAiNotifications(res?.data?.data || []);
-      } catch (error) {
-        console.error("Load AI notifications error:", error);
+        const response = await getProviderAiNotifications();
+        const payload = response?.data?.data ?? response?.data ?? [];
+        if (!ignore) {
+          setAiNotifications(Array.isArray(payload) ? payload : []);
+        }
+      } catch {
+        if (!ignore) {
+          setAiNotifications([]);
+        }
       }
     };
 
-    loadProviderNotifications();
-  }, [location.pathname, user?.user?.role]);
+    loadAiNotifications();
+
+    return () => {
+      ignore = true;
+    };
+  }, [currentRole]);
+
+  const handleGlobalSearch = (event) => {
+    event.preventDefault();
+    const keyword = globalSearch.trim();
+    const params = new URLSearchParams();
+
+    if (keyword) {
+      params.set("search", keyword);
+    }
+
+    navigate({
+      pathname: targetSearchPath,
+      search: params.toString(),
+    });
+  };
 
   return (
     <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b border-outline-variant/20 bg-white/92 px-7 backdrop-blur-md md:left-64">
