@@ -93,6 +93,7 @@ export default function DialogCreateTour({
             day.activities.forEach((act) => {
                 const service = services.find((s) => s._id === act.serviceId);
                 if (!service) return;
+                if (["HOTEL", "TRANSPORT"].includes(service.type)) return;
 
                 adult += service.total?.find((t) => t.type === "ADULT")?.price || 0;
                 child += service.total?.find((t) => t.type === "CHILD")?.price || 0;
@@ -101,24 +102,6 @@ export default function DialogCreateTour({
         });
 
         // 👉 ONLY default hotel + transport
-        const defaultServices = availableServices?.filter((s) => s.isDefault);
-
-        const defaultHotel = availableServices?.find((s) => s.type === "HOTEL" && s.isDefault);
-
-        const defaultTransport = availableServices?.find((s) => s.type === "TRANSPORT" && s.isDefault);
-
-        const defaultList = [defaultHotel, defaultTransport].filter(Boolean);
-
-        defaultList.forEach((s) => {
-            const service = services.find((ser) => ser._id === s.serviceId) || s.serviceData;
-
-            if (!service) return;
-
-            adult += service.total?.find((t) => t.type === "ADULT")?.price || 0;
-            child += service.total?.find((t) => t.type === "CHILD")?.price || 0;
-            infant += service.total?.find((t) => t.type === "INFANT")?.price || 0;
-        });
-
         return { adult, child, infant };
     };
     const getPrice = (service, type) => service?.serviceData?.total?.find((t) => t.type === type)?.price || 0;

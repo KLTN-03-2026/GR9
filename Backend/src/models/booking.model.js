@@ -21,6 +21,21 @@ const bookingServiceSchema = new Schema({
         type: Number,
         default: 0,
     },
+    quantity: {
+        type: Number,
+        default: 1,
+        min: 0,
+    },
+    nights: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
+    unitPrice: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
 
     isIncluded: {
         type: Boolean,
