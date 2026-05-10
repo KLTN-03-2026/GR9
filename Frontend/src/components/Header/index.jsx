@@ -1,6 +1,6 @@
-import React, { useContext } from "react";
-import { Bell, ChevronDown, LogOut, Search, UserRound } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { Bell, ChevronDown, LogOut, Search, Sparkles, UserRound } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import AuthContext from "@/context/authContext";
+import { getProviderAiNotifications } from "@/services/api/ai";
 
 const PAGE_META = {
   "/traveler": {
@@ -84,6 +85,10 @@ const ROUTE_TITLES = [
     title: "Bookings Management",
   },
   {
+    test: (p) => p.startsWith("/provider/ai-tour-requests"),
+    title: "AI Tour Request",
+  },
+  {
     test: (p) => p.startsWith("/provider/hotel-management"),
     title: "Hotels Management",
   },
@@ -134,7 +139,9 @@ function resolveBreadcrumbTitle(pathname, fallbackTitle) {
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, logOutContext } = useContext(AuthContext);
+  const [aiNotifications, setAiNotifications] = useState([]);
   const currentRole =
     ["admin", "traveler", "guide", "provider"].find((role) =>
       location.pathname.startsWith(`/${role}`),
@@ -150,6 +157,24 @@ const Header = () => {
     ...baseMeta,
     title: resolveBreadcrumbTitle(location.pathname, baseMeta.title),
   };
+
+  useEffect(() => {
+    const loadProviderNotifications = async () => {
+      if (user?.user?.role !== "PROVIDER") {
+        setAiNotifications([]);
+        return;
+      }
+
+      try {
+        const res = await getProviderAiNotifications();
+        setAiNotifications(res?.data?.data || []);
+      } catch (error) {
+        console.error("Load AI notifications error:", error);
+      }
+    };
+
+    loadProviderNotifications();
+  }, [location.pathname, user?.user?.role]);
 
   return (
     <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b border-outline-variant/20 bg-white/92 px-7 backdrop-blur-md md:left-64">
@@ -182,14 +207,59 @@ const Header = () => {
             />
           </div>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative h-10 w-10 rounded-full text-on-surface-variant hover:bg-surface-container-low"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-[11px] top-[10px] h-2 w-2 rounded-full bg-red-500" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative h-10 w-10 rounded-full text-on-surface-variant hover:bg-surface-container-low"
+              >
+                <Bell className="h-5 w-5" />
+                {aiNotifications.length ? (
+                  <span className="absolute right-1 top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                    {aiNotifications.length}
+                  </span>
+                ) : null}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-96 rounded-xl border-outline-variant/30 bg-white p-2 shadow-xl"
+            >
+              <div className="px-2 py-2">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+                  AI Tour Requests
+                </p>
+              </div>
+              {aiNotifications.length ? (
+                aiNotifications.slice(0, 6).map((item) => (
+                  <DropdownMenuItem
+                    key={item._id}
+                    onClick={() => navigate(`/provider/ai-tour-requests/${item._id}`)}
+                    className="cursor-pointer rounded-lg p-3"
+                  >
+                    <div className="flex min-w-0 gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <Sparkles className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-bold text-slate-900">
+                          {item.location || "AI generated tour"}
+                        </p>
+                        <p className="line-clamp-2 text-xs text-slate-500">
+                          {item.travelerId?.fullName || "Traveler"} gửi lịch trình {item.numberOfDay || 1} ngày
+                        </p>
+                      </div>
+                    </div>
+                  </DropdownMenuItem>
+                ))
+              ) : (
+                <div className="px-3 py-8 text-center text-sm text-slate-500">
+                  No new AI tour requests
+                </div>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

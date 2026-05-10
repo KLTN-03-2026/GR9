@@ -39,6 +39,12 @@ export default function TourHistoryList({
               </Badge>
             </div>
 
+            <div className="mb-3">
+              <Badge variant={tour.status === "APPROVED" ? "success" : tour.status === "PROPOSED" ? "warning" : "outline"}>
+                {tour.status}
+              </Badge>
+            </div>
+
             <div className="grid grid-cols-2 gap-2 text-xs text-slate-500">
               <span className="flex items-center gap-2">
                 <CalendarDays className="h-4 w-4 text-teal-600" />

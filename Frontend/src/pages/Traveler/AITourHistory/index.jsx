@@ -4,7 +4,11 @@ import { useNavigate } from "react-router-dom";
 
 import PageHero from "@/components/shared/page-hero";
 import { Button } from "@/components/ui/button";
-import { getAiTourHistory, getAiTourHistoryDetail } from "@/services/api/ai";
+import {
+  getAiTourHistory,
+  getAiTourHistoryDetail,
+  updateTravelerAiProposalDecision,
+} from "@/services/api/ai";
 import EmptyHistoryState from "./EmptyHistoryState";
 import TourHistoryDetail from "./TourHistoryDetail";
 import TourHistoryList from "./TourHistoryList";
@@ -15,6 +19,7 @@ export default function AITourHistory() {
   const [selectedTour, setSelectedTour] = useState(null);
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [decisionLoading, setDecisionLoading] = useState(false);
 
   const formatDate = (value) => {
     if (!value) return "No start date";
@@ -68,6 +73,39 @@ export default function AITourHistory() {
     navigate("/traveler/ai-travel-planner", {
       state: selectedTour ? { selectedTour } : null,
     });
+  };
+
+  const handleDecision = async (decision) => {
+    if (!selectedTour?._id) return;
+
+    try {
+      setDecisionLoading(true);
+      const response = await updateTravelerAiProposalDecision(selectedTour._id, decision);
+      const updated = response.data.data;
+
+      setSelectedTour(updated);
+      setHistory((prev) =>
+        prev.map((item) =>
+          item._id === updated._id
+            ? {
+                ...item,
+                status: updated.status,
+                convertedTourId: updated.convertedTourId,
+              }
+            : item,
+        ),
+      );
+
+      toast.success(
+        decision === "approve"
+          ? "Bạn đã đồng ý tour đề xuất từ provider"
+          : "Bạn đã từ chối tour đề xuất này",
+      );
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Không thể cập nhật quyết định");
+    } finally {
+      setDecisionLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -131,6 +169,9 @@ export default function AITourHistory() {
             formatDate={formatDate}
             getTotal={getTotal}
             totalActivities={getTotalActivities(selectedTour)}
+            decisionLoading={decisionLoading}
+            onDecision={handleDecision}
+            onViewProposal={(tourId) => navigate(`/traveler/tour-detail/${tourId}`)}
           />
         </div>
       )}

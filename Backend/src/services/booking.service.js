@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
 import Booking from "../models/booking.model.js";
+import Tour from "../models/tour.model.js";
 import TourSchedule from "../models/tourSchedule.model.js";
 import Image from "../models/image.model.js";
 import { ensureTrackingCode, getTrackingUrl } from "./tracking.service.js";
+import { throwError } from "../utils/throwError.js";
 
 const addDays = (date, days) =>
     new Date(date.getTime() + Math.max(Number(days) || 0, 0) * 86400000);
@@ -37,6 +39,31 @@ export const createBookingService = async (data) => {
         const totalPeople = (quantity?.adults || 0) + (quantity?.children || 0) + (quantity?.infants || 0);
 
         let schedule = null;
+        const tour = await Tour.findById(tourId)
+            .select("targetTravelerId travelerApprovalStatus bookingAccess")
+            .session(session);
+
+        if (!tour) {
+            throwError("Tour không tồn tại", 404, "TOUR_NOT_FOUND");
+        }
+
+        if (tour.bookingAccess === "TARGET_TRAVELER_ONLY") {
+            if (String(tour.targetTravelerId || "") !== String(travelerId)) {
+                throwError(
+                    "Tour này chỉ dành cho traveler đã gửi AI request",
+                    403,
+                    "BOOKING_TARGET_TRAVELER_ONLY",
+                );
+            }
+
+            if (tour.travelerApprovalStatus !== "APPROVED") {
+                throwError(
+                    "Traveler chưa xác nhận tour đề xuất này",
+                    400,
+                    "BOOKING_WAITING_TRAVELER_APPROVAL",
+                );
+            }
+        }
 
         // =========================
         // 🔥 GROUP BOOKING

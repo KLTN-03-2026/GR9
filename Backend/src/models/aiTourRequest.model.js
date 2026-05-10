@@ -132,10 +132,29 @@ const aiTourRequestSchema = new Schema(
     transportServiceId: { type: aiServiceSourceSchema, default: null },
     status: {
       type: String,
-      enum: ["DRAFT", "APPROVED", "REJECTED", "CONVERTED"],
+      enum: ["DRAFT", "PUBLISHED", "CLAIMED", "PROPOSED", "APPROVED", "REJECTED", "CONVERTED"],
       default: "DRAFT",
       index: true,
     },
+    publishedAt: { type: Date, default: null },
+    claimedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+      index: true,
+    },
+    claimedAt: { type: Date, default: null },
+    convertedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    convertedTourId: {
+      type: Schema.Types.ObjectId,
+      ref: "Tour",
+      default: null,
+    },
+    convertedAt: { type: Date, default: null },
   },
   {
     timestamps: true,

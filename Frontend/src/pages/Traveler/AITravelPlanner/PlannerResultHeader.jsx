@@ -9,7 +9,10 @@ function PlannerResultHeader({
   itinerary,
   isTripSaved = false,
   isSavingTrip = false,
+  isSendingToProviders = false,
+  isSentToProviders = false,
   onOpenHistory,
+  onSendToProviders,
   onSaveTrip,
 }) {
   if (!itinerary) {
@@ -372,6 +375,21 @@ function PlannerResultHeader({
             </span>
             <span>
               {isSavingTrip ? "Saving..." : isTripSaved ? "Saved" : "Save Trip"}
+            </span>
+          </Button>
+          <Button
+            type="button"
+            onClick={onSendToProviders}
+            disabled={isSendingToProviders || isSentToProviders}
+            className="rounded-full bg-primary px-6 py-3 text-sm font-bold text-white shadow-md hover:bg-primary/90"
+          >
+            <span className="material-symbols-outlined text-sm">campaign</span>
+            <span>
+              {isSendingToProviders
+                ? "Sending..."
+                : isSentToProviders
+                  ? "Sent to Providers"
+                  : "Send to Providers"}
             </span>
           </Button>
         </>
