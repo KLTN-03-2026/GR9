@@ -112,16 +112,45 @@ export const getTourService = async (tourId) => {
         throwError(err.message, err.status || 500, "GET_TOUR_ERROR");
     }
 };
-export const getAllTourService = async () => {
+export const getAllTourService = async ({ page = 1, limit = 9, search = "", sort = "popular" } = {}) => {
     try {
-        const tours = await Tour.find()
+        const currentPage = Math.max(Number(page) || 1, 1);
+        const pageLimit = Math.min(Math.max(Number(limit) || 9, 1), 50);
+        const skip = (currentPage - 1) * pageLimit;
+        const keyword = String(search || "").trim();
+        const filter = {};
+
+        if (keyword) {
+            const keywordRegex = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+            filter.$or = [
+                { name: keywordRegex },
+                { location: keywordRegex },
+                { description: keywordRegex },
+                { type: keywordRegex },
+            ];
+        }
+
+        const sortMap = {
+            priceLow: { "price.adult": 1, createdAt: -1 },
+            ratingHigh: { rating: -1, createdAt: -1 },
+            popular: { createdAt: -1 },
+        };
+        const sortOption = sortMap[sort] || sortMap.popular;
+
+        const [tours, total] = await Promise.all([
+            Tour.find(filter)
             .populate("providerId", "name email")
             .populate({
                 path: "itineraries.activities.serviceId",
             })
             .populate({
                 path: "availableServices.serviceId",
-            });
+            })
+            .sort(sortOption)
+            .skip(skip)
+            .limit(pageLimit),
+            Tour.countDocuments(filter),
+        ]);
         // Fetch all images for all tours
         const images = await Image.find({
             entityType: "TOUR",
@@ -137,7 +166,13 @@ export const getAllTourService = async () => {
             };
         });
 
-        return toursWithImages;
+        return {
+            docs: toursWithImages,
+            total,
+            page: currentPage,
+            limit: pageLimit,
+            totalPages: Math.max(Math.ceil(total / pageLimit), 1),
+        };
     } catch (err) {
         throwError(err.message, err.status || 500, "GET_ALL_TOUR_ERROR");
     }
