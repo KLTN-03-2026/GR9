@@ -16,10 +16,12 @@ import TableGuide from "./TableGuide";
 import { Input } from "@/components/ui/input";
 import DialogDeleteGuide from "./DialogDeleteGuide";
 import PageHero from "@/components/shared/page-hero";
+import { useSearchParams } from "react-router-dom";
 
 const GuideManagementProvider = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [guides, setGuides] = useState([]);
-  const [searchGuide, setSearchGuide] = useState("");
+  const [searchGuide, setSearchGuide] = useState(searchParams.get("search") || "");
 
   const cards = useMemo(
     () => [
@@ -183,8 +185,18 @@ const GuideManagementProvider = () => {
   };
 
   const dataGuides = useMemo(() => {
+    const keyword = debounced.trim().toLowerCase();
+    if (!keyword) return guides;
+
     return guides.filter((guide) =>
-      guide.fullName.toLowerCase().includes(searchGuide.toLowerCase()),
+      [
+        guide.fullName,
+        guide.email,
+        guide.phone,
+        guide.specialty,
+      ]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(keyword)),
     );
   }, [debounced, guides]);
   const handleOpen = () => {
@@ -237,10 +249,24 @@ const GuideManagementProvider = () => {
   useEffect(() => {
     const timeout = setTimeout(() => {
       setDebounced(searchGuide);
+      setSearchParams((current) => {
+        const next = new URLSearchParams(current);
+        if (searchGuide.trim()) {
+          next.set("search", searchGuide.trim());
+        } else {
+          next.delete("search");
+        }
+        return next;
+      }, { replace: true });
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [searchGuide]);
+  }, [searchGuide, setSearchParams]);
+
+  useEffect(() => {
+    const urlSearch = searchParams.get("search") || "";
+    setSearchGuide((current) => (current === urlSearch ? current : urlSearch));
+  }, [searchParams]);
 
   useEffect(() => {
     handleGetGuides();
@@ -264,6 +290,7 @@ const GuideManagementProvider = () => {
             <div className="relative w-full md:w-[260px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
+                value={searchGuide}
                 onChange={(e) => setSearchGuide(e.target.value)}
                 placeholder="Search guides..."
                 className="pl-9 h-10 rounded-xl bg-white border-none text-primary"

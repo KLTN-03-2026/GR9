@@ -8,6 +8,8 @@ const normalizeEmail = (email) =>
     .trim()
     .toLowerCase();
 
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const generateRandomPassword = (length = 10) => {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -64,6 +66,7 @@ export const getUsers = async ({
   search,
   role,
   status,
+  dateRange,
   page = 1,
   limit = 10,
 } = {}) => {
@@ -78,10 +81,11 @@ export const getUsers = async ({
 
     if (search) {
       const keyword = String(search).trim();
+      const keywordRegex = new RegExp(escapeRegex(keyword), "i");
       query.$or = [
-        { fullName: { $regex: keyword, $options: "i" } },
-        { email: { $regex: keyword, $options: "i" } },
-        { phone: { $regex: keyword, $options: "i" } },
+        { fullName: keywordRegex },
+        { email: keywordRegex },
+        { phone: keywordRegex },
       ];
     }
 
@@ -111,6 +115,15 @@ export const getUsers = async ({
         ];
       } else if (normalizedStatus === "BANNED") {
         query.accountStatus = "BANNED";
+      }
+    }
+
+    if (dateRange && dateRange !== "all") {
+      const days = Number(dateRange);
+      if (Number.isFinite(days) && days > 0) {
+        const fromDate = new Date();
+        fromDate.setDate(fromDate.getDate() - days);
+        query.createdAt = { $gte: fromDate };
       }
     }
 

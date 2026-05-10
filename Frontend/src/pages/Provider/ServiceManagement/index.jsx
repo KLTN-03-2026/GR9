@@ -9,6 +9,7 @@ import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import PageHero from "@/components/shared/page-hero";
+import { useSearchParams } from "react-router-dom";
 
 const typeLabels = {
   HOTEL: "Accommodation",
@@ -22,8 +23,9 @@ const typeLabels = {
 };
 
 const ServiceManagement = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [services, setServices] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParams.get("search") || "");
   const [category, setCategory] = useState("All");
   const [loading, setLoading] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -52,6 +54,24 @@ const ServiceManagement = () => {
   useEffect(() => {
     loadServices();
   }, []);
+
+  useEffect(() => {
+    const urlSearch = searchParams.get("search") || "";
+    setSearch((current) => (current === urlSearch ? current : urlSearch));
+  }, [searchParams]);
+
+  const handleSearchChange = (value) => {
+    setSearch(value);
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (value.trim()) {
+        next.set("search", value.trim());
+      } else {
+        next.delete("search");
+      }
+      return next;
+    }, { replace: true });
+  };
 
   const filteredServices = useMemo(() => {
     return services.filter((item) => {
@@ -141,7 +161,7 @@ const ServiceManagement = () => {
           category={category}
           onCategoryChange={setCategory}
           search={search}
-          onSearchChange={setSearch}
+          onSearchChange={handleSearchChange}
           onAdd={handleAdd}
           showAddButton={false}
         />

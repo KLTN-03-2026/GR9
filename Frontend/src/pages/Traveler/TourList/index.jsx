@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
@@ -11,6 +11,7 @@ import TourListSkeleton from "./TourListSkeleton";
 const PAGE_SIZE_OPTIONS = [9, 6];
 
 export default function TourList() {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [search, setSearch] = useState("");
     const [sortBy, setSortBy] = useState("popular");
     const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
@@ -22,14 +23,29 @@ export default function TourList() {
     const [error, setError] = useState("");
 
     const [debouncedSearch, setDebouncedSearch] = useState(search);
+
+    useEffect(() => {
+        const urlSearch = searchParams.get("search") || "";
+        setSearch((current) => (current === urlSearch ? current : urlSearch));
+    }, [searchParams]);
+
     useEffect(() => {
         const timeout = setTimeout(() => {
             setDebouncedSearch(search);
             setPage(1);
+            setSearchParams((current) => {
+                const next = new URLSearchParams(current);
+                if (search.trim()) {
+                    next.set("search", search.trim());
+                } else {
+                    next.delete("search");
+                }
+                return next;
+            }, { replace: true });
         }, 400);
 
         return () => clearTimeout(timeout);
-    }, [search]);
+    }, [search, setSearchParams]);
     useEffect(() => {
         const fetch = async () => {
             setLoading(true);
@@ -233,7 +249,7 @@ export default function TourList() {
                             asChild
                             className="w-full rounded-xl bg-white px-6 py-3 font-bold text-primary transition-all hover:-translate-y-1 hover:shadow-xl md:w-auto"
                         >
-                            <Link to="/traveler/ai-plan">Build Custom Trip</Link>
+                            <Link to="/traveler/ai-travel-planner">Build Custom Trip</Link>
                         </Button>
                     </article>
                 )}

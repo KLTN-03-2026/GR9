@@ -38,6 +38,37 @@ const buildPromptHistory = (messages, promptHistorySize) =>
       content: message.content,
     }));
 
+const CHATBOT_BUSY_MESSAGE =
+  "Voyager AI đang có nhiều yêu cầu cùng lúc nên tạm thời chưa trả lời được. Bạn vui lòng thử lại sau ít phút.";
+
+const getChatbotErrorMessage = (error) => {
+  const status = error?.response?.status;
+  const errorCode = error?.response?.data?.errorCode;
+  const rawMessage = String(
+    error?.response?.data?.message || error?.message || "",
+  );
+
+  if (
+    status === 503 ||
+    errorCode === "GEMINI_HIGH_DEMAND" ||
+    rawMessage.includes('"code":503') ||
+    rawMessage.includes("UNAVAILABLE") ||
+    rawMessage.includes("high demand") ||
+    rawMessage.includes("try again later")
+  ) {
+    return CHATBOT_BUSY_MESSAGE;
+  }
+
+  if (errorCode === "GEMINI_QUOTA_EXCEEDED") {
+    return "Voyager AI đã chạm giới hạn sử dụng tạm thời. Bạn vui lòng thử lại sau ít phút.";
+  }
+
+  return (
+    error?.response?.data?.message ||
+    "Hiện tại tôi chưa thể lấy thông tin từ hệ thống. Bạn vui lòng thử lại sau ít phút."
+  );
+};
+
 export default function ChatBotWidget({
   memoryKey,
   memoryWindowSize,
@@ -159,9 +190,7 @@ export default function ChatBotWidget({
         {
           id: `assistant-error-${Date.now()}`,
           role: "assistant",
-          content:
-            error?.response?.data?.message ||
-            "Hiện tại tôi chưa kết nối được với Knowledge Base.",
+          content: getChatbotErrorMessage(error),
           sources: [],
         },
       ]);
@@ -229,7 +258,7 @@ export default function ChatBotWidget({
                 <p className="truncate text-[11px] font-semibold uppercase tracking-wider text-teal-100/85">
                   {guestMode
                     ? `${Math.max(guestLimit - guestQuestionCount, 0)} lượt hỏi miễn phí`
-                    : "Digital Concierge"}
+                    : "Trợ lý du lịch"}
                 </p>
               </div>
             </div>
@@ -276,7 +305,7 @@ export default function ChatBotWidget({
 
         {!minimized ? (
           <>
-            <div className="max-h-[min(560px,calc(100vh-220px))] space-y-4 overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.10),transparent_34%),linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] px-4 py-4">
+            <div className="max-h-[min(400px,calc(100vh-220px))] space-y-4 overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.10),transparent_34%),linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] px-4 py-4">
               {messages.map((message) => (
                 <div
                   key={message.id}
@@ -308,7 +337,7 @@ export default function ChatBotWidget({
                     {message.sources?.length ? (
                       <div className="mt-3 space-y-1 border-t border-slate-200/70 pt-3">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                          Sources
+                          Nguồn tham khảo
                         </p>
                         {message.sources.slice(0, 3).map((source) => (
                           <p
@@ -347,7 +376,7 @@ export default function ChatBotWidget({
                     <span className="h-2 w-2 animate-bounce rounded-full bg-teal-500 [animation-delay:0.15s]" />
                     <span className="h-2 w-2 animate-bounce rounded-full bg-emerald-500 [animation-delay:0.3s]" />
                   </span>
-                  Voyager AI đang tìm trong KB...
+                  Voyager AI đang chuẩn bị câu trả lời...
                 </div>
               ) : null}
 

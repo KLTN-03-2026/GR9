@@ -238,14 +238,16 @@ export default function BookingTableSection({ bookings, loading, error }) {
                         </Button>
                       ) : null}
 
-                      <Button
-                        type="button"
-                        variant="link"
-                        className="h-auto px-0 text-[12px] font-bold uppercase tracking-tight text-primary"
-                        onClick={() => navigate(`/traveler/booking/${booking._id}`)}
-                      >
-                        View Detail
-                      </Button>
+                      {booking.tourId?._id ? (
+                        <Button
+                          type="button"
+                          variant="link"
+                          className="h-auto px-0 text-[12px] font-bold uppercase tracking-tight text-primary"
+                          onClick={() => navigate(`/traveler/tour-detail/${booking.tourId._id}`)}
+                        >
+                          Tour Detail
+                        </Button>
+                      ) : null}
                     </div>
                   </TableCell>
                 </TableRow>
