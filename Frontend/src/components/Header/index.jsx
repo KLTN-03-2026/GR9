@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Bell, ChevronDown, LogOut, Search, Sparkles, UserRound } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import React, { useContext } from "react";
+import { Bell, ChevronDown, LogOut, Search, UserRound } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,6 +47,94 @@ const PROFILE_PATHS = {
   guide: "/guide/profile",
   provider: "/provider/profile",
 };
+
+const DEFAULT_SEARCH_PATHS = {
+  admin: "/admin/users",
+  traveler: "/traveler/tour-list",
+  guide: "/guide/assigned-tours",
+  provider: "/provider/manage-tours",
+};
+
+const SEARCH_INTENTS = {
+  traveler: [
+    {
+      path: "/traveler/my-booking-traveler",
+      keywords: ["my booking", "booking", "bookings", "dat tour", "đặt tour"],
+    },
+    {
+      path: "/traveler/tour-tracking",
+      keywords: ["tracking", "track tour", "theo doi", "theo dõi"],
+    },
+    {
+      path: "/traveler/traveler-tracking-link-management",
+      keywords: ["tracking link", "share tracking", "link tracking"],
+    },
+    {
+      path: "/traveler/ai-travel-planner",
+      keywords: ["ai planner", "travel planner", "lap lich trinh", "lập lịch trình"],
+    },
+    {
+      path: "/traveler/ai-tour-history",
+      keywords: ["ai history", "tour history", "lich su ai", "lịch sử ai"],
+    },
+    {
+      path: "/traveler/tour-list",
+      keywords: ["tour", "tour list", "destination", "diem den", "điểm đến"],
+    },
+  ],
+  admin: [
+    {
+      path: "/admin/users",
+      keywords: ["user", "users", "account", "tai khoan", "tài khoản"],
+    },
+    {
+      path: "/admin/provider-approval",
+      keywords: ["provider approval", "approve provider", "phe duyet", "phê duyệt"],
+    },
+    {
+      path: "/admin/provider-approval-history",
+      keywords: ["approval history", "lich su phe duyet", "lịch sử phê duyệt"],
+    },
+  ],
+  guide: [
+    {
+      path: "/guide/assigned-tours",
+      keywords: ["assigned", "assigned tours", "tour", "lich trinh", "lịch trình"],
+    },
+    {
+      path: "/guide/live-tour-tracking",
+      keywords: ["live tracking", "tracking", "theo doi", "theo dõi"],
+    },
+  ],
+  provider: [
+    {
+      path: "/provider/bookings-management",
+      keywords: ["booking", "bookings", "reservation", "dat tour", "đặt tour"],
+    },
+    {
+      path: "/provider/manage-tours",
+      keywords: ["tour", "manage tours", "tour management"],
+    },
+    {
+      path: "/provider/service-management",
+      keywords: ["service", "services", "dich vu", "dịch vụ"],
+    },
+    {
+      path: "/provider/guide-management",
+      keywords: ["guide", "guides", "huong dan vien", "hướng dẫn viên"],
+    },
+  ],
+};
+
+const SEARCHABLE_PATHS = [
+  "/admin/users",
+  "/traveler/tour-list",
+  "/guide/assigned-tours",
+  "/provider/manage-tours",
+  "/provider/service-management",
+  "/provider/guide-management",
+  "/provider/bookings-management",
+];
 
 /** More specific routes first. */
 const ROUTE_TITLES = [
@@ -137,11 +225,29 @@ function resolveBreadcrumbTitle(pathname, fallbackTitle) {
   return hit?.title ?? fallbackTitle;
 }
 
+function normalizeSearchIntent(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function resolveSearchIntentPath(role, keyword) {
+  const normalizedKeyword = normalizeSearchIntent(keyword);
+  if (!normalizedKeyword) return null;
+
+  return SEARCH_INTENTS[role]?.find((intent) =>
+    intent.keywords.some((item) =>
+      normalizedKeyword.includes(normalizeSearchIntent(item)),
+    ),
+  )?.path;
+}
+
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logOutContext } = useContext(AuthContext);
-  const [aiNotifications, setAiNotifications] = useState([]);
   const currentRole =
     ["admin", "traveler", "guide", "provider"].find((role) =>
       location.pathname.startsWith(`/${role}`),
@@ -157,24 +263,6 @@ const Header = () => {
     ...baseMeta,
     title: resolveBreadcrumbTitle(location.pathname, baseMeta.title),
   };
-
-  useEffect(() => {
-    const loadProviderNotifications = async () => {
-      if (user?.user?.role !== "PROVIDER") {
-        setAiNotifications([]);
-        return;
-      }
-
-      try {
-        const res = await getProviderAiNotifications();
-        setAiNotifications(res?.data?.data || []);
-      } catch (error) {
-        console.error("Load AI notifications error:", error);
-      }
-    };
-
-    loadProviderNotifications();
-  }, [location.pathname, user?.user?.role]);
 
   return (
     <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b border-outline-variant/20 bg-white/92 px-7 backdrop-blur-md md:left-64">
@@ -199,13 +287,16 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="relative hidden md:block">
+          <form className="relative hidden md:block" onSubmit={handleGlobalSearch}>
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
             <Input
               type="text"
+              value={globalSearch}
+              onChange={(event) => setGlobalSearch(event.target.value)}
+              placeholder={currentMeta.searchPlaceholder}
               className="h-11 w-72 rounded-full border border-outline-variant/30 bg-surface-container-low px-11 pr-4 text-sm text-on-surface placeholder:text-on-surface-variant focus:border-primary/25 focus-visible:ring-2 focus-visible:ring-primary/15"
             />
-          </div>
+          </form>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

@@ -1,6 +1,4 @@
-import ProviderBookingFilters from "./ProviderBookingFilters";
 import ProviderBookingTable from "./ProviderBookingTable";
-// import ProviderBookingPagination from "./ProviderBookingPagination";
 import PageHero from "@/components/shared/page-hero";
 
 export default function ProviderBookingManagement() {
@@ -18,9 +16,7 @@ export default function ProviderBookingManagement() {
         }
         description="Track incoming reservations, verify traveler details, and keep response times consistent across every active package."
       />
-      <ProviderBookingFilters />
       <ProviderBookingTable />
-      {/* <ProviderBookingPagination /> */}
     </div>
   );
 }

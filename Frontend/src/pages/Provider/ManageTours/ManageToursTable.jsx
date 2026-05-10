@@ -14,10 +14,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { formatPrice } from "@/utils/formatPrice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const bookingStatusConfig = {
     NO_BOOKING: {
@@ -54,10 +54,32 @@ const getBookingStatusBadge = (status) =>
 
 export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
     const navigate = useNavigate();
-    const [search, setSearch] = useState("");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [search, setSearch] = useState(searchParams.get("search") || "");
     const [status, setStatus] = useState("all");
     const [sort, setSort] = useState("latest");
     const [priceRange, setPriceRange] = useState([10000, 100000000]);
+    const [page, setPage] = useState(1);
+    const pageSize = 5;
+
+    useEffect(() => {
+        const urlSearch = searchParams.get("search") || "";
+        setSearch((current) => (current === urlSearch ? current : urlSearch));
+    }, [searchParams]);
+
+    const handleSearchChange = (value) => {
+        setSearch(value);
+        setSearchParams((current) => {
+            const next = new URLSearchParams(current);
+            if (value.trim()) {
+                next.set("search", value.trim());
+            } else {
+                next.delete("search");
+            }
+            return next;
+        }, { replace: true });
+    };
+
     const filteredTours = tours
         .filter((tour) => {
             const matchSearch =
@@ -81,11 +103,27 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
 
             return dateB - dateA;
         });
+    const totalPages = Math.max(Math.ceil(filteredTours.length / pageSize), 1);
+    const visibleTours = useMemo(
+        () => filteredTours.slice((page - 1) * pageSize, page * pageSize),
+        [filteredTours, page],
+    );
+    const firstRow = filteredTours.length === 0 ? 0 : (page - 1) * pageSize + 1;
+    const lastRow = Math.min(page * pageSize, filteredTours.length);
+
+    useEffect(() => {
+        setPage(1);
+    }, [search, status, sort, priceRange]);
+
+    useEffect(() => {
+        setPage((current) => Math.min(current, totalPages));
+    }, [totalPages]);
+
     return (
         <Card className="overflow-hidden rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_20px_50px_rgba(15,23,42,0.05)]">
             <CardContent className="space-y-6 p-5 md:p-6">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                    <Tabs defaultValue="all" onValueChange={setStatus} className="w-full xl:w-auto">
+                    <Tabs value={status} onValueChange={setStatus} className="w-full xl:w-auto">
                         <TabsList className="h-auto w-full flex-wrap justify-start gap-2 rounded-2xl bg-surface-container-low p-1.5 xl:w-auto">
                             <TabsTrigger
                                 value="all"
@@ -120,7 +158,7 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                             <Input
                                 placeholder="Search tours or destinations..."
                                 value={search}
-                                onChange={(e) => setSearch(e.target.value)}
+                                onChange={(e) => handleSearchChange(e.target.value)}
                                 className="h-11 rounded-xl border-outline-variant/30 bg-surface-container-low pl-10"
                             />
                         </div>
@@ -142,7 +180,7 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                             </div>
                         </div>
 
-                        <Select defaultValue="latest" onValueChange={setSort}>
+                        <Select value={sort} onValueChange={setSort}>
                             <SelectTrigger className="h-11 min-w-[150px] rounded-xl border-outline-variant/30 bg-white px-4">
                                 <SelectValue placeholder="Sort: Latest" />
                             </SelectTrigger>
@@ -175,8 +213,8 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                         </TableHeader>
 
                         <TableBody>
-                            {filteredTours?.length > 0 ? (
-                                filteredTours.map((tour) => {
+                            {visibleTours?.length > 0 ? (
+                                visibleTours.map((tour) => {
                                     const bookingStatus = getBookingStatusBadge(tour.bookingStatus);
 
                                     return (
@@ -283,22 +321,37 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
 
                 <div className="flex flex-col gap-3 rounded-[1.5rem] bg-surface-container-low px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-sm text-on-surface-variant">
-                        Showing <span className="font-bold text-on-surface">1 - 4</span> of{" "}
-                        <span className="font-bold text-on-surface">24</span> tours
+                        Showing <span className="font-bold text-on-surface">{firstRow} - {lastRow}</span> of{" "}
+                        <span className="font-bold text-on-surface">{filteredTours.length}</span> tours
                     </p>
 
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" className="rounded-xl bg-white text-on-surface-variant">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            className="rounded-xl bg-white text-on-surface-variant"
+                            disabled={page <= 1}
+                            onClick={() => setPage((current) => Math.max(current - 1, 1))}
+                        >
                             <ChevronLeft className="size-4" />
                         </Button>
-                        <Button className="rounded-xl bg-primary px-4 text-on-primary">1</Button>
-                        <Button variant="outline" className="rounded-xl bg-white px-4">
-                            2
-                        </Button>
-                        <Button variant="outline" className="rounded-xl bg-white px-4">
-                            3
-                        </Button>
-                        <Button variant="outline" size="icon" className="rounded-xl bg-white text-on-surface-variant">
+                        {Array.from({ length: totalPages }, (_, index) => index + 1).slice(0, 5).map((pageNumber) => (
+                            <Button
+                                key={pageNumber}
+                                variant={page === pageNumber ? "default" : "outline"}
+                                className={page === pageNumber ? "rounded-xl bg-primary px-4 text-on-primary" : "rounded-xl bg-white px-4"}
+                                onClick={() => setPage(pageNumber)}
+                            >
+                                {pageNumber}
+                            </Button>
+                        ))}
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            className="rounded-xl bg-white text-on-surface-variant"
+                            disabled={page >= totalPages}
+                            onClick={() => setPage((current) => Math.min(current + 1, totalPages))}
+                        >
                             <ChevronRight className="size-4" />
                         </Button>
                     </div>

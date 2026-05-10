@@ -12,96 +12,79 @@ import {
   Users,
   Map,
   ClipboardList,
-  MessageCircle,
   Link as LinkIcon,
   MapPin,
-  Mountain,
   Share2,
   FolderKanban,
-  SquarePen,
   ChartNoAxesColumn,
   UserCog,
   BadgeCheck,
-  ShieldAlert,
-  Hotel,
   History,
 } from "lucide-react";
 
 const MENU = {
   traveler: [
-    { name: "Traveler Dashboard", href: "", icon: LayoutDashboard },
-    { name: "Tour List", href: "/tour-list", icon: Plane },
-    { name: "Tour Detail", href: "/tour-detail", icon: Mountain },
+    { name: "Dashboard", href: "", icon: LayoutDashboard },
+    { name: "Tours", href: "/tour-list", icon: Plane },
     { name: "AI Travel Planner", href: "/ai-travel-planner", icon: Sparkles },
     { name: "AI Tour History", href: "/ai-tour-history", icon: History },
     {
-      name: "Chat AI Assistant",
-      href: "/chat-ai-assistant",
-      icon: MessageCircle,
-    },
-    {
-      name: "My Booking Traveler",
+      name: "My Bookings",
       href: "/my-booking-traveler",
       icon: ClipboardList,
     },
     {
-      name: "Traveler Tracking Link Management",
+      name: "Tracking Links",
       href: "/traveler-tracking-link-management",
       icon: LinkIcon,
     },
-    { name: "Tour Tracking", href: "/tour-tracking", icon: MapPin },
+    { name: "Live Tracking", href: "/tour-tracking", icon: MapPin },
   ],
 
   admin: [
-    { name: "Admin Dashboard", href: "", icon: ChartNoAxesColumn },
-    { name: "User Management Admin", href: "/users", icon: UserCog },
+    { name: "Dashboard", href: "", icon: ChartNoAxesColumn },
+    { name: "Users", href: "/users", icon: UserCog },
     { name: "Provider Approval", href: "/provider-approval", icon: BadgeCheck },
     {
       name: "Approval History",
       href: "/provider-approval-history",
       icon: FolderKanban,
     },
-    {
-      name: "Content Moderation",
-      href: "/content-moderation",
-      icon: ShieldAlert,
-    },
   ],
 
   guide: [
-    { name: "Guide Dashboard Home", href: "", icon: LayoutDashboard },
+    { name: "Dashboard", href: "", icon: LayoutDashboard },
     {
-      name: "Assigned Tours List Guide",
+      name: "Assigned Tours",
       href: "/assigned-tours",
       icon: ClipboardList,
     },
     {
-      name: "Guide Live Tour Tracking",
+      name: "Live Tracking",
       href: "/live-tour-tracking",
       icon: Share2,
     },
   ],
 
   provider: [
-    { name: "Provider Dashboard", href: "", icon: LayoutDashboard },
+    { name: "Dashboard", href: "", icon: LayoutDashboard },
     {
-      name: "Manage Tours Provider",
+      name: "Manage Tours",
       href: "/manage-tours",
       icon: FolderKanban,
     },
     {
-      name: "Service Management Provider",
+      name: "Services",
       href: "/service-management",
       icon: ClipboardList,
     },
-    { name: "Create or Edit Tour", href: "/edit-tour", icon: SquarePen },
     {
-      name: "Bookings Management Provider",
+      name: "Bookings",
       href: "/bookings-management",
       icon: ClipboardList,
     },
     {
-      name: "Guide Management Provider",
+      name: "Guides",
       href: "/guide-management",
       icon: Users,
     },
