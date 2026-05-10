@@ -37,7 +37,7 @@ const getTotalTravelers = (booking) =>
   (Number(booking.quantity?.children) || 0) +
   (Number(booking.quantity?.infants) || 0);
 
-const ensureTrackingCode = async (booking) => {
+export const ensureTrackingCode = async (booking) => {
   if (booking.trackingShareCode) {
     return booking.trackingShareCode;
   }
@@ -48,7 +48,7 @@ const ensureTrackingCode = async (booking) => {
   return booking.trackingShareCode;
 };
 
-const getTrackingUrl = (code) =>
+export const getTrackingUrl = (code) =>
   `${getFrontendUrl()}/guest?trackingCode=${encodeURIComponent(code)}`;
 
 const mapActivity = (activity, index, currentActivityIndex) => {
@@ -231,6 +231,49 @@ export const getTravelerTracking = async (travelerId, bookingId = null) => {
       err.message || "Cannot get traveler tracking",
       err.status || 500,
       err.errorCode || "GET_TRAVELER_TRACKING_ERROR",
+    );
+  }
+};
+
+export const getPublicTrackingByCode = async (trackingCode) => {
+  try {
+    if (!trackingCode?.trim()) {
+      throwError("Tracking code is required", 400, "TRACKING_CODE_REQUIRED");
+    }
+
+    const booking = await Booking.findOne({
+      trackingShareCode: trackingCode.trim(),
+      payment: "PAID",
+      status: { $ne: "CANCELLED" },
+      trackingEnabled: { $ne: false },
+    })
+      .populate({
+        path: "tourId",
+        select: "name location description numberOfDay type itineraries leadDuideServiceId",
+        populate: [
+          {
+            path: "itineraries.activities.serviceId",
+            select: "name type address description lat long",
+          },
+          {
+            path: "leadDuideServiceId",
+            select: "fullName email avatarUrl",
+          },
+        ],
+      })
+      .populate("tourScheduleId")
+      .populate("travelerId", "fullName email avatarUrl");
+
+    if (!booking) {
+      throwError("Tracking link is invalid or disabled", 404, "TRACKING_NOT_FOUND");
+    }
+
+    return await buildTrackingDetail(booking);
+  } catch (err) {
+    throwError(
+      err.message || "Cannot get public tracking",
+      err.status || 500,
+      err.errorCode || "GET_PUBLIC_TRACKING_ERROR",
     );
   }
 };

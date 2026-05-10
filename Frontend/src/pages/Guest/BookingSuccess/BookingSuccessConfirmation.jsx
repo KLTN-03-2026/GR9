@@ -1,6 +1,6 @@
 import { CheckCircle2 } from "lucide-react";
 
-export default function BookingSuccessConfirmation() {
+export default function BookingSuccessConfirmation({ booking }) {
   return (
     <div className="space-y-4">
       <div className="inline-flex size-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 shadow-inner shadow-emerald-200">
@@ -12,10 +12,11 @@ export default function BookingSuccessConfirmation() {
           Booking Confirmed
         </h1>
         <p className="max-w-xl text-lg leading-8 text-slate-600">
-          Pack your bags! Your expedition to the{" "}
-          <span className="font-bold text-emerald-700">Azure Horizon</span> is
-          officially locked in. A confirmation email has been sent to your
-          inbox.
+          Thanh toán thành công. Tour{" "}
+          <span className="font-bold text-emerald-700">
+            {booking?.tour?.name || "của bạn"}
+          </span>{" "}
+          đã được xác nhận và link tracking đã sẵn sàng để chia sẻ.
         </p>
       </div>
     </div>

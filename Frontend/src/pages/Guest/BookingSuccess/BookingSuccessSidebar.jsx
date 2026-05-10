@@ -3,14 +3,17 @@ import { Download, Lightbulb, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-export default function BookingSuccessSidebar() {
+export default function BookingSuccessSidebar({ booking }) {
   return (
     <aside className="space-y-6 lg:sticky lg:top-28 lg:col-span-5">
       <div className="relative overflow-hidden rounded-[28px] shadow-[0_28px_90px_rgba(15,23,42,0.18)]">
         <img
-          alt="Azure Horizon"
+          alt={booking?.tour?.name || "Tour booking"}
           className="aspect-[4/5] w-full object-cover"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4-uJ-PvLUyy3V5Xcghc6WHePwWWJfxOr2aCh_VVA7u7hx4p4WGrmhT6Pz9piMJR7-IvOCPOO16ZrPHWjGHySpZv4Cyy9_0WFQAUn0h1gTGrgDxDs959nlZqmFFaISeKJc79JVaz7Ql2Y9tb-eYZAxW8_7XNibWr4JABCqjK5aXwgN0V2VgrCP_AkU2WQ8ChBV2z82uOyTavylKvqE4E3d-P5PRGA_C_KW0Py1eBvwD_QAbY_YUdki9hgZmc-zcZj1lMcyVWpB2RDS"
+          src={
+            booking?.tour?.imageUrl ||
+            "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=1200&q=80"
+          }
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/10 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 space-y-3 p-8 text-white">
@@ -22,10 +25,10 @@ export default function BookingSuccessSidebar() {
           </div>
           <div>
             <h3 className="text-3xl font-black tracking-tight">
-              Azure Horizon Expedition
+              {booking?.tour?.name || "Tour booking"}
             </h3>
             <p className="mt-2 text-sm font-medium text-white/80">
-              French Polynesia • 8 Days
+              {booking?.tour?.location || "Vietnam"} • {booking?.tour?.numberOfDay || 1} Days
             </p>
           </div>
         </div>

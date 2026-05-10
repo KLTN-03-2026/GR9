@@ -2,6 +2,7 @@ import Booking from "../models/booking.model.js";
 import {
     createBookingService,
     cancelBookingService,
+    getBookingSuccessService,
     getMyBookingsService,
 } from "../services/booking.service.js";
 import {
@@ -60,6 +61,19 @@ export const syncPayOSPaymentStatusController = async (req, res) => {
         );
 
         return success(res, "Sync payment status success", booking, 200);
+    } catch (err) {
+        return error(res, err.message, err.status, err.errorCode);
+    }
+};
+
+export const getBookingSuccessController = async (req, res) => {
+    try {
+        const data = await getBookingSuccessService(
+            req.user._id,
+            req.params.orderCode,
+        );
+
+        return success(res, "Get booking success data", data, 200);
     } catch (err) {
         return error(res, err.message, err.status, err.errorCode);
     }

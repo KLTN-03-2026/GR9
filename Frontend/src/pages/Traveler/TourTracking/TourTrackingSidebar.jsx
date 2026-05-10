@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import { Avatar, AvatarBadge, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,55 +8,132 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { geocodeAddress } from "@/services/api/location";
+
+const isValidCoordinate = (value) => {
+  const number = Number(value);
+  return Number.isFinite(number) && number !== 0;
+};
 
 export default function TourTrackingSidebar({ tracking }) {
+  const [mapPoint, setMapPoint] = useState(null);
+  const [mapLoading, setMapLoading] = useState(false);
+
+  const mapTarget = useMemo(() => {
+    const activities = tracking?.today?.activities || [];
+    const activeActivity =
+      activities.find((activity) => activity.state === "ongoing") ||
+      tracking?.progress?.nextActivity ||
+      activities.find((activity) => activity.address || activity.name) ||
+      null;
+
+    const query =
+      activeActivity?.address ||
+      [activeActivity?.name, tracking?.tour?.location].filter(Boolean).join(", ") ||
+      tracking?.tour?.location ||
+      "";
+
+    return {
+      activity: activeActivity,
+      query,
+      lat: activeActivity?.lat,
+      lng: activeActivity?.long,
+    };
+  }, [tracking]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    const resolveMapPoint = async () => {
+      if (!mapTarget.query) {
+        setMapPoint(null);
+        setMapLoading(false);
+        return;
+      }
+
+      if (isValidCoordinate(mapTarget.lat) && isValidCoordinate(mapTarget.lng)) {
+        setMapPoint({
+          lat: Number(mapTarget.lat),
+          lng: Number(mapTarget.lng),
+          label: mapTarget.activity?.name || tracking?.tour?.name || "Tour location",
+          address: mapTarget.activity?.address || mapTarget.query,
+        });
+        setMapLoading(false);
+        return;
+      }
+
+      setMapLoading(true);
+      try {
+        const response = await geocodeAddress(mapTarget.query);
+        const location = response.data?.data;
+
+        if (!ignore && location?.lat && location?.lng) {
+          setMapPoint({
+            lat: Number(location.lat),
+            lng: Number(location.lng),
+            label: mapTarget.activity?.name || tracking?.tour?.name || "Tour location",
+            address: location.formattedAddress || mapTarget.query,
+          });
+        } else if (!ignore) {
+          setMapPoint({
+            lat: null,
+            lng: null,
+            label: mapTarget.activity?.name || tracking?.tour?.name || "Tour location",
+            address: mapTarget.query,
+          });
+        }
+      } catch {
+        if (!ignore) {
+          setMapPoint({
+            lat: null,
+            lng: null,
+            label: mapTarget.activity?.name || tracking?.tour?.name || "Tour location",
+            address: mapTarget.query,
+          });
+        }
+      } finally {
+        if (!ignore) setMapLoading(false);
+      }
+    };
+
+    resolveMapPoint();
+
+    return () => {
+      ignore = true;
+    };
+  }, [mapTarget, tracking]);
+
+  const mapQuery =
+    mapPoint?.lat && mapPoint?.lng
+      ? `${mapPoint.lat},${mapPoint.lng}`
+      : mapPoint?.address || mapTarget.query;
+  const mapSrc = mapQuery
+    ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=15&output=embed`
+    : "";
+
   return (
     <div className="space-y-8 lg:col-span-4">
       <Card className="relative aspect-square overflow-hidden rounded-[2rem] border border-outline-variant/10 bg-surface-container-lowest py-0 shadow-sm">
         <div className="absolute inset-0 bg-slate-200">
-          <img
-            className="h-full w-full object-cover opacity-80"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPMtui2OLB2kvFBCVO5QcyZ3an7WGQE8kaAOwfbK22CM3ZLKl028JjqUWWQkPKKpjyxNl9DIzGcTt2g9A6agBjapBdLR3PkeaS7Y6tGaaXwLw4SW0ZRNRh7pvPpovme-u0oLHw54QtNNYJEaeTFOH9I3K3zm9thWWSp5c5G_GEycLwsvCN-mKWM2OK8hhoe6_G81agnV_v9kTTn40kFsm-AsG4PI0M46A48gfrQQfPMY1KQhgKh_ZhDv0vL-t1FhvT0t8di5JnL7I-"
-            alt="Tour map overview"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-
-          <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
-            <div className="animate-bounce rounded-full bg-primary p-2 text-white shadow-xl ring-4 ring-primary/20">
-              <span className="material-symbols-outlined">
-                person_pin_circle
-              </span>
+          {mapSrc ? (
+            <iframe
+              title={mapPoint?.label || "Tour map overview"}
+              className="h-full w-full border-0"
+              src={mapSrc}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-surface-container text-sm font-semibold text-on-surface-variant">
+              Map location is not available
             </div>
-            <Badge className="mt-2 rounded-full border-0 bg-white px-3 py-1 text-[10px] font-bold text-on-surface shadow-sm">
-              {tracking?.tour?.type || "TOUR"}
-            </Badge>
-            <Badge className="mt-2 rounded-full border-0 bg-white px-3 py-1 text-[10px] font-bold text-on-surface shadow-sm">
-              {tracking?.group?.label || "GROUP"}
-            </Badge>
-          </div>
+          )}
+          {mapLoading ? (
+            <div className="pointer-events-none absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[11px] font-bold text-on-surface shadow-sm backdrop-blur">
+              Resolving location...
+            </div>
+          ) : null}
         </div>
-
-        <CardContent className="absolute bottom-4 left-4 right-4 rounded-xl bg-white/90 px-4 py-3 shadow-lg backdrop-blur">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center space-x-2">
-              <span
-                className="material-symbols-outlined text-sm text-primary"
-                style={{ fontVariationSettings: '"FILL" 1' }}
-              >
-                signal_cellular_alt
-              </span>
-              <span className="text-[11px] font-bold">GPS: Signal Strong</span>
-            </div>
-
-            <Button
-              type="button"
-              variant="link"
-              className="h-auto px-0 text-[10px] font-bold uppercase text-primary"
-            >
-              Expand Map
-            </Button>
-          </div>
-        </CardContent>
       </Card>
 
       <Card className="rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-sm ring-0">

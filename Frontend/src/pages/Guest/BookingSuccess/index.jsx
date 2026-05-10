@@ -1,19 +1,128 @@
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { Link, useSearchParams } from "react-router-dom";
+import { getBookingSuccess, syncPaymentStatus } from "@/services/api/booking";
+import { getPublicTracking } from "@/services/api/tracking";
 import BookingSuccessConfirmation from "./BookingSuccessConfirmation";
 import BookingSuccessDetailsCard from "./BookingSuccessDetailsCard";
 import BookingSuccessTrackingCard from "./BookingSuccessTrackingCard";
 import BookingSuccessSidebar from "./BookingSuccessSidebar";
 
+const getTotalPeople = (group) =>
+  (Number(group?.adults) || 0) +
+  (Number(group?.children) || 0) +
+  (Number(group?.infants) || 0);
+
+const mapTrackingToBookingSuccess = (tracking) => ({
+  bookingId: tracking?.bookingId,
+  bookingCode: tracking?.bookingCode,
+  status: tracking?.status === "completed" ? "COMPLETED" : "CONFIRMED",
+  payment: "PAID",
+  paidAt: tracking?.payment?.paidAt,
+  totalAmount: tracking?.payment?.totalAmount || 0,
+  quantity: {
+    adults: Number(tracking?.group?.adults) || 0,
+    children: Number(tracking?.group?.children) || 0,
+    infants: Number(tracking?.group?.infants) || 0,
+    total: getTotalPeople(tracking?.group),
+  },
+  startDate: tracking?.schedule?.startDay,
+  tour: {
+    id: tracking?.tour?.id,
+    name: tracking?.tour?.name,
+    location: tracking?.tour?.location,
+    description: tracking?.tour?.description,
+    numberOfDay: tracking?.tour?.numberOfDay,
+    type: tracking?.tour?.type,
+    imageUrl: null,
+  },
+  guide: tracking?.guide,
+  traveler: tracking?.traveler,
+  tracking: {
+    code: tracking?.trackingCode,
+    url: tracking?.trackingUrl,
+  },
+});
+
 export default function BookingSuccess() {
+  const [searchParams] = useSearchParams();
+  const [booking, setBooking] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const orderCode = searchParams.get("orderCode");
+  const trackingCode = searchParams.get("trackingCode");
+  const payment = searchParams.get("payment");
+
+  useEffect(() => {
+    const loadBookingSuccess = async () => {
+      if (!orderCode && !trackingCode) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        if (orderCode && payment === "success") {
+          await syncPaymentStatus(orderCode);
+        }
+
+        if (orderCode) {
+          const response = await getBookingSuccess(orderCode);
+          setBooking(response.data.data);
+          return;
+        }
+
+        const response = await getPublicTracking(trackingCode);
+        setBooking(mapTrackingToBookingSuccess(response.data.data));
+      } catch (error) {
+        toast.error(
+          error?.response?.data?.message ||
+            "Không thể tải thông tin booking sau thanh toán",
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadBookingSuccess();
+  }, [orderCode, payment, trackingCode]);
+
+  if (loading) {
+    return (
+      <main className="mx-auto w-full max-w-7xl px-6 py-24">
+        <div className="rounded-3xl bg-white p-8 text-slate-600 shadow-sm">
+          Đang xác nhận thanh toán và tải thông tin booking...
+        </div>
+      </main>
+    );
+  }
+
+  if (!booking) {
+    return (
+      <main className="mx-auto w-full max-w-7xl px-6 py-24">
+        <div className="space-y-4 rounded-3xl bg-white p-8 shadow-sm">
+          <h1 className="text-2xl font-black text-slate-950">
+            Chưa tìm thấy booking đã thanh toán
+          </h1>
+          <p className="text-slate-600">
+            Vui lòng kiểm tra lại lịch sử đặt tour của bạn hoặc thử thanh toán lại.
+          </p>
+          <Link className="font-bold text-emerald-700" to="/traveler/my-booking-traveler">
+            Về My Booking
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <div>
       <main className="mx-auto grid w-full max-w-7xl gap-8 px-6 pb-16 lg:grid-cols-12">
         <section className="space-y-8 lg:col-span-7">
-          <BookingSuccessConfirmation />
-          <BookingSuccessDetailsCard />
-          <BookingSuccessTrackingCard />
+          <BookingSuccessConfirmation booking={booking} />
+          <BookingSuccessDetailsCard booking={booking} />
+          <BookingSuccessTrackingCard booking={booking} />
         </section>
 
-        <BookingSuccessSidebar />
+        <BookingSuccessSidebar booking={booking} />
       </main>
     </div>
   );
