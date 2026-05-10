@@ -1,48 +1,11 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useSearchParams } from "react-router-dom";
-import { getBookingSuccess, syncPaymentStatus } from "@/services/api/booking";
-import { getPublicTracking } from "@/services/api/tracking";
+import { getGuestBookingSuccess } from "@/services/api/guest";
 import BookingSuccessConfirmation from "./BookingSuccessConfirmation";
 import BookingSuccessDetailsCard from "./BookingSuccessDetailsCard";
 import BookingSuccessTrackingCard from "./BookingSuccessTrackingCard";
 import BookingSuccessSidebar from "./BookingSuccessSidebar";
-
-const getTotalPeople = (group) =>
-  (Number(group?.adults) || 0) +
-  (Number(group?.children) || 0) +
-  (Number(group?.infants) || 0);
-
-const mapTrackingToBookingSuccess = (tracking) => ({
-  bookingId: tracking?.bookingId,
-  bookingCode: tracking?.bookingCode,
-  status: tracking?.status === "completed" ? "COMPLETED" : "CONFIRMED",
-  payment: "PAID",
-  paidAt: tracking?.payment?.paidAt,
-  totalAmount: tracking?.payment?.totalAmount || 0,
-  quantity: {
-    adults: Number(tracking?.group?.adults) || 0,
-    children: Number(tracking?.group?.children) || 0,
-    infants: Number(tracking?.group?.infants) || 0,
-    total: getTotalPeople(tracking?.group),
-  },
-  startDate: tracking?.schedule?.startDay,
-  tour: {
-    id: tracking?.tour?.id,
-    name: tracking?.tour?.name,
-    location: tracking?.tour?.location,
-    description: tracking?.tour?.description,
-    numberOfDay: tracking?.tour?.numberOfDay,
-    type: tracking?.tour?.type,
-    imageUrl: null,
-  },
-  guide: tracking?.guide,
-  traveler: tracking?.traveler,
-  tracking: {
-    code: tracking?.trackingCode,
-    url: tracking?.trackingUrl,
-  },
-});
 
 export default function BookingSuccess() {
   const [searchParams] = useSearchParams();
@@ -50,7 +13,6 @@ export default function BookingSuccess() {
   const [loading, setLoading] = useState(true);
   const orderCode = searchParams.get("orderCode");
   const trackingCode = searchParams.get("trackingCode");
-  const payment = searchParams.get("payment");
 
   useEffect(() => {
     const loadBookingSuccess = async () => {
@@ -60,18 +22,8 @@ export default function BookingSuccess() {
       }
 
       try {
-        if (orderCode && payment === "success") {
-          await syncPaymentStatus(orderCode);
-        }
-
-        if (orderCode) {
-          const response = await getBookingSuccess(orderCode);
-          setBooking(response.data.data);
-          return;
-        }
-
-        const response = await getPublicTracking(trackingCode);
-        setBooking(mapTrackingToBookingSuccess(response.data.data));
+        const response = await getGuestBookingSuccess({ orderCode, trackingCode });
+        setBooking(response.data.data);
       } catch (error) {
         toast.error(
           error?.response?.data?.message ||
@@ -83,7 +35,7 @@ export default function BookingSuccess() {
     };
 
     loadBookingSuccess();
-  }, [orderCode, payment, trackingCode]);
+  }, [orderCode, trackingCode]);
 
   if (loading) {
     return (

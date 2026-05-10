@@ -43,6 +43,27 @@ const bookingServiceSchema = new Schema({
     },
 });
 
+const bookingTrackingActivitySchema = new Schema(
+    {
+        activityId: {
+            type: Schema.Types.ObjectId,
+            required: true,
+        },
+        statusActivity: {
+            type: String,
+            enum: ["DONE", "NOT_DONE"],
+            default: "NOT_DONE",
+        },
+        confirmedAt: { type: Date, default: null },
+        confirmedBy: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            default: null,
+        },
+    },
+    { _id: false },
+);
+
 const bookingSchema = new Schema(
     {
         travelerId: {
@@ -90,6 +111,7 @@ const bookingSchema = new Schema(
         paymentExpiredAt: { type: Date, default: null },
         slotsReserved: { type: Boolean, default: false },
         selectedServices: { type: [bookingServiceSchema], default: [] },
+        trackingActivities: { type: [bookingTrackingActivitySchema], default: [] },
         isPrivate: {
             type: Boolean,
             default: false,

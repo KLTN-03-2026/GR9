@@ -19,6 +19,20 @@ import toast from "react-hot-toast";
 
 const AuthContext = createContext();
 
+const getLoginErrorMessage = (error) => {
+  const errorCode = error?.response?.data?.errorCode;
+
+  if (
+    ["INVALID_CREDENTIALS", "INVALID_PASSWORD", "USER_NOT_FOUND", "ROLE_NOT_ALLOWED"].includes(
+      errorCode,
+    )
+  ) {
+    return "Sai email hoặc mật khẩu";
+  }
+
+  return error?.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại.";
+};
+
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("user")) || null,
@@ -60,9 +74,7 @@ export const AuthContextProvider = ({ children }) => {
       navigate("/traveler");
       return response.data.data;
     } catch (error) {
-      toast.error(
-        error?.response?.data?.message || "Login failed. Please try again.",
-      );
+      toast.error(getLoginErrorMessage(error));
       throw error;
     }
   };
@@ -103,9 +115,7 @@ export const AuthContextProvider = ({ children }) => {
         throw error;
       }
 
-      toast.error(
-        error?.response?.data?.message || "Login failed. Please try again.",
-      );
+      toast.error(getLoginErrorMessage(error));
       throw error;
     }
   };

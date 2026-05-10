@@ -180,7 +180,7 @@ export const getGuideDashboard = async (guideId) => {
       throwError("Guide not found", 404, "GUIDE_NOT_FOUND");
     }
 
-    const assignedTours = await Tour.find({ leadDuideServiceId: guideId }).select(
+    const assignedTours = await Tour.find({ leadGuideServiceId: guideId }).select(
       "_id numberOfDay",
     );
     const tourIds = assignedTours.map((tour) => tour._id);
@@ -255,3 +255,4 @@ export const getGuideDashboard = async (guideId) => {
     );
   }
 };
+

@@ -45,13 +45,13 @@ const ensureReferences = async ({ tourId, GuideId, bookingId }, reviewerId) => {
     if (!GuideId) throwError("GuideId is required", 400, "GUIDE_ID_REQUIRED");
     if (!bookingId) throwError("bookingId is required", 400, "BOOKING_ID_REQUIRED");
 
-    const tour = await Tour.findById(tourId).select("_id leadDuideServiceId");
+    const tour = await Tour.findById(tourId).select("_id leadGuideServiceId");
     if (!tour) throwError("Tour not found", 404, "TOUR_NOT_FOUND");
 
     const guide = await User.findOne({ _id: GuideId, role: "GUIDE" }).select("_id");
     if (!guide) throwError("Guide not found", 404, "GUIDE_NOT_FOUND");
 
-    if (tour.leadDuideServiceId && String(tour.leadDuideServiceId) !== String(GuideId)) {
+    if (tour.leadGuideServiceId && String(tour.leadGuideServiceId) !== String(GuideId)) {
         throwError("Guide does not belong to this tour", 400, "GUIDE_NOT_MATCH_TOUR");
     }
 
@@ -166,3 +166,4 @@ export const deleteReviewService = async (reviewId, user) => {
     await review.deleteOne();
     return review;
 };
+

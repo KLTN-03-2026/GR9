@@ -24,7 +24,7 @@ const defaultTour = {
     availableServices: [],
     description: "",
     name: "",
-    leadDuideServiceId: "",
+    leadGuideServiceId: "",
     type: "GROUP",
     scheduleType: "FIXED",
 };
@@ -325,3 +325,4 @@ export default function ManageTours() {
         </div>
     );
 }
+
