@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Booking from "../models/booking.model.js";
 import TourSchedule from "../models/tourSchedule.model.js";
 import Image from "../models/image.model.js";
+import { ensureTrackingCode, getTrackingUrl } from "./tracking.service.js";
 
 const addDays = (date, days) =>
     new Date(date.getTime() + Math.max(Number(days) || 0, 0) * 86400000);
@@ -193,4 +194,71 @@ export const getMyBookingsService = async (travelerId) => {
             tourImages: imageMap[String(booking.tourId?._id)] || [],
         };
     });
+};
+
+export const getBookingSuccessService = async (travelerId, orderCode) => {
+    const booking = await Booking.findOne({
+        travelerId,
+        orderCode: String(orderCode),
+        payment: "PAID",
+        status: { $ne: "CANCELLED" },
+    })
+        .populate({
+            path: "tourId",
+            select: "name location description numberOfDay type leadDuideServiceId",
+            populate: {
+                path: "leadDuideServiceId",
+                select: "fullName email avatarUrl",
+            },
+        })
+        .populate("tourScheduleId")
+        .populate("travelerId", "fullName email avatarUrl")
+        .lean(false);
+
+    if (!booking) {
+        const error = new Error("Booking not found or payment is not completed");
+        error.status = 404;
+        error.errorCode = "BOOKING_SUCCESS_NOT_FOUND";
+        throw error;
+    }
+
+    const trackingCode = await ensureTrackingCode(booking);
+    const tourImage = await Image.findOne({
+        entityType: "TOUR",
+        entityId: booking.tourId?._id,
+    }).lean();
+
+    return {
+        bookingId: String(booking._id),
+        bookingCode: booking.orderCode ? `#${booking.orderCode}` : `#${String(booking._id).slice(-6)}`,
+        status: getBookingLifecycleStatus(booking),
+        payment: booking.payment,
+        paidAt: booking.paidAt,
+        totalAmount: Number(booking.totalAmount) || 0,
+        quantity: booking.quantity,
+        startDate: getBookingStartDate(booking),
+        tour: {
+            id: String(booking.tourId?._id),
+            name: booking.tourId?.name || "Unnamed tour",
+            location: booking.tourId?.location || "Unknown location",
+            description: booking.tourId?.description || "",
+            numberOfDay: Number(booking.tourId?.numberOfDay) || 1,
+            type: booking.tourId?.type || "GROUP",
+            imageUrl: tourImage?.imageUrl || null,
+        },
+        guide: {
+            name: booking.tourId?.leadDuideServiceId?.fullName || "Guide not assigned",
+            email: booking.tourId?.leadDuideServiceId?.email || "",
+            avatarUrl: booking.tourId?.leadDuideServiceId?.avatarUrl || "",
+        },
+        traveler: {
+            name: booking.travelerId?.fullName || "Traveler",
+            email: booking.travelerId?.email || "",
+            avatarUrl: booking.travelerId?.avatarUrl || "",
+        },
+        tracking: {
+            code: trackingCode,
+            url: getTrackingUrl(trackingCode),
+        },
+    };
 };

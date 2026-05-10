@@ -3,6 +3,7 @@ import {
     createBookingController,
     createBookingPaymentLinkController,
     cancelBookingController,
+    getBookingSuccessController,
     getMyBookingsController,
     payOSWebhookController,
     syncPayOSPaymentStatusController,
@@ -19,6 +20,7 @@ router.use(protect, authorize("TRAVELER"));
 router.post("/", createBookingController);
 router.get("/me", getMyBookingsController);
 router.get("/payment/:orderCode/sync", syncPayOSPaymentStatusController);
+router.get("/success/:orderCode", getBookingSuccessController);
 router.post("/:id/payment-link", createBookingPaymentLinkController);
 router.put("/:id/cancel", cancelBookingController);
 

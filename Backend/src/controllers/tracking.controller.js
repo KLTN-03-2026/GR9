@@ -1,4 +1,5 @@
 import {
+  getPublicTrackingByCode,
   getTravelerTracking,
   regenerateTrackingLink,
 } from "../services/tracking.service.js";
@@ -10,6 +11,16 @@ export const getTravelerTrackingController = async (req, res) => {
     const data = await getTravelerTracking(travelerId, req.query.bookingId);
 
     return success(res, "Get traveler tracking successfully", data, 200);
+  } catch (err) {
+    return error(res, err.message, err.status, err.errorCode);
+  }
+};
+
+export const getPublicTrackingController = async (req, res) => {
+  try {
+    const data = await getPublicTrackingByCode(req.query.trackingCode);
+
+    return success(res, "Get public tracking successfully", data, 200);
   } catch (err) {
     return error(res, err.message, err.status, err.errorCode);
   }

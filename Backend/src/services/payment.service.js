@@ -168,7 +168,7 @@ export const createBookingPaymentLink = async (bookingId, travelerId = null) => 
       orderCode,
       amount,
       description,
-      returnUrl: `${frontendUrl}/traveler/my-booking-traveler?payment=success&bookingId=${booking._id}&orderCode=${orderCode}`,
+      returnUrl: `${frontendUrl}/guest/booking-success-and-tracking-link?payment=success&bookingId=${booking._id}&orderCode=${orderCode}`,
       cancelUrl: `${frontendUrl}/traveler/my-booking-traveler?payment=cancel&bookingId=${booking._id}&orderCode=${orderCode}`,
       expiredAt,
       items: [
