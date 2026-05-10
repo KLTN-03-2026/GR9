@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   AlertTriangle,
-  ArrowRight,
   CalendarDays,
   ClipboardCheck,
   Clock3,
@@ -19,103 +20,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import PageHero from "@/components/shared/page-hero";
-
-const summaryCards = [
-  {
-    label: "Assigned Today",
-    value: "02",
-    icon: ClipboardCheck,
-    iconClass: "text-primary",
-    iconBg: "bg-primary/10",
-  },
-  {
-    label: "Upcoming Tours",
-    value: "14",
-    icon: CalendarDays,
-    iconClass: "text-secondary",
-    iconBg: "bg-secondary/10",
-  },
-  {
-    label: "Ongoing Tours",
-    value: "01",
-    icon: Footprints,
-    iconClass: "text-primary-container",
-    iconBg: "bg-primary-container/10",
-    valueClass: "text-primary",
-  },
-  {
-    label: "Pending Reports",
-    value: "03",
-    icon: AlertTriangle,
-    iconClass: "text-tertiary",
-    iconBg: "bg-tertiary/10",
-    valueClass: "text-tertiary",
-    extraClass: "border-l-4 border-tertiary",
-  },
-];
-
-const quickActions = [
-  {
-    title: "View Assigned Tours",
-    icon: Globe2,
-    hoverText: "group-hover:text-primary",
-    hoverIcon: "group-hover:bg-primary group-hover:text-on-primary",
-  },
-  {
-    title: "Start Ongoing Tour",
-    icon: PlayCircle,
-    hoverText: "group-hover:text-primary",
-    hoverIcon: "group-hover:bg-primary group-hover:text-on-primary",
-  },
-  {
-    title: "Submit Incident Report",
-    icon: FileWarning,
-    hoverText: "group-hover:text-on-surface",
-    hoverIcon: "group-hover:bg-error group-hover:text-on-error",
-    extraClass: "border border-dashed border-outline-variant/50",
-  },
-];
-
-const assignedTours = [
-  {
-    id: "#VGR-88291",
-    title: "Imperial Heritage Walk",
-    location: "Agra, India",
-    shift: "Morning Departure",
-    shiftClass: "bg-tertiary-container/10 text-tertiary",
-    status: "CONFIRMED",
-    statusClass: "bg-primary-fixed-dim/20 text-on-primary-fixed-variant",
-    dotClass: "bg-primary-container",
-    time: "08:00 AM - 12:00 PM",
-    passengers: "12 Adults, 2 Kids",
-    detailLabel: "Language",
-    detailValue: "English & Hindi",
-    primaryAction: "Start Manifest Check",
-    primaryVariant: "default",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBuYXQ7VscEn13MSHD2eAetw1Ldn755zK2Coe8SPq3oeMonKp1NQKC6qdDCT23tfsLKrqQJYxJ-xF7wEgUrmc97b7qbOqsMGtQ_h9dPwmkJ8nNdQKcxuvwMkQsc6nUBxDVBiomDYDQ09blyfOejw3t0atY_Bw31IMtIUsT31TkGW44ssw6FRA-RpmHbSwniYVN3brxwnIc7YRT97nIg9hpRBDv1vdtMI46nEJ6n_rODByA9epUYl8mNaiWNf-OtjCcoS6gRH7zP9pHs",
-  },
-  {
-    id: "#VGR-99023",
-    title: "Twilight Gastronomy Tour",
-    location: "Old Town District",
-    shift: "Evening Experience",
-    shiftClass: "bg-secondary-container text-on-secondary-container",
-    status: "PENDING START",
-    statusClass: "bg-surface-container-highest text-on-surface-variant",
-    dotClass: "bg-slate-400",
-    time: "06:30 PM - 09:30 PM",
-    passengers: "6 Adults",
-    detailLabel: "Dietary",
-    detailValue: "2 Vegan, 1 Nut-Free",
-    primaryAction: "Review Special Requests",
-    primaryVariant: "outline",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBQMHDpwY9TahVhfFRDS1JjFq5rHgKXuJOtGXrVWjgyVI91pFTyRts2oLdxIQgvm1FEWk-v5ZG7FQqtK0_28m46rt81zBcWDYi95y3AJsKni98oo0_wpOiYd1aZ71v68xrcOu2GvTEMxxOZExPeBWKyvb_sKNsE4AXq9gT5PfmavoGoRw7wsF3cRB5M8yNC2jT2pXeXOBkc25I3kMG7Z7f2T_knEUJLQmo1eLw-S_WcEm02VMlPIC8WDIKYBn7UrDd2F1ggdAGzHZSh",
-  },
-];
+import { getGuideAssignedTours, getGuideDashboard } from "@/services/api/guide";
 
 export default function GuideDashboardHome() {
+  const navigate = useNavigate();
+  const [stats, setStats] = useState(null);
+  const [assignedTours, setAssignedTours] = useState([]);
+
   useEffect(() => {
     const previousTitle = document.title;
     const previousDescription =
@@ -137,6 +48,15 @@ export default function GuideDashboardHome() {
       "Guide dashboard for Voyager AI with assigned tours, shift actions, live tour operations, schedule insights, and incident reporting overview.",
     );
 
+    Promise.all([getGuideDashboard(), getGuideAssignedTours()])
+      .then(([dashboardResponse, toursResponse]) => {
+        setStats(dashboardResponse.data.data?.guideStats || null);
+        setAssignedTours(toursResponse.data.data || []);
+      })
+      .catch((error) =>
+        toast.error(error?.response?.data?.message || "Cannot load guide dashboard"),
+      );
+
     return () => {
       document.title = previousTitle;
       if (descriptionTag) {
@@ -144,6 +64,101 @@ export default function GuideDashboardHome() {
       }
     };
   }, []);
+
+  const summaryCards = useMemo(() => {
+    const upcomingTours = assignedTours.filter((tour) => tour.status === "scheduled").length;
+    const ongoingTours = assignedTours.filter((tour) => tour.status === "ongoing").length;
+
+    return [
+      {
+        label: "Assigned Today",
+        value: String(ongoingTours || 0).padStart(2, "0"),
+        icon: ClipboardCheck,
+        iconClass: "text-primary",
+        iconBg: "bg-primary/10",
+      },
+      {
+        label: "Upcoming Tours",
+        value: String(upcomingTours || 0).padStart(2, "0"),
+        icon: CalendarDays,
+        iconClass: "text-secondary",
+        iconBg: "bg-secondary/10",
+      },
+      {
+        label: "Ongoing Tours",
+        value: String(ongoingTours || 0).padStart(2, "0"),
+        icon: Footprints,
+        iconClass: "text-primary-container",
+        iconBg: "bg-primary-container/10",
+        valueClass: "text-primary",
+      },
+      {
+        label: "Pending Reports",
+        value: "00",
+        icon: AlertTriangle,
+        iconClass: "text-tertiary",
+        iconBg: "bg-tertiary/10",
+        valueClass: "text-tertiary",
+        extraClass: "border-l-4 border-tertiary",
+      },
+    ];
+  }, [assignedTours]);
+
+  const quickActions = [
+    {
+      title: "View Assigned Tours",
+      icon: Globe2,
+      hoverText: "group-hover:text-primary",
+      hoverIcon: "group-hover:bg-primary group-hover:text-on-primary",
+      onClick: () => navigate("/guide/assigned-tours"),
+    },
+    {
+      title: "Start Ongoing Tour",
+      icon: PlayCircle,
+      hoverText: "group-hover:text-primary",
+      hoverIcon: "group-hover:bg-primary group-hover:text-on-primary",
+      onClick: () => navigate("/guide/live-tour-tracking"),
+    },
+    {
+      title: "Submit Incident Report",
+      icon: FileWarning,
+      hoverText: "group-hover:text-on-surface",
+      hoverIcon: "group-hover:bg-error group-hover:text-on-error",
+      extraClass: "border border-dashed border-outline-variant/50",
+      onClick: () => toast("Tính năng báo cáo sự cố sẽ được nối tiếp theo."),
+    },
+  ];
+
+  const dashboardTours = useMemo(
+    () =>
+      assignedTours.slice(0, 2).map((tour, index) => ({
+        id: tour.code || tour.id,
+        title: tour.title,
+        location: tour.locationShortLabel || "Unknown location",
+        shift: index === 0 ? "Morning Departure" : "Evening Experience",
+        shiftClass:
+          index === 0
+            ? "bg-tertiary-container/10 text-tertiary"
+            : "bg-secondary-container text-on-secondary-container",
+        status: tour.status === "ongoing" ? "CONFIRMED" : "PENDING START",
+        statusClass:
+          tour.status === "ongoing"
+            ? "bg-primary-fixed-dim/20 text-on-primary-fixed-variant"
+            : "bg-surface-container-highest text-on-surface-variant",
+        dotClass: tour.status === "ongoing" ? "bg-primary-container" : "bg-slate-400",
+        time: tour.dateRangeLabel || "No schedule",
+        passengers: `${tour.passengerCount || 0} Guests`,
+        detailLabel: "Language",
+        detailValue: (stats?.languages || []).join(", ") || "VI",
+        primaryAction: tour.status === "ongoing" ? "Open Live Tracking" : "Review Tour",
+        primaryVariant: tour.status === "ongoing" ? "default" : "outline",
+        image:
+          tour.cardImage ||
+          "https://lh3.googleusercontent.com/aida-public/AB6AXuBuYXQ7VscEn13MSHD2eAetw1Ldn755zK2Coe8SPq3oeMonKp1NQKC6qdDCT23tfsLKrqQJYxJ-xF7wEgUrmc97b7qbOqsMGtQ_h9dPwmkJ8nNdQKcxuvwMkQsc6nUBxDVBiomDYDQ09blyfOejw3t0atY_Bw31IMtIUsT31TkGW44ssw6FRA-RpmHbSwniYVN3brxwnIc7YRT97nIg9hpRBDv1vdtMI46nEJ6n_rODByA9epUYl8mNaiWNf-OtjCcoS6gRH7zP9pHs",
+        bookingId: tour.bookingId,
+      })),
+    [assignedTours, stats],
+  );
 
   return (
     <main className="mx-auto w-full max-w-[1600px] space-y-10 pb-12 pt-24 text-on-surface">
@@ -153,7 +168,7 @@ export default function GuideDashboardHome() {
           <>
             Welcome back,{" "}
             <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
-              Marcus
+              Guide
             </span>
           </>
         }
@@ -161,7 +176,7 @@ export default function GuideDashboardHome() {
         meta={
           <p className="flex items-center gap-2 text-on-surface-variant">
             <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary-container" />
-            2 Tours Assigned Today
+            {assignedTours.length} Tours Assigned
           </p>
         }
         actions={
@@ -169,11 +184,15 @@ export default function GuideDashboardHome() {
             <Button
               variant="secondary"
               className="h-11 rounded-2xl bg-secondary-container px-5 text-sm font-semibold text-on-secondary-container"
+              asChild
             >
-              Schedule View
+              <Link to="/guide/assigned-tours">Schedule View</Link>
             </Button>
-            <Button className="h-11 rounded-2xl bg-primary px-5 text-sm font-semibold text-on-primary shadow-md shadow-primary/10 hover:bg-emerald-500">
-              Start Shift
+            <Button
+              className="h-11 rounded-2xl bg-primary px-5 text-sm font-semibold text-on-primary shadow-md shadow-primary/10 hover:bg-emerald-500"
+              asChild
+            >
+              <Link to="/guide/live-tour-tracking">Start Shift</Link>
             </Button>
           </div>
         }
@@ -218,6 +237,7 @@ export default function GuideDashboardHome() {
               <button
                 key={action.title}
                 type="button"
+                onClick={action.onClick}
                 className={`group flex items-center gap-4 rounded-[1.5rem] bg-surface-container-low p-5 text-left transition-all hover:bg-primary-fixed ${action.extraClass || ""}`}
               >
                 <div
@@ -244,13 +264,14 @@ export default function GuideDashboardHome() {
           <Button
             variant="link"
             className="h-auto px-0 font-semibold text-primary"
+            asChild
           >
-            View Full Calendar
+            <Link to="/guide/assigned-tours">View Full Calendar</Link>
           </Button>
         </div>
 
         <div className="space-y-6">
-          {assignedTours.map((tour) => (
+          {dashboardTours.map((tour) => (
             <Card
               key={tour.id}
               className="group overflow-hidden rounded-[2rem] border-none bg-surface-container-lowest py-0 ring-1 ring-outline-variant/10 transition-all hover:ring-primary/30"
@@ -340,8 +361,11 @@ export default function GuideDashboardHome() {
                           ? "h-11 flex-1 rounded-xl border-2 border-primary font-bold text-primary hover:bg-primary/5"
                           : "h-11 flex-1 rounded-xl bg-primary font-bold text-on-primary"
                       }
+                      asChild
                     >
-                      {tour.primaryAction}
+                      <Link to={`/guide/live-tour-tracking?bookingId=${tour.bookingId}`}>
+                        {tour.primaryAction}
+                      </Link>
                     </Button>
                     <Button
                       variant="secondary"

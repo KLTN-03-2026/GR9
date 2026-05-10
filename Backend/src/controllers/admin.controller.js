@@ -3,7 +3,17 @@ import {
   getUsers,
   updateUserStatus,
 } from "../services/admin.service.js";
+import { getAdminDashboard } from "../services/dashboard.service.js";
 import { success, error } from "../utils/response.js";
+
+export const getAdminDashboardController = async (req, res) => {
+  try {
+    const dashboard = await getAdminDashboard();
+    return success(res, "Get admin dashboard successfully", dashboard, 200);
+  } catch (err) {
+    return error(res, err.message, err.status, err.errorCode);
+  }
+};
 
 export const getUsersController = async (req, res) => {
   try {
