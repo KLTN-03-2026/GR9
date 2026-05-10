@@ -198,7 +198,7 @@ const Header = () => {
                 className="h-11 gap-2 rounded-full px-1.5 pr-2 hover:bg-surface-container-low"
               >
                 <Avatar className="h-9 w-9 border border-outline-variant/30 bg-surface-container-low">
-                  <AvatarImage src={user.user.avatarUrl} />
+                  <AvatarImage src={user?.user?.avatarUrl} />
                 </Avatar>
                 <ChevronDown className="h-4 w-4 text-on-surface-variant" />
               </Button>

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 
 import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
 import LandingHome from "./pages/LandingHome";
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
@@ -64,45 +65,53 @@ function AppRoutes() {
             <Route path="/admin-login" element={<ProviderAndAdminLogin />} />
             <Route path="/guide-staff-login" element={<GuideLogin />} />
 
-            <Route path="/traveler" element={<Layout />}>
-                <Route path="profile" element={<TravelerProfile />} />
-                <Route path="tour-tracking" element={<TourTracking />} />
-                <Route path="my-booking-traveler" element={<MyBookingTourTraveler />} />
-                <Route path="traveler-tracking-link-management" element={<TrackingLinkManagement />} />
-                <Route path="ai-travel-planner" element={<AITravelPlanner />} />
-                <Route path="ai-tour-history" element={<AITourHistory />} />
-                <Route path="review" element={<ReviewPage />} />
+            <Route element={<ProtectedRoute allowedRoles={["TRAVELER"]} />}>
+                <Route path="/traveler" element={<Layout />}>
+                    <Route path="profile" element={<TravelerProfile />} />
+                    <Route path="tour-tracking" element={<TourTracking />} />
+                    <Route path="my-booking-traveler" element={<MyBookingTourTraveler />} />
+                    <Route path="traveler-tracking-link-management" element={<TrackingLinkManagement />} />
+                    <Route path="ai-travel-planner" element={<AITravelPlanner />} />
+                    <Route path="ai-tour-history" element={<AITourHistory />} />
+                    <Route path="review" element={<ReviewPage />} />
 
-                <Route index element={<TravelerDashboard />} />
-                <Route path="tour-list" element={<TourList />} />
-                <Route path="tour-detail" element={<TourDetail />} />
-                <Route path="tour-detail/:tourId" element={<TourDetail />} />
+                    <Route index element={<TravelerDashboard />} />
+                    <Route path="tour-list" element={<TourList />} />
+                    <Route path="tour-detail" element={<TourDetail />} />
+                    <Route path="tour-detail/:tourId" element={<TourDetail />} />
+                </Route>
             </Route>
 
-            <Route path="/admin" element={<Layout />}>
-                <Route index element={<AdminDashboard />} />
-                <Route path="profile" element={<AdminProfile />} />
-                <Route path="provider-approval" element={<ProviderApprovalPage />} />
-                <Route path="provider-approval-history" element={<ProviderApprovalHistory />} />
-                <Route path="users" element={<UserManagementPage />} />
+            <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+                <Route path="/admin" element={<Layout />}>
+                    <Route index element={<AdminDashboard />} />
+                    <Route path="profile" element={<AdminProfile />} />
+                    <Route path="provider-approval" element={<ProviderApprovalPage />} />
+                    <Route path="provider-approval-history" element={<ProviderApprovalHistory />} />
+                    <Route path="users" element={<UserManagementPage />} />
+                </Route>
             </Route>
 
-            <Route path="/provider" element={<Layout />}>
-                <Route index element={<ProviderDashboard />} />
-                <Route path="manage-tours" element={<ManageTours />} />
-                <Route path="tours/:id/schedule" element={<TourSchedulePage />} />
-                <Route path="edit-tour" element={<EditTour />} />
-                <Route path="guide-management" element={<GuideManagementProvider />} />
-                <Route path="bookings-management" element={<ProviderBookingManagement />} />
-                <Route path="service-management" element={<ServiceManagement />} />
-                <Route path="profile" element={<ProviderProfile />} />
+            <Route element={<ProtectedRoute allowedRoles={["PROVIDER"]} />}>
+                <Route path="/provider" element={<Layout />}>
+                    <Route index element={<ProviderDashboard />} />
+                    <Route path="manage-tours" element={<ManageTours />} />
+                    <Route path="tours/:id/schedule" element={<TourSchedulePage />} />
+                    <Route path="edit-tour" element={<EditTour />} />
+                    <Route path="guide-management" element={<GuideManagementProvider />} />
+                    <Route path="bookings-management" element={<ProviderBookingManagement />} />
+                    <Route path="service-management" element={<ServiceManagement />} />
+                    <Route path="profile" element={<ProviderProfile />} />
+                </Route>
             </Route>
 
-            <Route path="/guide" element={<Layout />}>
-                <Route index element={<GuideDashboardHome />} />
-                <Route path="profile" element={<GuideProfile />} />
-                <Route path="assigned-tours" element={<AssignedToursList />} />
-                <Route path="live-tour-tracking" element={<GuideLiveTourTracking />} />
+            <Route element={<ProtectedRoute allowedRoles={["GUIDE"]} />}>
+                <Route path="/guide" element={<Layout />}>
+                    <Route index element={<GuideDashboardHome />} />
+                    <Route path="profile" element={<GuideProfile />} />
+                    <Route path="assigned-tours" element={<AssignedToursList />} />
+                    <Route path="live-tour-tracking" element={<GuideLiveTourTracking />} />
+                </Route>
             </Route>
 
             <Route path="/guest" element={<Layout />}>
