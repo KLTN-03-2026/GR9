@@ -43,6 +43,23 @@ const MEMORY_CARDS = [
     },
 ];
 
+const getServicePrice = (service, type) =>
+    service?.total?.find((item) => item.type === type)?.price || 0;
+
+const toServiceOption = (item) => {
+    const service = item.serviceId;
+
+    return {
+        id: service?._id,
+        label: service?.name,
+        description: service?.description,
+        adultPrice: getServicePrice(service, "ADULT"),
+        childPrice: getServicePrice(service, "CHILD"),
+        infantPrice: getServicePrice(service, "INFANT"),
+        isDefault: item.isDefault,
+    };
+};
+
 export default function TourDetail() {
     const { tourId } = useParams();
     const [tour, setTour] = useState(null);
@@ -56,6 +73,7 @@ export default function TourDetail() {
         setAdults(2);
         setChildren(0);
         setInfants(0);
+        setRoomCount(1);
         setIsPrivate(false);
     };
     useEffect(() => {
@@ -85,6 +103,7 @@ export default function TourDetail() {
 
     const basePrice = useMemo(() => Number(tour?.price?.adult) || 0, [tour]);
     const childPrice = Number(tour?.price?.child) || 0;
+    const infantPrice = Number(tour?.price?.infant) || 0;
     const privateMultiplier = Number(tour?.privateMultiplier) || 1.5;
     const [selectedDate, setSelectedDate] = useState("2026-04-05");
     const [dateDialogOpen, setDateDialogOpen] = useState(false);
@@ -94,8 +113,7 @@ export default function TourDetail() {
     const [adults, setAdults] = useState(2);
     const [children, setChildren] = useState(0);
     const [infants, setInfants] = useState(0);
-    const [defaultHotelPrice, setDefaultHotelPrice] = useState(0);
-    const [defaultTransportPrice, setDefaultTransportPrice] = useState(0);
+    const [roomCount, setRoomCount] = useState(1);
     const [selectedScheduleId, setSelectedScheduleId] = useState(null);
     const filteredSchedules = useMemo(() => {
         if (!tour?.schedules) return [];
@@ -141,15 +159,7 @@ export default function TourDetail() {
             tour?.availableServices
                 ?.filter((s) => s.type === "HOTEL")
                 ?.sort((a, b) => Number(b.isDefault) - Number(a.isDefault))
-                ?.map((s) => ({
-                    id: s.serviceId?._id,
-                    label: s.serviceId?.name,
-                    description: s.serviceId?.description,
-
-                    price: s.serviceId?.total?.find((t) => t.type === "ADULT")?.price || 0,
-
-                    isDefault: s.isDefault,
-                })) || []
+                ?.map(toServiceOption) || []
         );
     }, [tour]);
     const transportOptions = useMemo(() => {
@@ -157,15 +167,7 @@ export default function TourDetail() {
             tour?.availableServices
                 ?.filter((s) => s.type === "TRANSPORT")
                 ?.sort((a, b) => Number(b.isDefault) - Number(a.isDefault))
-                ?.map((s) => ({
-                    id: s.serviceId?._id,
-                    label: s.serviceId?.name,
-                    description: s.serviceId?.description,
-
-                    price: s.serviceId?.total?.find((t) => t.type === "ADULT")?.price || 0,
-
-                    isDefault: s.isDefault,
-                })) || []
+                ?.map(toServiceOption) || []
         );
     }, [tour]);
     useEffect(() => {
@@ -177,30 +179,22 @@ export default function TourDetail() {
 
         if (defaultHotel) {
             setHotelPref(defaultHotel.serviceId?._id || defaultHotel.serviceId);
-
-            setDefaultHotelPrice(defaultHotel.serviceId?.total?.find((t) => t.type === "ADULT")?.price || 0);
         }
 
         if (defaultTransport) {
             setTransportPref(defaultTransport.serviceId?._id || defaultTransport.serviceId);
-
-            setDefaultTransportPrice(defaultTransport.serviceId?.total?.find((t) => t.type === "ADULT")?.price || 0);
         }
     }, [tour]);
 
-    const serviceFee = 120;
-
+    const nights = Math.max((Number(tour?.numberOfDay) || 1) - 1, 0);
     const selectedHotel = hotelOptions.find((h) => h.id === hotelPref);
-
-    const hotelUnitPrice = selectedHotel?.isDefault ? 0 : selectedHotel?.price || 0;
     const selectedTransport = transportOptions.find((t) => t.id === transportPref);
-
-    const transportUnitPrice = selectedTransport?.isDefault ? 0 : selectedTransport?.price || 0;
-    const adultUnit = basePrice + hotelUnitPrice + transportUnitPrice;
-    const childUnit = childPrice + hotelUnitPrice + transportUnitPrice;
-
-    const totalBase = adults * adultUnit + children * childUnit + serviceFee;
-    const total = isPrivate ? Math.round(totalBase * privateMultiplier) : totalBase;
+    const hotelUnitPrice = selectedHotel?.adultPrice || 0;
+    const transportTotal = selectedTransport?.adultPrice || 0;
+    const hotelTotal = selectedHotel ? roomCount * nights * hotelUnitPrice : 0;
+    const basePeopleTotal = adults * basePrice + children * childPrice + infants * infantPrice;
+    const baseTourTotal = isPrivate ? Math.round(basePeopleTotal * privateMultiplier) : basePeopleTotal;
+    const total = baseTourTotal + hotelTotal + transportTotal;
     const reviewCount = reviews.length;
     const averageTourRating =
         reviewCount > 0
@@ -214,15 +208,21 @@ export default function TourDetail() {
             serviceType: "HOTEL",
             serviceId: selectedHotel?.id,
             optionName: selectedHotel?.label,
-            price: hotelUnitPrice,
-            isIncluded: selectedHotel?.isDefault || false,
+            price: hotelTotal,
+            isIncluded: false,
+            quantity: roomCount,
+            nights,
+            unitPrice: hotelUnitPrice,
         },
         {
             serviceType: "TRANSPORT",
             serviceId: selectedTransport?.id,
             optionName: selectedTransport?.label,
-            price: transportUnitPrice,
-            isIncluded: selectedTransport?.isDefault || false,
+            price: transportTotal,
+            isIncluded: false,
+            quantity: selectedTransport ? 1 : 0,
+            nights: 0,
+            unitPrice: transportTotal,
         },
     ];
     if (loading) {
@@ -587,10 +587,12 @@ export default function TourDetail() {
 
                                                 {/* Infants */}
                                                 <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="font-medium text-sm">Infants</p>
-                                                        <p className="text-xs text-on-surface-variant">Free</p>
-                                                    </div>
+                                                <div>
+                                                    <p className="font-medium text-sm">Infants</p>
+                                                    <p className="text-xs text-on-surface-variant">
+                                                        {infantPrice > 0 ? `${formatPrice(infantPrice)} / person` : "Free"}
+                                                    </p>
+                                                </div>
                                                     <div className="flex items-center gap-2">
                                                         <button onClick={() => setInfants((v) => Math.max(0, v - 1))}>
                                                             -
@@ -604,7 +606,7 @@ export default function TourDetail() {
 
                                         <div className="space-y-3">
                                             <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
-                                                Hotel Preference
+                                                Hotel Preference ({nights} nights)
                                             </label>
                                             <div className="space-y-3">
                                                 {hotelOptions.map((opt) => {
@@ -631,15 +633,38 @@ export default function TourDetail() {
                                                                     </p>
                                                                 </div>
                                                                 <span className="text-sm font-bold text-primary whitespace-nowrap">
-                                                                    {opt.isDefault
-                                                                        ? "Included"
-                                                                        : `+${formatPrice(opt.price)}`}
+                                                                    {formatPrice(opt.adultPrice)}/room/night
                                                                 </span>
                                                             </div>
                                                         </button>
                                                     );
                                                 })}
                                             </div>
+                                            {selectedHotel ? (
+                                                <div className="flex items-center justify-between rounded-xl border border-outline-variant/30 p-3">
+                                                    <div>
+                                                        <p className="text-sm font-medium">Rooms</p>
+                                                        <p className="text-xs text-on-surface-variant">
+                                                            {formatPrice(hotelUnitPrice)} x {nights} nights
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setRoomCount((value) => Math.max(1, value - 1))}
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <span className="w-6 text-center">{roomCount}</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setRoomCount((value) => value + 1)}
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : null}
                                         </div>
 
                                         <div className="space-y-3">
@@ -671,9 +696,7 @@ export default function TourDetail() {
                                                                     </p>
                                                                 </div>
                                                                 <span className="text-sm font-bold text-primary whitespace-nowrap">
-                                                                    {opt.isDefault
-                                                                        ? "Included"
-                                                                        : `+${formatPrice(opt.price)}`}
+                                                                    {formatPrice(opt.adultPrice)}/booking
                                                                 </span>
                                                             </div>
                                                         </button>
@@ -693,13 +716,21 @@ export default function TourDetail() {
                                                 <span>{formatPrice(childPrice * children)}</span>
                                             </div>
 
+                                            {infants > 0 || infantPrice > 0 ? (
+                                                <div className="flex justify-between text-on-surface-variant">
+                                                    <span>Infants x {infants}</span>
+                                                    <span>{formatPrice(infantPrice * infants)}</span>
+                                                </div>
+                                            ) : null}
+
                                             <div className="flex justify-between text-on-surface-variant">
-                                                <span>Hotel + Transport (per person)</span>
-                                                <span>
-                                                    {formatPrice(
-                                                        (hotelUnitPrice + transportUnitPrice) * (adults + children),
-                                                    )}
-                                                </span>
+                                                <span>Hotel ({roomCount} room x {nights} nights)</span>
+                                                <span>{formatPrice(hotelTotal)}</span>
+                                            </div>
+
+                                            <div className="flex justify-between text-on-surface-variant">
+                                                <span>Transport</span>
+                                                <span>{formatPrice(transportTotal)}</span>
                                             </div>
                                             <div className="flex justify-between items-center pt-2">
                                                 <span className="font-bold text-xl">Total</span>

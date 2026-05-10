@@ -8,7 +8,8 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "seed:service": "node src/scripts/seed-service.js",
-    "seed:users": "node src/scripts/seed-users.js"
+    "seed:users": "node src/scripts/seed-users.js",
+    "seed:demo": "node src/scripts/seed-demo-data.js"
   },
   "keywords": [],
   "author": "",

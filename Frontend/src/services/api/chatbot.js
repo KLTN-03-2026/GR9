@@ -1,5 +1,5 @@
 import apiInstance from ".";
 
-export const askChatbot = (message) => {
-  return apiInstance.post("/chatbot/ask", { message });
+export const askChatbot = (message, history = []) => {
+  return apiInstance.post("/chatbot/ask", { message, history });
 };

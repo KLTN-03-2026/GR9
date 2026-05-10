@@ -7,7 +7,11 @@ import { error, success } from "../utils/response.js";
 
 export const askChatbotController = async (req, res) => {
   try {
-    const result = await askChatbotService(req.body?.message);
+    const result = await askChatbotService(
+      req.body?.message,
+      req.user,
+      req.body?.history,
+    );
     return success(res, "Chatbot response success", result);
   } catch (err) {
     return error(res, err.message, err.status || 500, err.errorCode);
