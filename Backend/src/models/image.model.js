@@ -14,7 +14,12 @@ const imageSchema = new Schema(
       required: true,
     },
     imageUrl: { type: String, required: true, trim: true },
+    cloudinaryUrl: { type: String, default: null },
     description: { type: String, default: null },
+    publicId: { type: String, default: null },
+    originalName: { type: String, default: null },
+    fileType: { type: String, default: null },
+    resourceType: { type: String, default: null },
   },
   {
     timestamps: true,

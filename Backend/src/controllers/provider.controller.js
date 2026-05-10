@@ -4,6 +4,8 @@ import {
   listProviderApplications,
   approveProvider,
   rejectProvider,
+  getActiveProviderPolicy,
+  uploadProviderPolicy,
 } from "../services/provider.service.js";
 
 export const applyProviderController = async (req, res) => {
@@ -39,6 +41,24 @@ export const rejectProviderController = async (req, res) => {
     const { id } = req.params;
     const result = await rejectProvider(id);
     return success(res, result.message, result, 200);
+  } catch (err) {
+    return error(res, err.message, err.status, err.errorCode);
+  }
+};
+
+export const getActiveProviderPolicyController = async (req, res) => {
+  try {
+    const policy = await getActiveProviderPolicy();
+    return success(res, "Active provider policy loaded", policy, 200);
+  } catch (err) {
+    return error(res, err.message, err.status, err.errorCode);
+  }
+};
+
+export const uploadProviderPolicyController = async (req, res) => {
+  try {
+    const policy = await uploadProviderPolicy(req.body, req.file, req.user?._id);
+    return success(res, "Provider policy uploaded", policy, 201);
   } catch (err) {
     return error(res, err.message, err.status, err.errorCode);
   }

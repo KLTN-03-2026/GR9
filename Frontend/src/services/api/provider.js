@@ -15,3 +15,11 @@ export const approveProviderApplication = async (id) => {
 export const rejectProviderApplication = async (id) => {
   return await api.put(`/provider/applications/${id}/reject`);
 };
+
+export const getActiveProviderPolicy = async () => {
+  return await api.get("/provider/policy");
+};
+
+export const uploadProviderPolicy = async (data) => {
+  return await api.post("/provider/policy", data);
+};
