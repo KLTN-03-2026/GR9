@@ -98,9 +98,15 @@ export const getTravelerDashboard = async (travelerId) => {
       );
       if (Number.isNaN(start.getTime())) return;
 
-      const end = addDays(start, (Number(booking.tourId?.numberOfDay) || 1) - 1);
-      if (start > now) upcomingTripCount += 1;
-      if (end < now) {
+      if (
+        start > now &&
+        booking.payment === "PAID" &&
+        !["CANCELLED", "REFUNDED", "COMPLETED"].includes(booking.status)
+      ) {
+        upcomingTripCount += 1;
+      }
+
+      if (booking.status === "COMPLETED") {
         completedTourCount += 1;
 
         if (location) {
@@ -212,24 +218,12 @@ export const getGuideDashboard = async (guideId) => {
     })
       .populate("tourId", "numberOfDay")
       .populate("tourScheduleId", "departureDate")
-      .select("tourId tourScheduleId startDate bookingDate isPrivate");
+      .select("tourId tourScheduleId startDate bookingDate isPrivate status");
 
-    const now = new Date();
     const completedTourIds = new Set();
 
     bookings.forEach((booking) => {
-      const start = new Date(
-        booking.isPrivate
-          ? booking.startDate
-          : booking.tourScheduleId?.departureDate ||
-              booking.startDate ||
-              booking.bookingDate,
-      );
-
-      if (Number.isNaN(start.getTime())) return;
-
-      const end = addDays(start, (Number(booking.tourId?.numberOfDay) || 1) - 1);
-      if (end < now && booking.tourId?._id) {
+      if (booking.status === "COMPLETED" && booking.tourId?._id) {
         completedTourIds.add(String(booking.tourId._id));
       }
     });

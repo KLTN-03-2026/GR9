@@ -73,8 +73,8 @@ const ensureReferences = async ({ tourId, GuideId, bookingId }, reviewerId) => {
         throwError("Guide does not belong to this tour schedule", 400, "GUIDE_NOT_MATCH_TOUR_SCHEDULE");
     }
 
-    if (booking.status !== "CONFIRMED") {
-        throwError("Only confirmed bookings can be reviewed", 400, "BOOKING_NOT_CONFIRMED");
+    if (booking.status !== "COMPLETED") {
+        throwError("Only completed bookings can be reviewed", 400, "BOOKING_NOT_COMPLETED");
     }
 };
 

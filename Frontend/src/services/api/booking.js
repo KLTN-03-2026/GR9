@@ -12,6 +12,10 @@ export const getMyBookings = () => {
     return apiInstance.get("/booking/me");
 };
 
+export const getProviderBookings = () => {
+    return apiInstance.get("/booking/provider");
+};
+
 export const getBookingSuccess = (orderCode) => {
     return apiInstance.get(`/booking/success/${orderCode}`);
 };
