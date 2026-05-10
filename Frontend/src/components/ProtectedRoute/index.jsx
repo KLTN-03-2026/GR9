@@ -1,4 +1,5 @@
-import { useContext, useMemo } from "react";
+import { useContext, useEffect, useMemo } from "react";
+import toast from "react-hot-toast";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import AuthContext from "@/context/authContext";
 
@@ -37,14 +38,28 @@ export default function ProtectedRoute({ allowedRoles = [] }) {
   const role = getRole(session);
   const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
 
-  if (!session || !role || !hasToken(session)) {
-    const loginPath = roleLoginPath[roles[0]] || "/login";
+  const isUnauthenticated = !session || !role || !hasToken(session);
+  const isForbidden = !isUnauthenticated && roles.length && !roles.includes(role);
+  const loginPath = roleLoginPath[roles[0]] || "/login";
+  const fallbackPath = roleHomePath[role] || "/";
 
+  useEffect(() => {
+    if (isUnauthenticated) {
+      toast.error("Vui lòng đăng nhập để tiếp tục.");
+      return;
+    }
+
+    if (isForbidden) {
+      toast.error("Bạn không có quyền truy cập trang này.");
+    }
+  }, [isUnauthenticated, isForbidden]);
+
+  if (isUnauthenticated) {
     return <Navigate to={loginPath} replace state={{ from: location }} />;
   }
 
-  if (roles.length && !roles.includes(role)) {
-    return <Navigate to={roleHomePath[role] || "/"} replace />;
+  if (isForbidden) {
+    return <Navigate to={fallbackPath} replace />;
   }
 
   return <Outlet />;
