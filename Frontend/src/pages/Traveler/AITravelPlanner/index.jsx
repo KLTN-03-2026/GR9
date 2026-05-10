@@ -5,7 +5,7 @@ import PlannerItinerary from "./PlannerItinerary";
 import PlannerResultHeader from "./PlannerResultHeader";
 import PlannerSidebar from "./PlannerSidebar";
 import PlannerVisuals from "./PlannerVisuals";
-import { callAi, saveAiTourHistory } from "@/services/api/ai";
+import { callAi, publishAiTourRequest, saveAiTourHistory } from "@/services/api/ai";
 import { geocodeAddress } from "@/services/api/location";
 
 const extractJson = (text) => {
@@ -43,6 +43,8 @@ export default function AITravelPlanner() {
   });
   const [itinerary, setItinerary] = useState(null);
   const [savingTrip, setSavingTrip] = useState(false);
+  const [sendingToProviders, setSendingToProviders] = useState(false);
+  const [sentToProviders, setSentToProviders] = useState(false);
   const [savedTripId, setSavedTripId] = useState(null);
 
   useEffect(() => {
@@ -51,6 +53,9 @@ export default function AITravelPlanner() {
 
     setItinerary(selectedTour);
     setSavedTripId(selectedTour._id || null);
+    setSentToProviders(
+      ["PUBLISHED", "PROPOSED", "APPROVED", "REJECTED", "CONVERTED"].includes(selectedTour.status),
+    );
     setDestination(selectedTour.location || "");
     setDuration(selectedTour.numberOfDay || 3);
     setBudget(
@@ -116,6 +121,7 @@ export default function AITravelPlanner() {
       const data = extractJson(response.data.data);
       setItinerary(data);
       setSavedTripId(null);
+      setSentToProviders(false);
     } catch (error) {
       console.log(error);
       toast.error(error?.response?.data?.message || "Cannot generate tour");
@@ -145,6 +151,36 @@ export default function AITravelPlanner() {
       toast.error(error?.response?.data?.message || "Cannot save trip");
     } finally {
       setSavingTrip(false);
+    }
+  };
+
+  const ensureSavedTrip = async () => {
+    if (savedTripId) return savedTripId;
+    if (!itinerary) {
+      toast.error("Please generate a trip first");
+      return null;
+    }
+
+    const response = await saveAiTourHistory({ tour: itinerary });
+    const id = response.data.data?._id;
+    setSavedTripId(id);
+    return id;
+  };
+
+  const handleSendToProviders = async () => {
+    try {
+      setSendingToProviders(true);
+      const requestId = await ensureSavedTrip();
+      if (!requestId) return;
+
+      await publishAiTourRequest(requestId);
+      setSentToProviders(true);
+      toast.success("Đã gửi tour AI đến toàn bộ provider");
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message || "Không thể gửi tour AI đến provider");
+    } finally {
+      setSendingToProviders(false);
     }
   };
 
@@ -192,7 +228,10 @@ export default function AITravelPlanner() {
               itinerary={itinerary}
               isTripSaved={Boolean(savedTripId)}
               isSavingTrip={savingTrip}
+              isSendingToProviders={sendingToProviders}
+              isSentToProviders={sentToProviders}
               onOpenHistory={() => navigate("/traveler/ai-tour-history")}
+              onSendToProviders={handleSendToProviders}
               onSaveTrip={handleSaveTrip}
             />
 
