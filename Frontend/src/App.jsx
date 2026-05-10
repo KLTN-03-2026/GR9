@@ -47,6 +47,7 @@ import TravelerProfile from "./pages/Traveler/TravelerProfile";
 import GuideProfile from "./pages/Guide/GuideProfile";
 import AdminProfile from "./pages/Admin/AdminProfile";
 import TourSchedulePage from "./pages/Provider/TourSchedule";
+import NotFound from "./pages/NotFound";
 function AppRoutes() {
     const location = useLocation();
 
@@ -79,6 +80,7 @@ function AppRoutes() {
                     <Route path="tour-list" element={<TourList />} />
                     <Route path="tour-detail" element={<TourDetail />} />
                     <Route path="tour-detail/:tourId" element={<TourDetail />} />
+                    <Route path="*" element={<NotFound />} />
                 </Route>
             </Route>
 
@@ -89,6 +91,7 @@ function AppRoutes() {
                     <Route path="provider-approval" element={<ProviderApprovalPage />} />
                     <Route path="provider-approval-history" element={<ProviderApprovalHistory />} />
                     <Route path="users" element={<UserManagementPage />} />
+                    <Route path="*" element={<NotFound />} />
                 </Route>
             </Route>
 
@@ -102,6 +105,7 @@ function AppRoutes() {
                     <Route path="bookings-management" element={<ProviderBookingManagement />} />
                     <Route path="service-management" element={<ServiceManagement />} />
                     <Route path="profile" element={<ProviderProfile />} />
+                    <Route path="*" element={<NotFound />} />
                 </Route>
             </Route>
 
@@ -111,13 +115,17 @@ function AppRoutes() {
                     <Route path="profile" element={<GuideProfile />} />
                     <Route path="assigned-tours" element={<AssignedToursList />} />
                     <Route path="live-tour-tracking" element={<GuideLiveTourTracking />} />
+                    <Route path="*" element={<NotFound />} />
                 </Route>
             </Route>
 
             <Route path="/guest" element={<Layout />}>
                 <Route index element={<PublicTourTracking />} />
                 <Route path="booking-success-and-tracking-link" element={<BookingSuccess />} />
+                <Route path="*" element={<NotFound />} />
             </Route>
+
+            <Route path="*" element={<NotFound />} />
         </Routes>
     );
 }
