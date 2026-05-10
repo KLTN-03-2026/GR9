@@ -60,14 +60,6 @@ const toServiceOption = (item) => {
     };
 };
 
-const getUpgradePrice = (selected, defaultOption, type) => {
-    if (!selected || selected.isDefault) return 0;
-    const selectedPrice = selected[`${type}Price`] || 0;
-    const includedPrice = defaultOption?.[`${type}Price`] || 0;
-
-    return Math.max(selectedPrice - includedPrice, 0);
-};
-
 export default function TourDetail() {
     const { tourId } = useParams();
     const [tour, setTour] = useState(null);
@@ -81,6 +73,7 @@ export default function TourDetail() {
         setAdults(2);
         setChildren(0);
         setInfants(0);
+        setRoomCount(1);
         setIsPrivate(false);
     };
     useEffect(() => {
@@ -120,6 +113,7 @@ export default function TourDetail() {
     const [adults, setAdults] = useState(2);
     const [children, setChildren] = useState(0);
     const [infants, setInfants] = useState(0);
+    const [roomCount, setRoomCount] = useState(1);
     const [selectedScheduleId, setSelectedScheduleId] = useState(null);
     const filteredSchedules = useMemo(() => {
         if (!tour?.schedules) return [];
@@ -192,30 +186,15 @@ export default function TourDetail() {
         }
     }, [tour]);
 
-    const serviceFee = 0;
-
-    const defaultHotel = hotelOptions.find((h) => h.isDefault);
+    const nights = Math.max((Number(tour?.numberOfDay) || 1) - 1, 0);
     const selectedHotel = hotelOptions.find((h) => h.id === hotelPref);
-    const defaultTransport = transportOptions.find((t) => t.isDefault);
     const selectedTransport = transportOptions.find((t) => t.id === transportPref);
-
-    const adultHotelUpgrade = getUpgradePrice(selectedHotel, defaultHotel, "adult");
-    const childHotelUpgrade = getUpgradePrice(selectedHotel, defaultHotel, "child");
-    const infantHotelUpgrade = getUpgradePrice(selectedHotel, defaultHotel, "infant");
-    const adultTransportUpgrade = getUpgradePrice(selectedTransport, defaultTransport, "adult");
-    const childTransportUpgrade = getUpgradePrice(selectedTransport, defaultTransport, "child");
-    const infantTransportUpgrade = getUpgradePrice(selectedTransport, defaultTransport, "infant");
-    const adultUpgradeUnit = adultHotelUpgrade + adultTransportUpgrade;
-    const childUpgradeUnit = childHotelUpgrade + childTransportUpgrade;
-    const infantUpgradeUnit = infantHotelUpgrade + infantTransportUpgrade;
-    const adultUnit = basePrice + adultUpgradeUnit;
-    const childUnit = childPrice + childUpgradeUnit;
-    const infantUnit = infantPrice + infantUpgradeUnit;
-    const serviceUpgradeTotal =
-        adults * adultUpgradeUnit + children * childUpgradeUnit + infants * infantUpgradeUnit;
-
-    const totalBase = adults * adultUnit + children * childUnit + infants * infantUnit + serviceFee;
-    const total = isPrivate ? Math.round(totalBase * privateMultiplier) : totalBase;
+    const hotelUnitPrice = selectedHotel?.adultPrice || 0;
+    const transportTotal = selectedTransport?.adultPrice || 0;
+    const hotelTotal = selectedHotel ? roomCount * nights * hotelUnitPrice : 0;
+    const basePeopleTotal = adults * basePrice + children * childPrice + infants * infantPrice;
+    const baseTourTotal = isPrivate ? Math.round(basePeopleTotal * privateMultiplier) : basePeopleTotal;
+    const total = baseTourTotal + hotelTotal + transportTotal;
     const reviewCount = reviews.length;
     const averageTourRating =
         reviewCount > 0
@@ -229,18 +208,21 @@ export default function TourDetail() {
             serviceType: "HOTEL",
             serviceId: selectedHotel?.id,
             optionName: selectedHotel?.label,
-            price: adults * adultHotelUpgrade + children * childHotelUpgrade + infants * infantHotelUpgrade,
-            isIncluded: selectedHotel?.isDefault || false,
+            price: hotelTotal,
+            isIncluded: false,
+            quantity: roomCount,
+            nights,
+            unitPrice: hotelUnitPrice,
         },
         {
             serviceType: "TRANSPORT",
             serviceId: selectedTransport?.id,
             optionName: selectedTransport?.label,
-            price:
-                adults * adultTransportUpgrade +
-                children * childTransportUpgrade +
-                infants * infantTransportUpgrade,
-            isIncluded: selectedTransport?.isDefault || false,
+            price: transportTotal,
+            isIncluded: false,
+            quantity: selectedTransport ? 1 : 0,
+            nights: 0,
+            unitPrice: transportTotal,
         },
     ];
     if (loading) {
@@ -624,12 +606,11 @@ export default function TourDetail() {
 
                                         <div className="space-y-3">
                                             <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
-                                                Hotel Preference
+                                                Hotel Preference ({nights} nights)
                                             </label>
                                             <div className="space-y-3">
                                                 {hotelOptions.map((opt) => {
                                                     const selected = opt.id === hotelPref;
-                                                    const adultUpgrade = getUpgradePrice(opt, defaultHotel, "adult");
                                                     return (
                                                         <button
                                                             key={opt.id}
@@ -652,17 +633,38 @@ export default function TourDetail() {
                                                                     </p>
                                                                 </div>
                                                                 <span className="text-sm font-bold text-primary whitespace-nowrap">
-                                                                    {opt.isDefault
-                                                                        ? "Included"
-                                                                        : adultUpgrade > 0
-                                                                          ? `+${formatPrice(adultUpgrade)}`
-                                                                          : "No extra"}
+                                                                    {formatPrice(opt.adultPrice)}/room/night
                                                                 </span>
                                                             </div>
                                                         </button>
                                                     );
                                                 })}
                                             </div>
+                                            {selectedHotel ? (
+                                                <div className="flex items-center justify-between rounded-xl border border-outline-variant/30 p-3">
+                                                    <div>
+                                                        <p className="text-sm font-medium">Rooms</p>
+                                                        <p className="text-xs text-on-surface-variant">
+                                                            {formatPrice(hotelUnitPrice)} x {nights} nights
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setRoomCount((value) => Math.max(1, value - 1))}
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <span className="w-6 text-center">{roomCount}</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setRoomCount((value) => value + 1)}
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : null}
                                         </div>
 
                                         <div className="space-y-3">
@@ -672,7 +674,6 @@ export default function TourDetail() {
                                             <div className="space-y-3">
                                                 {transportOptions.map((opt) => {
                                                     const selected = opt.id === transportPref;
-                                                    const adultUpgrade = getUpgradePrice(opt, defaultTransport, "adult");
                                                     return (
                                                         <button
                                                             key={opt.id}
@@ -695,11 +696,7 @@ export default function TourDetail() {
                                                                     </p>
                                                                 </div>
                                                                 <span className="text-sm font-bold text-primary whitespace-nowrap">
-                                                                    {opt.isDefault
-                                                                        ? "Included"
-                                                                        : adultUpgrade > 0
-                                                                          ? `+${formatPrice(adultUpgrade)}`
-                                                                          : "No extra"}
+                                                                    {formatPrice(opt.adultPrice)}/booking
                                                                 </span>
                                                             </div>
                                                         </button>
@@ -727,8 +724,13 @@ export default function TourDetail() {
                                             ) : null}
 
                                             <div className="flex justify-between text-on-surface-variant">
-                                                <span>Service upgrades</span>
-                                                <span>{formatPrice(serviceUpgradeTotal)}</span>
+                                                <span>Hotel ({roomCount} room x {nights} nights)</span>
+                                                <span>{formatPrice(hotelTotal)}</span>
+                                            </div>
+
+                                            <div className="flex justify-between text-on-surface-variant">
+                                                <span>Transport</span>
+                                                <span>{formatPrice(transportTotal)}</span>
                                             </div>
                                             <div className="flex justify-between items-center pt-2">
                                                 <span className="font-bold text-xl">Total</span>

@@ -57,32 +57,28 @@ const providers = {
 };
 
 const hotelPrices = {
-  "Fusion Suites Da Nang": { adult: 450000, child: 300000 },
-  "Han River Hotel": { adult: 350000, child: 240000 },
-  "Hanoi Old Quarter Hotel": { adult: 420000, child: 290000 },
-  "Sapa Mountain Lodge": { adult: 480000, child: 330000 },
-  "Ha Long Seaside Hotel": { adult: 450000, child: 300000 },
-  "Hue Heritage Hotel": { adult: 320000, child: 220000 },
-  "Nha Trang Beach Resort": { adult: 550000, child: 380000 },
-  "Da Lat Garden Hotel": { adult: 360000, child: 250000 },
-  "Saigon Riverside Hotel": { adult: 450000, child: 300000 },
-  "Mekong Riverside Homestay": { adult: 300000, child: 200000 },
-  "Phu Quoc Beach Resort": { adult: 700000, child: 480000 },
+  "Fusion Suites Da Nang": 1200000,
+  "Han River Hotel": 900000,
+  "Hanoi Old Quarter Hotel": 1050000,
+  "Sapa Mountain Lodge": 850000,
+  "Ha Long Seaside Hotel": 980000,
+  "Hue Heritage Hotel": 760000,
+  "Nha Trang Beach Resort": 1350000,
+  "Da Lat Garden Hotel": 720000,
+  "Saigon Riverside Hotel": 1150000,
+  "Mekong Riverside Homestay": 620000,
+  "Phu Quoc Beach Resort": 1600000,
 };
 
 const normalizeServicePricing = (serviceData) => {
   if (serviceData.type !== "HOTEL") return serviceData;
 
-  const price = hotelPrices[serviceData.name] || { adult: 400000, child: 280000 };
+  const price = hotelPrices[serviceData.name] || 900000;
 
   return {
     ...serviceData,
-    description: `${serviceData.description} Gia nay la phan chi phi luu tru tinh theo moi khach trong goi tour, khong phai gia phong/den.`,
-    total: [
-      { type: "ADULT", price: price.adult },
-      { type: "CHILD", price: price.child },
-      { type: "INFANT", price: 0 },
-    ],
+    description: `${serviceData.description} Gia khach san duoc tinh theo phong/den.`,
+    total: [{ type: "ADULT", price }],
   };
 };
 
@@ -349,7 +345,7 @@ const tourSeeds = [
       "Tour gia dinh ket hop bien My Khe, Ba Na Hills, Hoi An va am thuc dia phuong.",
     numberOfDay: 3,
     type: "GROUP",
-    price: { adult: 2500000, child: 1800000, infant: 0 },
+    price: { adult: 1720000, child: 1200000, infant: 0 },
     serviceNames: [
       "Fusion Suites Da Nang",
       "Private Car Da Nang",
@@ -390,7 +386,7 @@ const tourSeeds = [
       "Hanh trinh ngan ngay danh cho cap doi va gia dinh muon trai nghiem pho co.",
     numberOfDay: 2,
     type: "PRIVATE",
-    price: { adult: 1900000, child: 1300000, infant: 0 },
+    price: { adult: 600000, child: 420000, infant: 0 },
     serviceNames: ["Han River Hotel", "Private Car Da Nang", "Hoi An Lantern Walk"],
     itineraries: [
       {
@@ -415,7 +411,7 @@ const tourSeeds = [
       "Kham pha pho co Ha Noi, am thuc duong pho va cac diem van hoa noi bat.",
     numberOfDay: 2,
     type: "GROUP",
-    price: { adult: 1700000, child: 1200000, infant: 0 },
+    price: { adult: 610000, child: 430000, infant: 0 },
     serviceNames: [
       "Hanoi Old Quarter Hotel",
       "Hanoi City Private Car",
@@ -445,7 +441,7 @@ const tourSeeds = [
       "Tour nghi duong mien nui voi trekking ban lang va chinh phuc Fansipan.",
     numberOfDay: 3,
     type: "PRIVATE",
-    price: { adult: 3200000, child: 2300000, infant: 0 },
+    price: { adult: 1500000, child: 1050000, infant: 0 },
     serviceNames: ["Sapa Mountain Lodge", "Sapa Trekking Guide", "Fansipan Cable Car"],
     itineraries: [
       {
@@ -472,7 +468,7 @@ const tourSeeds = [
       "Hanh trinh nghi duong Ha Long voi du thuyen, kayaking va phong canh bien dao.",
     numberOfDay: 2,
     type: "GROUP",
-    price: { adult: 2800000, child: 2100000, infant: 0 },
+    price: { adult: 1450000, child: 1000000, infant: 0 },
     serviceNames: ["Ha Long Seaside Hotel", "Ha Long Bay Cruise"],
     itineraries: [
       {
@@ -497,7 +493,7 @@ const tourSeeds = [
       "Tour van hoa Hue voi Dai Noi, lang tam va am thuc dac trung co do.",
     numberOfDay: 2,
     type: "PRIVATE",
-    price: { adult: 2100000, child: 1500000, infant: 0 },
+    price: { adult: 840000, child: 590000, infant: 0 },
     serviceNames: ["Hue Heritage Hotel", "Hue Imperial City Tour", "Hue Royal Cuisine"],
     itineraries: [
       {
@@ -519,7 +515,7 @@ const tourSeeds = [
       "Tour bien dao cho gia dinh voi resort, snorkeling va vui choi tren bien.",
     numberOfDay: 3,
     type: "GROUP",
-    price: { adult: 3600000, child: 2600000, infant: 0 },
+    price: { adult: 780000, child: 550000, infant: 0 },
     serviceNames: ["Nha Trang Beach Resort", "Nha Trang Island Hopping"],
     itineraries: [
       {
@@ -546,7 +542,7 @@ const tourSeeds = [
       "Tour nghi duong Da Lat voi vuon hoa, thac nuoc, nong trai cafe va khi hau mat me.",
     numberOfDay: 3,
     type: "PRIVATE",
-    price: { adult: 2400000, child: 1700000, infant: 0 },
+    price: { adult: 520000, child: 360000, infant: 0 },
     serviceNames: ["Da Lat Garden Hotel", "Da Lat Countryside Tour"],
     itineraries: [
       {
@@ -573,7 +569,7 @@ const tourSeeds = [
       "Kham pha Sai Gon hien dai va dia dao Cu Chi trong lich trinh ngan ngay.",
     numberOfDay: 2,
     type: "GROUP",
-    price: { adult: 2200000, child: 1600000, infant: 0 },
+    price: { adult: 650000, child: 450000, infant: 0 },
     serviceNames: ["Saigon Riverside Hotel", "Cu Chi Tunnels Experience"],
     itineraries: [
       {
@@ -595,7 +591,7 @@ const tourSeeds = [
       "Trai nghiem mien Tay song nuoc voi homestay, thuyen song va vuon trai cay.",
     numberOfDay: 2,
     type: "PRIVATE",
-    price: { adult: 1800000, child: 1250000, infant: 0 },
+    price: { adult: 480000, child: 340000, infant: 0 },
     serviceNames: ["Mekong Riverside Homestay", "Mekong Boat Trip"],
     itineraries: [
       {
@@ -620,7 +616,7 @@ const tourSeeds = [
       "Ky nghi bien Phu Quoc voi resort, snorkeling va dao Nam Phu Quoc.",
     numberOfDay: 4,
     type: "PRIVATE",
-    price: { adult: 5200000, child: 3800000, infant: 0 },
+    price: { adult: 890000, child: 620000, infant: 0 },
     serviceNames: ["Phu Quoc Beach Resort", "Phu Quoc Snorkeling Tour"],
     itineraries: [
       {
