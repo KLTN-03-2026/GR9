@@ -1,6 +1,6 @@
-import React, { useContext } from "react";
-import { Bell, ChevronDown, LogOut, Search, UserRound } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { Bell, ChevronDown, LogOut, Search, Sparkles, UserRound } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -248,6 +248,8 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logOutContext } = useContext(AuthContext);
+  const [globalSearch, setGlobalSearch] = useState("");
+  const [aiNotifications, setAiNotifications] = useState([]);
   const currentRole =
     ["admin", "traveler", "guide", "provider"].find((role) =>
       location.pathname.startsWith(`/${role}`),
@@ -262,6 +264,66 @@ const Header = () => {
   const currentMeta = {
     ...baseMeta,
     title: resolveBreadcrumbTitle(location.pathname, baseMeta.title),
+  };
+
+  const canSearchCurrentPage = SEARCHABLE_PATHS.some((path) =>
+    location.pathname.startsWith(path),
+  );
+
+  const targetSearchPath = useMemo(() => {
+    const intentPath = resolveSearchIntentPath(currentRole, globalSearch);
+    if (intentPath) return intentPath;
+    if (canSearchCurrentPage) return location.pathname;
+    return DEFAULT_SEARCH_PATHS[currentRole] || DEFAULT_SEARCH_PATHS.provider;
+  }, [canSearchCurrentPage, currentRole, globalSearch, location.pathname]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    setGlobalSearch(params.get("search") || "");
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    const loadAiNotifications = async () => {
+      if (currentRole !== "provider") {
+        setAiNotifications([]);
+        return;
+      }
+
+      try {
+        const response = await getProviderAiNotifications();
+        const payload = response?.data?.data ?? response?.data ?? [];
+        if (!ignore) {
+          setAiNotifications(Array.isArray(payload) ? payload : []);
+        }
+      } catch {
+        if (!ignore) {
+          setAiNotifications([]);
+        }
+      }
+    };
+
+    loadAiNotifications();
+
+    return () => {
+      ignore = true;
+    };
+  }, [currentRole]);
+
+  const handleGlobalSearch = (event) => {
+    event.preventDefault();
+    const keyword = globalSearch.trim();
+    const params = new URLSearchParams();
+
+    if (keyword) {
+      params.set("search", keyword);
+    }
+
+    navigate({
+      pathname: targetSearchPath,
+      search: params.toString(),
+    });
   };
 
   return (
@@ -360,6 +422,7 @@ const Header = () => {
               >
                 <Avatar className="h-9 w-9 border border-outline-variant/30 bg-surface-container-low">
                   <AvatarImage src={user?.user?.avatarUrl} />
+                  <AvatarFallback>{currentMeta.avatarFallback}</AvatarFallback>
                 </Avatar>
                 <ChevronDown className="h-4 w-4 text-on-surface-variant" />
               </Button>
