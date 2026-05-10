@@ -4,6 +4,22 @@ export const getGuideDashboard = async () => {
   return await api.get("/guide/dashboard");
 };
 
+export const getGuideLiveTracking = async (bookingId) => {
+  const params = bookingId ? { bookingId } : {};
+  return await api.get("/guide/live-tracking", { params });
+};
+
+export const updateGuideLiveActivityStatus = async (
+  bookingId,
+  activityId,
+  statusActivity,
+) => {
+  return await api.patch(
+    `/guide/live-tracking/${bookingId}/activities/${activityId}`,
+    { statusActivity },
+  );
+};
+
 export const createGuide = async (guide) => {
   return await api.post("/guide", guide);
 };

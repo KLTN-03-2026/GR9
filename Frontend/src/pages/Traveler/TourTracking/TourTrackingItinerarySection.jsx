@@ -25,6 +25,18 @@ const getIconClass = (state) => {
   return "bg-surface-container-high text-on-surface-variant";
 };
 
+const getCardClass = (state) => {
+  if (state === "ongoing") {
+    return "bg-surface-container-lowest opacity-100 shadow-md ring-1 ring-primary/15";
+  }
+
+  if (state === "completed") {
+    return "bg-surface-container-low/45 opacity-60";
+  }
+
+  return "bg-surface-container-low/35 opacity-50";
+};
+
 export default function TourTrackingItinerarySection({ tracking }) {
   const activities = tracking?.today?.activities || [];
 
@@ -54,7 +66,11 @@ export default function TourTrackingItinerarySection({ tracking }) {
                 </span>
               </div>
 
-              <Card className="flex-1 rounded-2xl border-none bg-surface-container-lowest py-0 shadow-sm transition-all hover:translate-x-1">
+              <Card
+                className={`flex-1 rounded-2xl border-none py-0 shadow-sm transition-all hover:translate-x-1 ${getCardClass(
+                  activity.state,
+                )}`}
+              >
                 <CardContent className="p-6">
                   <div className="mb-2 flex items-start justify-between gap-3">
                     <span className="text-xs font-bold uppercase text-primary">

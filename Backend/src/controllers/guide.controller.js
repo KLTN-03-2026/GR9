@@ -1,5 +1,9 @@
 import { createGuide, deleteGuide, getGuides, updateGuide, getGuideById } from "../services/guide.service.js";
 import { getGuideDashboard } from "../services/dashboard.service.js";
+import {
+    getGuideLiveTracking,
+    updateGuideActivityStatus,
+} from "../services/tracking.service.js";
 
 import { error, success } from "../utils/response.js";
 
@@ -9,6 +13,33 @@ export const getGuideDashboardController = async (req, res) => {
         const dashboard = await getGuideDashboard(userId);
 
         return success(res, "Get guide dashboard successfully", dashboard, 200);
+    } catch (err) {
+        return error(res, err.message, err.status, err.errorCode);
+    }
+};
+
+export const getGuideLiveTrackingController = async (req, res) => {
+    try {
+        const userId = req.user?.id || req.user?._id;
+        const data = await getGuideLiveTracking(userId, req.query.bookingId);
+
+        return success(res, "Get guide live tracking successfully", data, 200);
+    } catch (err) {
+        return error(res, err.message, err.status, err.errorCode);
+    }
+};
+
+export const updateGuideActivityStatusController = async (req, res) => {
+    try {
+        const userId = req.user?.id || req.user?._id;
+        const data = await updateGuideActivityStatus(
+            userId,
+            req.params.bookingId,
+            req.params.activityId,
+            req.body.statusActivity,
+        );
+
+        return success(res, "Update guide activity status successfully", data, 200);
     } catch (err) {
         return error(res, err.message, err.status, err.errorCode);
     }

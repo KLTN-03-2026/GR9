@@ -738,7 +738,7 @@ const seedDemoData = async () => {
           isActive: true,
           itineraries,
           availableServices,
-          leadDuideServiceId: guide._id,
+          leadGuideServiceId: guide._id,
         },
         { new: true, upsert: true, setDefaultsOnInsert: true },
       );
@@ -783,3 +783,4 @@ const seedDemoData = async () => {
 };
 
 seedDemoData();
+

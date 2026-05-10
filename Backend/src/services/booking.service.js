@@ -13,22 +13,14 @@ const getBookingStartDate = (booking) =>
         : booking.tourScheduleId?.departureDate || booking.startDate || booking.bookingDate;
 
 const getBookingLifecycleStatus = (booking) => {
-    if (booking.status === "CANCELLED" || booking.status === "REFUNDED") {
+    if (["CANCELLED", "REFUNDED", "COMPLETED"].includes(booking.status)) {
         return booking.status;
     }
 
     if (booking.payment !== "PAID") {
         return booking.status;
     }
-
-    const start = new Date(getBookingStartDate(booking));
-    if (Number.isNaN(start.getTime())) {
-        return "CONFIRMED";
-    }
-
-    const end = addDays(start, (Number(booking.tourId?.numberOfDay) || 1) - 1);
-
-    return Date.now() > end.getTime() ? "COMPLETED" : "CONFIRMED";
+    return "CONFIRMED";
 };
 
 /**
@@ -154,9 +146,9 @@ export const getMyBookingsService = async (travelerId) => {
     const bookings = await Booking.find({ travelerId, payment: "PAID" })
         .populate({
             path: "tourId",
-            select: "name location price numberOfDay leadDuideServiceId",
+            select: "name location price numberOfDay leadGuideServiceId",
             populate: {
-                path: "leadDuideServiceId",
+                path: "leadGuideServiceId",
                 select: "fullName email avatarUrl",
             },
         })
@@ -205,9 +197,9 @@ export const getBookingSuccessService = async (travelerId, orderCode) => {
     })
         .populate({
             path: "tourId",
-            select: "name location description numberOfDay type leadDuideServiceId",
+            select: "name location description numberOfDay type leadGuideServiceId",
             populate: {
-                path: "leadDuideServiceId",
+                path: "leadGuideServiceId",
                 select: "fullName email avatarUrl",
             },
         })
@@ -247,9 +239,9 @@ export const getBookingSuccessService = async (travelerId, orderCode) => {
             imageUrl: tourImage?.imageUrl || null,
         },
         guide: {
-            name: booking.tourId?.leadDuideServiceId?.fullName || "Guide not assigned",
-            email: booking.tourId?.leadDuideServiceId?.email || "",
-            avatarUrl: booking.tourId?.leadDuideServiceId?.avatarUrl || "",
+            name: booking.tourId?.leadGuideServiceId?.fullName || "Guide not assigned",
+            email: booking.tourId?.leadGuideServiceId?.email || "",
+            avatarUrl: booking.tourId?.leadGuideServiceId?.avatarUrl || "",
         },
         traveler: {
             name: booking.travelerId?.fullName || "Traveler",
@@ -262,3 +254,79 @@ export const getBookingSuccessService = async (travelerId, orderCode) => {
         },
     };
 };
+
+export const getGuestBookingSuccessService = async ({ orderCode, trackingCode }) => {
+    const query = {
+        payment: "PAID",
+        status: { $nin: ["CANCELLED", "REFUNDED"] },
+    };
+
+    if (trackingCode) {
+        query.trackingShareCode = String(trackingCode).trim();
+        query.status = { $nin: ["CANCELLED", "REFUNDED", "COMPLETED"] };
+        query.trackingEnabled = { $ne: false };
+    } else if (orderCode) {
+        query.orderCode = String(orderCode);
+    } else {
+        const error = new Error("Order code or tracking code is required");
+        error.status = 400;
+        error.errorCode = "GUEST_BOOKING_LOOKUP_REQUIRED";
+        throw error;
+    }
+
+    const booking = await Booking.findOne(query)
+        .populate({
+            path: "tourId",
+            select: "name location description numberOfDay type leadGuideServiceId",
+            populate: {
+                path: "leadGuideServiceId",
+                select: "fullName avatarUrl",
+            },
+        })
+        .populate("tourScheduleId")
+        .lean(false);
+
+    if (!booking) {
+        const error = new Error("Booking success data is not available");
+        error.status = trackingCode ? 410 : 404;
+        error.errorCode = trackingCode
+            ? "GUEST_TRACKING_EXPIRED_OR_INVALID"
+            : "GUEST_BOOKING_SUCCESS_NOT_FOUND";
+        throw error;
+    }
+
+    const trackingShareCode = await ensureTrackingCode(booking);
+    const tourImage = await Image.findOne({
+        entityType: "TOUR",
+        entityId: booking.tourId?._id,
+    }).lean();
+
+    return {
+        bookingId: String(booking._id),
+        bookingCode: booking.orderCode ? `#${booking.orderCode}` : `#${String(booking._id).slice(-6)}`,
+        status: getBookingLifecycleStatus(booking),
+        payment: booking.payment,
+        paidAt: booking.paidAt,
+        totalAmount: Number(booking.totalAmount) || 0,
+        quantity: booking.quantity,
+        startDate: getBookingStartDate(booking),
+        tour: {
+            id: String(booking.tourId?._id),
+            name: booking.tourId?.name || "Unnamed tour",
+            location: booking.tourId?.location || "Unknown location",
+            description: booking.tourId?.description || "",
+            numberOfDay: Number(booking.tourId?.numberOfDay) || 1,
+            type: booking.tourId?.type || "GROUP",
+            imageUrl: tourImage?.imageUrl || null,
+        },
+        guide: {
+            name: booking.tourId?.leadGuideServiceId?.fullName || "Guide not assigned",
+            avatarUrl: booking.tourId?.leadGuideServiceId?.avatarUrl || "",
+        },
+        tracking: {
+            code: trackingShareCode,
+            url: getTrackingUrl(trackingShareCode),
+        },
+    };
+};
+

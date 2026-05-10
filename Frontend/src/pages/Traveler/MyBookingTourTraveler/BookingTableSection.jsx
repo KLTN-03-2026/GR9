@@ -28,7 +28,7 @@ export default function BookingTableSection({ bookings, loading, error }) {
   };
 
   const getGuideId = (booking) => {
-    const guide = booking.tourId?.leadDuideServiceId;
+    const guide = booking.tourId?.leadGuideServiceId;
     return typeof guide === "string" ? guide : guide?._id;
   };
 
@@ -257,3 +257,4 @@ export default function BookingTableSection({ bookings, loading, error }) {
     </Card>
   );
 }
+
