@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { ImagePlus, X } from "lucide-react";
+import { ImagePlus, MailCheck, X } from "lucide-react";
 import React from "react";
 
 export const DialogGuide = ({
@@ -65,6 +65,24 @@ export const DialogGuide = ({
           </DialogHeader>
 
           <div className="space-y-4 mt-4">
+            {title === "Add new guide" ? (
+              <div className="rounded-2xl border border-teal-100 bg-teal-50 p-4">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-teal-700">
+                    <MailCheck className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">
+                      Tạo hồ sơ trước, gửi mật khẩu sau
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                      Guide mới sẽ chưa có mật khẩu đăng nhập. Sau khi tạo, dùng nút email trong bảng để gửi mật khẩu tạm thời cho guide.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-widest text-slate-600">

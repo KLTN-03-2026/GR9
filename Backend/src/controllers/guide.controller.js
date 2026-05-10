@@ -5,6 +5,7 @@ import {
     getGuides,
     updateGuide,
     getGuideById,
+    sendGuidePassword,
 } from "../services/guide.service.js";
 import { getGuideDashboard } from "../services/dashboard.service.js";
 import {
@@ -129,6 +130,16 @@ export const deleteGuideByIdController = async (req, res) => {
         const guide = await deleteGuide(req.user.id, req.params.id);
 
         return success(res, "Xóa Guide thành công", guide, 200);
+    } catch (err) {
+        return error(res, err.message, err.status, err.errorCode);
+    }
+};
+
+export const sendGuidePasswordController = async (req, res) => {
+    try {
+        const result = await sendGuidePassword(req.user.id, req.params.id);
+
+        return success(res, result.message, result, 200);
     } catch (err) {
         return error(res, err.message, err.status, err.errorCode);
     }

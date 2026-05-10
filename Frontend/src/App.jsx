@@ -62,10 +62,13 @@ function AppRoutes() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/forgot-password/verify-otp" element={<VerifyResetPasswordOtpPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/first-join-password" element={<FirstJoinPasswordPage />} />
             <Route path="/provider-login" element={<ProviderAndAdminLogin />} />
             <Route path="/admin-login" element={<ProviderAndAdminLogin />} />
             <Route path="/guide-staff-login" element={<GuideLogin />} />
+
+            <Route element={<ProtectedRoute allowedRoles={["PROVIDER", "GUIDE"]} />}>
+                <Route path="/first-join-password" element={<FirstJoinPasswordPage />} />
+            </Route>
 
             <Route element={<ProtectedRoute allowedRoles={["TRAVELER"]} />}>
                 <Route path="/traveler" element={<Layout />}>

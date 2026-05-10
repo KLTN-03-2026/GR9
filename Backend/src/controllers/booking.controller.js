@@ -18,8 +18,10 @@ import { success, error } from "../utils/response.js";
  * CREATE BOOKING
  */
 export const createBookingController = async (req, res) => {
+    let booking = null;
+
     try {
-        const booking = await createBookingService({
+        booking = await createBookingService({
             ...req.body,
             travelerId: req.user._id,
         });
@@ -27,6 +29,10 @@ export const createBookingController = async (req, res) => {
 
         return success(res, "Booking success", paymentData, 201);
     } catch (err) {
+        if (booking?._id && !booking.orderCode) {
+            await Booking.findByIdAndDelete(booking._id).catch(() => null);
+        }
+
         return error(res, err.message, err.status, err.errorCode);
     }
 };

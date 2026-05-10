@@ -4,6 +4,51 @@ import { ensureProvider } from "../middlewares/authorizeProvider.js";
 import Tour from "../models/tour.model.js";
 import TourSchedule from "../models/tourSchedule.model.js";
 import Booking from "../models/booking.model.js";
+import { sendMail } from "../config/mailer.js";
+
+const generateRandomPassword = (length = 10) => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    return Array.from(
+        { length },
+        () => chars[Math.floor(Math.random() * chars.length)],
+    ).join("");
+};
+
+const sendGuidePasswordMail = async (guide, password) => {
+    await sendMail({
+        to: guide.email,
+        subject: "Tai khoan guide Travel_AI cua ban",
+        text: [
+            `Xin chao ${guide.fullName || "guide"},`,
+            "",
+            "Provider da tao tai khoan guide cho ban tren Travel_AI.",
+            `Email dang nhap: ${guide.email}`,
+            `Mat khau tam thoi: ${password}`,
+            "",
+            "Vui long dang nhap bang trang guide va doi mat khau trong lan dau su dung.",
+            "Travel_AI",
+        ].join("\n"),
+        html: `
+            <div style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;">
+                <div style="max-width: 560px; margin: 0 auto; border: 1px solid #d1fae5; border-radius: 18px; overflow: hidden;">
+                    <div style="background: #0f766e; color: #ffffff; padding: 22px 26px;">
+                        <h2 style="margin: 0; font-size: 22px;">Tai khoan guide Travel_AI</h2>
+                        <p style="margin: 8px 0 0; opacity: 0.9;">Guide Portal</p>
+                    </div>
+                    <div style="padding: 24px 26px;">
+                        <p>Xin chao <strong>${guide.fullName || "guide"}</strong>,</p>
+                        <p>Provider da tao tai khoan guide cho ban. Duoi day la thong tin dang nhap tam thoi:</p>
+                        <div style="margin: 18px 0; padding: 16px; border-radius: 14px; background: #f0fdfa;">
+                            <p style="margin: 0 0 8px;"><strong>Email dang nhap:</strong> ${guide.email}</p>
+                            <p style="margin: 0;"><strong>Mat khau tam thoi:</strong> ${password}</p>
+                        </div>
+                        <p>Vui long dang nhap bang trang guide va doi mat khau trong lan dau su dung.</p>
+                    </div>
+                </div>
+            </div>
+        `,
+    });
+};
 
 const addDays = (date, days) =>
     new Date(date.getTime() + Math.max(Number(days) || 0, 0) * 86400000);
@@ -90,6 +135,10 @@ export const createGuide = async (providerId, guideData) => {
         ...guideData,
         role: "GUIDE",
         supervisorId: providerId,
+        password: null,
+        authType: "LOCAL",
+        firstJoin: true,
+        accountStatus: guideData.isActive === false ? "PENDING" : "ACTIVE",
     });
 };
 
@@ -153,16 +202,69 @@ export const getGuides = async (providerId) => {
         statsByGuide.set(guideKey, stats);
     });
 
-    return guides.map((guide) => ({
-        ...guide,
-        ...(statsByGuide.get(String(guide._id)) || {
+    return guides.map((guide) => {
+        const hasPassword = Boolean(guide.password);
+        delete guide.password;
+
+        return {
+            ...guide,
+            hasPassword,
+            ...(statsByGuide.get(String(guide._id)) || {
             assignedTourCount: 0,
             activeBookingCount: 0,
             bookingTitle: "No active booking",
             bookingCode: "-",
             status: "NOT_STARTED",
-        }),
-    }));
+            }),
+        };
+    });
+};
+
+export const sendGuidePassword = async (providerId, guideId) => {
+    await ensureProvider(providerId);
+
+    const guide = await User.findOne({
+        _id: guideId,
+        role: "GUIDE",
+        supervisorId: providerId,
+    });
+
+    if (!guide) {
+        throw throwError("Không tìm thấy guide", 404, "GUIDE_NOT_FOUND");
+    }
+
+    if (!guide.email) {
+        throw throwError("Guide chưa có email để gửi mật khẩu", 400, "GUIDE_EMAIL_REQUIRED");
+    }
+
+    const temporaryPassword = generateRandomPassword(10);
+    guide.password = temporaryPassword;
+    guide.authType = "LOCAL";
+    guide.isActive = true;
+    guide.accountStatus = "ACTIVE";
+    guide.firstJoin = true;
+    guide.emailVerifiedAt = new Date();
+    await guide.save();
+
+    try {
+        await sendGuidePasswordMail(guide, temporaryPassword);
+    } catch (mailError) {
+        guide.password = null;
+        guide.firstJoin = true;
+        await guide.save();
+
+        throw throwError(
+            `Không gửi được email mật khẩu guide: ${mailError.message}`,
+            500,
+            "GUIDE_PASSWORD_MAIL_FAILED",
+        );
+    }
+
+    return {
+        guideId: guide._id,
+        email: guide.email,
+        message: "Đã gửi mật khẩu tạm thời cho guide qua email",
+    };
 };
 
 export const getAvailableGuides = async (

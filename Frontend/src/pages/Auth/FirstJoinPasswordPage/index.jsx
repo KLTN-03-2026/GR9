@@ -10,6 +10,11 @@ import { Label } from "@/components/ui/label";
 export default function FirstJoinPasswordPage() {
   const [searchParams] = useSearchParams();
   const email = useMemo(() => searchParams.get("email") || "", [searchParams]);
+  const role = useMemo(
+    () => String(searchParams.get("role") || "PROVIDER").toUpperCase(),
+    [searchParams],
+  );
+  const isGuide = role === "GUIDE";
   const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -37,14 +42,22 @@ export default function FirstJoinPasswordPage() {
   return (
     <main className="flex min-h-screen items-stretch">
       <AuthFeaturePanel
-        badge="Provider Onboarding"
+        badge={isGuide ? "Guide Onboarding" : "Provider Onboarding"}
         title="Bạn cần đổi mật khẩu lần đầu tiên"
-        description="Vui lòng đặt mật khẩu mới để hoàn tất thiết lập tài khoản đối tác của bạn."
+        description={
+          isGuide
+            ? "Vui lòng đặt mật khẩu mới để hoàn tất thiết lập tài khoản guide của bạn."
+            : "Vui lòng đặt mật khẩu mới để hoàn tất thiết lập tài khoản đối tác của bạn."
+        }
       />
 
       <AuthCardShell
         title="Đổi mật khẩu lần đầu"
-        description="Nhập mật khẩu mới để tiếp tục sử dụng tài khoản đối tác."
+        description={
+          isGuide
+            ? "Nhập mật khẩu tạm thời được gửi qua email và đặt mật khẩu mới để vào trang guide."
+            : "Nhập mật khẩu mới để tiếp tục sử dụng tài khoản đối tác."
+        }
       >
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
@@ -61,7 +74,7 @@ export default function FirstJoinPasswordPage() {
 
             <div className="space-y-1.5">
               <Label className="ml-1 text-xs font-bold uppercase tracking-[0.22em] text-on-surface-variant">
-                Mật khẩu tạm thời (được gửi qua email)
+                Mật khẩu tạm thời được gửi qua email
               </Label>
               <div className="relative">
                 <Input
