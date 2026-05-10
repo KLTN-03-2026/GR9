@@ -93,6 +93,7 @@ export default function DialogCreateTour({
             day.activities.forEach((act) => {
                 const service = services.find((s) => s._id === act.serviceId);
                 if (!service) return;
+                if (["HOTEL", "TRANSPORT"].includes(service.type)) return;
 
                 adult += service.total?.find((t) => t.type === "ADULT")?.price || 0;
                 child += service.total?.find((t) => t.type === "CHILD")?.price || 0;
