@@ -189,7 +189,6 @@ const searchToursTool = async (message, options = {}) => {
 
   const queryTours = (mongoFilter, limit = 18) =>
     Tour.find(mongoFilter)
-      .populate("leadGuideServiceId", "fullName email specialty")
       .sort({ createdAt: -1 })
       .limit(limit)
       .lean();
@@ -224,7 +223,7 @@ const searchToursTool = async (message, options = {}) => {
     type: tour.type,
     numberOfDay: tour.numberOfDay,
     price: tour.price,
-    guideName: tour.leadGuideServiceId?.fullName || null,
+    guideName: null,
     description: tour.description,
   }));
 };

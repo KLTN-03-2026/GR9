@@ -738,7 +738,6 @@ const seedDemoData = async () => {
           isActive: true,
           itineraries,
           availableServices,
-          leadGuideServiceId: guide._id,
         },
         { new: true, upsert: true, setDefaultsOnInsert: true },
       );
@@ -757,15 +756,9 @@ const seedDemoData = async () => {
       await TourSchedule.insertMany([
         {
           tourId: tour._id,
+          leadGuideServiceId: guide._id,
           departureDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
           maxSlots: 20,
-          currentBooked: 0,
-          status: "CONFIRMED",
-        },
-        {
-          tourId: tour._id,
-          departureDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000),
-          maxSlots: 16,
           currentBooked: 0,
           status: "CONFIRMED",
         },

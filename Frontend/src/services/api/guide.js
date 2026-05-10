@@ -9,6 +9,10 @@ export const getGuideLiveTracking = async (bookingId) => {
   return await api.get("/guide/live-tracking", { params });
 };
 
+export const getGuideAssignedTours = async () => {
+  return await api.get("/guide/assigned-tours");
+};
+
 export const updateGuideLiveActivityStatus = async (
   bookingId,
   activityId,
@@ -26,6 +30,10 @@ export const createGuide = async (guide) => {
 
 export const getGuides = async () => {
   return await api.get("/guide");
+};
+
+export const getAvailableGuides = async (params) => {
+  return await api.get("/guide/available", { params });
 };
 
 export const getGuideById = async (id) => {

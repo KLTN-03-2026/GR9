@@ -4,6 +4,7 @@ import {
     cancelBookingService,
     getBookingSuccessService,
     getMyBookingsService,
+    getProviderBookingsService,
 } from "../services/booking.service.js";
 import {
     createBookingPaymentLink,
@@ -102,5 +103,15 @@ export const getMyBookingsController = async (req, res) => {
         return success(res, "Get my bookings success", bookings);
     } catch (err) {
         return error(res, err.message);
+    }
+};
+
+export const getProviderBookingsController = async (req, res) => {
+    try {
+        const bookings = await getProviderBookingsService(req.user._id);
+
+        return success(res, "Get provider bookings success", bookings);
+    } catch (err) {
+        return error(res, err.message, err.status, err.errorCode);
     }
 };

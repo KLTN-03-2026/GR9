@@ -5,6 +5,7 @@ import {
     cancelBookingController,
     getBookingSuccessController,
     getMyBookingsController,
+    getProviderBookingsController,
     payOSWebhookController,
     syncPayOSPaymentStatusController,
 } from "../controllers/booking.controller.js";
@@ -14,6 +15,7 @@ import { protect, authorize } from "../middlewares/auth.middleware.js";
 const router = express.Router();
 
 router.post("/payos/webhook", payOSWebhookController);
+router.get("/provider", protect, authorize("PROVIDER"), getProviderBookingsController);
 
 router.use(protect, authorize("TRAVELER"));
 

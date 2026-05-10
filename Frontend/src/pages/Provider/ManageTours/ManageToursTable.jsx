@@ -19,6 +19,39 @@ import { Slider } from "@/components/ui/slider";
 import { formatPrice } from "@/utils/formatPrice";
 import { useNavigate } from "react-router-dom";
 
+const bookingStatusConfig = {
+    NO_BOOKING: {
+        label: "No booking",
+        className: "bg-slate-100 text-slate-700",
+    },
+    PENDING: {
+        label: "Pending",
+        className: "bg-amber-100 text-amber-800",
+    },
+    CONFIRMED: {
+        label: "Confirmed",
+        className: "bg-emerald-100 text-emerald-800",
+    },
+    COMPLETED: {
+        label: "Completed",
+        className: "bg-blue-100 text-blue-800",
+    },
+    CANCELLED: {
+        label: "Cancelled",
+        className: "bg-red-100 text-red-700",
+    },
+    REFUNDED: {
+        label: "Refunded",
+        className: "bg-slate-200 text-slate-700",
+    },
+};
+
+const getBookingStatusBadge = (status) =>
+    bookingStatusConfig[status] || {
+        label: status || "No booking",
+        className: "bg-slate-100 text-slate-700",
+    };
+
 export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
     const navigate = useNavigate();
     const [search, setSearch] = useState("");
@@ -31,7 +64,8 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                 tour.name?.toLowerCase().includes(search.toLowerCase()) ||
                 tour.location?.toLowerCase().includes(search.toLowerCase());
 
-            const matchStatus = status === "all" ? true : tour.status?.toLowerCase() === status.toLowerCase();
+            const matchStatus =
+                status === "all" ? true : tour.bookingStatus?.toLowerCase() === status.toLowerCase();
             const matchPrice = (tour.price?.adult || 0) >= priceRange[0] && (tour.price?.adult || 0) <= priceRange[1];
             return matchSearch && matchStatus && matchPrice;
         })
@@ -60,22 +94,22 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                                 All Tours
                             </TabsTrigger>
                             <TabsTrigger
-                                value="active"
+                                value="confirmed"
                                 className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] data-[state=active]:bg-white data-[state=active]:text-on-surface"
                             >
-                                active
+                                confirmed
                             </TabsTrigger>
                             <TabsTrigger
-                                value="draft"
+                                value="pending"
                                 className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] data-[state=active]:bg-white data-[state=active]:text-on-surface"
                             >
-                                draft
+                                pending
                             </TabsTrigger>
                             <TabsTrigger
-                                value="archived"
+                                value="completed"
                                 className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] data-[state=active]:bg-white data-[state=active]:text-on-surface"
                             >
-                                archived
+                                completed
                             </TabsTrigger>
                         </TabsList>
                     </Tabs>
@@ -142,8 +176,11 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
 
                         <TableBody>
                             {filteredTours?.length > 0 ? (
-                                filteredTours.map((tour) => (
-                                    <TableRow className="group">
+                                filteredTours.map((tour) => {
+                                    const bookingStatus = getBookingStatusBadge(tour.bookingStatus);
+
+                                    return (
+                                    <TableRow key={tour._id} className="group">
                                         <TableCell className="px-6 py-5">
                                             <div className="flex items-center gap-4">
                                                 <img
@@ -183,17 +220,14 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                                         <TableCell className="px-6 py-5">
                                             <Badge
                                                 className={`rounded-full px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.24em]
-                                                          ${
-                                                              tour.status === "ACTIVE"
-                                                                  ? "bg-emerald-100 text-emerald-800"
-                                                                  : tour.status === "DRAFT"
-                                                                    ? "bg-yellow-100 text-yellow-800"
-                                                                    : "bg-gray-200 text-gray-700"
-                                                          }
+                                                          ${bookingStatus.className}
                                                         `}
                                             >
-                                                {tour.status || "DRAFT"}
+                                                {bookingStatus.label}
                                             </Badge>
+                                            <p className="mt-2 text-xs text-on-surface-variant">
+                                                {tour.bookingCount || 0} bookings
+                                            </p>
                                         </TableCell>
                                         <TableCell className="px-6 py-5">
                                             <div className="flex justify-end gap-2">
@@ -234,7 +268,8 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                                             </div>
                                         </TableCell>
                                     </TableRow>
-                                ))
+                                );
+                                })
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={4} className="text-center py-10 text-slate-400">

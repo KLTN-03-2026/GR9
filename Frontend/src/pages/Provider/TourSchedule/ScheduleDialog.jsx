@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Popover,
   PopoverContent,
@@ -18,7 +19,9 @@ import {
 } from "@/components/ui/popover";
 
 import { useEffect, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, UserCheck } from "lucide-react";
+import toast from "react-hot-toast";
+import { getAvailableGuides } from "@/services/api/guide";
 
 export default function ScheduleDialog({
   open,
@@ -26,11 +29,17 @@ export default function ScheduleDialog({
   onSubmit,
   loading,
   initialData,
+  tourId,
 }) {
   const [departureDate, setDepartureDate] = useState(null);
   const [minSlots, setMinSlots] = useState(1);
   const [maxSlots, setMaxSlots] = useState(10);
   const [isPrivate, setIsPrivate] = useState(false);
+  const [leadGuideServiceId, setLeadGuideServiceId] = useState("");
+  const [guides, setGuides] = useState([]);
+  const [isLoadingGuides, setIsLoadingGuides] = useState(false);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   useEffect(() => {
     if (initialData) {
@@ -40,18 +49,83 @@ export default function ScheduleDialog({
       setMinSlots(initialData.minSlots ?? 1);
       setMaxSlots(initialData.maxSlots ?? 10);
       setIsPrivate(!!initialData.isPrivate);
+      setLeadGuideServiceId(
+        initialData.leadGuideServiceId?._id || initialData.leadGuideServiceId || ""
+      );
     } else {
       setDepartureDate(null);
       setMinSlots(1);
       setMaxSlots(10);
       setIsPrivate(false);
+      setLeadGuideServiceId("");
+      setGuides([]);
     }
   }, [initialData, open]);
 
+  useEffect(() => {
+    const fetchGuides = async () => {
+      if (!open || !tourId || !departureDate) {
+        setGuides([]);
+        return;
+      }
+
+      try {
+        setIsLoadingGuides(true);
+        const res = await getAvailableGuides({
+          tourId,
+          startDate: departureDate.toISOString(),
+          excludeScheduleId: initialData?._id,
+          onlyAvailable: true,
+        });
+        const available = res?.data?.data || [];
+        const currentGuide = initialData?.leadGuideServiceId;
+        const normalizedCurrentGuide =
+          currentGuide && typeof currentGuide === "object" ? currentGuide : null;
+        const hasCurrentGuide =
+          normalizedCurrentGuide &&
+          available.some((guide) => guide._id === normalizedCurrentGuide._id);
+
+        setGuides(
+          normalizedCurrentGuide && !hasCurrentGuide
+            ? [normalizedCurrentGuide, ...available]
+            : available
+        );
+      } catch (error) {
+        console.error("Load available guides error:", error);
+        setGuides([]);
+        toast.error(error?.response?.data?.message || "Không thể tải danh sách guide khả dụng.");
+      } finally {
+        setIsLoadingGuides(false);
+      }
+    };
+
+    fetchGuides();
+  }, [departureDate, initialData, open, tourId]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!departureDate) {
+      toast.error("Vui lòng chọn ngày khởi hành.");
+      return;
+    }
+
+    const selectedDate = new Date(departureDate);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      toast.error("Ngày khởi hành phải từ hôm nay trở đi.");
+      return;
+    }
+
+    if (!leadGuideServiceId) {
+      toast.error("Vui lòng chọn guide còn trống cho lịch khởi hành.");
+      return;
+    }
+
     onSubmit({
       departureDate,
+      leadGuideServiceId,
       minSlots: Number(minSlots),
       maxSlots: Number(maxSlots),
       isPrivate,
@@ -108,6 +182,11 @@ export default function ScheduleDialog({
                     mode="single"
                     selected={departureDate}
                     onSelect={setDepartureDate}
+                    disabled={(date) => {
+                      const current = new Date(date);
+                      current.setHours(0, 0, 0, 0);
+                      return current < today;
+                    }}
                     initialFocus
                     className="rounded-xl bg-slate-50 p-4"
                     numberOfMonths={2}
@@ -128,6 +207,45 @@ export default function ScheduleDialog({
                 </div>
               </PopoverContent>
             </Popover>
+          </div>
+
+          {/* GUIDE */}
+          <div>
+            <Label className="text-xs font-bold uppercase text-slate-500">
+              Lead Guide
+            </Label>
+
+            <Select
+              value={leadGuideServiceId}
+              onValueChange={setLeadGuideServiceId}
+              disabled={!departureDate || isLoadingGuides}
+            >
+              <SelectTrigger className="mt-2 h-12 w-full rounded-xl border-slate-200 bg-white">
+                <SelectValue
+                  placeholder={
+                    !departureDate
+                      ? "Chọn ngày khởi hành trước"
+                      : isLoadingGuides
+                        ? "Đang kiểm tra guide còn trống..."
+                        : "Chọn guide"
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {guides.map((guide) => (
+                  <SelectItem key={guide._id} value={guide._id}>
+                    {guide.fullName || guide.email}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <div className="mt-3 flex items-start gap-3 rounded-2xl border bg-slate-50 p-4 text-sm text-slate-600">
+              <UserCheck className="mt-0.5 size-4 shrink-0 text-primary" />
+              <p>
+                Guide chỉ hiện khi không có tour khác trùng từ ngày bắt đầu đến ngày kết thúc của tour này.
+              </p>
+            </div>
           </div>
 
           {/* SLOTS */}

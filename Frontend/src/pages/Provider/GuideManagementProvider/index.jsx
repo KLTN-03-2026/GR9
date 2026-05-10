@@ -27,8 +27,14 @@ const GuideManagementProvider = () => {
         label: "Active Now",
         value: guides.filter((guide) => guide.isActive).length,
       },
-      { label: "Assigned Bookings", value: "2" },
-      { label: "Avg Rating", value: "4.8" },
+      {
+        label: "Assigned Tours",
+        value: guides.reduce((total, guide) => total + (guide.assignedTourCount || 0), 0),
+      },
+      {
+        label: "Active Bookings",
+        value: guides.reduce((total, guide) => total + (guide.activeBookingCount || 0), 0),
+      },
     ],
     [guides],
   );

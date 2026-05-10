@@ -1,6 +1,8 @@
 import TourSchedule from "../models/tourSchedule.model.js";
 import Tour from "../models/tour.model.js";
+import User from "../models/user.model.js";
 import { throwError } from "../utils/throwError.js";
+import { findGuideScheduleConflicts } from "./guide.service.js";
 
 const ensureTourOwner = async (tourId, userId) => {
     const tour = await Tour.findOne({
@@ -15,11 +17,79 @@ const ensureTourOwner = async (tourId, userId) => {
     return tour;
 };
 
+const ensureNotPastDepartureDate = (departureDate) => {
+    if (!departureDate) return;
+
+    const selectedDate = new Date(departureDate);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+        throwError("Ngày khởi hành phải từ hôm nay trở đi", 400, "PAST_DEPARTURE_DATE");
+    }
+};
+
+const ensureProviderGuide = async (guideId, providerId) => {
+    if (!guideId) {
+        throwError("Vui lòng chọn guide cho lịch khởi hành", 400, "GUIDE_REQUIRED");
+    }
+
+    const guide = await User.findOne({
+        _id: guideId,
+        role: "GUIDE",
+        supervisorId: providerId,
+        isActive: { $ne: false },
+    }).select("_id fullName email");
+
+    if (!guide) {
+        throwError("Guide không tồn tại hoặc không thuộc provider này", 404, "GUIDE_NOT_FOUND");
+    }
+
+    return guide;
+};
+
+const ensureGuideAvailableForSchedule = async ({ providerId, guideId, tour, departureDate, excludeScheduleId }) => {
+    const duplicateGuideSchedule = await TourSchedule.findOne({
+        tourId: tour._id,
+        leadGuideServiceId: guideId,
+        status: { $ne: "CANCELLED" },
+        ...(excludeScheduleId ? { _id: { $ne: excludeScheduleId } } : {}),
+    }).select("_id");
+
+    if (duplicateGuideSchedule) {
+        throwError(
+            "Guide này đã được chọn cho lịch khởi hành khác trong tour này",
+            409,
+            "GUIDE_ALREADY_ASSIGNED_TO_TOUR_SCHEDULE",
+        );
+    }
+
+    const start = new Date(departureDate);
+    const end = new Date(start);
+    end.setDate(end.getDate() + (Number(tour.numberOfDay) || 1) - 1);
+
+    const conflicts = await findGuideScheduleConflicts({
+        providerId,
+        guideId,
+        startDate: start,
+        endDate: end,
+        excludeScheduleId,
+    });
+
+    if (conflicts.length) {
+        throwError("Guide đã có tour trong khoảng thời gian này", 409, "GUIDE_SCHEDULE_CONFLICT");
+    }
+};
+
 export const getTourSchedulesService = async (tourId, userId) => {
     try {
         await ensureTourOwner(tourId, userId);
 
-        return await TourSchedule.find({ tourId }).sort({ departureDate: 1 });
+        return await TourSchedule.find({ tourId })
+            .populate("leadGuideServiceId", "fullName email avatarUrl")
+            .sort({ departureDate: 1 });
     } catch (err) {
         throwError(err.message, err.status || 500, "GET_TOUR_SCHEDULE_ERROR");
     }
@@ -27,7 +97,16 @@ export const getTourSchedulesService = async (tourId, userId) => {
 
 export const createTourScheduleService = async (tourId, userId, data) => {
     try {
-        await ensureTourOwner(tourId, userId);
+        const tour = await ensureTourOwner(tourId, userId);
+        ensureNotPastDepartureDate(data.departureDate);
+        await ensureProviderGuide(data.leadGuideServiceId, userId);
+
+        await ensureGuideAvailableForSchedule({
+            providerId: userId,
+            guideId: data.leadGuideServiceId,
+            tour,
+            departureDate: data.departureDate,
+        });
 
         const schedule = await TourSchedule.create({
             tourId,
@@ -47,7 +126,20 @@ export const updateTourScheduleService = async (scheduleId, userId, data) => {
         throwError("Schedule not found", 404, "SCHEDULE_NOT_FOUND");
     }
 
-    await ensureTourOwner(schedule.tourId, userId);
+    const tour = await ensureTourOwner(schedule.tourId, userId);
+    const nextDepartureDate = data.departureDate || schedule.departureDate;
+    const nextGuideId = data.leadGuideServiceId || schedule.leadGuideServiceId;
+
+    ensureNotPastDepartureDate(nextDepartureDate);
+    await ensureProviderGuide(nextGuideId, userId);
+
+    await ensureGuideAvailableForSchedule({
+        providerId: userId,
+        guideId: nextGuideId,
+        tour,
+        departureDate: nextDepartureDate,
+        excludeScheduleId: scheduleId,
+    });
 
     Object.assign(schedule, data);
 

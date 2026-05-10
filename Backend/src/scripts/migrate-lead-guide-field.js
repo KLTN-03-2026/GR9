@@ -15,36 +15,38 @@ const migrateLeadGuideField = async () => {
   });
 
   const tours = mongoose.connection.collection("tours");
+  const tourSchedules = mongoose.connection.collection("tourschedules");
   const legacyTours = await tours
     .find({
-      leadDuideServiceId: { $exists: true, $ne: null },
       $or: [
-        { leadGuideServiceId: { $exists: false } },
-        { leadGuideServiceId: null },
+        { leadGuideServiceId: { $exists: true, $ne: null } },
+        { leadDuideServiceId: { $exists: true, $ne: null } },
       ],
     })
     .toArray();
 
-  let copiedCount = 0;
+  let movedToSingleScheduleCount = 0;
 
   for (const tour of legacyTours) {
+    const guideId = tour.leadGuideServiceId || tour.leadDuideServiceId;
+    const schedules = await tourSchedules.find({ tourId: tour._id }).toArray();
+
+    if (guideId && schedules.length === 1 && !schedules[0].leadGuideServiceId) {
+      await tourSchedules.updateOne(
+        { _id: schedules[0]._id },
+        { $set: { leadGuideServiceId: guideId } },
+      );
+      movedToSingleScheduleCount += 1;
+    }
+
     await tours.updateOne(
       { _id: tour._id },
-      {
-        $set: { leadGuideServiceId: tour.leadDuideServiceId },
-        $unset: { leadDuideServiceId: "" },
-      },
+      { $unset: { leadGuideServiceId: "", leadDuideServiceId: "" } },
     );
-    copiedCount += 1;
   }
 
-  const cleanupResult = await tours.updateMany(
-    { leadDuideServiceId: { $exists: true } },
-    { $unset: { leadDuideServiceId: "" } },
-  );
-
   console.log(
-    `Lead guide migration completed. Copied: ${copiedCount}, cleaned legacy field: ${cleanupResult.modifiedCount}`,
+    `Lead guide migration completed. Moved to single schedules: ${movedToSingleScheduleCount}, cleaned tours: ${legacyTours.length}`,
   );
 
   await mongoose.disconnect();

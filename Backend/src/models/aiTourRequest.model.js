@@ -130,7 +130,6 @@ const aiTourRequestSchema = new Schema(
     itineraries: { type: [aiTourItinerarySchema], default: [] },
     hotelServiceId: { type: aiServiceSourceSchema, default: null },
     transportServiceId: { type: aiServiceSourceSchema, default: null },
-    leadGuideServiceId: { type: aiServiceSourceSchema, default: null },
     status: {
       type: String,
       enum: ["DRAFT", "APPROVED", "REJECTED", "CONVERTED"],

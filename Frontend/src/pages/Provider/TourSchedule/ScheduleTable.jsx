@@ -48,6 +48,10 @@ export default function ScheduleTable({ schedules, onEdit, onDelete }) {
                             </TableHead>
 
                             <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">
+                                Guide
+                            </TableHead>
+
+                            <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">
                                 Status
                             </TableHead>
 
@@ -96,6 +100,17 @@ export default function ScheduleTable({ schedules, onEdit, onDelete }) {
                                             {item.currentBooked ?? 0}
                                         </p>
                                         <p className="text-xs text-slate-400">people</p>
+                                    </TableCell>
+
+                                    <TableCell className="px-6 py-5">
+                                        <p className="max-w-[180px] truncate font-semibold text-slate-700">
+                                            {item.leadGuideServiceId?.fullName ||
+                                                item.leadGuideServiceId?.email ||
+                                                "Chưa chọn"}
+                                        </p>
+                                        <p className="max-w-[180px] truncate text-xs text-slate-400">
+                                            {item.leadGuideServiceId?.email || "Lead guide"}
+                                        </p>
                                     </TableCell>
 
                                     {/* STATUS */}
@@ -149,7 +164,7 @@ export default function ScheduleTable({ schedules, onEdit, onDelete }) {
                         ) : (
                             <TableRow>
                                 <TableCell
-                                    colSpan={6}
+                                    colSpan={7}
                                     className="text-center py-16 text-slate-400"
                                 >
                                     <div className="flex flex-col items-center gap-2">
