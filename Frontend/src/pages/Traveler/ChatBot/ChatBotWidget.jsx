@@ -44,11 +44,20 @@ export default function ChatBotWidget({
   promptHistorySize,
   suggestions,
   defaultMessages,
+  guestMode = false,
+  guestLimit = 3,
+  guestCountKey = "voyager-ai-guest-chat-count-v1",
+  loginPath = "/login",
 }) {
   const [open, setOpen] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [guestQuestionCount, setGuestQuestionCount] = useState(() => {
+    if (!guestMode) return 0;
+    const savedCount = Number(window.localStorage.getItem(guestCountKey) || 0);
+    return Number.isFinite(savedCount) ? savedCount : 0;
+  });
   const [messages, setMessages] = useState(() =>
     loadChatMemory(memoryKey, defaultMessages),
   );
@@ -81,11 +90,24 @@ export default function ChatBotWidget({
     setMessages(defaultMessages);
   };
 
+  const saveGuestQuestionCount = (count) => {
+    setGuestQuestionCount(count);
+    window.localStorage.setItem(guestCountKey, String(count));
+  };
+
+  const buildGuestLimitMessage = () =>
+    [
+      `Bạn đã dùng hết **${guestLimit} lượt hỏi miễn phí** trên landing page.`,
+      "",
+      "Đăng nhập để Voyager AI hỗ trợ sâu hơn với tour, booking, lịch sử đặt tour và gợi ý cá nhân hóa.",
+      "",
+      `[Đăng nhập để tiếp tục](${loginPath})`,
+    ].join("\n");
+
   const sendMessage = async (message = input) => {
     const content = String(message || "").trim();
     if (!content || loading) return;
 
-    const history = buildPromptHistory(messages, promptHistorySize);
     const userMessage = {
       id: `user-${Date.now()}`,
       role: "user",
@@ -95,6 +117,26 @@ export default function ChatBotWidget({
 
     setMessages((current) => [...current, userMessage]);
     setInput("");
+
+    if (guestMode && guestQuestionCount >= guestLimit) {
+      setMessages((current) => [
+        ...current,
+        {
+          id: `assistant-login-required-${Date.now()}`,
+          role: "assistant",
+          content: buildGuestLimitMessage(),
+          sources: [],
+        },
+      ]);
+      scrollToBottom();
+      return;
+    }
+
+    if (guestMode) {
+      saveGuestQuestionCount(guestQuestionCount + 1);
+    }
+
+    const history = buildPromptHistory(messages, promptHistorySize);
     setLoading(true);
     scrollToBottom();
 
@@ -185,7 +227,9 @@ export default function ChatBotWidget({
                   <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(110,231,183,0.9)]" />
                 </div>
                 <p className="truncate text-[11px] font-semibold uppercase tracking-wider text-teal-100/85">
-                  Digital Concierge
+                  {guestMode
+                    ? `${Math.max(guestLimit - guestQuestionCount, 0)} lượt hỏi miễn phí`
+                    : "Digital Concierge"}
                 </p>
               </div>
             </div>
@@ -287,7 +331,9 @@ export default function ChatBotWidget({
                     type="button"
                     onClick={() => sendMessage(suggestion)}
                     className="rounded-full border border-teal-100 bg-white/90 px-3 py-2 text-left text-xs font-semibold text-slate-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-teal-300 hover:text-teal-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
-                    disabled={loading}
+                    disabled={
+                      loading || (guestMode && guestQuestionCount >= guestLimit)
+                    }
                   >
                     {suggestion}
                   </button>
@@ -309,6 +355,20 @@ export default function ChatBotWidget({
             </div>
 
             <div className="border-t border-slate-200/80 bg-white/85 p-4">
+              {guestMode && guestQuestionCount >= guestLimit ? (
+                <div className="mb-3 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold leading-5 text-amber-800">
+                  Bạn đã hết lượt hỏi miễn phí. Đăng nhập để tiếp tục dùng Voyager AI đầy đủ.
+                  <button
+                    type="button"
+                    onClick={() => {
+                      window.location.href = loginPath;
+                    }}
+                    className="ml-1 font-black text-teal-700 underline underline-offset-2"
+                  >
+                    Đăng nhập
+                  </button>
+                </div>
+              ) : null}
               <div className="relative">
                 <Sparkles className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-teal-600" />
                 <input
@@ -321,14 +381,23 @@ export default function ChatBotWidget({
                     }
                   }}
                   className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-14 text-sm text-slate-800 outline-none transition focus:border-teal-400 focus:bg-white focus:ring-4 focus:ring-teal-500/10"
-                  placeholder="Hỏi Voyager AI..."
+                  placeholder={
+                    guestMode && guestQuestionCount >= guestLimit
+                      ? "Đăng nhập để hỏi tiếp..."
+                      : "Hỏi Voyager AI..."
+                  }
                   type="text"
+                  disabled={guestMode && guestQuestionCount >= guestLimit}
                 />
                 <Button
                   type="button"
                   size="icon"
                   onClick={() => sendMessage()}
-                  disabled={loading || !input.trim()}
+                  disabled={
+                    loading ||
+                    !input.trim() ||
+                    (guestMode && guestQuestionCount >= guestLimit)
+                  }
                   className="absolute right-2 top-1/2 h-8 w-8 -translate-y-1/2 rounded-xl bg-teal-600 text-white shadow-sm transition hover:scale-105 hover:bg-teal-700 disabled:hover:scale-100"
                   aria-label="Send message"
                 >

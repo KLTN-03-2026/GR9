@@ -13,7 +13,7 @@ const tourScheduleSchema = new Schema(
             type: Date,
             required: true,
         },
-
+        
         maxSlots: {
             type: Number,
             required: true,

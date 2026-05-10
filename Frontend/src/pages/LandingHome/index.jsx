@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import ChatBotWidget from "@/pages/Traveler/ChatBot/ChatBotWidget";
+import { landingChatbotProps } from "@/pages/Traveler/ChatBot/chatbot.data";
 const fadeUp = {
     hidden: { opacity: 0, y: 30 },
     show: {
@@ -239,6 +241,7 @@ const LandingHome = () => {
                 "--hero-tertiary": "#ffb59a",
             }}
         >
+            <ChatBotWidget {...landingChatbotProps} />
             <style>{`
         .neural-shell {
           background:
