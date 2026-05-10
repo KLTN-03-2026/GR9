@@ -1,5 +1,9 @@
 import api from "./index";
 
+export const getAdminDashboard = async () => {
+  return await api.get("/admin/dashboard");
+};
+
 export const getAdminUsers = async (params) => {
   return await api.get("/admin/users", { params });
 };

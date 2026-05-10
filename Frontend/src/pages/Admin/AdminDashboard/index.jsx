@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import {
   Activity,
@@ -16,63 +18,77 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import PageHero from "@/components/shared/page-hero";
+import { getAdminDashboard } from "@/services/api/admin";
 
 const AdminDashboard = () => {
-  const activityItems = [
-    {
-      id: "BK-9281",
-      name: "Emma Wilson",
-      message: "booked a private tour:",
-      highlight: "Santorini Sunset Sail",
-      time: "2 minutes ago",
-      meta: "Booking ID: #BK-9281",
-      status: { label: "PENDING", variant: "warning" },
-      avatar:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuCGz6dtJJ6pt8L8DFZgHAstBWGkGlOezpWCB1ZzJlZnR5o8kFZu-A75gmDmujUI7eifTGqkj87NHxExcPwUBE4kH5Lrl_4UMceZmMXzyKOpHkPWzZ-lApJpVqZ2dsQxyXrYiSPM4Vj6b8rV102xyMSS7YI5XFn694ZOCS9qwvi4gmlCNkN02gujOf4EWXM-FTtA9QG878bWHbQqiQPJh7rPRgcVD1TwCXYZQtLPS4IUtfbub3qhzb08-dML-sf_XAeKIVR2b3qRNj92",
-    },
-    {
-      id: "QUEUE-VERIFY",
-      name: "Skyline Tours",
-      message: "submitted a new listing for approval.",
-      time: "15 minutes ago",
-      meta: "Verification Queue",
-      status: { label: "REVIEW", variant: "secondary" },
-      icon: <ShieldCheck className="size-5 text-primary" />,
-    },
-    {
-      id: "SUB-001",
-      name: "Marcus Chen",
-      message: "upgraded to Premium Membership.",
-      time: "1 hour ago",
-      meta: "Subscription Event",
-      status: { label: "SUCCESS", variant: "success" },
-      avatar:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuBGEt35LAwsOODKE_4618dGD5fpUf9FTa09Ouav0NV1LiRUTBOHIo4PQNTo04etMWQUWCBMFNWETmVKC5FvqaXXqCdidMXXQy9MBPR1Vgf7iruPoRSCyXbCyPFflMKpYIiQpELiVwewRMo4F66NZvGQSX4XdOsLH2lEfy6RaC_geV0nsD45VPdGqtnwogImR5PmEkrQ5xFVir8sHpzqCTU7IH9WWQNo4gOL9zSoXfOdNq49H_YM27v3rrQHhggv3fAoGNOt2mu_9sYF",
-    },
-  ];
+  const [dashboard, setDashboard] = useState(null);
 
-  const healthMetrics = [
-    {
-      label: "API Latency",
-      valueLabel: "24ms (Optimal)",
-      valueClassName: "text-primary",
-      percent: 20,
-    },
-    {
-      label: "Server Load",
-      valueLabel: "42% (Normal)",
-      valueClassName: "text-on-surface-variant",
-      percent: 42,
-      barClassName: "bg-tertiary-container",
-    },
-    {
-      label: "Storage Capacity",
-      valueLabel: "88% (Critical)",
-      valueClassName: "text-error",
-      percent: 88,
-      barClassName: "bg-error",
-    },
-  ];
+  useEffect(() => {
+    getAdminDashboard()
+      .then((response) => setDashboard(response.data.data || null))
+      .catch((error) =>
+        toast.error(error?.response?.data?.message || "Cannot load admin dashboard"),
+      );
+  }, []);
+
+  const activityItems = useMemo(
+    () =>
+      (dashboard?.recentActivity || []).map((item) => ({
+        id: item.id,
+        name: item.title,
+        message: item.message,
+        highlight: item.type === "BOOKING" ? item.meta : null,
+        time: item.createdAt
+          ? new Date(item.createdAt).toLocaleString("en-US")
+          : "Recently",
+        meta: item.meta,
+        status: {
+          label: item.status || "INFO",
+          variant: item.status === "PENDING" ? "warning" : item.status === "SUCCESS" ? "success" : "secondary",
+        },
+        avatar:
+          item.type === "BOOKING"
+            ? "https://lh3.googleusercontent.com/aida-public/AB6AXuCGz6dtJJ6pt8L8DFZgHAstBWGkGlOezpWCB1ZzJlZnR5o8kFZu-A75gmDmujUI7eifTGqkj87NHxExcPwUBE4kH5Lrl_4UMceZmMXzyKOpHkPWzZ-lApJpVqZ2dsQxyXrYiSPM4Vj6b8rV102xyMSS7YI5XFn694ZOCS9qwvi4gmlCNkN02gujOf4EWXM-FTtA9QG878bWHbQqiQPJh7rPRgcVD1TwCXYZQtLPS4IUtfbub3qhzb08-dML-sf_XAeKIVR2b3qRNj92"
+            : null,
+        icon:
+          item.type !== "BOOKING" ? <ShieldCheck className="size-5 text-primary" /> : null,
+      })),
+    [dashboard],
+  );
+
+  const healthMetrics = useMemo(
+    () => [
+      {
+        label: "API Latency",
+        valueLabel: `${dashboard?.systemHealth?.apiLatencyMs || 24}ms (Optimal)`,
+        valueClassName: "text-primary",
+        percent: Math.min(100, dashboard?.systemHealth?.apiLatencyMs || 20),
+      },
+      {
+        label: "Server Load",
+        valueLabel: `${dashboard?.systemHealth?.serverLoadPercent || 42}% (Normal)`,
+        valueClassName: "text-on-surface-variant",
+        percent: dashboard?.systemHealth?.serverLoadPercent || 42,
+        barClassName: "bg-tertiary-container",
+      },
+      {
+        label: "Storage Capacity",
+        valueLabel: `${dashboard?.systemHealth?.storagePercent || 88}% (Critical)`,
+        valueClassName: "text-error",
+        percent: dashboard?.systemHealth?.storagePercent || 88,
+        barClassName: "bg-error",
+      },
+    ],
+    [dashboard],
+  );
+
+  const totalRevenue = Number(dashboard?.summary?.totalRevenue || 0).toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2,
+  });
+  const totalUsers = Number(dashboard?.summary?.totalUsers || 0).toLocaleString("en-US");
+  const totalBookings = Number(dashboard?.summary?.totalBookings || 0).toLocaleString("en-US");
 
   return (
     <div className="mx-auto w-full max-w-[1600px] space-y-8 pb-12 pt-24">
@@ -95,11 +111,11 @@ const AdminDashboard = () => {
               TOTAL REVENUE (MTD)
             </p>
             <h2 className="mt-2 text-4xl font-extrabold tracking-tighter">
-              $1,284,592.00
+              {totalRevenue}
             </h2>
             <div className="mt-4 inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">
               <TrendingUp className="mr-1 size-4" />
-              +12.4% from last month
+              {dashboard?.moderation?.openAiRequests || 0} open AI requests
             </div>
           </div>
 
@@ -118,7 +134,7 @@ const AdminDashboard = () => {
                 Total Users
               </p>
               <h2 className="mt-1 text-2xl font-bold text-on-surface">
-                482.9k
+                {totalUsers}
               </h2>
             </div>
             <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-surface-container">
@@ -137,12 +153,12 @@ const AdminDashboard = () => {
                 Total Bookings
               </p>
               <h2 className="mt-1 text-2xl font-bold text-on-surface">
-                12,481
+                {totalBookings}
               </h2>
             </div>
             <div className="mt-4 flex items-center text-xs font-bold text-error">
               <TrendingDown className="mr-1 size-4" />
-              -2.1% spike
+              {dashboard?.moderation?.pendingProviderApplications || 0} pending providers
             </div>
           </CardContent>
         </Card>
@@ -154,8 +170,8 @@ const AdminDashboard = () => {
             <h3 className="text-lg font-bold text-on-surface">
               Global Activity Feed
             </h3>
-            <Button className="h-auto px-0 text-primary" variant="link">
-              View All
+            <Button className="h-auto px-0 text-primary" variant="link" asChild>
+              <Link to="/admin/users">View All</Link>
             </Button>
           </div>
 
@@ -246,7 +262,7 @@ const AdminDashboard = () => {
                 <div className="flex items-center gap-3 text-on-surface-variant">
                   <CircleCheck className="size-5 text-green-500" />
                   <span className="text-xs font-medium">
-                    All 14 regions operating normally
+                    All core services are reachable
                   </span>
                 </div>
 
@@ -262,10 +278,10 @@ const AdminDashboard = () => {
               Moderation Pending
             </h4>
             <p className="relative z-10 mt-2 text-sm opacity-90">
-              14 listings require manual verification.
+              {dashboard?.moderation?.pendingProviderApplications || 0} provider applications require manual verification.
             </p>
-            <Button className="relative z-10 mt-4 rounded-lg bg-on-tertiary-container px-4 text-xs font-bold text-tertiary hover:bg-on-tertiary-container/90">
-              Review Now
+            <Button className="relative z-10 mt-4 rounded-lg bg-on-tertiary-container px-4 text-xs font-bold text-tertiary hover:bg-on-tertiary-container/90" asChild>
+              <Link to="/admin/provider-approval">Review Now</Link>
             </Button>
 
             <div className="pointer-events-none absolute -right-4 -bottom-4 opacity-10">
