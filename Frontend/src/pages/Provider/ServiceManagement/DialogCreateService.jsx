@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createService, uploadServiceImage } from "@/services/api/service";
+import { createService, parseAliasesInput, uploadServiceImage } from "@/services/api/service";
 import { toast } from "react-hot-toast";
 import { Upload, X } from "lucide-react";
 
@@ -47,6 +47,7 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
     type: "HOTEL",
     address: "",
     description: "",
+    aliases: "",
     status: "ACTIVE",
     priceAdult: "",
     priceChild: "",
@@ -110,6 +111,7 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
         type: serviceData.type,
         address: serviceData.address,
         description: serviceData.description,
+        aliases: parseAliasesInput(serviceData.aliases),
         status: serviceData.status,
         total,
       };
@@ -131,6 +133,7 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
         type: "HOTEL",
         address: "",
         description: "",
+        aliases: "",
         status: "ACTIVE",
         priceAdult: "",
         priceChild: "",
@@ -199,6 +202,14 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
               value={serviceData.description}
               onChange={(e) => handleChange("description", e.target.value)}
               placeholder="Mô tả ngắn gọn về dịch vụ"
+            />
+          </div>
+          <div className="col-span-1 sm:col-span-2 grid gap-2">
+            <Label>Alias tên dịch vụ</Label>
+            <Input
+              value={serviceData.aliases}
+              onChange={(e) => handleChange("aliases", e.target.value)}
+              placeholder="Ví dụ: Bana Hills, Sun World Ba Na"
             />
           </div>
           <div className="grid gap-2">

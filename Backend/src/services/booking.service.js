@@ -39,9 +39,20 @@ export const createBookingService = async (data) => {
         const totalPeople = (quantity?.adults || 0) + (quantity?.children || 0) + (quantity?.infants || 0);
 
         let schedule = null;
-        const tour = await Tour.findById(tourId)
-            .select("targetTravelerId travelerApprovalStatus bookingAccess")
-            .session(session);
+        let resolvedTourId = tourId;
+
+        if ((!resolvedTourId || !mongoose.Types.ObjectId.isValid(resolvedTourId)) && tourScheduleId) {
+            const scheduleForLookup = await TourSchedule.findById(tourScheduleId)
+                .select("tourId")
+                .session(session);
+            resolvedTourId = scheduleForLookup?.tourId || resolvedTourId;
+        }
+
+        const tour = resolvedTourId
+            ? await Tour.findById(resolvedTourId)
+                  .select("targetTravelerId travelerApprovalStatus bookingAccess")
+                  .session(session)
+            : null;
 
         if (!tour) {
             throwError("Tour không tồn tại", 404, "TOUR_NOT_FOUND");
@@ -65,10 +76,13 @@ export const createBookingService = async (data) => {
             }
         }
 
+        const normalizedIsPrivate =
+            tour.bookingAccess === "TARGET_TRAVELER_ONLY" ? true : !!isPrivate;
+
         // =========================
         // 🔥 GROUP BOOKING
         // =========================
-        if (!isPrivate) {
+        if (!normalizedIsPrivate) {
             if (!tourScheduleId) {
                 throw new Error("Tour schedule is required for group booking");
             }
@@ -86,6 +100,10 @@ export const createBookingService = async (data) => {
             if (!schedule) {
                 throw new Error("Hết chỗ hoặc không đủ slot");
             }
+
+            if (String(schedule.tourId) !== String(tour._id)) {
+                throwError("Lịch khởi hành không thuộc tour đã chọn", 400, "TOUR_SCHEDULE_TOUR_MISMATCH");
+            }
         }
 
         // =========================
@@ -93,9 +111,25 @@ export const createBookingService = async (data) => {
         // =========================
         let bookingStatus = "PENDING";
 
-        if (isPrivate) {
+        if (normalizedIsPrivate) {
             if (!startDate) {
                 throw new Error("Start date is required for private booking");
+            }
+        }
+
+        if (normalizedIsPrivate && tourScheduleId) {
+            schedule = await TourSchedule.findOne({
+                _id: tourScheduleId,
+                tourId: tour._id,
+            }).session(session);
+
+            if (!schedule) {
+                throw new Error("Lịch khởi hành riêng tư không hợp lệ");
+            }
+
+            if (!schedule.isPrivate) {
+                schedule.isPrivate = true;
+                await schedule.save({ session });
             }
         }
 
@@ -108,14 +142,14 @@ export const createBookingService = async (data) => {
                     travelerId,
                     tourId,
                     tourScheduleId: tourScheduleId,
-                    startDate: isPrivate ? startDate : null,
+                    startDate: normalizedIsPrivate ? startDate : null,
                     quantity,
                     totalAmount,
                     selectedServices,
                     status: bookingStatus,
                     payment: "UNPAID",
                     slotsReserved: false,
-                    isPrivate,
+                    isPrivate: normalizedIsPrivate,
                 },
             ],
             { session },

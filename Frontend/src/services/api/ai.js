@@ -32,6 +32,10 @@ export const convertProviderAiRequest = async (id) => {
   return await api.post(`/ai/provider/requests/${id}/convert`);
 };
 
+export const confirmProviderAiServiceMatch = async (id, payload) => {
+  return await api.post(`/ai/provider/requests/${id}/confirm-service-match`, payload);
+};
+
 export const updateTravelerAiProposalDecision = async (id, decision) => {
   return await api.patch(`/ai/history/${id}/decision`, { decision });
 };

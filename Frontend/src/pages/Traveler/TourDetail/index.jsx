@@ -60,6 +60,28 @@ const toServiceOption = (item) => {
     };
 };
 
+const getInitialTravelerCounts = (tour) => {
+    const quantity = tour?.sourceAiTourRequestId?.quantity;
+    if (!quantity) {
+        return { adults: 2, children: 0, infants: 0 };
+    }
+
+    const adults = Number(quantity.ADULT ?? quantity.adult);
+    const children = Number(quantity.CHILD ?? quantity.child);
+    const infants = Number(quantity.INFANT ?? quantity.infant);
+    const total = (adults || 0) + (children || 0) + (infants || 0);
+
+    if (total <= 0) {
+        return { adults: 2, children: 0, infants: 0 };
+    }
+
+    return {
+        adults: Math.max(0, adults || 0),
+        children: Math.max(0, children || 0),
+        infants: Math.max(0, infants || 0),
+    };
+};
+
 export default function TourDetail() {
     const { tourId } = useParams();
     const [tour, setTour] = useState(null);
@@ -108,7 +130,6 @@ export default function TourDetail() {
     const privateMultiplier = Number(tour?.privateMultiplier) || 1.5;
     const [selectedDate, setSelectedDate] = useState("2026-04-05");
     const [dateDialogOpen, setDateDialogOpen] = useState(false);
-    const [travelers, setTravelers] = useState(2);
     const [hotelPref, setHotelPref] = useState("no-over-night");
     const [transportPref, setTransportPref] = useState("shared-shuttle");
     const [adults, setAdults] = useState(2);
@@ -116,11 +137,26 @@ export default function TourDetail() {
     const [infants, setInfants] = useState(0);
     const [roomCount, setRoomCount] = useState(1);
     const [selectedScheduleId, setSelectedScheduleId] = useState(null);
+    const isLockedPrivate = tour?.bookingAccess === "TARGET_TRAVELER_ONLY";
+    const bookingDisabledReason = useMemo(() => {
+        if (!isLockedPrivate) return "";
+        if (tour?.travelerApprovalStatus === "PENDING") {
+            return "Tour này đang chờ bạn xác nhận từ AI Tour History.";
+        }
+        if (tour?.travelerApprovalStatus === "REJECTED" || tour?.isActive === false) {
+            return "Tour đề xuất này không còn khả dụng để booking.";
+        }
+        return "";
+    }, [isLockedPrivate, tour]);
     const filteredSchedules = useMemo(() => {
         if (!tour?.schedules) return [];
 
+        if (isLockedPrivate) {
+            return tour.schedules;
+        }
+
         return tour.schedules.filter((s) => s.isPrivate === isPrivate);
-    }, [tour, isPrivate]);
+    }, [tour, isLockedPrivate, isPrivate]);
     useEffect(() => {
         setSelectedScheduleId(null);
         setSelectedDate("");
@@ -131,7 +167,7 @@ export default function TourDetail() {
         try {
             setBookingSubmitting(true);
             const payload = {
-                tourId: tour?._id,
+                tourId: tour?._id || tourId,
                 tourScheduleId: selectedScheduleId,
                 quantity: {
                     adults,
@@ -189,6 +225,21 @@ export default function TourDetail() {
         if (defaultTransport) {
             setTransportPref(defaultTransport.serviceId?._id || defaultTransport.serviceId);
         }
+
+        const initialTravelers = getInitialTravelerCounts(tour);
+        setAdults(initialTravelers.adults);
+        setChildren(initialTravelers.children);
+        setInfants(initialTravelers.infants);
+        setIsPrivate(tour?.bookingAccess === "TARGET_TRAVELER_ONLY");
+
+        const firstSchedule = (tour?.bookingAccess === "TARGET_TRAVELER_ONLY"
+            ? tour?.schedules
+            : tour?.schedules?.filter((schedule) => schedule.isPrivate === (tour?.type === "PRIVATE")))?.[0];
+
+        if (firstSchedule) {
+            setSelectedScheduleId(firstSchedule._id);
+            setSelectedDate(formatDateISO(firstSchedule.departureDate));
+        }
     }, [tour]);
 
     const nights = Math.max((Number(tour?.numberOfDay) || 1) - 1, 0);
@@ -200,6 +251,15 @@ export default function TourDetail() {
     const basePeopleTotal = adults * basePrice + children * childPrice + infants * infantPrice;
     const baseTourTotal = isPrivate ? Math.round(basePeopleTotal * privateMultiplier) : basePeopleTotal;
     const total = baseTourTotal + hotelTotal + transportTotal;
+    const displayedGuide = useMemo(() => {
+        const selectedSchedule = filteredSchedules.find((schedule) => schedule._id === selectedScheduleId);
+        return (
+            selectedSchedule?.leadGuideServiceId ||
+            filteredSchedules.find((schedule) => schedule?.leadGuideServiceId)?.leadGuideServiceId ||
+            tour?.primaryGuide ||
+            null
+        );
+    }, [filteredSchedules, selectedScheduleId, tour]);
     const reviewCount = reviews.length;
     const averageTourRating =
         reviewCount > 0
@@ -750,10 +810,11 @@ export default function TourDetail() {
                                                 checked={isPrivate}
                                                 onCheckedChange={setIsPrivate}
                                                 id="private-switch"
+                                                disabled={isLockedPrivate}
                                             />
                                             <label
                                                 htmlFor="private-switch"
-                                                className="font-semibold text-base cursor-pointer"
+                                                className={`font-semibold text-base ${isLockedPrivate ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}
                                             >
                                                 Book as{" "}
                                                 <span className={isPrivate ? "text-primary" : "text-slate-500"}>
@@ -767,16 +828,26 @@ export default function TourDetail() {
                                                 </span>
                                             )}
                                         </div>
+                                        {isLockedPrivate ? (
+                                            <p className="text-sm text-primary font-medium">
+                                                Tour này được provider thiết kế riêng cho nhóm của bạn nên chỉ đặt ở chế độ private.
+                                            </p>
+                                        ) : null}
+                                        {bookingDisabledReason ? (
+                                            <p className="text-sm font-medium text-rose-600">
+                                                {bookingDisabledReason}
+                                            </p>
+                                        ) : null}
 
                                         <button
                                             className={`w-full py-4 rounded-xl editorial-gradient text-white font-bold text-lg shadow-lg transition-all ${
-                                                !selectedScheduleId || bookingSubmitting
+                                                !selectedScheduleId || bookingSubmitting || Boolean(bookingDisabledReason)
                                                     ? "opacity-50 cursor-not-allowed"
                                                     : "hover:scale-[1.02] active:scale-[0.98]"
                                             }`}
                                             type="button"
                                             onClick={handleBooking}
-                                            disabled={!selectedScheduleId || bookingSubmitting}
+                                            disabled={!selectedScheduleId || bookingSubmitting || Boolean(bookingDisabledReason)}
                                         >
                                             {bookingSubmitting ? "Creating payment..." : "Confirm Booking"}
                                         </button>
@@ -795,16 +866,19 @@ export default function TourDetail() {
                                 <div className="bg-surface-container-low rounded-3xl p-6 flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-full overflow-hidden shrink-0">
                                         <img
-                                            alt="Tran Thi Mai Chau"
+                                            alt={displayedGuide?.fullName || "Guide"}
                                             className="w-full h-full object-cover"
-                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0BfviMsRmGSM1xnCOiLAjEB-Xdb5zdVkaJer9i8EJDmcHyk3B_cx3NNEUzYZx5eeXLb3knh4GSyKV1fU2pKt6dX7NkkJOM-qqssY1oLkNGpRLgm3AiSVVcnGdAVSqgMJeL-mStHglR2Rc9V12kuRO9iwN7ZjrDqchBTD7BWXOm-mCLk6H7Q8mnXUOH5vIX9avqy2wQ7x_g34-VVu4BanY1QQ1qVm-2_PkEjdf_nz1PHmI3pTuP8jQkRkJa9qDZRvYGjv8ySp5VHSG"
+                                            src={
+                                                displayedGuide?.avatarUrl ||
+                                                "https://lh3.googleusercontent.com/aida-public/AB6AXuD0BfviMsRmGSM1xnCOiLAjEB-Xdb5zdVkaJer9i8EJDmcHyk3B_cx3NNEUzYZx5eeXLb3knh4GSyKV1fU2pKt6dX7NkkJOM-qqssY1oLkNGpRLgm3AiSVVcnGdAVSqgMJeL-mStHglR2Rc9V12kuRO9iwN7ZjrDqchBTD7BWXOm-mCLk6H7Q8mnXUOH5vIX9avqy2wQ7x_g34-VVu4BanY1QQ1qVm-2_PkEjdf_nz1PHmI3pTuP8jQkRkJa9qDZRvYGjv8ySp5VHSG"
+                                            }
                                         />
                                     </div>
                                     <div className="flex-1">
                                         <p className="text-xs font-bold text-primary uppercase">Suggested Guide</p>
-                                        <p className="font-bold">Tran Thi Mai Chau</p>
+                                        <p className="font-bold">{displayedGuide?.fullName || "Guide sẽ được cập nhật"}</p>
                                         <p className="text-xs text-on-surface-variant">
-                                            Coastal &amp; culture operations • 4.9★
+                                            {displayedGuide?.specialty || displayedGuide?.email || "Thông tin hướng dẫn viên sẽ hiển thị theo lịch khởi hành"}
                                         </p>
                                     </div>
                                     <button className="p-2 hover:bg-surface-container-highest rounded-full transition-colors">

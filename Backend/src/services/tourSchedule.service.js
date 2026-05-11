@@ -108,9 +108,14 @@ export const createTourScheduleService = async (tourId, userId, data) => {
             departureDate: data.departureDate,
         });
 
+        const normalizedData = {
+            ...data,
+            isPrivate: tour.bookingAccess === "TARGET_TRAVELER_ONLY" ? true : !!data.isPrivate,
+        };
+
         const schedule = await TourSchedule.create({
             tourId,
-            ...data,
+            ...normalizedData,
         });
 
         return schedule;
@@ -141,7 +146,12 @@ export const updateTourScheduleService = async (scheduleId, userId, data) => {
         excludeScheduleId: scheduleId,
     });
 
-    Object.assign(schedule, data);
+    const normalizedData = {
+        ...data,
+        isPrivate: tour.bookingAccess === "TARGET_TRAVELER_ONLY" ? true : !!data.isPrivate,
+    };
+
+    Object.assign(schedule, normalizedData);
 
     if (schedule.currentBooked >= schedule.maxSlots) {
         schedule.status = "FULL";

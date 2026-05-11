@@ -84,6 +84,7 @@ export const getTourService = async (tourId) => {
     try {
         const tour = await Tour.findById(tourId)
             .populate("providerId", "name email")
+            .populate("sourceAiTourRequestId", "quantity")
             .populate({
                 path: "itineraries.activities.serviceId",
                 select: "name price",
@@ -105,12 +106,18 @@ export const getTourService = async (tourId) => {
         const schedules = await TourSchedule.find({
             tourId,
             status: { $ne: "CANCELLED" },
-        }).sort({ departureDate: 1 });
+        })
+            .populate("leadGuideServiceId", "fullName email avatarUrl specialty")
+            .sort({ departureDate: 1 });
+
+        const primaryGuide =
+            schedules.find((schedule) => schedule?.leadGuideServiceId)?.leadGuideServiceId || null;
 
         return {
             ...tour.toObject(),
             images,
             schedules,
+            primaryGuide,
         };
     } catch (err) {
         throwError(err.message, err.status || 500, "GET_TOUR_ERROR");

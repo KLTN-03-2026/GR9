@@ -11,6 +11,166 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
+const AI_REQUEST_PUBLISH_WINDOW_MS = 24 * 60 * 60 * 1000;
+const AI_REQUEST_CLAIM_WINDOW_MS = 10 * 60 * 1000;
+const AI_PROPOSAL_APPROVAL_WINDOW_MS = 2 * 24 * 60 * 60 * 1000;
+
+const addMilliseconds = (date, ms) => new Date(new Date(date).getTime() + ms);
+
+const getPublishedExpiry = (request) =>
+  request?.publishedExpiresAt
+    ? new Date(request.publishedExpiresAt)
+    : request?.publishedAt
+      ? addMilliseconds(request.publishedAt, AI_REQUEST_PUBLISH_WINDOW_MS)
+      : null;
+
+const getClaimExpiry = (request) =>
+  request?.claimExpiresAt ? new Date(request.claimExpiresAt) : null;
+
+const refreshAiTourRequestLifecycle = async () => {
+  const now = new Date();
+
+  await AiTourRequest.updateMany(
+    {
+      status: "CLAIMED",
+      $or: [
+        { claimExpiresAt: { $ne: null, $lte: now } },
+        {
+          claimExpiresAt: null,
+          claimedAt: { $ne: null, $lte: new Date(now.getTime() - AI_REQUEST_CLAIM_WINDOW_MS) },
+        },
+      ],
+    },
+    {
+      $set: {
+        status: "PUBLISHED",
+        claimedBy: null,
+        claimedAt: null,
+        claimExpiresAt: null,
+        serviceMatchDecisions: [],
+      },
+    },
+  );
+
+  await AiTourRequest.updateMany(
+    {
+      status: "PUBLISHED",
+      $or: [
+        { publishedExpiresAt: { $ne: null, $lte: now } },
+        {
+          publishedExpiresAt: null,
+          publishedAt: { $ne: null, $lte: new Date(now.getTime() - AI_REQUEST_PUBLISH_WINDOW_MS) },
+        },
+      ],
+    },
+    {
+      $set: {
+        status: "EXPIRED",
+        expiredReason: "PUBLISH_TIMEOUT",
+        claimedBy: null,
+        claimedAt: null,
+        claimExpiresAt: null,
+        serviceMatchDecisions: [],
+      },
+    },
+  );
+
+  const expiredProposals = await AiTourRequest.find({
+    status: "PROPOSED",
+    convertedAt: { $ne: null, $lte: new Date(now.getTime() - AI_PROPOSAL_APPROVAL_WINDOW_MS) },
+    convertedTourId: { $ne: null },
+  })
+    .select("_id convertedTourId")
+    .lean();
+
+  if (expiredProposals.length) {
+    await Tour.updateMany(
+      {
+        _id: { $in: expiredProposals.map((item) => item.convertedTourId).filter(Boolean) },
+      },
+      {
+        $set: {
+          travelerApprovalStatus: "REJECTED",
+          isActive: false,
+        },
+      },
+    );
+
+    await AiTourRequest.updateMany(
+      {
+        _id: { $in: expiredProposals.map((item) => item._id) },
+      },
+      {
+        $set: {
+          status: "EXPIRED",
+          expiredReason: "PROPOSAL_TIMEOUT",
+          claimExpiresAt: null,
+        },
+      },
+    );
+  }
+};
+
+const ensureProviderClaimWindow = async (request, providerId) => {
+  const now = new Date();
+  const publishedExpiresAt = getPublishedExpiry(request);
+
+  if (request.status === "PUBLISHED") {
+    const claimExpiresAt =
+      publishedExpiresAt && publishedExpiresAt.getTime() < now.getTime() + AI_REQUEST_CLAIM_WINDOW_MS
+        ? publishedExpiresAt
+        : new Date(now.getTime() + AI_REQUEST_CLAIM_WINDOW_MS);
+
+    request.status = "CLAIMED";
+    request.claimedBy = providerId;
+    request.claimedAt = now;
+    request.claimExpiresAt = claimExpiresAt;
+    if (!request.publishedExpiresAt && publishedExpiresAt) {
+      request.publishedExpiresAt = publishedExpiresAt;
+    }
+    await request.save();
+    return request;
+  }
+
+  if (request.status === "CLAIMED" && String(request.claimedBy || "") === String(providerId)) {
+    if (!request.claimExpiresAt) {
+      request.claimExpiresAt = new Date(now.getTime() + AI_REQUEST_CLAIM_WINDOW_MS);
+      await request.save();
+    }
+    return request;
+  }
+
+  if (request.status === "CLAIMED") {
+    const claimExpiresAt = getClaimExpiry(request);
+    const remainingMs = Math.max((claimExpiresAt?.getTime() || now.getTime()) - now.getTime(), 0);
+    const remainingMinutes = Math.ceil(remainingMs / 60000);
+    throwError(
+      `Yêu cầu này đang được provider khác giữ trong ${remainingMinutes || 1} phút nữa`,
+      409,
+      "AI_TOUR_REQUEST_TEMPORARILY_CLAIMED",
+    );
+  }
+
+  return request;
+};
+
+const buildProviderRequestMeta = (request) => {
+  const now = Date.now();
+  const publishedExpiresAt = getPublishedExpiry(request);
+  const claimExpiresAt = getClaimExpiry(request);
+
+  return {
+    publishedExpiresAt,
+    claimExpiresAt,
+    publishRemainingSeconds: publishedExpiresAt
+      ? Math.max(Math.floor((publishedExpiresAt.getTime() - now) / 1000), 0)
+      : null,
+    claimRemainingSeconds: claimExpiresAt
+      ? Math.max(Math.floor((claimExpiresAt.getTime() - now) / 1000), 0)
+      : null,
+  };
+};
+
 const normalizePrice = (price = {}) => ({
   adult: Number(price.ADULT ?? price.adult) || 0,
   child: Number(price.CHILD ?? price.child) || 0,
@@ -28,11 +188,31 @@ const normalizeServiceType = (type) => {
 };
 
 const getProviderTypeQuery = (normalizedType) => {
-  if (normalizedType === "FOOD") {
-    return { $in: ["FOOD", "RESTAURANT"] };
+  if (normalizedType === "HOTEL") {
+    return { $in: ["HOTEL"] };
   }
 
-  return normalizedType;
+  if (normalizedType === "TRANSPORT") {
+    return { $in: ["TRANSPORT"] };
+  }
+
+  if (normalizedType === "FOOD") {
+    return { $in: ["FOOD", "RESTAURANT", "OTHER"] };
+  }
+
+  if (normalizedType === "ATTRACTION_TICKET") {
+    return { $in: ["ATTRACTION_TICKET", "ACTIVITY", "OTHER"] };
+  }
+
+  if (normalizedType === "COMBO") {
+    return { $in: ["COMBO", "OTHER"] };
+  }
+
+  if (normalizedType === "OTHER") {
+    return { $in: ["OTHER", "ACTIVITY"] };
+  }
+
+  return { $in: ["ACTIVITY", "ATTRACTION_TICKET", "OTHER"] };
 };
 
 const getAvailableServiceType = (serviceType) => {
@@ -41,6 +221,80 @@ const getAvailableServiceType = (serviceType) => {
   if (serviceType === "FOOD" || serviceType === "RESTAURANT") return "FOOD";
   return "ACTIVITY";
 };
+
+const normalizeParticipantMap = (value = {}) => ({
+  ADULT: Number(value.ADULT ?? value.adult) || 0,
+  CHILD: Number(value.CHILD ?? value.child) || 0,
+  INFANT: Number(value.INFANT ?? value.infant) || 0,
+});
+
+const normalizeServiceTotals = (totals = []) =>
+  (Array.isArray(totals) ? totals : []).map((item) => ({
+    type: String(item?.type || "").trim().toUpperCase(),
+    price: Number(item?.price) || 0,
+  }));
+
+const buildParticipantPriceMap = (totals = []) => {
+  const map = { ADULT: 0, CHILD: 0, INFANT: 0 };
+  normalizeServiceTotals(totals).forEach((item) => {
+    if (!Object.prototype.hasOwnProperty.call(map, item.type)) return;
+    map[item.type] = Number(item.price) || 0;
+  });
+  return map;
+};
+
+const compareServicePrices = (source = {}, service = {}) => {
+  const sourcePrice = buildParticipantPriceMap(source?.total);
+  const matchedPrice = buildParticipantPriceMap(service?.total);
+  const diff = {
+    ADULT: matchedPrice.ADULT - sourcePrice.ADULT,
+    CHILD: matchedPrice.CHILD - sourcePrice.CHILD,
+    INFANT: matchedPrice.INFANT - sourcePrice.INFANT,
+  };
+
+  const mismatchTypes = Object.keys(diff).filter((type) => diff[type] !== 0);
+
+  return {
+    sourcePrice,
+    matchedPrice,
+    diff,
+    mismatchTypes,
+    hasMismatch: mismatchTypes.length > 0,
+  };
+};
+
+const normalizeAiServiceSource = (service = null) => {
+  if (!service || typeof service !== "object") return null;
+
+  return {
+    name: service.name || null,
+    type: service.type || "OTHER",
+    address: service.address || null,
+    long: Number(service.long) || 0,
+    lat: Number(service.lat) || 0,
+    description: service.description || "",
+    total: normalizeServiceTotals(service.total),
+    status: service.status || "ACTIVE",
+  };
+};
+
+const normalizeAiTourPayload = (tour = {}) => ({
+  ...tour,
+  quantity: normalizeParticipantMap(tour.quantity),
+  price: normalizeParticipantMap(tour.price),
+  startDay: tour.startDay ? new Date(tour.startDay) : null,
+  hotelServiceId: normalizeAiServiceSource(tour.hotelServiceId),
+  transportServiceId: normalizeAiServiceSource(tour.transportServiceId),
+  itineraries: (tour.itineraries || []).map((day, index) => ({
+    dayNumber: Number(day?.dayNumber) || index + 1,
+    description: day?.description || "",
+    activities: (day?.activities || []).map((activity) => ({
+      time: activity?.time || null,
+      statusActivity: activity?.statusActivity || "NOT_DONE",
+      serviceId: normalizeAiServiceSource(activity?.serviceId),
+    })),
+  })),
+});
 
 const getRequiredAiServices = (request) => {
   const services = [];
@@ -79,25 +333,270 @@ const getRequiredAiServices = (request) => {
 const buildServiceLookupKey = (name, normalizedType) =>
   `${String(name || "").trim().toLowerCase()}::${normalizedType}`;
 
+const buildDecisionLookup = (request) =>
+  new Map(
+    (request?.serviceMatchDecisions || [])
+      .filter((item) => item?.role && item?.serviceId)
+      .map((item) => [String(item.role), item]),
+  );
+
+const normalizeText = (value) =>
+  String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(
+      /\b(hotel|resort|restaurant|branch|chi nhanh|co so|khu du lich|tour|service|da nang|hoi an|hue|tham quan|kham pha|trai nghiem|check in|ghe tham|den|tro ve|quay ve|di chuyen|visit|explore|return|transfer)\b/g,
+      " ",
+    )
+    .replace(/\s+/g, " ")
+    .trim();
+
+const tokenize = (value) => normalizeText(value).split(" ").filter(Boolean);
+
+const diceCoefficient = (a, b) => {
+  const source = normalizeText(a);
+  const target = normalizeText(b);
+  if (!source || !target) return 0;
+  if (source === target) return 1;
+  if (source.length < 2 || target.length < 2) {
+    return source === target ? 1 : 0;
+  }
+
+  const sourcePairs = new Map();
+  for (let index = 0; index < source.length - 1; index += 1) {
+    const pair = source.slice(index, index + 2);
+    sourcePairs.set(pair, (sourcePairs.get(pair) || 0) + 1);
+  }
+
+  let intersection = 0;
+  for (let index = 0; index < target.length - 1; index += 1) {
+    const pair = target.slice(index, index + 2);
+    const count = sourcePairs.get(pair) || 0;
+    if (count > 0) {
+      sourcePairs.set(pair, count - 1);
+      intersection += 1;
+    }
+  }
+
+  return (2 * intersection) / (source.length + target.length - 2);
+};
+
+const tokenOverlapScore = (a, b) => {
+  const sourceTokens = tokenize(a);
+  const targetTokens = tokenize(b);
+  if (!sourceTokens.length || !targetTokens.length) return 0;
+  const sourceSet = new Set(sourceTokens);
+  const targetSet = new Set(targetTokens);
+  const intersection = [...sourceSet].filter((token) => targetSet.has(token)).length;
+  return intersection / Math.max(sourceSet.size, targetSet.size, 1);
+};
+
+const getServiceMatchScore = (source, service) => {
+  const sourceName = source?.name || "";
+  const sourceAddress = source?.address || "";
+  const serviceName = service?.name || "";
+  const aliases = service?.aliases || [];
+
+  const normalizedSourceName = normalizeText(sourceName);
+  const normalizedServiceName = normalizeText(serviceName);
+  const normalizedAliases = aliases.map((alias) => normalizeText(alias));
+
+  if (!normalizedSourceName) return 0;
+  if (normalizedSourceName === normalizedServiceName) return 1;
+  if (normalizedAliases.includes(normalizedSourceName)) return 0.98;
+
+  let score = Math.max(
+    diceCoefficient(sourceName, serviceName),
+    ...aliases.map((alias) => diceCoefficient(sourceName, alias)),
+  );
+
+  score = Math.max(
+    score,
+    tokenOverlapScore(sourceName, serviceName),
+    ...aliases.map((alias) => tokenOverlapScore(sourceName, alias)),
+  );
+
+  const normalizedSourceAddress = normalizeText(sourceAddress);
+  const normalizedServiceAddress = normalizeText(service?.address || "");
+  if (
+    normalizedSourceAddress &&
+    normalizedServiceAddress &&
+    (normalizedSourceAddress.includes(normalizedServiceAddress) ||
+      normalizedServiceAddress.includes(normalizedSourceAddress))
+  ) {
+    score += 0.08;
+  }
+
+  return Math.min(score, 0.99);
+};
+
+const getServiceMatchReason = (score, source, service) => {
+  const normalizedSourceName = normalizeText(source?.name);
+  const normalizedServiceName = normalizeText(service?.name);
+  const aliasMatched = (service?.aliases || []).some(
+    (alias) => normalizeText(alias) === normalizedSourceName,
+  );
+
+  if (normalizedSourceName === normalizedServiceName) {
+    return "Tên chuẩn hóa trùng khớp";
+  }
+  if (aliasMatched) {
+    return "Tên AI khớp với alias đã lưu";
+  }
+  if (score >= 0.92) {
+    return "Tên và địa chỉ rất giống nhau";
+  }
+  return "Tên dịch vụ có độ tương đồng cao";
+};
+
+const buildServiceMatch = (source, candidates = []) => {
+  const rankedCandidates = candidates
+    .map((service) => ({
+      ...service,
+      matchScore: getServiceMatchScore(source, service),
+    }))
+    .filter((service) => service.matchScore >= 0.72)
+    .sort((a, b) => b.matchScore - a.matchScore)
+    .slice(0, 3)
+    .map((service) => ({
+      ...service,
+      matchReason: getServiceMatchReason(service.matchScore, source, service),
+      priceComparison: compareServicePrices(source, service),
+    }));
+
+  const bestCandidate = rankedCandidates[0] || null;
+  if (bestCandidate && bestCandidate.matchScore >= 0.92) {
+    const hasPriceMismatch = bestCandidate.priceComparison?.hasMismatch;
+    return {
+      matchedService: bestCandidate,
+      candidateServices: rankedCandidates,
+      requiresConfirmation: hasPriceMismatch,
+      matchConfidence: bestCandidate.matchScore,
+      matchReason: hasPriceMismatch
+        ? `${bestCandidate.matchReason}. Giá hiện tại của provider khác với giá AI gợi ý`
+        : bestCandidate.matchReason,
+      priceComparison: bestCandidate.priceComparison,
+      matchStatus: hasPriceMismatch ? "PRICE_MISMATCH" : "MATCHED",
+    };
+  }
+
+  return {
+    matchedService: null,
+    candidateServices: rankedCandidates,
+    requiresConfirmation: rankedCandidates.length > 0,
+    matchConfidence: bestCandidate?.matchScore || 0,
+    matchReason: bestCandidate?.matchReason || null,
+    priceComparison: bestCandidate?.priceComparison || null,
+    matchStatus: rankedCandidates.length > 0 ? "POSSIBLE_MATCH" : "MISSING",
+  };
+};
+
 const findMissingProviderServices = async (providerId, request) => {
   const requiredServices = getRequiredAiServices(request);
+  const providerServices = await Service.find({
+    providerId,
+  })
+    .select("_id name aliases type total address description status")
+    .lean();
   const items = [];
+  const decisionLookup = buildDecisionLookup(request);
 
   for (const item of requiredServices) {
-    const matchedService = await Service.findOne({
-      providerId,
-      name: item.source.name,
-      type: getProviderTypeQuery(item.normalizedType),
-    })
-      .select("_id name type total address description status")
-      .lean();
+    const typeQuery = getProviderTypeQuery(item.normalizedType);
+    const sameTypeServices = providerServices.filter((service) =>
+      typeof typeQuery === "object" && typeQuery.$in
+        ? typeQuery.$in.includes(service.type)
+        : service.type === typeQuery,
+    );
+
+    const confirmedDecision = decisionLookup.get(String(item.role));
+    const confirmedService = confirmedDecision?.serviceId
+      ? sameTypeServices.find((service) => String(service._id) === String(confirmedDecision.serviceId))
+      : null;
+
+    if (confirmedService) {
+      const priceComparison = compareServicePrices(item.source, confirmedService);
+      items.push({
+        role: item.role,
+        source: item.source,
+        normalizedType: item.normalizedType,
+        matchedService: confirmedService,
+        candidateServices: [
+          {
+            ...confirmedService,
+            matchScore: 1,
+            matchReason:
+              confirmedDecision.mode === "sync_price"
+                ? "Provider đã xác nhận và đồng bộ giá theo AI request"
+                : "Provider đã xác nhận dùng service hiện có cho AI request này",
+            priceComparison,
+          },
+        ],
+        requiresConfirmation: false,
+        matchConfidence: 1,
+        matchReason:
+          confirmedDecision.mode === "sync_price"
+            ? "Provider đã xác nhận service này và đồng bộ giá theo AI request"
+            : "Provider đã xác nhận dùng service hiện có cho request này",
+        priceComparison,
+        matchStatus: "MATCHED",
+        missing: false,
+        confirmedMode: confirmedDecision.mode,
+      });
+      continue;
+    }
+
+    const exactService = sameTypeServices.find((service) => {
+      const normalizedSourceName = normalizeText(item.source.name);
+      return (
+        normalizeText(service.name) === normalizedSourceName ||
+        (service.aliases || []).some((alias) => normalizeText(alias) === normalizedSourceName)
+      );
+    });
+
+    const fuzzyMatch = exactService
+      ? {
+          matchedService: {
+            ...exactService,
+            matchScore: 1,
+            matchReason: "Tên chuẩn hóa hoặc alias trùng khớp",
+            priceComparison: compareServicePrices(item.source, exactService),
+          },
+          candidateServices: [
+            {
+              ...exactService,
+              matchScore: 1,
+              matchReason: "Tên chuẩn hóa hoặc alias trùng khớp",
+              priceComparison: compareServicePrices(item.source, exactService),
+            },
+          ],
+          requiresConfirmation: compareServicePrices(item.source, exactService).hasMismatch,
+          matchConfidence: 1,
+          matchReason: compareServicePrices(item.source, exactService).hasMismatch
+            ? "Tên chuẩn hóa hoặc alias trùng khớp nhưng giá khác với AI gợi ý"
+            : "Tên chuẩn hóa hoặc alias trùng khớp",
+          priceComparison: compareServicePrices(item.source, exactService),
+          matchStatus: compareServicePrices(item.source, exactService).hasMismatch
+            ? "PRICE_MISMATCH"
+            : "MATCHED",
+        }
+      : buildServiceMatch(item.source, sameTypeServices);
 
     items.push({
       role: item.role,
       source: item.source,
       normalizedType: item.normalizedType,
-      matchedService,
-      missing: !matchedService,
+      matchedService: fuzzyMatch.matchedService,
+      candidateServices: fuzzyMatch.candidateServices,
+      requiresConfirmation: fuzzyMatch.requiresConfirmation,
+      matchConfidence: fuzzyMatch.matchConfidence,
+      matchReason: fuzzyMatch.matchReason,
+      priceComparison: fuzzyMatch.priceComparison,
+      matchStatus: fuzzyMatch.matchStatus,
+      confirmedMode: null,
+      missing: !fuzzyMatch.matchedService,
     });
   }
 
@@ -224,7 +723,7 @@ export const saveAiTourRequest = async (data, travelerId) => {
     const tour = data?.tour || data;
 
     return await AiTourRequest.create({
-      ...tour,
+      ...normalizeAiTourPayload(tour),
       travelerId,
     });
   } catch (error) {
@@ -238,12 +737,39 @@ export const saveAiTourRequest = async (data, travelerId) => {
 
 export const getAiTourRequestHistory = async (travelerId) => {
   try {
-    return await AiTourRequest.find({ travelerId })
+    await refreshAiTourRequestLifecycle();
+
+    const requests = await AiTourRequest.find({ travelerId })
       .populate("convertedTourId", "name location travelerApprovalStatus bookingAccess")
       .sort({ createdAt: -1 })
       .select(
-        "location description numberOfDay startDay type minSlots maxSlots quantity price status itineraries hotelServiceId transportServiceId createdAt convertedTourId",
+        "location description numberOfDay startDay type minSlots maxSlots quantity price status itineraries hotelServiceId transportServiceId createdAt convertedTourId publishedAt publishedExpiresAt claimExpiresAt expiredReason",
       );
+
+    const missingConvertedRequests = requests.filter((request) => !request.convertedTourId);
+    if (!missingConvertedRequests.length) {
+      return requests;
+    }
+
+    const fallbackTours = await Tour.find({
+      sourceAiTourRequestId: { $in: missingConvertedRequests.map((request) => request._id) },
+    })
+      .select("name location travelerApprovalStatus bookingAccess sourceAiTourRequestId")
+      .lean();
+
+    const fallbackTourMap = new Map(
+      fallbackTours.map((tour) => [String(tour.sourceAiTourRequestId), tour]),
+    );
+
+    requests.forEach((request) => {
+      if (request.convertedTourId) return;
+      const fallbackTour = fallbackTourMap.get(String(request._id));
+      if (fallbackTour) {
+        request.convertedTourId = fallbackTour;
+      }
+    });
+
+    return requests;
   } catch (error) {
     throwError(
       error.message || "Không thể tải lịch sử lịch trình AI",
@@ -255,8 +781,26 @@ export const getAiTourRequestHistory = async (travelerId) => {
 
 export const getAiTourRequestById = async (id, travelerId) => {
   try {
-    return await AiTourRequest.findOne({ _id: id, travelerId })
+    await refreshAiTourRequestLifecycle();
+
+    const request = await AiTourRequest.findOne({ _id: id, travelerId })
       .populate("convertedTourId");
+
+    if (!request) {
+      return null;
+    }
+
+    if (!request.convertedTourId) {
+      const fallbackTour = await Tour.findOne({
+        sourceAiTourRequestId: request._id,
+      });
+
+      if (fallbackTour) {
+        request.convertedTourId = fallbackTour;
+      }
+    }
+
+    return request;
   } catch (error) {
     throwError(
       error.message || "Không thể tải chi tiết lịch trình AI",
@@ -271,7 +815,7 @@ export const publishAiTourRequest = async (id, travelerId) => {
     const request = await AiTourRequest.findOne({
       _id: id,
       travelerId,
-      status: "DRAFT",
+      status: { $in: ["DRAFT", "EXPIRED"] },
     });
 
     if (!request) {
@@ -284,6 +828,12 @@ export const publishAiTourRequest = async (id, travelerId) => {
 
     request.status = "PUBLISHED";
     request.publishedAt = new Date();
+    request.publishedExpiresAt = addMilliseconds(request.publishedAt, AI_REQUEST_PUBLISH_WINDOW_MS);
+    request.expiredReason = null;
+    request.claimedBy = null;
+    request.claimedAt = null;
+    request.claimExpiresAt = null;
+    request.serviceMatchDecisions = [];
     await request.save();
 
     return request;
@@ -298,12 +848,22 @@ export const publishAiTourRequest = async (id, travelerId) => {
 
 export const getProviderAiTourNotifications = async () => {
   try {
+    await refreshAiTourRequestLifecycle();
+
     return await AiTourRequest.find({ status: "PUBLISHED" })
       .populate("travelerId", "fullName email avatarUrl")
-      .select("location description numberOfDay startDay type price quantity status publishedAt createdAt travelerId")
+      .select(
+        "location description numberOfDay startDay type price quantity status publishedAt publishedExpiresAt createdAt travelerId",
+      )
       .sort({ publishedAt: -1, createdAt: -1 })
       .limit(20)
-      .lean();
+      .lean()
+      .then((items) =>
+        items.map((item) => ({
+          ...item,
+          ...buildProviderRequestMeta(item),
+        })),
+      );
   } catch (error) {
     throwError(
       error.message || "Không thể tải thông báo AI tour",
@@ -315,16 +875,21 @@ export const getProviderAiTourNotifications = async () => {
 
 export const getProviderAiTourRequestById = async (id, providerId) => {
   try {
-    const request = await AiTourRequest.findById(id)
+    await refreshAiTourRequestLifecycle();
+
+    let request = await AiTourRequest.findById(id)
       .populate("travelerId", "fullName email avatarUrl")
       .populate("claimedBy", "fullName email")
       .populate("convertedBy", "fullName email")
       .populate("convertedTourId", "name location travelerApprovalStatus bookingAccess")
-      .lean();
+      ;
 
     if (!request) {
       throwError("AI tour request not found", 404, "AI_TOUR_REQUEST_NOT_FOUND");
     }
+
+    request = await ensureProviderClaimWindow(request, providerId);
+    await request.populate("claimedBy", "fullName email");
 
     const canViewPublished = request.status === "PUBLISHED";
     const ownedByProvider =
@@ -338,9 +903,11 @@ export const getProviderAiTourRequestById = async (id, providerId) => {
     const requiredServices = await findMissingProviderServices(providerId, request);
 
     return {
-      ...request,
+      ...request.toObject(),
       requiredServices,
       missingServices: requiredServices.filter((item) => item.missing),
+      possibleServices: requiredServices.filter((item) => item.requiresConfirmation),
+      ...buildProviderRequestMeta(request),
     };
   } catch (error) {
     throwError(
@@ -351,34 +918,121 @@ export const getProviderAiTourRequestById = async (id, providerId) => {
   }
 };
 
+export const confirmProviderAiServiceMatch = async (
+  requestId,
+  providerId,
+  { role, serviceId, mode },
+) => {
+  try {
+    await refreshAiTourRequestLifecycle();
+    const request = await AiTourRequest.findById(requestId);
+    if (!request) {
+      throwError("AI tour request not found", 404, "AI_TOUR_REQUEST_NOT_FOUND");
+    }
+
+    await ensureProviderClaimWindow(request, providerId);
+
+    const requiredServices = await findMissingProviderServices(providerId, request);
+    const target = requiredServices.find((item) => item.role === role);
+    if (!target) {
+      throwError("Không tìm thấy service AI cần xác nhận", 404, "AI_SERVICE_ROLE_NOT_FOUND");
+    }
+
+    const service = await Service.findOne({
+      _id: serviceId,
+      providerId,
+    });
+    if (!service) {
+      throwError("Không tìm thấy service của provider", 404, "PROVIDER_SERVICE_NOT_FOUND");
+    }
+
+    const validTypes = Array.isArray(getProviderTypeQuery(target.normalizedType)?.$in)
+      ? getProviderTypeQuery(target.normalizedType).$in
+      : [getProviderTypeQuery(target.normalizedType)];
+
+    if (!validTypes.includes(service.type)) {
+      throwError("Loại service không phù hợp với AI request", 400, "AI_SERVICE_TYPE_MISMATCH");
+    }
+
+    const aliases = new Set((service.aliases || []).map((item) => String(item || "").trim()).filter(Boolean));
+    if (target.source?.name) {
+      aliases.add(String(target.source.name).trim());
+    }
+    service.aliases = [...aliases];
+
+    const normalizedMode = String(mode || "use_existing").trim().toLowerCase();
+    if (!["use_existing", "sync_price"].includes(normalizedMode)) {
+      throwError("Hành động xác nhận service không hợp lệ", 400, "INVALID_AI_SERVICE_MATCH_MODE");
+    }
+
+    if (normalizedMode === "sync_price") {
+      service.total = normalizeServiceTotals(target.source?.total);
+    }
+
+    await service.save();
+
+    request.serviceMatchDecisions = [
+      ...(request.serviceMatchDecisions || []).filter((item) => String(item.role) !== String(role)),
+      {
+        role,
+        serviceId: service._id,
+        mode: normalizedMode,
+      },
+    ];
+    await request.save();
+
+    const refreshedServices = await findMissingProviderServices(providerId, request);
+    return {
+      role,
+      matchedServiceId: String(service._id),
+      mode: normalizedMode,
+      requiredServices: refreshedServices,
+      missingServices: refreshedServices.filter((item) => item.missing),
+      possibleServices: refreshedServices.filter((item) => item.requiresConfirmation),
+    };
+  } catch (error) {
+    throwError(
+      error.message || "Không thể xác nhận service tương đương",
+      error.status || 500,
+      error.errorCode || "CONFIRM_PROVIDER_AI_SERVICE_MATCH_ERROR",
+    );
+  }
+};
+
 export const convertAiTourRequestToTour = async (id, providerId) => {
   let request = null;
 
   try {
-    request = await AiTourRequest.findOneAndUpdate(
-      { _id: id, status: "PUBLISHED" },
-      {
-        $set: {
-          status: "CLAIMED",
-          claimedBy: providerId,
-          claimedAt: new Date(),
-        },
-      },
-      { new: true },
-    );
+    await refreshAiTourRequestLifecycle();
+    request = await AiTourRequest.findById(id);
 
     if (!request) {
+      throwError("AI tour request not found", 404, "AI_TOUR_REQUEST_NOT_FOUND");
+    }
+
+    await ensureProviderClaimWindow(request, providerId);
+
+    if (request.status !== "CLAIMED" || String(request.claimedBy || "") !== String(providerId)) {
       throwError("AI tour request đã được provider khác xử lý", 409, "AI_TOUR_REQUEST_ALREADY_CLAIMED");
     }
 
     const requiredServices = await findMissingProviderServices(providerId, request);
     const missingServices = requiredServices.filter((item) => item.missing);
+    const unresolvedServices = requiredServices.filter((item) => item.requiresConfirmation);
 
     if (missingServices.length > 0) {
       throwError(
         "Provider còn thiếu service để tạo tour từ AI request",
         400,
         "AI_REQUEST_MISSING_PROVIDER_SERVICES",
+      );
+    }
+
+    if (unresolvedServices.length > 0) {
+      throwError(
+        "Provider cần xác nhận xong các service còn lệch giá hoặc nghi ngờ trùng trước khi tạo tour",
+        400,
+        "AI_REQUEST_UNRESOLVED_PROVIDER_SERVICES",
       );
     }
 
@@ -440,7 +1094,7 @@ export const convertAiTourRequestToTour = async (id, providerId) => {
       name: `${request.location || "AI Tour"} ${request.numberOfDay || 1}D`,
       description: request.description,
       numberOfDay: Number(request.numberOfDay) || 1,
-      type: request.type || "GROUP",
+      type: "PRIVATE",
       scheduleType: "FIXED",
       price: normalizePrice(request.price),
       isActive: true,
@@ -453,9 +1107,11 @@ export const convertAiTourRequestToTour = async (id, providerId) => {
     });
 
     request.status = "PROPOSED";
+    request.expiredReason = null;
     request.convertedBy = providerId;
     request.convertedTourId = tour._id;
     request.convertedAt = new Date();
+    request.claimExpiresAt = null;
     await request.save();
 
     return {
@@ -467,6 +1123,8 @@ export const convertAiTourRequestToTour = async (id, providerId) => {
       request.status = "PUBLISHED";
       request.claimedBy = null;
       request.claimedAt = null;
+      request.claimExpiresAt = null;
+      request.serviceMatchDecisions = [];
       await request.save();
     }
 

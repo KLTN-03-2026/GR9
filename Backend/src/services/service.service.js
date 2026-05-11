@@ -6,6 +6,15 @@ import { deleteImagesByEntity } from "../services/image.service.js";
 
 const allowCreateRoles = ["PROVIDER", "ADMIN", "USER"];
 
+const normalizeAliases = (aliases = []) =>
+  Array.from(
+    new Set(
+      (Array.isArray(aliases) ? aliases : String(aliases || "").split(","))
+        .map((item) => String(item || "").trim())
+        .filter(Boolean),
+    ),
+  );
+
 const checkUserExists = async (userId) => {
   const user = await User.findById(userId);
   if (!user) {
@@ -54,6 +63,7 @@ export const createService = async (payload, user) => {
 
     const serviceData = {
       ...payload,
+      aliases: normalizeAliases(payload.aliases),
       providerId: currentUser._id,
     };
 
@@ -72,6 +82,9 @@ export const updateService = async (serviceId, payload, user) => {
     const filter = buildOwnershipFilter(serviceId, user);
     const updatePayload = { ...payload };
     delete updatePayload.providerId;
+    if (Object.prototype.hasOwnProperty.call(updatePayload, "aliases")) {
+      updatePayload.aliases = normalizeAliases(updatePayload.aliases);
+    }
 
     const updatedService = await Service.findOneAndUpdate(
       filter,
