@@ -6,6 +6,7 @@ import GuideLiveTourTrackingSidebar from "./GuideLiveTourTrackingSidebar";
 import GuideLiveTourTrackingTimeline from "./GuideLiveTourTrackingTimeline";
 import { Button } from "@/components/ui/button";
 import PageHero from "@/components/shared/page-hero";
+import { TrackingPageSkeleton } from "@/components/shared/page-skeletons";
 import {
   getGuideLiveTracking,
   updateGuideLiveActivityStatus,
@@ -88,31 +89,29 @@ export default function GuideLiveTourTracking() {
         />
 
         {loading ? (
-          <div className="rounded-2xl bg-white p-8 text-on-surface-variant shadow-sm">
-            Loading guide live tracking...
-          </div>
-        ) : null}
-
-        {!loading && !tracking ? (
+          <TrackingPageSkeleton />
+        ) : !tracking ? (
           <div className="rounded-2xl bg-white p-8 text-on-surface-variant shadow-sm">
             No paid active tour is assigned to this guide.
           </div>
-        ) : null}
+        ) : (
+          <>
+            <div className="flex flex-col gap-8 md:flex-row">
+              <GuideLiveTourTrackingTimeline
+                tracking={tracking}
+                onUpdateActivityStatus={handleUpdateActivityStatus}
+                updatingActivityId={updatingActivityId}
+              />
+              <GuideLiveTourTrackingSidebar
+                tracking={tracking}
+                tours={tours}
+                onSelectTour={(bookingId) => loadTracking(bookingId)}
+              />
+            </div>
 
-        <div className="flex flex-col gap-8 md:flex-row">
-          <GuideLiveTourTrackingTimeline
-            tracking={tracking}
-            onUpdateActivityStatus={handleUpdateActivityStatus}
-            updatingActivityId={updatingActivityId}
-          />
-          <GuideLiveTourTrackingSidebar
-            tracking={tracking}
-            tours={tours}
-            onSelectTour={(bookingId) => loadTracking(bookingId)}
-          />
-        </div>
-
-        <GuideLiveTourTrackingFooterActions tracking={tracking} />
+            <GuideLiveTourTrackingFooterActions tracking={tracking} />
+          </>
+        )}
       </div>
     </div>
   );

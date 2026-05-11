@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 import PageHero from "@/components/shared/page-hero";
+import { DetailPageSkeleton } from "@/components/shared/page-skeletons";
 import { Button } from "@/components/ui/button";
 import {
   getAiTourHistory,
@@ -149,9 +150,7 @@ export default function AITourHistory() {
       />
 
       {loading ? (
-        <div className="flex min-h-[420px] items-center justify-center rounded-3xl border border-slate-200 bg-white text-sm font-semibold text-slate-500 shadow-[0px_20px_40px_rgba(25,28,30,0.04)]">
-          Loading AI tour history...
-        </div>
+        <DetailPageSkeleton />
       ) : history.length === 0 ? (
         <EmptyHistoryState />
       ) : (

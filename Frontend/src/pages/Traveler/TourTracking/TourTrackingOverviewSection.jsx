@@ -1,6 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function TourTrackingOverviewSection({ tracking }) {
+  const { t } = useI18n();
   const activities = tracking?.today?.activities || [];
   const labels = activities.slice(0, 3);
 
@@ -10,13 +12,13 @@ export default function TourTrackingOverviewSection({ tracking }) {
         <div className="absolute right-0 top-0 p-8">
           <div className="text-right">
             <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
-              Start Date
+              {t("tracking.startDate")}
             </span>
             <span className="font-headline text-2xl font-extrabold text-teal-800">
               {tracking?.schedule?.startDay || "-"}
             </span>
             <span className="mt-1 block text-xs font-semibold text-on-surface-variant">
-              Local time {tracking?.schedule?.localTime || "--:--"}
+              {t("tracking.localTime", { time: tracking?.schedule?.localTime || "--:--" })}
             </span>
           </div>
         </div>
@@ -32,12 +34,14 @@ export default function TourTrackingOverviewSection({ tracking }) {
           </div>
           <div>
             <h3 className="text-xl font-bold">
-              Tour Progress: Day {tracking?.schedule?.currentDay || 1} of{" "}
-              {tracking?.tour?.numberOfDay || 1}
+              {t("tracking.tourProgress", {
+                current: tracking?.schedule?.currentDay || 1,
+                total: tracking?.tour?.numberOfDay || 1,
+              })}
             </h3>
             <p className="text-on-surface-variant">
               {tracking?.today?.description ||
-                "Follow the route and keep your trusted contacts updated."}
+                t("tracking.followRouteHint")}
             </p>
           </div>
         </div>
@@ -47,7 +51,7 @@ export default function TourTrackingOverviewSection({ tracking }) {
             {labels.length ? (
               labels.map((item) => <span key={`${item.time}-${item.name}`}>{item.name}</span>)
             ) : (
-              <span>No activities</span>
+              <span>{t("tracking.noActivities")}</span>
             )}
           </div>
 
@@ -68,8 +72,10 @@ export default function TourTrackingOverviewSection({ tracking }) {
                 check_circle
               </span>
               <span className="text-sm font-semibold">
-                Completed: {tracking?.progress?.completedActivities || 0}/
-                {tracking?.progress?.totalActivities || 0}
+                {t("tracking.completed", {
+                  done: tracking?.progress?.completedActivities || 0,
+                  total: tracking?.progress?.totalActivities || 0,
+                })}
               </span>
             </div>
 
@@ -78,7 +84,7 @@ export default function TourTrackingOverviewSection({ tracking }) {
                 arrow_forward
               </span>
               <span className="text-sm font-semibold">
-                Next: {tracking?.progress?.nextActivity?.name || "No next activity"}
+                {t("tracking.next", { name: tracking?.progress?.nextActivity?.name || t("tracking.noNextActivity") })}
               </span>
             </div>
           </div>

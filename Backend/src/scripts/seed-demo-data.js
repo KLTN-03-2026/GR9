@@ -5,6 +5,8 @@ import Service from "../models/service.model.js";
 import Tour from "../models/tour.model.js";
 import Image from "../models/image.model.js";
 import TourSchedule from "../models/tourSchedule.model.js";
+import Booking from "../models/booking.model.js";
+import Review from "../models/review.model.js";
 
 dotenv.config();
 
@@ -55,6 +57,54 @@ const providers = {
     specialty: "Vietnam family tours and cultural experiences",
   },
 };
+
+const travelerSeeds = [
+  {
+    email: "demo.traveler1@travel-ai.vn",
+    password: "Traveler@123",
+    fullName: "Nguyen Minh Anh",
+    role: "TRAVELER",
+    phone: "0902000001",
+    address: "Da Nang, Vietnam",
+  },
+  {
+    email: "demo.traveler2@travel-ai.vn",
+    password: "Traveler@123",
+    fullName: "Tran Gia Bao",
+    role: "TRAVELER",
+    phone: "0902000002",
+    address: "Ha Noi, Vietnam",
+  },
+  {
+    email: "demo.traveler3@travel-ai.vn",
+    password: "Traveler@123",
+    fullName: "Le Hoang Yen",
+    role: "TRAVELER",
+    phone: "0902000003",
+    address: "Ho Chi Minh City, Vietnam",
+  },
+];
+
+const reviewSamples = [
+  {
+    ratingTour: 5,
+    ratingGuide: 5,
+    contentTour: "Lịch trình hợp lý, phù hợp cho gia đình và có nhiều thời gian nghỉ.",
+    contentGuide: "Guide hỗ trợ nhiệt tình, giải thích rõ và chăm sóc đoàn tốt.",
+  },
+  {
+    ratingTour: 4,
+    ratingGuide: 5,
+    contentTour: "Tour đáng tiền, điểm tham quan đẹp, phần di chuyển khá thuận tiện.",
+    contentGuide: "Guide thân thiện, đúng giờ và xử lý phát sinh nhanh.",
+  },
+  {
+    ratingTour: 5,
+    ratingGuide: 4,
+    contentTour: "Trải nghiệm tốt, dịch vụ rõ ràng và phù hợp với nhóm nhỏ.",
+    contentGuide: "Guide am hiểu địa phương, giao tiếp dễ chịu.",
+  },
+];
 
 const hotelPrices = {
   "Fusion Suites Da Nang": 1200000,
@@ -681,6 +731,13 @@ const seedDemoData = async () => {
 
     const provider = await upsertUser(providers.provider);
     const guide = await upsertUser(providers.guide, provider._id);
+    const travelers = [];
+
+    for (const travelerData of travelerSeeds) {
+      const traveler = await upsertUser(travelerData);
+      travelers.push(traveler);
+      console.log(`Seeded traveler: ${traveler.email}`);
+    }
 
     const serviceMap = new Map();
     for (const [index, serviceData] of serviceSeeds.entries()) {
@@ -698,6 +755,9 @@ const seedDemoData = async () => {
       serviceMap.set(service.name, service);
       console.log(`Seeded service: ${service.name}`);
     }
+
+    const seededTours = [];
+    const scheduleMap = new Map();
 
     for (const [index, tourData] of tourSeeds.entries()) {
       const itineraries = tourData.itineraries.map((day) => ({
@@ -753,18 +813,86 @@ const seedDemoData = async () => {
       );
 
       await TourSchedule.deleteMany({ tourId: tour._id });
-      await TourSchedule.insertMany([
+      const [schedule] = await TourSchedule.insertMany([
         {
           tourId: tour._id,
           leadGuideServiceId: guide._id,
           departureDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
           maxSlots: 20,
-          currentBooked: 0,
+          currentBooked: 6,
           status: "CONFIRMED",
         },
       ]);
 
+      seededTours.push(tour);
+      scheduleMap.set(String(tour._id), schedule);
       console.log(`Seeded tour: ${tour.name}`);
+    }
+
+    for (const [tourIndex, tour] of seededTours.entries()) {
+      const schedule = scheduleMap.get(String(tour._id));
+      const bookingCount = (tourIndex % 3) + 1;
+
+      for (let index = 0; index < bookingCount; index += 1) {
+        const traveler = travelers[(tourIndex + index) % travelers.length];
+        const adults = 2 + (index % 2);
+        const children = tourIndex % 2;
+        const totalAmount =
+          (Number(tour.price?.adult) || 0) * adults +
+          (Number(tour.price?.child) || 0) * children;
+
+        const booking = await Booking.findOneAndUpdate(
+          {
+            travelerId: traveler._id,
+            tourId: tour._id,
+          },
+          {
+            travelerId: traveler._id,
+            tourId: tour._id,
+            tourScheduleId: schedule?._id,
+            quantity: {
+              adults,
+              children,
+              infants: 0,
+            },
+            startDate: schedule?.departureDate,
+            bookingDate: new Date(Date.now() - (tourIndex + index + 1) * 24 * 60 * 60 * 1000),
+            status: index === 0 ? "COMPLETED" : "CONFIRMED",
+            payment: "PAID",
+            totalAmount,
+            orderCode: `DEMO${tourIndex}${index}${Date.now()}`.slice(0, 18),
+            trackingCode: `TRACK-DEMO-${tourIndex + 1}-${index + 1}`,
+            trackingShareCode: `SHARE-DEMO-${tourIndex + 1}-${index + 1}`,
+            paymentLinkId: `demo-payment-${tourIndex + 1}-${index + 1}`,
+            checkoutUrl: null,
+            paidAt: new Date(Date.now() - (tourIndex + index) * 24 * 60 * 60 * 1000),
+            slotsReserved: true,
+            isPrivate: tour.type === "PRIVATE",
+          },
+          { new: true, upsert: true, setDefaultsOnInsert: true },
+        );
+
+        if (index === 0) {
+          const review = reviewSamples[tourIndex % reviewSamples.length];
+          await Review.findOneAndUpdate(
+            {
+              reviewerId: traveler._id,
+              tourId: tour._id,
+              bookingId: booking._id,
+            },
+            {
+              reviewerId: traveler._id,
+              tourId: tour._id,
+              GuideId: guide._id,
+              bookingId: booking._id,
+              ...review,
+            },
+            { new: true, upsert: true, setDefaultsOnInsert: true },
+          );
+        }
+      }
+
+      console.log(`Seeded bookings/reviews for tour: ${tour.name}`);
     }
 
     console.log("Demo data seeding completed");

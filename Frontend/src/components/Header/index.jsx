@@ -13,6 +13,8 @@ import {
 import { Input } from "@/components/ui/input";
 import AuthContext from "@/context/authContext";
 import { getProviderAiNotifications } from "@/services/api/ai";
+import LanguageToggle from "@/components/shared/language-toggle";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const PAGE_META = {
   "/traveler": {
@@ -219,10 +221,45 @@ const ROUTE_TITLES = [
     title: "Admin Dashboard",
   },
 ];
+
+const ROUTE_TITLE_KEYS = {
+  "Guide Tour Detail Ops": "guideTourDetailOps",
+  "Guide Live Tour Tracking": "guideLiveTracking",
+  "Assigned Tours List Guide": "assignedTours",
+  "Guide Profile": "guideProfile",
+  "Guide Dashboard": "guideDashboard",
+  "Create or Edit Tour": "createOrEditTour",
+  "Manage Tours": "manageTours",
+  "Service Management": "serviceManagement",
+  "Guide Management Provider": "guideManagementProvider",
+  "Bookings Management": "bookingsManagement",
+  "AI Tour Request": "aiTourRequest",
+  "Hotels Management": "hotelsManagement",
+  "Provider Profile": "providerProfile",
+  "Provider Dashboard": "providerDashboard",
+  "Traveler Profile": "travelerProfile",
+  "Tour List": "tourList",
+  "Tour Detail": "tourDetail",
+  "AI Travel Planner": "aiTravelPlanner",
+  "My Booking": "myBooking",
+  "Tracking Link Management": "trackingLinkManagement",
+  "Tour Tracking": "tourTracking",
+  "Traveler Dashboard": "travelerDashboard",
+  "Admin Profile": "adminProfile",
+  "User Management": "userManagement",
+  "Provider Approval": "providerApproval",
+  "Admin Dashboard": "adminDashboard",
+};
+
 function resolveBreadcrumbTitle(pathname, fallbackTitle) {
   const normalized = pathname.replace(/\/+$/, "") || "/";
   const hit = ROUTE_TITLES.find(({ test }) => test(normalized));
   return hit?.title ?? fallbackTitle;
+}
+
+function translateRouteTitle(title, t) {
+  const key = ROUTE_TITLE_KEYS[title];
+  return key ? t(`header.routeTitles.${key}`) : title;
 }
 
 function normalizeSearchIntent(value) {
@@ -248,6 +285,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logOutContext } = useContext(AuthContext);
+  const { t } = useI18n();
   const [globalSearch, setGlobalSearch] = useState("");
   const [aiNotifications, setAiNotifications] = useState([]);
   const currentRole =
@@ -265,10 +303,12 @@ const Header = () => {
     ...baseMeta,
     title: resolveBreadcrumbTitle(location.pathname, baseMeta.title),
   };
+  const translatedTitle = translateRouteTitle(currentMeta.title, t);
 
   const canSearchCurrentPage = SEARCHABLE_PATHS.some((path) =>
     location.pathname.startsWith(path),
   );
+  const showGlobalSearch = !canSearchCurrentPage;
 
   const targetSearchPath = useMemo(() => {
     const intentPath = resolveSearchIntentPath(currentRole, globalSearch);
@@ -278,9 +318,8 @@ const Header = () => {
   }, [canSearchCurrentPage, currentRole, globalSearch, location.pathname]);
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setGlobalSearch(params.get("search") || "");
-  }, [location.pathname, location.search]);
+    setGlobalSearch("");
+  }, [location.pathname]);
 
   useEffect(() => {
     let ignore = false;
@@ -336,29 +375,33 @@ const Header = () => {
 
           <div className="hidden min-w-0 items-center gap-2 text-sm font-medium text-on-surface-variant lg:flex">
             <span>/</span>
-            <span>{currentMeta.role}</span>
+            <span>{t(`header.roles.${currentRole}`)}</span>
             <span>/</span>
-            <span className="truncate text-teal-700">{currentMeta.title}</span>
+            <span className="truncate text-teal-700">{translatedTitle}</span>
           </div>
 
           <div className="min-w-0 lg:hidden">
             <p className="truncate text-sm font-semibold text-teal-700">
-              {currentMeta.title}
+              {translatedTitle}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <form className="relative hidden md:block" onSubmit={handleGlobalSearch}>
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
-            <Input
-              type="text"
-              value={globalSearch}
-              onChange={(event) => setGlobalSearch(event.target.value)}
-              placeholder={currentMeta.searchPlaceholder}
-              className="h-11 w-72 rounded-full border border-outline-variant/30 bg-surface-container-low px-11 pr-4 text-sm text-on-surface placeholder:text-on-surface-variant focus:border-primary/25 focus-visible:ring-2 focus-visible:ring-primary/15"
-            />
-          </form>
+          <LanguageToggle />
+
+          {showGlobalSearch ? (
+            <form className="relative hidden md:block" onSubmit={handleGlobalSearch}>
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
+              <Input
+                type="text"
+                value={globalSearch}
+                onChange={(event) => setGlobalSearch(event.target.value)}
+                placeholder={t(`header.search.${currentRole}`)}
+                className="h-11 w-72 rounded-full border border-outline-variant/30 bg-surface-container-low px-11 pr-4 text-sm text-on-surface placeholder:text-on-surface-variant focus:border-primary/25 focus-visible:ring-2 focus-visible:ring-primary/15"
+              />
+            </form>
+          ) : null}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -381,7 +424,7 @@ const Header = () => {
             >
               <div className="px-2 py-2">
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
-                  AI Tour Requests
+                  {t("header.aiRequests")}
                 </p>
               </div>
               {aiNotifications.length ? (
@@ -397,10 +440,13 @@ const Header = () => {
                       </div>
                       <div className="min-w-0">
                         <p className="truncate text-sm font-bold text-slate-900">
-                          {item.location || "AI generated tour"}
+                          {item.location || t("header.aiGeneratedTour")}
                         </p>
                         <p className="line-clamp-2 text-xs text-slate-500">
-                          {item.travelerId?.fullName || "Traveler"} gửi lịch trình {item.numberOfDay || 1} ngày
+                          {t("header.aiRequestItem", {
+                            name: item.travelerId?.fullName || "Traveler",
+                            days: item.numberOfDay || 1,
+                          })}
                         </p>
                       </div>
                     </div>
@@ -408,7 +454,7 @@ const Header = () => {
                 ))
               ) : (
                 <div className="px-3 py-8 text-center text-sm text-slate-500">
-                  No new AI tour requests
+                  {t("header.noAiRequests")}
                 </div>
               )}
             </DropdownMenuContent>
@@ -435,7 +481,7 @@ const Header = () => {
               <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
                 <Link to={profilePath} className="flex items-center gap-2">
                   <UserRound className="h-4 w-4" />
-                  <span>Profile</span>
+                  <span>{t("common.profile")}</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -444,7 +490,7 @@ const Header = () => {
                 className="cursor-pointer rounded-lg text-red-600 focus:text-red-600"
               >
                 <LogOut className="h-4 w-4" />
-                <span>Logout</span>
+                <span>{t("common.logout")}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

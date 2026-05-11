@@ -33,7 +33,7 @@ export default function AITravelPlanner() {
   const [destination, setDestination] = useState("Kyoto, Japan");
   const [startDate, setStartDate] = useState(null);
   const [duration, setDuration] = useState(3);
-  const [budget, setBudget] = useState("1500");
+  const [budget, setBudget] = useState("5000000");
   const [location, setLocation] = useState(null);
   const [describe, setDescribe] = useState(null);
   const [quantity, setQuantity] = useState({

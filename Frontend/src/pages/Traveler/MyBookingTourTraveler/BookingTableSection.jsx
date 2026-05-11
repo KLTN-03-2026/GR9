@@ -1,6 +1,7 @@
-import { Badge } from "@/components/ui/badge";
+﻿import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -13,14 +14,16 @@ import { createBookingPaymentLink } from "@/services/api/booking";
 import { formatPrice } from "@/utils/formatPrice";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function BookingTableSection({ bookings, loading, error }) {
   const navigate = useNavigate();
+  const { language, t } = useI18n();
 
   const formatBookingDate = (value) => {
     if (!value) return "-";
 
-    return new Date(value).toLocaleDateString("en", {
+    return new Date(value).toLocaleDateString(language === "vi" ? "vi-VN" : "en", {
       month: "short",
       day: "2-digit",
       year: "numeric",
@@ -56,13 +59,13 @@ export default function BookingTableSection({ bookings, loading, error }) {
       const checkoutUrl = response.data.data?.payment?.checkoutUrl;
 
       if (!checkoutUrl) {
-        toast.error("Không thể tạo link thanh toán");
+        toast.error("KhÃ´ng thá»ƒ táº¡o link thanh toÃ¡n");
         return;
       }
 
       window.location.href = checkoutUrl;
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Không thể thanh toán booking");
+      toast.error(err?.response?.data?.message || "KhÃ´ng thá»ƒ thanh toÃ¡n booking");
     }
   };
 
@@ -81,11 +84,16 @@ export default function BookingTableSection({ bookings, loading, error }) {
     return "bg-surface-container text-on-surface-variant";
   };
 
+  const getStatusLabel = (value) => {
+    const key = String(value || "").toLowerCase();
+    return t(`bookingPage.statuses.${key}`);
+  };
+
   return (
     <Card className="overflow-hidden rounded-xl border border-outline-variant/5 bg-surface-container-lowest py-0 shadow-[0px_20px_40px_rgba(25,28,30,0.06)]">
       <CardHeader className="flex flex-row items-center justify-between border-b border-surface-container p-6">
         <CardTitle className="brand-font text-lg font-bold">
-          Active Bookings
+          {t("bookingPage.activeBookings")}
         </CardTitle>
         <Button
           onClick={() => navigate("/traveler/tour-list")}
@@ -94,7 +102,7 @@ export default function BookingTableSection({ bookings, loading, error }) {
           className="h-10 gap-2 rounded-lg bg-surface-container-low px-4 text-sm font-semibold text-on-surface-variant hover:bg-surface-container"
         >
           <span className="material-symbols-outlined text-sm">add</span>
-          New Booking
+          {t("bookingPage.newBooking")}
         </Button>
       </CardHeader>
 
@@ -103,30 +111,50 @@ export default function BookingTableSection({ bookings, loading, error }) {
           <TableHeader className="bg-surface-container-low">
             <TableRow className="border-none hover:bg-surface-container-low">
               <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
-                Tour Name
+                {t("bookingPage.tourName")}
               </TableHead>
               <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
-                Booking Date
+                {t("bookingPage.bookingDate")}
               </TableHead>
               <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
-                Status
+                {t("bookingPage.status")}
               </TableHead>
               <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
-                Payment
+                {t("bookingPage.payment")}
               </TableHead>
               <TableHead className="px-6 py-4 text-right text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
-                Actions
+                {t("bookingPage.actions")}
               </TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
             {loading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="py-8 text-center text-on-surface-variant">
-                  Đang tải dữ liệu...
-                </TableCell>
-              </TableRow>
+              Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell className="px-6 py-5">
+                    <div className="flex items-center gap-4">
+                      <Skeleton className="h-10 w-10 rounded-lg" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-40" />
+                        <Skeleton className="h-3 w-24" />
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="px-6 py-5">
+                    <Skeleton className="h-4 w-28" />
+                  </TableCell>
+                  <TableCell className="px-6 py-5">
+                    <Skeleton className="h-7 w-24 rounded-full" />
+                  </TableCell>
+                  <TableCell className="px-6 py-5">
+                    <Skeleton className="h-7 w-24 rounded-full" />
+                  </TableCell>
+                  <TableCell className="px-6 py-5 text-right">
+                    <Skeleton className="ml-auto h-9 w-28 rounded-lg" />
+                  </TableCell>
+                </TableRow>
+              ))
             ) : error ? (
               <TableRow>
                 <TableCell colSpan={5} className="py-8 text-center text-error">
@@ -135,9 +163,7 @@ export default function BookingTableSection({ bookings, loading, error }) {
               </TableRow>
             ) : bookings.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="py-8 text-center text-on-surface-variant">
-                  Bạn chưa có booking nào.
-                </TableCell>
+                <TableCell colSpan={5} className="py-8 text-center text-on-surface-variant">{t("bookingPage.noBookings")}</TableCell>
               </TableRow>
             ) : (
               bookings.map((booking) => (
@@ -156,13 +182,13 @@ export default function BookingTableSection({ bookings, loading, error }) {
                       </div>
                       <div>
                         <p className="brand-font text-sm font-bold text-on-surface">
-                          {booking.tourId?.name || "(No name)"}
+                          {booking.tourId?.name || `(${t("bookingPage.noName")})`}
                         </p>
                         <p className="font-body text-xs text-on-surface-variant">
                           {booking.tourId?.location || "-"}
                         </p>
                         <p className="font-body mt-1 text-[11px] text-on-surface-variant">
-                          {booking.isPrivate ? "Private" : "Group"} •{" "}
+                          {booking.isPrivate ? t("bookingPage.private") : t("bookingPage.group")} •{" "}
                           {formatPrice(booking.totalAmount)}
                         </p>
                       </div>
@@ -179,7 +205,7 @@ export default function BookingTableSection({ bookings, loading, error }) {
                         booking.displayStatus || booking.status,
                       )}`}
                     >
-                      {(booking.displayStatus || booking.status)?.toLowerCase()}
+                      {getStatusLabel(booking.displayStatus || booking.status)}
                     </Badge>
                   </TableCell>
 
@@ -189,7 +215,7 @@ export default function BookingTableSection({ bookings, loading, error }) {
                         booking.payment,
                       )}`}
                     >
-                      {booking.payment?.toLowerCase()}
+                      {getStatusLabel(booking.payment)}
                     </Badge>
                   </TableCell>
 
@@ -202,13 +228,13 @@ export default function BookingTableSection({ bookings, loading, error }) {
                           disabled={!getGuideId(booking)}
                           title={
                             !getGuideId(booking)
-                              ? "This tour has no assigned guide yet"
+                              ? t("bookingPage.noGuide")
                               : undefined
                           }
                           className="h-8 rounded-lg px-3 text-[12px] font-bold uppercase tracking-tight"
                           onClick={() => goToReview(booking)}
                         >
-                          Review
+                          {t("bookingPage.review")}
                         </Button>
                       ) : null}
 
@@ -223,7 +249,7 @@ export default function BookingTableSection({ bookings, loading, error }) {
                             )
                           }
                         >
-                          Tracking
+                          {t("bookingPage.tracking")}
                         </Button>
                       ) : null}
 
@@ -234,7 +260,7 @@ export default function BookingTableSection({ bookings, loading, error }) {
                           className="h-auto px-0 text-[12px] font-bold uppercase tracking-tight text-primary"
                           onClick={() => handlePayBooking(booking)}
                         >
-                          Pay
+                          {t("bookingPage.pay")}
                         </Button>
                       ) : null}
 
@@ -245,7 +271,7 @@ export default function BookingTableSection({ bookings, loading, error }) {
                           className="h-auto px-0 text-[12px] font-bold uppercase tracking-tight text-primary"
                           onClick={() => navigate(`/traveler/tour-detail/${booking.tourId._id}`)}
                         >
-                          Tour Detail
+                          {t("bookingPage.tourDetail")}
                         </Button>
                       ) : null}
                     </div>
@@ -259,4 +285,5 @@ export default function BookingTableSection({ bookings, loading, error }) {
     </Card>
   );
 }
+
 

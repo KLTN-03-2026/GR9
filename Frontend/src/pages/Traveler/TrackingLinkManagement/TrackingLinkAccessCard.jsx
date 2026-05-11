@@ -2,8 +2,10 @@ import { Copy, LocateFixed, RefreshCcw, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function TrackingLinkAccessCard({ tracking, onRegenerate }) {
+  const { t } = useI18n();
   const trackingUrl = tracking?.trackingUrl || "";
 
   const copyLink = async () => {
@@ -21,10 +23,10 @@ export default function TrackingLinkAccessCard({ tracking, onRegenerate }) {
 
           <div>
             <CardTitle className="font-headline text-xl font-bold">
-              Shared Tracking Access
+              {t("trackingLink.sharedAccess")}
             </CardTitle>
             <p className="text-sm text-on-surface-variant">
-              Allow others to follow your journey live
+              {t("trackingLink.sharedAccessText")}
             </p>
           </div>
         </div>
@@ -33,19 +35,19 @@ export default function TrackingLinkAccessCard({ tracking, onRegenerate }) {
       <CardContent className="space-y-6 px-6 pb-6 md:px-8">
         <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
           <p className="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-on-surface-variant">
-            Public Tracking Link
+            {t("trackingLink.publicLink")}
           </p>
 
           <div className="flex items-center gap-2">
             <code className="min-w-0 flex-1 truncate font-mono text-sm font-bold text-primary">
-              {trackingUrl || "No tracking link yet"}
+              {trackingUrl || t("trackingLink.noLink")}
             </code>
             <Button
               type="button"
               variant="ghost"
               size="icon"
               className="rounded-xl text-on-surface-variant hover:bg-white"
-              title="Copy link"
+              title={t("trackingLink.copyLink")}
               onClick={copyLink}
               disabled={!trackingUrl}
             >
@@ -61,7 +63,7 @@ export default function TrackingLinkAccessCard({ tracking, onRegenerate }) {
             onClick={copyLink}
             disabled={!trackingUrl}
           >
-            Copy link
+            {t("trackingLink.copyLink")}
           </Button>
           <Button
             type="button"
@@ -71,7 +73,7 @@ export default function TrackingLinkAccessCard({ tracking, onRegenerate }) {
             disabled={!tracking?.bookingId}
           >
             <RefreshCcw className="size-4" />
-            Regenerate
+            {t("trackingLink.regenerate")}
           </Button>
         </div>
       </CardContent>
@@ -81,9 +83,9 @@ export default function TrackingLinkAccessCard({ tracking, onRegenerate }) {
           <div className="flex items-start gap-3">
             <ShieldCheck className="mt-0.5 size-5 text-on-surface-variant" />
             <div>
-              <p className="font-bold">Require phone verification</p>
+              <p className="font-bold">{t("trackingLink.phoneVerification")}</p>
               <p className="text-xs leading-relaxed text-on-surface-variant">
-                Viewers must verify via SMS to access live tracking data.
+                {t("trackingLink.phoneVerificationText")}
               </p>
             </div>
           </div>

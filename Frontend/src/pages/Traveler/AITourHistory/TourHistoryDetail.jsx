@@ -3,6 +3,7 @@ import { CheckCircle2, Hotel, MapPin, Route, ShieldCheck, XCircle } from "lucide
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function SummaryMetric({ label, value }) {
   return (
@@ -76,8 +77,15 @@ export default function TourHistoryDetail({
   return (
     <section className="min-h-[560px] rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
       {detailLoading ? (
-        <div className="flex min-h-[500px] items-center justify-center text-sm font-semibold text-slate-500">
-          Loading tour detail...
+        <div className="min-h-[500px] space-y-5">
+          <Skeleton className="h-24 rounded-2xl" />
+          <div className="grid gap-3 md:grid-cols-3">
+            <Skeleton className="h-20 rounded-2xl" />
+            <Skeleton className="h-20 rounded-2xl" />
+            <Skeleton className="h-20 rounded-2xl" />
+          </div>
+          <Skeleton className="h-52 rounded-2xl" />
+          <Skeleton className="h-36 rounded-2xl" />
         </div>
       ) : selectedTour ? (
         <div>

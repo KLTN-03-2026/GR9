@@ -1,6 +1,7 @@
 import { ArrowUpRight, Sparkles, TrendingUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { formatCurrencyVND } from "@/utils/formatPrice";
 
 export default function ManageToursStats() {
   return (
@@ -13,7 +14,7 @@ export default function ManageToursStats() {
           <div className="mt-4 space-y-2">
             <div className="flex items-center gap-2">
               <span className="font-headline text-3xl font-extrabold text-on-surface">
-                $42,850
+                {formatCurrencyVND(42850000)}
               </span>
               <TrendingUp className="size-4 text-emerald-600" />
             </div>

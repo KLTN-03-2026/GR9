@@ -9,7 +9,7 @@ import { throwError } from "../utils/throwError.js";
 
 const formatMoney = (value) => {
   const number = Number(value) || 0;
-  return `$${number.toLocaleString("en-US")}`;
+  return `${number.toLocaleString("vi-VN")} đ`;
 };
 
 const toIsoDate = (value) => {

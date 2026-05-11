@@ -1,20 +1,22 @@
 import PageHero from "@/components/shared/page-hero";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function BookingHeader() {
+  const { t } = useI18n();
   return (
     <PageHero
       className="mb-10"
-      eyebrow="Traveler Bookings"
+      eyebrow={t("bookingPage.eyebrow")}
       heading={
         <>
-          Manage your{" "}
+          {t("bookingPage.headingA")}{" "}
           <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
-            journey
+            {t("bookingPage.headingB")}
           </span>
           .
         </>
       }
-      description="Review your upcoming adventures, track payments, and manage your travel schedule in one place."
+      description={t("bookingPage.description")}
     />
   );
 }

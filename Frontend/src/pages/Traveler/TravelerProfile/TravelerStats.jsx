@@ -1,6 +1,7 @@
 import { CalendarDays, MapPinned, Plane, Trophy } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const formatNumber = (value) => {
   const number = Number(value) || 0;
@@ -12,33 +13,34 @@ const formatNumber = (value) => {
   return String(number);
 };
 
-const getStats = (stats) => [
+const getStats = (stats, t) => [
   {
-    label: "Cities Visited",
+    label: t("profileStats.citiesVisited"),
     value: formatNumber(stats?.citiesVisited),
     icon: MapPinned,
   },
   {
-    label: "Upcoming Trips",
+    label: t("profileStats.upcomingTrips"),
     value: formatNumber(stats?.upcomingTrips),
     icon: CalendarDays,
   },
   {
-    label: "Completed Tours",
+    label: t("profileStats.completedTours"),
     value: formatNumber(stats?.completedTours),
     icon: Plane,
   },
   {
-    label: "Reward Points",
+    label: t("profileStats.rewardPoints"),
     value: formatNumber(stats?.rewardPoints),
     icon: Trophy,
   },
 ];
 
 export default function TravelerStats({ stats }) {
+  const { t } = useI18n();
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {getStats(stats).map((stat) => {
+      {getStats(stats, t).map((stat) => {
         const Icon = stat.icon;
 
         return (

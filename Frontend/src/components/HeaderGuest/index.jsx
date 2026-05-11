@@ -3,11 +3,14 @@ import { Link, useLocation } from "react-router-dom";
 import { MapPinned, Ticket } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import LanguageToggle from "@/components/shared/language-toggle";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const TRACKING_CODE_STORAGE_KEY = "guestTrackingCode";
 
 const HeaderGuest = () => {
   const location = useLocation();
+  const { t } = useI18n();
   const isBookingSuccessPage = location.pathname === "/guest/booking-success-and-tracking-link";
   const searchParams = useMemo(
     () => new URLSearchParams(location.search),
@@ -37,13 +40,14 @@ const HeaderGuest = () => {
 
         {/* Navigation */}
         <nav className="no-scrollbar hidden items-center gap-2 overflow-x-auto md:flex">
+          <LanguageToggle />
           <Link to={publicTrackingPath}>
             <Button
               
               className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${isBookingSuccessPage === false ? 'bg-teal-50 text-teal-700' : 'bg-0 text-slate-500 hover:bg-slate-100'} `}
             >
               <MapPinned className="h-4 w-4 fill-current" />
-              Public Tour Tracking
+              {t("guestHeader.publicTracking")}
             </Button>
           </Link>
 
@@ -53,13 +57,14 @@ const HeaderGuest = () => {
               className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${isBookingSuccessPage ? 'bg-teal-50 text-teal-700' : 'bg-0 text-slate-500 hover:bg-slate-100'} `}
             >
               <Ticket className="h-4  w-4" />
-              Booking Success
+              {t("guestHeader.bookingSuccess")}
             </Button>
           </Link>
         </nav>
 
         {/* Mobile Avatar */}
-        <div className="md:hidden">
+        <div className="flex items-center gap-2 md:hidden">
+          <LanguageToggle />
           <Avatar className="h-9 w-9 border border-outline-variant/30 bg-surface-container-low">
             <AvatarFallback className="text-xs font-bold text-teal-800">
               P

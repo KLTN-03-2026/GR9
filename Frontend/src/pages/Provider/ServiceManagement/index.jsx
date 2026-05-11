@@ -9,6 +9,7 @@ import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import PageHero from "@/components/shared/page-hero";
+import { CardGridSkeleton } from "@/components/shared/page-skeletons";
 import { useSearchParams } from "react-router-dom";
 
 const typeLabels = {
@@ -26,6 +27,7 @@ const ServiceManagement = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [services, setServices] = useState([]);
   const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get("search") || "");
   const [category, setCategory] = useState("All");
   const [loading, setLoading] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -62,21 +64,29 @@ const ServiceManagement = () => {
 
   const handleSearchChange = (value) => {
     setSearch(value);
-    setSearchParams((current) => {
-      const next = new URLSearchParams(current);
-      if (value.trim()) {
-        next.set("search", value.trim());
-      } else {
-        next.delete("search");
-      }
-      return next;
-    }, { replace: true });
   };
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setDebouncedSearch(search);
+      setSearchParams((current) => {
+        const next = new URLSearchParams(current);
+        if (search.trim()) {
+          next.set("search", search.trim());
+        } else {
+          next.delete("search");
+        }
+        return next;
+      }, { replace: true });
+    }, 300);
+
+    return () => window.clearTimeout(timeout);
+  }, [search, setSearchParams]);
 
   const filteredServices = useMemo(() => {
     return services.filter((item) => {
       const matchesCategory = category === "All" || item.type === category;
-      const searchText = search.toLowerCase();
+      const searchText = debouncedSearch.toLowerCase();
       const matchesSearch =
         !searchText ||
         item.name?.toLowerCase().includes(searchText) ||
@@ -86,11 +96,11 @@ const ServiceManagement = () => {
         item.type?.toLowerCase().includes(searchText);
       return matchesCategory && matchesSearch;
     });
-  }, [services, category, search]);
+  }, [services, category, debouncedSearch]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, category, services]);
+  }, [debouncedSearch, category, services]);
 
   const handleAdd = () => {
     setCreateDialogOpen(true);
@@ -190,8 +200,8 @@ const ServiceManagement = () => {
         />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading ? (
-            <div className="col-span-full text-center text-slate-500">
-              Đang tải dịch vụ...
+            <div className="col-span-full">
+              <CardGridSkeleton count={6} />
             </div>
           ) : visibleServices.length ? (
             visibleServices.map((service) => (

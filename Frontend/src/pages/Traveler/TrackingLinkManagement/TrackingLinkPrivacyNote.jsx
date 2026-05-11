@@ -1,8 +1,10 @@
 import { Info } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function TrackingLinkPrivacyNote() {
+  const { t } = useI18n();
   return (
     <Card className="rounded-[2rem] border-none bg-tertiary-container/10 py-0">
       <CardContent className="p-6">
@@ -11,12 +13,10 @@ export default function TrackingLinkPrivacyNote() {
 
           <div>
             <p className="font-bold text-on-tertiary-fixed-variant">
-              Privacy Note
+              {t("trackingLink.privacyNote")}
             </p>
             <p className="mt-1 text-sm leading-relaxed text-on-tertiary-fixed-variant/80">
-              Sharing your live tracking link allows anyone with the URL to see
-              your current location and itinerary. Share it only with trusted
-              family members and friends.
+              {t("trackingLink.privacyText")}
             </p>
           </div>
         </div>

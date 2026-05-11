@@ -412,7 +412,7 @@ const isGeminiHighDemandError = (error) => {
 
 const formatMoney = (value) => {
   const amount = Number(value || 0);
-  return amount > 0 ? `${amount.toLocaleString("vi-VN")} VND` : "Chưa có giá";
+  return amount > 0 ? `${amount.toLocaleString("vi-VN")} đ` : "Chưa có giá";
 };
 
 const buildCleanQuotaFallbackAnswer = (toolResults, tools = []) => {
@@ -480,7 +480,7 @@ const buildCleanHighDemandFallbackAnswer = (toolResults, tools = []) => {
   const fallbackAnswer = buildCleanQuotaFallbackAnswer(toolResults, tools);
 
   return [
-    "Voyager AI đang có nhiều yêu cầu cùng lúc nên phần tạo câu trả lời chi tiết tạm thời chưa ổn định. Bạn vui lòng thử lại sau ít phút.",
+    "Mình đang trả lời nhanh bằng dữ liệu hiện có trong hệ thống Travel_AI.",
     "",
     fallbackAnswer,
   ]

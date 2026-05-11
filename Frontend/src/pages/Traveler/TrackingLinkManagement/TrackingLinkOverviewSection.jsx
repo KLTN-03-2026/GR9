@@ -1,17 +1,15 @@
-import { CheckCircle2, UserRound, Users } from "lucide-react";
+﻿import { CheckCircle2, UserRound, Users } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { formatCurrencyVND } from "@/utils/formatPrice";
+import { useI18n } from "@/i18n/I18nProvider";
 
-const formatPrice = (value) =>
-  new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(Number(value) || 0);
+const formatPrice = (value) => formatCurrencyVND(value);
 
 export default function TrackingLinkOverviewSection({ tracking }) {
+  const { t } = useI18n();
   const highlights = tracking?.highlights || [];
 
   return (
@@ -22,15 +20,15 @@ export default function TrackingLinkOverviewSection({ tracking }) {
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <Badge className="rounded-full bg-primary-fixed px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-on-primary-fixed-variant">
-              Confirmed
+              {t("trackingLink.confirmed")}
             </Badge>
             <h2 className="mt-4 font-headline text-2xl font-bold">
-              Booking Overview
+              {t("trackingLink.overview")}
             </h2>
           </div>
 
           <div className="text-left sm:text-right">
-            <p className="text-sm text-on-surface-variant">Total Amount</p>
+            <p className="text-sm text-on-surface-variant">{t("trackingLink.totalAmount")}</p>
             <p className="font-headline text-3xl font-bold text-primary">
               {formatPrice(tracking?.payment?.totalAmount)}
             </p>
@@ -40,7 +38,7 @@ export default function TrackingLinkOverviewSection({ tracking }) {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
             <p className="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-on-surface-variant">
-              Lead Traveler
+              {t("trackingLink.leadTraveler")}
             </p>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container">
@@ -57,7 +55,7 @@ export default function TrackingLinkOverviewSection({ tracking }) {
 
           <div>
             <p className="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-on-surface-variant">
-              Group Size
+              {t("trackingLink.groupSize")}
             </p>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container">
@@ -65,9 +63,9 @@ export default function TrackingLinkOverviewSection({ tracking }) {
               </div>
               <div>
                 <p className="font-semibold">
-                  {tracking?.group?.adults || 0} Adults
-                  {tracking?.group?.children ? `, ${tracking.group.children} Children` : ""}
-                  {tracking?.group?.infants ? `, ${tracking.group.infants} Infants` : ""}
+                  {tracking?.group?.adults || 0} {t("trackingLink.adults")}
+                  {tracking?.group?.children ? `, ${tracking.group.children} ${t("trackingLink.children")}` : ""}
+                  {tracking?.group?.infants ? `, ${tracking.group.infants} ${t("trackingLink.infants")}` : ""}
                 </p>
                 <p className="text-sm text-on-surface-variant">
                   {tracking?.group?.label || "-"}
@@ -81,7 +79,7 @@ export default function TrackingLinkOverviewSection({ tracking }) {
 
         <div>
           <h3 className="mb-4 font-headline text-lg font-bold">
-            Itinerary Highlights
+            {t("trackingLink.highlights")}
           </h3>
 
           <div className="space-y-4">
@@ -97,7 +95,7 @@ export default function TrackingLinkOverviewSection({ tracking }) {
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-on-surface">{item.name}</p>
                     <p className="text-sm text-on-surface-variant">
-                      Day {item.dayNumber} • {item.time}
+                      {t("trackingLink.dayTime", { day: item.dayNumber, time: item.time })}
                     </p>
                   </div>
                   {index === 0 ? (
@@ -109,7 +107,7 @@ export default function TrackingLinkOverviewSection({ tracking }) {
               ))
             ) : (
               <p className="text-sm text-on-surface-variant">
-                No itinerary highlights available.
+                {t("trackingLink.noHighlights")}
               </p>
             )}
           </div>
@@ -118,3 +116,5 @@ export default function TrackingLinkOverviewSection({ tracking }) {
     </Card>
   );
 }
+
+

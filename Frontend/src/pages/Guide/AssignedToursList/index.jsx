@@ -47,6 +47,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import PageHero from "@/components/shared/page-hero";
+import { CardGridSkeleton } from "@/components/shared/page-skeletons";
 import { getGuideAssignedTours } from "@/services/api/guide";
 
 const SEGMENTS = [
@@ -386,17 +387,17 @@ const AssignedToursList = () => {
         </Sheet>
       </section>
 
-      {!heroTour && (
+      {loadingTours ? (
+        <CardGridSkeleton count={3} />
+      ) : !heroTour && (
         <Card className="border-dashed border-outline-variant/40 bg-surface-container-lowest/50 py-12 text-center ring-0">
           <CardContent className="text-on-surface-variant">
-            {loadingTours
-              ? "Loading assigned tours..."
-              : "No tours match these filters. Try another tab or reset filters."}
+            No tours match these filters. Try another tab or reset filters.
           </CardContent>
         </Card>
       )}
 
-      {heroTour && (
+      {!loadingTours && heroTour && (
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           <div className="group cursor-pointer lg:col-span-8">
             <Card className="h-[500px] overflow-hidden rounded-2xl border-0 bg-surface-container-lowest py-0 shadow-sm ring-0">

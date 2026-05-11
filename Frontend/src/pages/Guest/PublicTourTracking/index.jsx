@@ -7,6 +7,7 @@ import CurrentLocationMap from './CurrentLocationMap';
 import LatestUpdateBanner from './LatestUpdateBanner';
 import ActivityTimeline from './ActivityTimeline';
 import EmergencySupport from './EmergencySupport';
+import { TrackingPageSkeleton } from "@/components/shared/page-skeletons";
 
 const PublicTourTracking = () => {
   const [searchParams] = useSearchParams();
@@ -31,9 +32,7 @@ const PublicTourTracking = () => {
   if (loading) {
     return (
       <main className="mx-auto min-h-screen max-w-7xl px-6 py-24">
-        <div className="rounded-3xl bg-white p-8 text-slate-600 shadow-sm">
-          Đang tải public tour tracking...
-        </div>
+        <TrackingPageSkeleton />
       </main>
     );
   }
