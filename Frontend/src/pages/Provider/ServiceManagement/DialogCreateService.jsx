@@ -46,6 +46,8 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
     name: "",
     type: "HOTEL",
     address: "",
+    lat: "",
+    long: "",
     description: "",
     aliases: "",
     status: "ACTIVE",
@@ -110,6 +112,8 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
         name: serviceData.name,
         type: serviceData.type,
         address: serviceData.address,
+        lat: serviceData.lat === "" ? null : Number(serviceData.lat),
+        long: serviceData.long === "" ? null : Number(serviceData.long),
         description: serviceData.description,
         aliases: parseAliasesInput(serviceData.aliases),
         status: serviceData.status,
@@ -132,6 +136,8 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
         name: "",
         type: "HOTEL",
         address: "",
+        lat: "",
+        long: "",
         description: "",
         aliases: "",
         status: "ACTIVE",
@@ -193,6 +199,26 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
               value={serviceData.address}
               onChange={(e) => handleChange("address", e.target.value)}
               placeholder="Nhập địa chỉ dịch vụ"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Vĩ độ (lat)</Label>
+            <Input
+              type="number"
+              step="any"
+              value={serviceData.lat}
+              onChange={(e) => handleChange("lat", e.target.value)}
+              placeholder="Ví dụ: 16.047079"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Kinh độ (long)</Label>
+            <Input
+              type="number"
+              step="any"
+              value={serviceData.long}
+              onChange={(e) => handleChange("long", e.target.value)}
+              placeholder="Ví dụ: 108.206230"
             />
           </div>
           <div className="col-span-1 sm:col-span-2 grid gap-2">

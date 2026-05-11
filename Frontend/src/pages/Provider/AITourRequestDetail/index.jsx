@@ -261,7 +261,7 @@ function MissingServiceDialog({ item, open, onOpenChange, onCreated }) {
             type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="bg-teal-600 hover:bg-teal-700"
+            className="bg-teal-600 text-white hover:bg-teal-700"
           >
             {loading ? "Đang tạo..." : "Lưu service"}
           </Button>
@@ -345,7 +345,7 @@ function RequiredServiceCard({ item, onCreate, onConfirm, confirmingRole }) {
                 type="button"
                 disabled={confirmingRole === item.role}
                 onClick={() => onConfirm(item, item.matchedService, "sync_price")}
-                className="rounded-xl bg-teal-600 hover:bg-teal-700"
+                className="rounded-xl bg-teal-600 text-white hover:bg-teal-700"
               >
                 <CheckCircle2 className="size-4" />
                 {confirmingRole === item.role ? "Đang cập nhật..." : "Đồng bộ giá theo AI"}

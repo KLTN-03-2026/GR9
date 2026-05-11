@@ -527,7 +527,7 @@ export default function TourDetail() {
                                                         </span>
                                                     </button>
                                                 </DialogTrigger>
-                                                <DialogContent className="sm:max-w-[420px] bg-white text-slate-900">
+                                                <DialogContent className="bg-surface-container-lowest text-on-surface sm:max-w-[420px]">
                                                     <div className="space-y-3">
                                                         <div className="space-y-2">
                                                             <p className="text-sm font-bold text-on-surface-variant">
@@ -557,7 +557,7 @@ export default function TourDetail() {
                                                                                 }}
                                                                                 className={`w-full text-left p-4 rounded-xl border transition ${
                                                                                     s.status === "FULL"
-                                                                                        ? "border-outline-variant/20 bg-gray-100 cursor-not-allowed opacity-60"
+                                                                                        ? "cursor-not-allowed border-outline-variant/20 bg-surface-container-low opacity-60"
                                                                                         : isSelected
                                                                                           ? "border-primary bg-primary/5"
                                                                                           : "border-outline-variant/30 hover:bg-surface-container-low"

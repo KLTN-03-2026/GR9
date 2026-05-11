@@ -18,33 +18,35 @@ import DialogDeleteGuide from "./DialogDeleteGuide";
 import PageHero from "@/components/shared/page-hero";
 import { StatsSkeleton, TableSkeleton } from "@/components/shared/page-skeletons";
 import { useSearchParams } from "react-router-dom";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE_PATTERN = /^(0|\+84)(\d[\s.-]?){8,10}$/;
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
 
 const GuideManagementProvider = () => {
+  const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const [guides, setGuides] = useState([]);
   const [searchGuide, setSearchGuide] = useState(searchParams.get("search") || "");
 
   const cards = useMemo(
     () => [
-      { label: "Total Guides", value: guides.length },
+      { label: t("provider.guides.totalGuides"), value: guides.length },
       {
-        label: "Password Sent",
+        label: t("provider.guides.passwordSent"),
         value: guides.filter((guide) => guide.hasPassword).length,
       },
       {
-        label: "Assigned Tours",
+        label: t("provider.guides.assignedTours"),
         value: guides.reduce((total, guide) => total + (guide.assignedTourCount || 0), 0),
       },
       {
-        label: "Active Bookings",
+        label: t("provider.guides.activeBookings"),
         value: guides.reduce((total, guide) => total + (guide.activeBookingCount || 0), 0),
       },
     ],
-    [guides],
+    [guides, t],
   );
 
   const [open, setOpen] = useState(false);
@@ -304,16 +306,16 @@ const GuideManagementProvider = () => {
   return (
     <div className="space-y-8 text-slate-900 font-sans">
       <PageHero
-        eyebrow="Team Directory"
+        eyebrow={t("provider.guides.eyebrow")}
         heading={
           <>
-            Guide{" "}
+            {t("provider.guides.titleA")}{" "}
             <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
-              Management
+              {t("provider.guides.titleB")}
             </span>
           </>
         }
-        description="Review active guides, update assignments, and keep your operating team ready for upcoming departures."
+        description={t("provider.guides.description")}
         actions={
           <div className="flex items-center gap-3 w-full md:w-auto">
             <div className="relative w-full md:w-[260px]">
@@ -321,7 +323,7 @@ const GuideManagementProvider = () => {
               <Input
                 value={searchGuide}
                 onChange={(e) => setSearchGuide(e.target.value)}
-                placeholder="Search guides..."
+                placeholder={t("provider.guides.search")}
                 className="pl-9 h-10 rounded-xl bg-white border-none text-primary"
               />
             </div>
@@ -330,7 +332,7 @@ const GuideManagementProvider = () => {
               className="gap-2 bg-teal-600 hover:bg-teal-700 text-white shadow-md p-5"
             >
               <Plus className="size-4" />
-              Add Guide
+              {t("provider.guides.add")}
             </Button>
           </div>
         }

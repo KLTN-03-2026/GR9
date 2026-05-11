@@ -11,6 +11,7 @@ import { Plus } from "lucide-react";
 import PageHero from "@/components/shared/page-hero";
 import { CardGridSkeleton } from "@/components/shared/page-skeletons";
 import { useSearchParams } from "react-router-dom";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const typeLabels = {
   HOTEL: "Accommodation",
@@ -23,12 +24,17 @@ const typeLabels = {
   OTHER: "Other",
 };
 
+const getAdultPrice = (service) =>
+  service.total?.find((item) => item.type === "ADULT")?.price ?? 0;
+
 const ServiceManagement = () => {
+  const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const [services, setServices] = useState([]);
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get("search") || "");
   const [category, setCategory] = useState("All");
+  const [sortBy, setSortBy] = useState("latest");
   const [loading, setLoading] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -83,8 +89,18 @@ const ServiceManagement = () => {
     return () => window.clearTimeout(timeout);
   }, [search, setSearchParams]);
 
+  const translatedTypeLabels = useMemo(
+    () =>
+      Object.keys(typeLabels).reduce((acc, key) => {
+        acc[key] = t(`provider.services.types.${key}`);
+        return acc;
+      }, {}),
+    [t],
+  );
+
   const filteredServices = useMemo(() => {
-    return services.filter((item) => {
+    return services
+      .filter((item) => {
       const matchesCategory = category === "All" || item.type === category;
       const searchText = debouncedSearch.toLowerCase();
       const matchesSearch =
@@ -92,15 +108,21 @@ const ServiceManagement = () => {
         item.name?.toLowerCase().includes(searchText) ||
         item.address?.toLowerCase().includes(searchText) ||
         item.description?.toLowerCase().includes(searchText) ||
-        typeLabels[item.type]?.toLowerCase().includes(searchText) ||
+        translatedTypeLabels[item.type]?.toLowerCase().includes(searchText) ||
         item.type?.toLowerCase().includes(searchText);
       return matchesCategory && matchesSearch;
-    });
-  }, [services, category, debouncedSearch]);
+    })
+      .sort((a, b) => {
+        if (sortBy === "name-asc") return String(a.name || "").localeCompare(String(b.name || ""), "vi");
+        if (sortBy === "price-low") return getAdultPrice(a) - getAdultPrice(b);
+        if (sortBy === "price-high") return getAdultPrice(b) - getAdultPrice(a);
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      });
+  }, [services, category, debouncedSearch, sortBy, translatedTypeLabels]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearch, category, services]);
+  }, [debouncedSearch, category, sortBy, services]);
 
   const handleAdd = () => {
     setCreateDialogOpen(true);
@@ -145,16 +167,16 @@ const ServiceManagement = () => {
     <main className="min-h-screen bg-surface text-on-surface">
       <div className="mx-auto w-full space-y-8">
         <PageHero
-          eyebrow="Service Catalog"
+          eyebrow={t("provider.services.eyebrow")}
           heading={
             <>
-              Service{" "}
+              {t("provider.services.titleA")}{" "}
               <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
-                Management
+                {t("provider.services.titleB")}
               </span>
             </>
           }
-          description="Organize transport, accommodation, dining, and support services that power each provider experience."
+          description={t("provider.services.description")}
           actions={
             <Button
               onClick={handleAdd}
@@ -163,13 +185,15 @@ const ServiceManagement = () => {
               <span className="mr-2 group-hover:rotate-90 transition-transform">
                 <Plus className="h-4 w-4" />
               </span>
-              ADD NEW SERVICE
+              {t("provider.services.add")}
             </Button>
           }
         />
         <ServiceFilter
           category={category}
           onCategoryChange={setCategory}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
           search={search}
           onSearchChange={handleSearchChange}
           onAdd={handleAdd}
@@ -211,10 +235,10 @@ const ServiceManagement = () => {
                   ...service,
                   title: service.name,
                   category:
-                    typeLabels[service.type] || service.type || "Service",
-                  location: service.address || "No address",
+                    translatedTypeLabels[service.type] || service.type || "Service",
+                  location: service.address || t("provider.services.noAddress"),
                   price: service.total?.[0]?.price ?? 0,
-                  priceLabel: "Starting from",
+                  priceLabel: t("provider.services.startingFrom"),
                   status: service.status || "DRAFT",
                 }}
                 onEdit={handleEdit}
@@ -223,24 +247,18 @@ const ServiceManagement = () => {
             ))
           ) : (
             <div className="col-span-full text-center text-on-surface-variant">
-              Không có dịch vụ nào phù hợp.
+              {t("provider.services.noData")}
             </div>
           )}
         </div>
         {totalPages > 1 && (
           <div className="flex flex-col gap-3 rounded-3xl border border-outline-variant/15 bg-surface-container-lowest p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
             <div className="text-sm text-on-surface-variant">
-              Hiển thị{" "}
-              <span className="font-semibold">
-                {(currentPage - 1) * itemsPerPage + 1}
-              </span>{" "}
-              -{" "}
-              <span className="font-semibold">
-                {Math.min(currentPage * itemsPerPage, filteredServices.length)}
-              </span>{" "}
-              trên{" "}
-              <span className="font-semibold">{filteredServices.length}</span>{" "}
-              dịch vụ
+              {t("provider.services.showing", {
+                first: (currentPage - 1) * itemsPerPage + 1,
+                last: Math.min(currentPage * itemsPerPage, filteredServices.length),
+                total: filteredServices.length,
+              })}
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Button
@@ -250,7 +268,7 @@ const ServiceManagement = () => {
                 className="bg-primary text-primary-foreground hover:bg-primary-container hover:text-on-primary-container disabled:bg-surface-container-high disabled:text-on-surface-variant"
                 onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               >
-                Trước
+                {t("common.previous")}
               </Button>
               {visiblePageButtons.map((page) => (
                 <Button
@@ -276,7 +294,7 @@ const ServiceManagement = () => {
                   setCurrentPage((prev) => Math.min(totalPages, prev + 1))
                 }
               >
-                Tiếp
+                {t("common.next")}
               </Button>
             </div>
           </div>

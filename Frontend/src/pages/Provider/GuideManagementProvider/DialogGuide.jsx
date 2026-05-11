@@ -52,12 +52,12 @@ export const DialogGuide = ({
   return (
     <div>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[600px] bg-white border-slate-200">
+        <DialogContent className="border-outline-variant/20 bg-surface-container-lowest sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle className="text-xl font-extrabold text-slate-900">
+            <DialogTitle className="text-xl font-extrabold text-on-surface">
               {title}
             </DialogTitle>
-            <DialogDescription className="text-slate-500">
+            <DialogDescription className="text-on-surface-variant">
               {title === "Add new guide"
                 ? "Fill in the details to add a new guide to your roster"
                 : "Fill in the details to update a guide in your roster"}
@@ -66,16 +66,16 @@ export const DialogGuide = ({
 
           <div className="space-y-4 mt-4">
             {title === "Add new guide" ? (
-              <div className="rounded-2xl border border-teal-100 bg-teal-50 p-4">
+              <div className="rounded-2xl border border-primary/20 bg-primary/10 p-4">
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-teal-700">
+                  <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-container-lowest text-primary">
                     <MailCheck className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-slate-900">
+                    <p className="text-sm font-bold text-on-surface">
                       Tạo hồ sơ trước, gửi mật khẩu sau
                     </p>
-                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                    <p className="mt-1 text-sm leading-6 text-on-surface-variant">
                       Guide mới sẽ chưa có mật khẩu đăng nhập. Sau khi tạo, dùng nút email trong bảng để gửi mật khẩu tạm thời cho guide.
                     </p>
                   </div>
@@ -85,25 +85,25 @@ export const DialogGuide = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-widest text-slate-600">
+                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
                   Guide Name
                 </label>
                 <Input
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="text-slate-900 bg-slate-50 border-slate-200 focus-visible:ring-teal-500"
+                  className="border-outline-variant/30 bg-surface-container-low text-on-surface focus-visible:ring-primary"
                   placeholder="Tên của bạn"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-widest text-slate-600">
+                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
                   Specialty
                 </label>
                 <Input
                   value={specialty}
                   onChange={(e) => setSpecialty(e.target.value)}
-                  className="text-slate-900 bg-slate-50 border-slate-200 focus-visible:ring-teal-500"
+                  className="border-outline-variant/30 bg-surface-container-low text-on-surface focus-visible:ring-primary"
                   placeholder="Mô tả"
                 />
               </div>
@@ -111,27 +111,27 @@ export const DialogGuide = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-widest text-slate-600">
+                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
                   Email
                 </label>
                 <Input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="text-slate-900 bg-slate-50 border-slate-200 focus-visible:ring-teal-500"
+                  className="border-outline-variant/30 bg-surface-container-low text-on-surface focus-visible:ring-primary"
                   type="email"
                   placeholder="e.g. guide@voyager.vn"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-widest text-slate-600">
+                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
                   Phone
                 </label>
                 <Input
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   type="tel"
-                  className="text-slate-900 bg-slate-50 border-slate-200 focus-visible:ring-teal-500"
+                  className="border-outline-variant/30 bg-surface-container-low text-on-surface focus-visible:ring-primary"
                   placeholder="+84..."
                 />
               </div>
@@ -139,7 +139,7 @@ export const DialogGuide = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-widest text-slate-600">
+                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
                   Status
                 </label>
                 <Select
@@ -147,7 +147,7 @@ export const DialogGuide = ({
                   onValueChange={(value) => setIsActive(value === "ACTIVE" ? true : false)}
                   defaultValue="ACTIVE"
                 >
-                  <SelectTrigger className="h-10 w-full border-slate-200 bg-slate-50 text-slate-900 focus-visible:ring-teal-500">
+                  <SelectTrigger className="h-10 w-full border-outline-variant/30 bg-surface-container-low text-on-surface focus-visible:ring-primary">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -159,11 +159,11 @@ export const DialogGuide = ({
                 </Select>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-widest text-slate-600">
+                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
                   Gender
                 </label>
                 <Select value={gender} onValueChange={setGender}>
-                  <SelectTrigger className="h-10 w-full border-slate-200 bg-slate-50 text-slate-900 focus-visible:ring-teal-500">
+                  <SelectTrigger className="h-10 w-full border-outline-variant/30 bg-surface-container-low text-on-surface focus-visible:ring-primary">
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
                   <SelectContent>
@@ -177,11 +177,11 @@ export const DialogGuide = ({
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-slate-600">
+              <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
                 Upload Avatar
               </label>
-              <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                <div className="h-16 w-16 overflow-hidden rounded-2xl bg-white border border-slate-200 shrink-0">
+              <div className="flex items-center gap-4 rounded-xl border border-outline-variant/30 bg-surface-container-low p-3">
+                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest">
                   {avatarPreview ? (
                     <img
                       src={avatarPreview}
@@ -189,7 +189,7 @@ export const DialogGuide = ({
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-slate-400">
+                    <div className="flex h-full w-full items-center justify-center text-on-surface-variant">
                       <ImagePlus className="size-6" />
                     </div>
                   )}
@@ -199,10 +199,10 @@ export const DialogGuide = ({
                     type="file"
                     accept="image/*"
                     onChange={handleAvatarChange}
-                    className="text-slate-900 bg-white border-slate-200 focus-visible:ring-teal-500 cursor-pointer file:text-teal-600 file:font-semibold file:bg-teal-50 file:border-0 file:rounded-md file:px-2 file:py-1 file:mr-3"
+                    className="cursor-pointer border-outline-variant/30 bg-surface-container-lowest text-on-surface focus-visible:ring-primary file:mr-3 file:rounded-md file:border-0 file:bg-primary/10 file:px-2 file:py-1 file:font-semibold file:text-primary"
                   />
                   {avatarFile ? (
-                    <p className="mt-2 truncate text-xs text-slate-500">
+                    <p className="mt-2 truncate text-xs text-on-surface-variant">
                       {avatarFile.name}
                     </p>
                   ) : null}
@@ -213,7 +213,7 @@ export const DialogGuide = ({
                     variant="ghost"
                     size="icon"
                     onClick={() => setAvatarFile(null)}
-                    className="text-slate-500 hover:text-red-600"
+                    className="text-on-surface-variant hover:text-red-600"
                   >
                     <X className="size-4" />
                   </Button>
@@ -226,7 +226,7 @@ export const DialogGuide = ({
                 <Button
                   variant="outline"
                   type="button"
-                  className="text-slate-700 border-slate-300 hover:bg-slate-100"
+                  className="border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low"
                 >
                   Cancel
                 </Button>
@@ -240,7 +240,7 @@ export const DialogGuide = ({
                   }
                 }}
                 disabled={loading} 
-                className="bg-teal-600 hover:bg-teal-700 text-white shadow-md"
+                className="bg-teal-600 text-white shadow-md hover:bg-teal-700"
               >
                 {loading
                   ? title === "Update the guide"

@@ -23,7 +23,7 @@ export default function ReviewHero({ onSubmit, isSubmitting }) {
           type="button"
           onClick={onSubmit}
           disabled={isSubmitting}
-          className="rounded-xl bg-teal-600 px-5 font-semibold hover:bg-teal-700"
+          className="rounded-xl bg-teal-600 px-5 font-semibold text-white hover:bg-teal-700"
         >
           <Send className="mr-2 h-4 w-4" />
           {isSubmitting ? "Submitting..." : "Submit Review"}
