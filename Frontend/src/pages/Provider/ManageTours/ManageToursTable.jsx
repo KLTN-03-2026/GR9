@@ -108,6 +108,22 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
         () => filteredTours.slice((page - 1) * pageSize, page * pageSize),
         [filteredTours, page],
     );
+    const visiblePageButtons = useMemo(() => {
+        const maxButtons = 5;
+        if (totalPages <= maxButtons) {
+            return Array.from({ length: totalPages }, (_, index) => index + 1);
+        }
+
+        let start = Math.max(1, page - Math.floor(maxButtons / 2));
+        let end = start + maxButtons - 1;
+
+        if (end > totalPages) {
+            end = totalPages;
+            start = Math.max(1, totalPages - maxButtons + 1);
+        }
+
+        return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+    }, [page, totalPages]);
     const firstRow = filteredTours.length === 0 ? 0 : (page - 1) * pageSize + 1;
     const lastRow = Math.min(page * pageSize, filteredTours.length);
 
@@ -127,25 +143,25 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                         <TabsList className="h-auto w-full flex-wrap justify-start gap-2 rounded-2xl bg-surface-container-low p-1.5 xl:w-auto">
                             <TabsTrigger
                                 value="all"
-                                className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] data-[state=active]:bg-white data-[state=active]:text-on-surface"
+                                className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] data-[state=active]:bg-surface-container-lowest data-[state=active]:text-on-surface"
                             >
                                 All Tours
                             </TabsTrigger>
                             <TabsTrigger
                                 value="confirmed"
-                                className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] data-[state=active]:bg-white data-[state=active]:text-on-surface"
+                                className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] data-[state=active]:bg-surface-container-lowest data-[state=active]:text-on-surface"
                             >
                                 confirmed
                             </TabsTrigger>
                             <TabsTrigger
                                 value="pending"
-                                className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] data-[state=active]:bg-white data-[state=active]:text-on-surface"
+                                className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] data-[state=active]:bg-surface-container-lowest data-[state=active]:text-on-surface"
                             >
                                 pending
                             </TabsTrigger>
                             <TabsTrigger
                                 value="completed"
-                                className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] data-[state=active]:bg-white data-[state=active]:text-on-surface"
+                                className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] data-[state=active]:bg-surface-container-lowest data-[state=active]:text-on-surface"
                             >
                                 completed
                             </TabsTrigger>
@@ -181,7 +197,7 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                         </div>
 
                         <Select value={sort} onValueChange={setSort}>
-                            <SelectTrigger className="h-11 min-w-[150px] rounded-xl border-outline-variant/30 bg-white px-4">
+                            <SelectTrigger className="h-11 min-w-[150px] rounded-xl border-outline-variant/30 bg-surface-container-lowest px-4">
                                 <SelectValue placeholder="Sort: Latest" />
                             </SelectTrigger>
                             <SelectContent align="end">
@@ -195,8 +211,8 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
 
                 <div className="overflow-hidden rounded-[1.5rem] border border-outline-variant/20">
                     <Table>
-                        <TableHeader className="bg-slate-50/80">
-                            <TableRow className="hover:bg-slate-50/80">
+                        <TableHeader className="bg-surface-container-low">
+                            <TableRow className="hover:bg-surface-container-low">
                                 <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
                                     Tour Details
                                 </TableHead>
@@ -310,7 +326,7 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                                 })
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="text-center py-10 text-slate-400">
+                                    <TableCell colSpan={4} className="py-10 text-center text-on-surface-variant">
                                         No tours found
                                     </TableCell>
                                 </TableRow>
@@ -329,17 +345,17 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                         <Button
                             variant="outline"
                             size="icon"
-                            className="rounded-xl bg-white text-on-surface-variant"
+                            className="rounded-xl bg-surface-container-lowest text-on-surface-variant"
                             disabled={page <= 1}
                             onClick={() => setPage((current) => Math.max(current - 1, 1))}
                         >
                             <ChevronLeft className="size-4" />
                         </Button>
-                        {Array.from({ length: totalPages }, (_, index) => index + 1).slice(0, 5).map((pageNumber) => (
+                        {visiblePageButtons.map((pageNumber) => (
                             <Button
                                 key={pageNumber}
                                 variant={page === pageNumber ? "default" : "outline"}
-                                className={page === pageNumber ? "rounded-xl bg-primary px-4 text-on-primary" : "rounded-xl bg-white px-4"}
+                                className={page === pageNumber ? "rounded-xl bg-primary px-4 text-primary-foreground" : "rounded-xl bg-surface-container-lowest px-4"}
                                 onClick={() => setPage(pageNumber)}
                             >
                                 {pageNumber}
@@ -348,7 +364,7 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                         <Button
                             variant="outline"
                             size="icon"
-                            className="rounded-xl bg-white text-on-surface-variant"
+                            className="rounded-xl bg-surface-container-lowest text-on-surface-variant"
                             disabled={page >= totalPages}
                             onClick={() => setPage((current) => Math.min(current + 1, totalPages))}
                         >

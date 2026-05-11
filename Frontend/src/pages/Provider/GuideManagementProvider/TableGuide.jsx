@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { KeyRound, MailCheck, PencilLine, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, KeyRound, MailCheck, PencilLine, Trash2 } from "lucide-react";
 import React from "react";
 
 const TableGuide = ({
@@ -18,7 +18,36 @@ const TableGuide = ({
   handleSendPassword,
   sendingPasswordId,
 }) => {
-  if (!guides) return null;
+  const safeGuides = guides || [];
+  const pageSize = 6;
+  const [page, setPage] = React.useState(1);
+  const totalPages = Math.max(1, Math.ceil(safeGuides.length / pageSize));
+  const visibleGuides = React.useMemo(
+    () => safeGuides.slice((page - 1) * pageSize, page * pageSize),
+    [safeGuides, page],
+  );
+  const visiblePageButtons = React.useMemo(() => {
+    const maxButtons = 5;
+    if (totalPages <= maxButtons) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    let start = Math.max(1, page - Math.floor(maxButtons / 2));
+    let end = start + maxButtons - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, totalPages - maxButtons + 1);
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+  }, [page, totalPages]);
+  const firstRow = safeGuides.length === 0 ? 0 : (page - 1) * pageSize + 1;
+  const lastRow = Math.min(page * pageSize, safeGuides.length);
+
+  React.useEffect(() => {
+    setPage((current) => Math.min(current, totalPages));
+  }, [totalPages]);
   return (
     <div>
       
@@ -48,7 +77,7 @@ const TableGuide = ({
         </TableHeader>
 
         <TableBody className="divide-y divide-outline-variant/25">
-          {guides.map((g) => {
+          {visibleGuides.map((g) => {
             const activeClasses = g.isActive
               ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
               : "bg-slate-100 text-slate-500 border border-slate-200";
@@ -174,6 +203,52 @@ const TableGuide = ({
           })}
         </TableBody>
       </Table>
+      {safeGuides.length > pageSize ? (
+        <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-on-surface-variant">
+            Showing <span className="font-bold text-on-surface">{firstRow} - {lastRow}</span> of{" "}
+            <span className="font-bold text-on-surface">{safeGuides.length}</span> guides
+          </p>
+
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              disabled={page <= 1}
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              className="rounded-xl bg-surface-container-lowest"
+            >
+              <ChevronLeft className="size-4" />
+            </Button>
+            {visiblePageButtons.map((pageNumber) => (
+              <Button
+                key={pageNumber}
+                type="button"
+                variant={pageNumber === page ? "default" : "outline"}
+                onClick={() => setPage(pageNumber)}
+                className={
+                  pageNumber === page
+                    ? "rounded-xl bg-primary px-4 text-primary-foreground"
+                    : "rounded-xl bg-surface-container-lowest px-4"
+                }
+              >
+                {pageNumber}
+              </Button>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              disabled={page >= totalPages}
+              onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+              className="rounded-xl bg-surface-container-lowest"
+            >
+              <ChevronRight className="size-4" />
+            </Button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };
