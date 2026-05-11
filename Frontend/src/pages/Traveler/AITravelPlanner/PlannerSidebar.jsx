@@ -23,6 +23,9 @@ const formatDateInputValue = (date) => {
   return `${year}-${month}-${day}`;
 };
 
+const formatCurrencyVND = (value) =>
+  `${new Intl.NumberFormat("vi-VN").format(Number(value) || 0)} đ`;
+
 function PlannerSidebar({
   budget,
   quantity,
@@ -115,7 +118,7 @@ function PlannerSidebar({
                   </Label>
                   <div className="relative">
                     <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-primary">
-                      $
+                      đ
                     </span>
                     <Input
                       type="number"
@@ -131,7 +134,9 @@ function PlannerSidebar({
 
               <div className="flex items-center justify-between rounded-2xl bg-slate-100 px-4 py-3 text-[11px] text-on-surface-variant">
                 <span>Suggested range</span>
-                <span className="font-bold text-on-surface">$800 - $2,500</span>
+                <span className="font-bold text-on-surface">
+                  {formatCurrencyVND(2000000)} - {formatCurrencyVND(6000000)}
+                </span>
               </div>
             </CardContent>
           </Card>

@@ -95,16 +95,16 @@ export default function TourEditorContent() {
                 htmlFor="base-price"
                 className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500"
               >
-                Base Price (USD)
+                Giá cơ bản (đ)
               </label>
               <div className="relative">
                 <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">
-                  $
+                  đ
                 </span>
                 <Input
                   id="base-price"
                   type="number"
-                  placeholder="0.00"
+                  placeholder="0"
                   className="h-12 rounded-xl border-outline-variant/20 bg-surface-container-low pl-8"
                 />
               </div>

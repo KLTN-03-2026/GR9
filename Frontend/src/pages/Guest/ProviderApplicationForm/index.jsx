@@ -31,6 +31,10 @@ import InfomationCard from "./InfomationCard";
 import SubmissionWaiting from "./SubmissionWaiting";
 import UploadFile from "./UploadFile";
 
+const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024;
+const PHONE_PATTERN = /^(0|\+84)(\d[\s.-]?){8,10}$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 const ProviderApplicationForm = () => {
   const [form, setForm] = useState({
     fullName: "",
@@ -63,14 +67,17 @@ const ProviderApplicationForm = () => {
   };
 
   const validateForm = () => {
-    if (!form.fullName.trim()) return "Vui lòng nhập tên pháp nhân hoặc người đại diện.";
+    if (form.fullName.trim().length < 3) return "Tên pháp nhân hoặc người đại diện phải có ít nhất 3 ký tự.";
     if (!form.email.trim()) return "Vui lòng nhập email liên hệ.";
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) return "Email liên hệ không hợp lệ.";
+    if (!EMAIL_PATTERN.test(form.email.trim())) return "Email liên hệ không hợp lệ.";
     if (!form.phone.trim()) return "Vui lòng nhập số điện thoại.";
-    if (!form.address.trim()) return "Vui lòng nhập địa chỉ.";
+    if (!PHONE_PATTERN.test(form.phone.trim())) return "Số điện thoại không hợp lệ. Vui lòng dùng số Việt Nam, ví dụ 0901234567 hoặc +84901234567.";
+    if (form.address.trim().length < 6) return "Địa chỉ cần rõ hơn để admin xác minh hồ sơ.";
     if (!providerPolicy?._id) return "Hiện chưa có chính sách đối tác để xác nhận.";
     if (!acceptedPolicy) return "Vui lòng đọc và xác nhận chính sách đối tác trước khi gửi.";
     if (!documentFile) return "Vui lòng tải lên giấy tờ xác minh.";
+    if (documentFile.type !== "application/pdf") return "Tài liệu xác minh phải là file PDF.";
+    if (documentFile.size > MAX_DOCUMENT_SIZE) return "File PDF không được vượt quá 10MB.";
     return "";
   };
 

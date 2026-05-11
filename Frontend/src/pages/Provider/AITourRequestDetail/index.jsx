@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/select";
 import { convertProviderAiRequest, getProviderAiRequestDetail } from "@/services/api/ai";
 import { createService } from "@/services/api/service";
+import { formatCurrencyVND } from "@/utils/formatPrice";
 
 const formatDate = (value) => {
   if (!value) return "-";
@@ -44,12 +45,7 @@ const formatDate = (value) => {
   return date.toLocaleDateString("vi-VN");
 };
 
-const formatPrice = (value) =>
-  Number(value || 0).toLocaleString("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  });
+const formatPrice = (value) => formatCurrencyVND(value);
 
 const totalTravelers = (quantity = {}) =>
   (Number(quantity.ADULT) || 0) + (Number(quantity.CHILD) || 0) + (Number(quantity.INFANT) || 0);

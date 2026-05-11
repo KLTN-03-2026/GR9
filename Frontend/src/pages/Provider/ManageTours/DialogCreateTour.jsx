@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { formatPrice } from "@/utils/formatPrice";
+import { formatCurrencyVND, formatPrice } from "@/utils/formatPrice";
 
 export default function DialogCreateTour({
     open,
@@ -585,7 +585,7 @@ export default function DialogCreateTour({
                                                 </CardTitle>
 
                                                 <span className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-bold text-primary">
-                                                    From $120/night
+                                                    Từ {formatCurrencyVND(1200000)}/đêm
                                                 </span>
                                             </div>
                                         </CardHeader>
@@ -731,7 +731,7 @@ export default function DialogCreateTour({
                                                 </CardTitle>
 
                                                 <span className="rounded-full bg-secondary/10 px-3 py-1 text-[10px] font-bold text-secondary">
-                                                    From $50
+                                                    Từ {formatCurrencyVND(500000)}
                                                 </span>
                                             </div>
                                         </CardHeader>

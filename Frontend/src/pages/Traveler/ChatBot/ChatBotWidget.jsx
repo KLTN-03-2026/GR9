@@ -60,7 +60,7 @@ const getChatbotErrorMessage = (error) => {
   }
 
   if (errorCode === "GEMINI_QUOTA_EXCEEDED") {
-    return "Voyager AI đã chạm giới hạn sử dụng tạm thời. Bạn vui lòng thử lại sau ít phút.";
+    return "Voyager AI đang có nhiều yêu cầu cùng lúc nên mình sẽ ưu tiên trả lời bằng dữ liệu có sẵn trong hệ thống. Bạn vui lòng thử lại sau ít phút nếu cần phân tích chi tiết hơn.";
   }
 
   return (

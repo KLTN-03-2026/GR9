@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Edit, Trash2 } from "lucide-react";
+import { formatCurrencyVND } from "@/utils/formatPrice";
 
 const fallbackImage =
   "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80";
@@ -80,14 +81,9 @@ const ServiceCard = ({ item, onEdit, onDelete }) => {
             {prices.map((p, i) => (
               <div key={i} className="flex justify-between items-center">
                 <span className="text-xs text-slate-500">{p.label}</span>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-sm font-bold text-slate-900">
-                    {p.val.toLocaleString()}
-                  </span>
-                  <span className="text-[9px] font-medium text-slate-400">
-                    VNĐ
-                  </span>
-                </div>
+                <span className="text-sm font-bold text-slate-900">
+                  {formatCurrencyVND(p.val)}
+                </span>
               </div>
             ))}
           </div>

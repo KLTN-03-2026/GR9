@@ -24,6 +24,8 @@ const getRatingLabel = (rating) => {
   return "Needs attention";
 };
 
+const isValidRating = (rating) => Number(rating) >= 1 && Number(rating) <= 5;
+
 export default function ReviewPage() {
   const [searchParams] = useSearchParams();
   const [tourRating, setTourRating] = useState(4);
@@ -70,13 +72,23 @@ export default function ReviewPage() {
     bookingId,
     ratingTour: tourRating,
     ratingGuide: guideRating,
-    contentTour,
-    contentGuide,
+    contentTour: contentTour.trim(),
+    contentGuide: contentGuide.trim(),
   });
 
   const handleSubmitReview = async () => {
-    if (!tourId || !guideId) {
-      toast.error("Missing tourId or guideId for review.");
+    if (!tourId || !guideId || !bookingId) {
+      toast.error("Thiếu thông tin tour, guide hoặc booking để gửi đánh giá.");
+      return;
+    }
+
+    if (!isValidRating(tourRating) || !isValidRating(guideRating)) {
+      toast.error("Điểm đánh giá tour và guide phải từ 1 đến 5 sao.");
+      return;
+    }
+
+    if (contentTour.trim().length < 10 && contentGuide.trim().length < 10) {
+      toast.error("Vui lòng nhập ít nhất một nội dung đánh giá từ 10 ký tự trở lên.");
       return;
     }
 

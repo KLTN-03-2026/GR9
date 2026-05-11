@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import PageHero from "@/components/shared/page-hero";
 import { Button } from "@/components/ui/button";
 import { getTravelerDashboard } from "@/services/api/traveler";
+import { formatCurrencyVND } from "@/utils/formatPrice";
 
 const FALLBACK_UPCOMING = [
   {
@@ -29,7 +30,7 @@ const FALLBACK_RECOMMENDED = [
     title: "Da Nang, Vietnam",
     description:
       "A premium Da Nang itinerary blending airport support, landmark visits, local food and passenger tracking.",
-    price: "$289",
+    price: formatCurrencyVND(289000),
     type: "Coastal",
     icon: "temple_buddhist",
   },
@@ -38,7 +39,7 @@ const FALLBACK_RECOMMENDED = [
     title: "Hoi An, Vietnam",
     description:
       "Private pickup, old town storytelling and a premium lantern workshop in Hoi An.",
-    price: "$148",
+    price: formatCurrencyVND(148000),
     type: "Lanterns",
     icon: "temple_buddhist",
   },
@@ -47,7 +48,7 @@ const FALLBACK_RECOMMENDED = [
     title: "Ha Long Bay, Vietnam",
     description:
       "Luxury cruise through Ha Long Bay with curated caves, lagoons and cultural immersion.",
-    price: "$1249",
+    price: formatCurrencyVND(1249000),
     type: "Cruise",
     icon: "directions_boat",
   },
@@ -392,7 +393,7 @@ const TravelerDashboard = () => {
               <div className="mb-8 space-y-3 rounded-xl bg-white/10 p-4 backdrop-blur-sm">
                 <div className="flex items-center justify-between text-sm font-medium">
                   <span>Today's spending</span>
-                  <span>${spendingUsed} / ${spendingBudget}</span>
+                  <span>{formatCurrencyVND(spendingUsed * 1000)} / {formatCurrencyVND(spendingBudget * 1000)}</span>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-white/20">
                   <div
@@ -405,19 +406,19 @@ const TravelerDashboard = () => {
                     <span className="material-symbols-outlined text-[14px]">
                       local_cafe
                     </span>
-                    <span>Coffee: $6</span>
+                    <span>Cà phê: {formatCurrencyVND(6000)}</span>
                   </span>
                   <span className="flex items-center gap-1">
                     <span className="material-symbols-outlined text-[14px]">
                       restaurant
                     </span>
-                    <span>Lunch: $18</span>
+                    <span>Bữa trưa: {formatCurrencyVND(18000)}</span>
                   </span>
                   <span className="flex items-center gap-1">
                     <span className="material-symbols-outlined text-[14px]">
                       directions_bus
                     </span>
-                    <span>Transit: $5</span>
+                    <span>Di chuyển: {formatCurrencyVND(5000)}</span>
                   </span>
                 </div>
                 <p className="mt-2 text-xs italic text-on-tertiary/80">
