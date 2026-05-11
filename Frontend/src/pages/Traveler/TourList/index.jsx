@@ -18,6 +18,21 @@ const SORT_OPTIONS = [
     { value: "durationShort", label: "Ngắn ngày" },
 ];
 
+const TOUR_FALLBACK_IMAGES = [
+    "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80",
+];
+
+const getTourImage = (tour, index = 0) =>
+    tour?.images?.imageUrl ||
+    tour?.images?.[0]?.imageUrl ||
+    tour?.coverImage ||
+    tour?.image ||
+    TOUR_FALLBACK_IMAGES[index % TOUR_FALLBACK_IMAGES.length];
+
 const SORT_LABEL_KEYS = {
     popular: "popular",
     topRated: "topRated",
@@ -115,7 +130,7 @@ export default function TourList() {
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     placeholder={t("tourList.searchPlaceholder")}
-                                    className="h-11 rounded-full border-outline-variant/20 bg-white/95 text-slate-900 placeholder:text-slate-500"
+                                    className="h-11 rounded-full border-outline-variant/20 bg-surface-container-lowest/95 text-on-surface placeholder:text-on-surface-variant"
                                 />
                             </div>
 
@@ -127,7 +142,7 @@ export default function TourList() {
                                         setPage(1);
                                     }}
                                 >
-                                    <SelectTrigger className="h-11 w-full rounded-full border-outline-variant/20 bg-white/95 px-4 text-slate-900 shadow-sm sm:w-[220px]">
+                                    <SelectTrigger className="h-11 w-full rounded-full border-outline-variant/20 bg-surface-container-lowest/95 px-4 text-on-surface shadow-sm sm:w-[220px]">
                                         <SelectValue placeholder={t("tourList.sortPlaceholder")} />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -148,16 +163,16 @@ export default function TourList() {
                     <TourListSkeleton />
                 ) : (
                     <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-                        {filteredTours.map((tour) => (
+                        {filteredTours.map((tour, index) => (
                             <article
                                 key={tour._id}
-                                className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                                className="group relative overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10"
                             >
-                                <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                                <div className="relative aspect-[4/3] overflow-hidden bg-surface-container-low">
                                     <img
                                         alt={tour.name}
                                         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                        src={tour.images?.imageUrl || tour.images?.[0]?.imageUrl || "/default-tour.jpg"}
+                                        src={getTourImage(tour, index)}
                                     />
 
                                     <div className="absolute left-4 top-4 flex flex-wrap gap-2">
@@ -183,7 +198,7 @@ export default function TourList() {
                                 <div className="space-y-5 p-5">
                                     <div className="flex items-start justify-between gap-4">
                                         <div>
-                                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                            <p className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
                                                 {t("common.from")}
                                             </p>
                                             <span className="text-2xl font-extrabold text-primary">
@@ -191,10 +206,10 @@ export default function TourList() {
                                                     ? `${formatPrice(tour?.price?.adult)}đ`
                                                     : t("common.contact")}
                                             </span>
-                                            <span className="text-xs font-medium text-slate-500"> / {t("common.adult")}</span>
+                                            <span className="text-xs font-medium text-on-surface-variant"> / {t("common.adult")}</span>
                                         </div>
 
-                                        <div className="rounded-2xl bg-amber-50 px-3 py-2 text-right">
+                                        <div className="rounded-2xl bg-amber-50 px-3 py-2 text-right dark:bg-amber-400/10">
                                             <div className="flex items-center justify-end gap-1">
                                                 <span
                                                     className="material-symbols-outlined text-sm text-amber-500"
@@ -202,36 +217,36 @@ export default function TourList() {
                                                 >
                                                     star
                                                 </span>
-                                                <span className="text-sm font-extrabold text-slate-900">
+                                                <span className="text-sm font-extrabold text-on-surface">
                                                     {Number(tour.averageRating) > 0 ? tour.averageRating : t("common.new")}
                                                 </span>
                                             </div>
-                                            <p className="mt-0.5 text-[11px] font-semibold text-slate-500">
+                                            <p className="mt-0.5 text-[11px] font-semibold text-on-surface-variant">
                                                 {t("tourList.reviews", { count: tour.reviewCount || 0 })}
                                             </p>
                                         </div>
                                     </div>
 
                                     {tour.description && (
-                                        <p className="line-clamp-2 min-h-[48px] text-sm leading-6 text-slate-500">
+                                        <p className="line-clamp-2 min-h-[48px] text-sm leading-6 text-on-surface-variant">
                                             {tour.description}
                                         </p>
                                     )}
 
-                                    <div className="grid grid-cols-3 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50 text-slate-600">
-                                        <div className="flex min-h-[72px] flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 text-center">
+                                    <div className="grid grid-cols-3 overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low text-on-surface-variant">
+                                        <div className="flex min-h-[72px] flex-col items-center justify-center gap-1 border-r border-outline-variant/15 px-2 text-center">
                                             <span className="material-symbols-outlined text-[20px] leading-none text-primary">
                                                 schedule
                                             </span>
-                                            <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-slate-900">
+                                            <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-on-surface">
                                                 {tour.numberOfDay || "-"} {t("common.day")}
                                             </span>
                                         </div>
-                                        <div className="flex min-h-[72px] flex-col items-center justify-center gap-1 border-r border-slate-200 px-2 text-center">
+                                        <div className="flex min-h-[72px] flex-col items-center justify-center gap-1 border-r border-outline-variant/15 px-2 text-center">
                                             <span className="material-symbols-outlined text-[20px] leading-none text-primary">
                                                 groups
                                             </span>
-                                            <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-slate-900">
+                                            <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-on-surface">
                                                 {tour.travelerCount || 0} {t("common.guest")}
                                             </span>
                                         </div>
@@ -239,7 +254,7 @@ export default function TourList() {
                                             <span className="material-symbols-outlined text-[20px] leading-none text-primary">
                                                 confirmation_number
                                             </span>
-                                            <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-slate-900">
+                                            <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-on-surface">
                                                 {tour.bookingCount || 0} {t("common.bookingTurn")}
                                             </span>
                                         </div>

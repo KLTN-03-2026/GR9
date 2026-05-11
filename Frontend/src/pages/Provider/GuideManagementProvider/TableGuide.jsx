@@ -25,29 +25,29 @@ const TableGuide = ({
       <Table className="w-full text-left border-collapse gap-2 mt-4">
         
         <TableHeader>
-          <TableRow className="bg-slate-50 hover:bg-slate-50">
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+          <TableRow className="bg-surface-container-low hover:bg-surface-container-low">
+            <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               Guide
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+            <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               Contact Info
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+            <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               Assignment
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+            <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               Status
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+            <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               Login Access
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">
+            <TableHead className="px-6 py-4 text-right text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               Actions
             </TableHead>
           </TableRow>
         </TableHeader>
 
-        <TableBody className="divide-y divide-slate-100">
+        <TableBody className="divide-y divide-outline-variant/25">
           {guides.map((g) => {
             const activeClasses = g.isActive
               ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
@@ -68,11 +68,11 @@ const TableGuide = ({
             return (
               <TableRow
                 key={g._id}
-                className="hover:bg-slate-50 transition-colors"
+                className="transition-colors hover:bg-surface-container-high"
               >
                 <TableCell className="px-6 py-5">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl overflow-hidden bg-slate-200 shrink-0">
+                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-2xl bg-surface-container-high">
                       <img
                         alt={g.name}
                         className="w-full h-full object-cover"
@@ -80,27 +80,27 @@ const TableGuide = ({
                       />
                     </div>
                     <div>
-                      <p className="font-bold text-slate-900">{g.fullName}</p>
-                      <p className="text-xs text-slate-500">{g.specialty}</p>
+                      <p className="font-bold text-on-surface">{g.fullName}</p>
+                      <p className="text-xs text-on-surface-variant">{g.specialty}</p>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell className="px-6 py-5">
                   <div className="text-sm">
-                    <p className="text-slate-900 font-medium">{g.email}</p>
-                    <p className="text-slate-500 text-xs mt-1">{g.phone}</p>
+                    <p className="font-medium text-on-surface">{g.email}</p>
+                    <p className="mt-1 text-xs text-on-surface-variant">{g.phone}</p>
                   </div>
                 </TableCell>
 
                 <TableCell className="px-6 py-5">
                   <div className="text-sm">
-                    <p className="font-semibold text-slate-900">
+                    <p className="font-semibold text-on-surface">
                       {g.bookingTitle}
                     </p>
-                    <p className="text-slate-500 text-xs mt-1">
+                    <p className="mt-1 text-xs text-on-surface-variant">
                       {g.bookingCode}
                     </p>
-                    <p className="text-slate-400 text-xs mt-1">
+                    <p className="mt-1 text-xs text-on-surface-variant">
                       {g.assignedTourCount || 0} tours · {g.activeBookingCount || 0} active bookings
                     </p>
                   </div>

@@ -175,7 +175,7 @@ button {
     --popover: #191c1e;
     --popover-foreground: #eff1f3;
     --primary: #6bd8cb;
-    --primary-foreground: #ffffff;
+    --primary-foreground: #00201d;
     --secondary: #bcc7de;
     --secondary-foreground: #111c2d;
     --muted: #2d3133;
@@ -231,7 +231,7 @@ button {
     --sidebar: #1b2022;
     --sidebar-foreground: #eff1f3;
     --sidebar-primary: #6bd8cb;
-    --sidebar-primary-foreground: #ffffff;
+    --sidebar-primary-foreground: #00201d;
     --sidebar-accent: #262d2f;
     --sidebar-accent-foreground: #eff1f3;
     --sidebar-border: rgb(255 255 255 / 0.12);
@@ -243,7 +243,10 @@ button {
         @apply border-border outline-ring/50;
     }
     body {
-        @apply bg-background text-black;
+        @apply bg-background text-foreground;
+        transition:
+            background-color 180ms ease,
+            color 180ms ease;
     }
     html {
         @apply font-sans;
@@ -343,6 +346,98 @@ button {
     .app-shell-page > * > div > main,
     .app-shell-page > * > div {
         min-height: auto !important;
+    }
+}
+
+@layer utilities {
+    .dark .app-page-hero {
+        background:
+            radial-gradient(circle at top left, rgb(107 216 203 / 0.14), transparent 36%),
+            linear-gradient(135deg, var(--surface-container-lowest), var(--surface-container-low)) !important;
+        border-color: rgb(255 255 255 / 0.1) !important;
+    }
+
+    .dark .bg-white,
+    .dark [class*="bg-white/"] {
+        background-color: var(--surface-container-lowest) !important;
+    }
+
+    .dark .bg-slate-50,
+    .dark .bg-slate-100,
+    .dark .bg-slate-200,
+    .dark [class*="bg-slate-50/"],
+    .dark [class*="bg-slate-100/"] {
+        background-color: var(--surface-container-low) !important;
+    }
+
+    .dark [class*="hover:bg-white"]:hover,
+    .dark [class*="hover:bg-slate-50"]:hover,
+    .dark [class*="hover:bg-slate-100"]:hover,
+    .dark [class*="hover:bg-gray-50"]:hover,
+    .dark [class*="hover:bg-gray-100"]:hover,
+    .dark [class*="hover:bg-slate-50/"]:hover,
+    .dark [class*="hover:bg-slate-100/"]:hover {
+        background-color: var(--surface-container-high) !important;
+    }
+
+    .dark [class*="bg-gray-100"],
+    .dark [class*="bg-gray-50"] {
+        background-color: var(--surface-container-low) !important;
+    }
+
+    .dark [class*="bg-amber-50"],
+    .dark [class*="bg-yellow-50"] {
+        background-color: color-mix(in srgb, #f59e0b 16%, transparent) !important;
+    }
+
+    .dark [class*="bg-blue-100"],
+    .dark [class*="bg-indigo-100"],
+    .dark [class*="bg-green-100"],
+    .dark [class*="bg-red-100"],
+    .dark [class*="bg-rose-100"] {
+        background-color: var(--surface-container-high) !important;
+    }
+
+    .dark .border-slate-100,
+    .dark .border-slate-200,
+    .dark .border-slate-300 {
+        border-color: var(--outline-variant) !important;
+    }
+
+    .dark .text-slate-950,
+    .dark .text-slate-900,
+    .dark .text-slate-800,
+    .dark .text-black {
+        color: var(--on-surface) !important;
+    }
+
+    .dark .text-slate-700,
+    .dark .text-slate-600,
+    .dark .text-slate-500,
+    .dark .text-slate-400 {
+        color: var(--on-surface-variant) !important;
+    }
+
+    .dark [class*="bg-teal-50"],
+    .dark [class*="bg-emerald-50"] {
+        background-color: color-mix(in srgb, var(--primary) 14%, transparent) !important;
+    }
+
+    .dark [class*="bg-teal-600"],
+    .dark [class*="bg-teal-700"],
+    .dark [class*="bg-emerald-600"],
+    .dark [class*="bg-emerald-700"] {
+        background-color: var(--primary-container) !important;
+    }
+
+    .dark [class*="text-teal"],
+    .dark [class*="text-emerald"] {
+        color: var(--primary) !important;
+    }
+
+    .dark [class*="border-teal"],
+    .dark [class*="ring-teal"] {
+        border-color: color-mix(in srgb, var(--primary) 35%, transparent) !important;
     }
 }
 

@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import LanguageToggle from "@/components/shared/language-toggle";
 import { useI18n } from "@/i18n/I18nProvider";
+import ThemeModeToggle from "@/components/shared/theme-mode-toggle";
 
 const TRACKING_CODE_STORAGE_KEY = "guestTrackingCode";
 
@@ -40,6 +41,7 @@ const HeaderGuest = () => {
 
         {/* Navigation */}
         <nav className="no-scrollbar hidden items-center gap-2 overflow-x-auto md:flex">
+          <ThemeModeToggle />
           <LanguageToggle />
           <Link to={publicTrackingPath}>
             <Button
@@ -64,6 +66,7 @@ const HeaderGuest = () => {
 
         {/* Mobile Avatar */}
         <div className="flex items-center gap-2 md:hidden">
+          <ThemeModeToggle />
           <LanguageToggle />
           <Avatar className="h-9 w-9 border border-outline-variant/30 bg-surface-container-low">
             <AvatarFallback className="text-xs font-bold text-teal-800">

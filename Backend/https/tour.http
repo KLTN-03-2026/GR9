@@ -118,19 +118,16 @@ Content-Type: application/json
 
 ###
 POST http://localhost:3000/api/chatbot/kb
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZjFiNjI1NzMxNThjNGUzMzFlYzgzMSIsImlhdCI6MTc3ODMyNTc1MiwiZXhwIjoxNzc4MzI2NjUyfQ.Hj8LPG-KdI2zYYOtCmkqfmVbWFfaT5z0B27G_ZwRVdE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZjFiNjI1NzMxNThjNGUzMzFlYzgyZSIsImlhdCI6MTc3ODQ4OTkyOSwiZXhwIjoxNzc4NDkwODI5fQ.UN_v31jAJcMU_6Tz0oyPZwGNkfl0h0iAK0OT6_fgMt8
 Content-Type: application/json
 
-{
-  "title": "Provider quản lý tour",
-  "content": "Provider có thể tạo tour, chỉnh sửa tour, quản lý lịch khởi hành, quản lý dịch vụ đi kèm, quản lý hướng dẫn viên và xem danh sách booking. Tour nên có tên, địa điểm, mô tả, số ngày, giá theo người lớn, trẻ em, em bé, lịch trình từng ngày và dịch vụ mặc định.",
-  "sourceType": "guide",
-  "sourceId": "provider-tour-management",
-  "metadata": {
-    "topic": "provider",
-    "lang": "vi"
+  {
+    "title": "Đăng ký làm đối tác Travel_AI",
+    "sourceType": "guide",
+    "sourceId": "user-provider-apply",
+    "content": "Người muốn trở thành đối tác có thể đăng ký tại trang apply-provider. Bạn cần đọc chính sách đối tác, đồng ý điều khoản, điền thông tin và gửi hồ sơ xác minh. Sau đó admin sẽ xem xét hồ sơ.",
+    "metadata": { "topic": "provider", "audience": "provider" }
   }
-}
 
 
 

@@ -10,13 +10,16 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Star,
   TicketCheck,
+  UsersRound,
 } from "lucide-react";
 
 import ChatBotWidget from "@/pages/Traveler/ChatBot/ChatBotWidget";
 import { landingChatbotProps } from "@/pages/Traveler/ChatBot/chatbot.data";
 import LanguageToggle from "@/components/shared/language-toggle";
 import { useI18n } from "@/i18n/I18nProvider";
+import ThemeModeToggle from "@/components/shared/theme-mode-toggle";
 
 const CountUp = CountUpModule.default ?? CountUpModule;
 
@@ -132,6 +135,61 @@ export default function LandingHome() {
     ],
     [t],
   );
+  const highlightedTours = useMemo(
+    () => [
+      {
+        title: t("landing.tours.danang.title"),
+        location: "Da Nang",
+        duration: "3D2N",
+        price: "780.000 VND",
+        rating: "4.8",
+        image:
+          "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=900&q=80",
+        tags: [t("landing.tours.family"), t("landing.tours.beach")],
+      },
+      {
+        title: t("landing.tours.hoian.title"),
+        location: "Hoi An",
+        duration: "2D1N",
+        price: "640.000 VND",
+        rating: "4.9",
+        image:
+          "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=900&q=80",
+        tags: [t("landing.tours.culture"), t("landing.tours.light")],
+      },
+      {
+        title: t("landing.tours.phuquoc.title"),
+        location: "Phu Quoc",
+        duration: "4D3N",
+        price: "1.890.000 VND",
+        rating: "4.7",
+        image:
+          "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=900&q=80",
+        tags: [t("landing.tours.relax"), t("landing.tours.resort")],
+      },
+    ],
+    [t],
+  );
+  const travelerReviews = useMemo(
+    () => [
+      {
+        name: "Minh Anh",
+        trip: t("landing.reviews.danangTrip"),
+        quote: t("landing.reviews.quote1"),
+      },
+      {
+        name: "Hoang Nam",
+        trip: t("landing.reviews.phuquocTrip"),
+        quote: t("landing.reviews.quote2"),
+      },
+      {
+        name: "Linh Tran",
+        trip: t("landing.reviews.hueTrip"),
+        quote: t("landing.reviews.quote3"),
+      },
+    ],
+    [t],
+  );
 
   const suggestions = useMemo(() => {
     const keyword = normalizeSearch(search);
@@ -191,7 +249,7 @@ export default function LandingHome() {
       <ChatBotWidget {...landingChatbotProps} />
 
       <header className="fixed inset-x-0 top-0 z-50 border-b border-outline-variant/30 bg-white/82 shadow-[0_10px_32px_rgba(15,23,42,0.06)] backdrop-blur-2xl">
-        <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-4 px-5 py-4">
+        <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-3 px-5 py-4">
           <Link to="/" className="flex shrink-0 items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
               <MapPinned className="h-5 w-5" />
@@ -201,13 +259,13 @@ export default function LandingHome() {
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-2 rounded-full border border-outline-variant/30 bg-white/70 p-1.5 shadow-sm backdrop-blur-xl lg:flex">
+          <nav className="hidden shrink-0 items-center gap-1 rounded-full border border-outline-variant/30 bg-white/70 p-1.5 shadow-sm backdrop-blur-xl xl:flex">
             <motion.button
               type="button"
               whileHover={{ y: -3 }}
               whileTap={{ y: 2 }}
               onClick={() => scrollToSection("features")}
-              className="group relative rounded-full px-4 py-2 text-sm font-semibold text-on-surface-variant transition hover:text-primary"
+              className="group relative whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none text-on-surface-variant transition hover:text-primary"
             >
               {t("landing.navFeatures")}
               <span className="absolute inset-x-4 bottom-1 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 group-hover:scale-x-100" />
@@ -217,7 +275,7 @@ export default function LandingHome() {
               whileHover={{ y: -3 }}
               whileTap={{ y: 2 }}
               onClick={() => scrollToSection("workflow")}
-              className="group relative rounded-full px-4 py-2 text-sm font-semibold text-on-surface-variant transition hover:text-primary"
+              className="group relative whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none text-on-surface-variant transition hover:text-primary"
             >
               {t("landing.navWorkflow")}
               <span className="absolute inset-x-4 bottom-1 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 group-hover:scale-x-100" />
@@ -227,14 +285,14 @@ export default function LandingHome() {
               whileHover={{ y: -3 }}
               whileTap={{ y: 2 }}
               onClick={() => scrollToSection("assistant")}
-              className="group relative rounded-full px-4 py-2 text-sm font-semibold text-on-surface-variant transition hover:text-primary"
+              className="group relative whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none text-on-surface-variant transition hover:text-primary"
             >
               Voyager AI
               <span className="absolute inset-x-4 bottom-1 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 group-hover:scale-x-100" />
             </motion.button>
             <motion.div whileHover={{ y: -3 }} whileTap={{ y: 2 }}>
               <Link
-                className="group relative block rounded-full px-4 py-2 text-sm font-semibold text-on-surface-variant transition hover:text-primary"
+                className="group relative block whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none text-on-surface-variant transition hover:text-primary"
                 to="/apply-provider"
               >
               {t("landing.navPartner")}
@@ -243,7 +301,7 @@ export default function LandingHome() {
             </motion.div>
           </nav>
 
-          <form onSubmit={handleSearchSubmit} className="relative hidden min-w-[300px] max-w-md flex-1 md:block">
+          <form onSubmit={handleSearchSubmit} className="relative hidden min-w-[240px] max-w-md flex-1 md:block">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
             <input
               value={search}
@@ -290,6 +348,7 @@ export default function LandingHome() {
           </form>
 
           <div className="flex shrink-0 items-center gap-2">
+            <ThemeModeToggle />
             <LanguageToggle />
             <Link
               to="/login"
@@ -308,14 +367,16 @@ export default function LandingHome() {
       </header>
 
       <main>
-        <section className="relative min-h-[740px] overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#f7f9fb_58%,#eef7f5_100%)] pt-24">
+        <section className="relative min-h-[740px] overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#f7f9fb_58%,#eef7f5_100%)] pt-24 dark:bg-[linear-gradient(180deg,#111718_0%,#101416_58%,#0b1112_100%)]">
           <img
             src={heroImage}
             alt="Vietnam travel bay"
-            className="absolute inset-y-0 right-0 h-full w-full object-cover opacity-28 lg:w-[58%] lg:opacity-90"
+            className="absolute inset-0 h-full w-full object-cover object-center opacity-28 dark:opacity-58 lg:opacity-82 lg:dark:opacity-66"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,#ffffff_0%,rgba(255,255,255,0.96)_43%,rgba(255,255,255,0.62)_72%,rgba(255,255,255,0.18)_100%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#f7f9fb] to-transparent" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,#ffffff_0%,rgba(255,255,255,0.94)_34%,rgba(255,255,255,0.72)_58%,rgba(255,255,255,0.22)_100%)] dark:bg-[linear-gradient(90deg,#101416_0%,rgba(16,20,22,0.92)_32%,rgba(16,20,22,0.68)_58%,rgba(16,20,22,0.30)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,20,22,0.08)_0%,transparent_32%,rgba(16,20,22,0.10)_100%)] dark:bg-[linear-gradient(180deg,rgba(16,20,22,0.30)_0%,transparent_34%,rgba(16,20,22,0.38)_100%)]" />
+          <div className="absolute inset-0 hidden bg-[radial-gradient(circle_at_72%_42%,rgba(107,216,203,0.16),transparent_34%)] dark:block" />
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#f7f9fb] to-transparent dark:from-[#101416]" />
 
           <div className="relative mx-auto grid max-w-7xl gap-10 px-5 pb-20 pt-24 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
             <motion.div
@@ -333,11 +394,11 @@ export default function LandingHome() {
               </motion.span>
               <motion.h1
                 variants={fadeUp}
-                className="mt-7 font-heading text-5xl font-extrabold leading-[0.98] tracking-tight text-on-surface md:text-7xl"
+                className="mt-7 font-heading text-5xl font-extrabold leading-[0.98] tracking-tight text-on-surface dark:text-white md:text-7xl"
               >
                 {t("landing.heroTitle")}
               </motion.h1>
-              <motion.p variants={fadeUp} className="mt-6 max-w-2xl text-lg leading-8 text-on-surface-variant">
+              <motion.p variants={fadeUp} className="mt-6 max-w-2xl text-lg leading-8 text-on-surface-variant dark:text-slate-300">
                 {t("landing.heroDescription")}
               </motion.p>
               <motion.div variants={fadeUp} className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -350,52 +411,105 @@ export default function LandingHome() {
                 </Link>
                 <Link
                   to="/apply-provider"
-                  className="inline-flex items-center justify-center rounded-full border border-outline-variant/40 bg-white/80 px-7 py-4 text-sm font-bold text-on-surface shadow-sm backdrop-blur-xl hover:bg-white"
+                  className="inline-flex items-center justify-center rounded-full border border-outline-variant/40 bg-white/80 px-7 py-4 text-sm font-bold text-on-surface shadow-sm backdrop-blur-xl hover:bg-white dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
                 >
                   {t("landing.partnerCta")}
                 </Link>
               </motion.div>
             </motion.div>
+          </div>
+        </section>
+
+        <section className="bg-surface px-5 py-20">
+          <div className="mx-auto max-w-7xl">
+            <motion.div
+              variants={container}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.2 }}
+              className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
+            >
+              <div className="max-w-3xl">
+                <motion.p variants={fadeUp} className="text-xs font-extrabold uppercase tracking-[0.25em] text-primary">
+                  {t("landing.tours.eyebrow")}
+                </motion.p>
+                <motion.h2 variants={fadeUp} className="mt-4 text-4xl font-extrabold tracking-tight text-on-surface md:text-5xl">
+                  {t("landing.tours.heading")}
+                </motion.h2>
+                <motion.p variants={fadeUp} className="mt-4 text-base leading-7 text-on-surface-variant">
+                  {t("landing.tours.description")}
+                </motion.p>
+              </div>
+              <motion.div variants={fadeUp}>
+                <Link
+                  to="/login"
+                  className="inline-flex items-center justify-center rounded-full border border-outline-variant/30 bg-surface-container-lowest px-5 py-3 text-sm font-extrabold text-on-surface shadow-sm transition hover:-translate-y-0.5 hover:bg-surface-container-low"
+                >
+                  {t("landing.tours.viewTours")}
+                  <ChevronRight className="ml-1 h-4 w-4" />
+                </Link>
+              </motion.div>
+            </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: 18 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.65, delay: 0.12, ease: "easeOut" }}
-              whileHover={{ y: -6 }}
-              className="rounded-[2rem] border border-white/70 bg-white/78 p-5 shadow-[0_28px_90px_rgba(15,23,42,0.14)] backdrop-blur-2xl"
+              variants={container}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.18 }}
+              className="grid gap-6 lg:grid-cols-3"
             >
-              <div className="rounded-[1.5rem] bg-white p-5 shadow-inner shadow-primary/5">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
-                      {t("landing.liveBoard")}
-                    </p>
-                    <h2 className="mt-2 text-2xl font-extrabold text-on-surface">{t("landing.familyTour")}</h2>
+              {highlightedTours.map((tour, index) => (
+                <motion.article
+                  key={tour.title}
+                  variants={fadeUp}
+                  whileHover={{ y: -10, scale: 1.015 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 22 }}
+                  className="group overflow-hidden rounded-[1.75rem] border border-outline-variant/20 bg-surface-container-lowest shadow-[0_18px_55px_rgba(15,23,42,0.08)]"
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    <img
+                      src={tour.image}
+                      alt={tour.title}
+                      className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+                    <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+                      {tour.tags.map((tag) => (
+                        <span key={tag} className="rounded-full bg-white/90 px-3 py-1 text-xs font-black text-slate-900 backdrop-blur">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <div className="mb-2 flex items-center justify-between gap-3">
+                        <span className="rounded-full bg-primary px-3 py-1 text-xs font-black text-primary-foreground">
+                          {tour.duration}
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-xs font-black text-slate-900 backdrop-blur">
+                          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                          {tour.rating}
+                        </span>
+                      </div>
+                      <h3 className="text-2xl font-black leading-tight text-white">{tour.title}</h3>
+                      <p className="mt-1 text-sm font-semibold text-white/80">{tour.location}</p>
+                    </div>
                   </div>
-                  <span className="rounded-full bg-primary-fixed px-3 py-1 text-xs font-black text-on-primary-fixed">
-                    {t("landing.confirmed")}
-                  </span>
-                </div>
-                <div className="mt-6 grid gap-3">
-                  {[
-                    ["Booking", t("landing.paidReady")],
-                    ["Guide", t("landing.guideAssigned")],
-                    ["Tracking", t("landing.shareLinkEnabled")],
-                    ["Review", t("landing.reviewAfterDone")],
-                  ].map(([label, value], index) => (
-                    <motion.div
-                      key={label}
-                      initial={{ opacity: 0, x: 16 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.28 + index * 0.08 }}
-                      className="flex items-center justify-between rounded-2xl bg-surface-container-low px-4 py-3"
+                  <div className="flex items-center justify-between gap-4 p-5">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">
+                        {t("landing.tours.from")}
+                      </p>
+                      <p className="mt-1 text-xl font-black text-primary">{tour.price}</p>
+                    </div>
+                    <Link
+                      to="/login"
+                      className="rounded-full bg-primary px-4 py-2 text-sm font-extrabold text-primary-foreground transition hover:bg-primary-container"
                     >
-                      <span className="text-sm text-on-surface-variant">{label}</span>
-                      <span className="text-sm font-bold text-on-surface">{value}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
+                      {t("landing.tours.book")}
+                    </Link>
+                  </div>
+                </motion.article>
+              ))}
             </motion.div>
           </div>
         </section>
@@ -482,6 +596,78 @@ export default function LandingHome() {
                   </div>
                 </motion.div>
               ))}
+            </motion.div>
+          </div>
+        </section>
+
+        <section className="overflow-hidden bg-surface px-5 py-20">
+          <div className="mx-auto max-w-7xl">
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.25 }}
+              variants={container}
+              className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center"
+            >
+              <motion.div variants={fadeUp}>
+                <p className="text-xs font-extrabold uppercase tracking-[0.25em] text-primary">
+                  {t("landing.reviews.eyebrow")}
+                </p>
+                <h2 className="mt-4 text-4xl font-extrabold tracking-tight text-on-surface md:text-5xl">
+                  {t("landing.reviews.heading")}
+                </h2>
+                <p className="mt-4 max-w-xl text-base leading-7 text-on-surface-variant">
+                  {t("landing.reviews.description")}
+                </p>
+
+                <div className="mt-8 grid max-w-xl grid-cols-3 gap-3">
+                  {[
+                    ["4.8/5", t("landing.reviews.ratingLabel")],
+                    ["1.2k+", t("landing.reviews.bookingLabel")],
+                    ["96%", t("landing.reviews.recommendLabel")],
+                  ].map(([value, label]) => (
+                    <motion.div
+                      key={label}
+                      whileHover={{ y: -5 }}
+                      className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-4 shadow-sm"
+                    >
+                      <p className="text-2xl font-black text-primary">{value}</p>
+                      <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-on-surface-variant">{label}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+
+              <motion.div variants={container} className="grid gap-4">
+                {travelerReviews.map((review, index) => (
+                  <motion.article
+                    key={review.name}
+                    variants={fadeUp}
+                    whileHover={{ x: index % 2 === 0 ? 8 : -8, scale: 1.01 }}
+                    className={`rounded-[1.5rem] border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)] ${
+                      index === 1 ? "lg:ml-10" : "lg:mr-10"
+                    }`}
+                  >
+                    <div className="mb-4 flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                          <UsersRound className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="font-black text-on-surface">{review.name}</p>
+                          <p className="text-xs font-semibold text-on-surface-variant">{review.trip}</p>
+                        </div>
+                      </div>
+                      <div className="flex">
+                        {Array.from({ length: 5 }).map((_, starIndex) => (
+                          <Star key={starIndex} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-sm leading-7 text-on-surface-variant">"{review.quote}"</p>
+                  </motion.article>
+                ))}
+              </motion.div>
             </motion.div>
           </div>
         </section>
