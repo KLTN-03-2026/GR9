@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { updateService, uploadServiceImage } from "@/services/api/service";
+import { parseAliasesInput, updateService, uploadServiceImage } from "@/services/api/service";
 import { toast } from "react-hot-toast";
 import { Upload, X } from "lucide-react";
 const API_BASE_URL = import.meta.env.VITE_API_URL.replace("/api", "");
@@ -47,6 +47,7 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
     type: "HOTEL",
     address: "",
     description: "",
+    aliases: "",
     status: "ACTIVE",
     priceAdult: "",
     priceChild: "",
@@ -63,6 +64,7 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
         type: "HOTEL",
         address: "",
         description: "",
+        aliases: "",
         status: "ACTIVE",
         priceAdult: "",
         priceChild: "",
@@ -84,6 +86,7 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
       type: service.type || "HOTEL",
       address: service.address || "",
       description: service.description || "",
+      aliases: (service.aliases || []).join(", "),
       status: service.status || "ACTIVE",
       priceAdult: adultPrice,
       priceChild: childPrice,
@@ -153,6 +156,7 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
         type: formData.type,
         address: formData.address,
         description: formData.description,  
+        aliases: parseAliasesInput(formData.aliases),
         status: formData.status,
         total,
         image: imagePreview ? service.image : "",
@@ -231,6 +235,14 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
               value={formData.description}
               onChange={(e) => handleChange("description", e.target.value)}
               placeholder="Mô tả ngắn gọn về dịch vụ"
+            />
+          </div>
+          <div className="col-span-1 sm:col-span-2 grid gap-2">
+            <Label>Alias tên dịch vụ</Label>
+            <Input
+              value={formData.aliases}
+              onChange={(e) => handleChange("aliases", e.target.value)}
+              placeholder="Ví dụ: Bana Hills, Sun World Ba Na"
             />
           </div>
           <div className="grid gap-2">

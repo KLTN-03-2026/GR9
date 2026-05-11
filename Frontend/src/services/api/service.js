@@ -21,3 +21,13 @@ export const uploadServiceImage = async (serviceId, formData) => {
   formData.append("entityId", serviceId);
   return await api.post("/images", formData);
 };
+
+export const parseAliasesInput = (value) =>
+  Array.from(
+    new Set(
+      String(value || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+    ),
+  );

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Plus, CalendarDays } from "lucide-react";
 import toast from "react-hot-toast";
@@ -13,9 +13,11 @@ import {
     updateTourSchedule,
     deleteTourSchedule,
 } from "@/services/api/tourSchedule";
+import { getTourById } from "@/services/api/guest";
 import ScheduleSkeleton from "./ScheduleSkeleton";
 export default function TourSchedulePage() {
     const { id: tourId } = useParams();
+    const location = useLocation();
 
     // ================= STATE =================
     const [schedules, setSchedules] = useState([]);
@@ -23,6 +25,18 @@ export default function TourSchedulePage() {
     const [isSaving, setIsSaving] = useState(false);
     const [selectedSchedule, setSelectedSchedule] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [forcePrivate, setForcePrivate] = useState(false);
+    const prefillDepartureDate = useMemo(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const value = searchParams.get("prefillDate");
+        if (!value) return null;
+        const parsed = new Date(value);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }, [location.search]);
+    const shouldAutoOpen = useMemo(() => {
+        const searchParams = new URLSearchParams(location.search);
+        return searchParams.get("autoOpen") === "1";
+    }, [location.search]);
 
     // ================= FETCH =================
     const fetchSchedules = async () => {
@@ -41,6 +55,25 @@ export default function TourSchedulePage() {
 
     useEffect(() => {
         if (tourId) fetchSchedules();
+    }, [tourId]);
+
+    useEffect(() => {
+        if (!shouldAutoOpen || isLoading || schedules.length > 0) return;
+        setSelectedSchedule(null);
+        setIsDialogOpen(true);
+    }, [isLoading, schedules.length, shouldAutoOpen]);
+
+    useEffect(() => {
+        if (!tourId) return;
+
+        getTourById(tourId)
+            .then((res) => {
+                const tour = res?.data?.data;
+                setForcePrivate(tour?.bookingAccess === "TARGET_TRAVELER_ONLY");
+            })
+            .catch(() => {
+                setForcePrivate(false);
+            });
     }, [tourId]);
 
     // ================= OPEN CREATE =================
@@ -133,6 +166,8 @@ export default function TourSchedulePage() {
                 loading={isSaving}
                 initialData={selectedSchedule}
                 tourId={tourId}
+                forcePrivate={forcePrivate}
+                prefillDepartureDate={prefillDepartureDate}
             />
         </section>
     );

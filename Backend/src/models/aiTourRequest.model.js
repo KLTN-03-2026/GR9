@@ -99,6 +99,25 @@ const participantPriceSchema = new Schema(
   },
 );
 
+const aiServiceMatchDecisionSchema = new Schema(
+  {
+    role: { type: String, required: true, trim: true },
+    serviceId: {
+      type: Schema.Types.ObjectId,
+      ref: "Service",
+      required: true,
+    },
+    mode: {
+      type: String,
+      enum: ["use_existing", "sync_price"],
+      default: "use_existing",
+    },
+  },
+  {
+    _id: false,
+  },
+);
+
 const aiTourRequestSchema = new Schema(
   {
     travelerId: {
@@ -130,13 +149,23 @@ const aiTourRequestSchema = new Schema(
     itineraries: { type: [aiTourItinerarySchema], default: [] },
     hotelServiceId: { type: aiServiceSourceSchema, default: null },
     transportServiceId: { type: aiServiceSourceSchema, default: null },
+    serviceMatchDecisions: {
+      type: [aiServiceMatchDecisionSchema],
+      default: [],
+    },
     status: {
       type: String,
-      enum: ["DRAFT", "PUBLISHED", "CLAIMED", "PROPOSED", "APPROVED", "REJECTED", "CONVERTED"],
+      enum: ["DRAFT", "PUBLISHED", "CLAIMED", "PROPOSED", "APPROVED", "REJECTED", "CONVERTED", "EXPIRED"],
       default: "DRAFT",
       index: true,
     },
     publishedAt: { type: Date, default: null },
+    publishedExpiresAt: { type: Date, default: null },
+    expiredReason: {
+      type: String,
+      enum: ["PUBLISH_TIMEOUT", "PROPOSAL_TIMEOUT", null],
+      default: null,
+    },
     claimedBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
@@ -144,6 +173,7 @@ const aiTourRequestSchema = new Schema(
       index: true,
     },
     claimedAt: { type: Date, default: null },
+    claimExpiresAt: { type: Date, default: null },
     convertedBy: {
       type: Schema.Types.ObjectId,
       ref: "User",

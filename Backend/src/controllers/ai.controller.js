@@ -1,6 +1,7 @@
 import {
   generateItinerary,
   convertAiTourRequestToTour,
+  confirmProviderAiServiceMatch,
   getAiTourRequestById,
   getAiTourRequestHistory,
   getProviderAiTourNotifications,
@@ -83,6 +84,15 @@ export const convertAiTourRequestController = async (req, res) => {
   try {
     const result = await convertAiTourRequestToTour(req.params.id, req.user._id);
     return success(res, "Create tour from AI request successfully", result, 201);
+  } catch (err) {
+    return error(res, err.message, err.status, err.errorCode);
+  }
+};
+
+export const confirmProviderAiServiceMatchController = async (req, res) => {
+  try {
+    const result = await confirmProviderAiServiceMatch(req.params.id, req.user._id, req.body);
+    return success(res, "Confirm provider AI service match successfully", result, 200);
   } catch (err) {
     return error(res, err.message, err.status, err.errorCode);
   }

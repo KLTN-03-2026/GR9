@@ -3,6 +3,7 @@ import { protect, authorize } from "../middlewares/auth.middleware.js";
 import {
   generateItineraryController,
   convertAiTourRequestController,
+  confirmProviderAiServiceMatchController,
   getAiTourRequestDetailController,
   getAiTourRequestHistoryController,
   getProviderAiTourNotificationsController,
@@ -30,6 +31,12 @@ router.post(
   protect,
   authorize("PROVIDER"),
   convertAiTourRequestController,
+);
+router.post(
+  "/provider/requests/:id/confirm-service-match",
+  protect,
+  authorize("PROVIDER"),
+  confirmProviderAiServiceMatchController,
 );
 
 router.use(protect, authorize("TRAVELER"));

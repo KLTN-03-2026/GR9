@@ -30,6 +30,8 @@ export default function ScheduleDialog({
   loading,
   initialData,
   tourId,
+  forcePrivate = false,
+  prefillDepartureDate = null,
 }) {
   const [departureDate, setDepartureDate] = useState(null);
   const [minSlots, setMinSlots] = useState(1);
@@ -48,19 +50,19 @@ export default function ScheduleDialog({
       );
       setMinSlots(initialData.minSlots ?? 1);
       setMaxSlots(initialData.maxSlots ?? 10);
-      setIsPrivate(!!initialData.isPrivate);
+      setIsPrivate(forcePrivate ? true : !!initialData.isPrivate);
       setLeadGuideServiceId(
         initialData.leadGuideServiceId?._id || initialData.leadGuideServiceId || ""
       );
     } else {
-      setDepartureDate(null);
+      setDepartureDate(prefillDepartureDate ? new Date(prefillDepartureDate) : null);
       setMinSlots(1);
       setMaxSlots(10);
-      setIsPrivate(false);
+      setIsPrivate(forcePrivate);
       setLeadGuideServiceId("");
       setGuides([]);
     }
-  }, [initialData, open]);
+  }, [forcePrivate, initialData, open, prefillDepartureDate]);
 
   useEffect(() => {
     const fetchGuides = async () => {
@@ -128,7 +130,7 @@ export default function ScheduleDialog({
       leadGuideServiceId,
       minSlots: Number(minSlots),
       maxSlots: Number(maxSlots),
-      isPrivate,
+      isPrivate: forcePrivate ? true : isPrivate,
     });
   };
 
@@ -280,10 +282,16 @@ export default function ScheduleDialog({
             <div>
               <p className="font-semibold">Private Schedule</p>
               <p className="text-xs text-slate-500">
-                Only visible to admin & owner
+                {forcePrivate
+                  ? "Tour AI proposal này chỉ dành cho đúng traveler đó nên lịch khởi hành luôn là private"
+                  : "Only visible to admin & owner"}
               </p>
             </div>
-            <Switch checked={isPrivate} onCheckedChange={setIsPrivate} />
+            <Switch
+              checked={forcePrivate ? true : isPrivate}
+              onCheckedChange={setIsPrivate}
+              disabled={forcePrivate}
+            />
           </div>
 
           {/* FOOTER */}

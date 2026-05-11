@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   getAiTourHistory,
   getAiTourHistoryDetail,
+  publishAiTourRequest,
   updateTravelerAiProposalDecision,
 } from "@/services/api/ai";
 import EmptyHistoryState from "./EmptyHistoryState";
@@ -21,6 +22,7 @@ export default function AITourHistory() {
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [decisionLoading, setDecisionLoading] = useState(false);
+  const [publishLoading, setPublishLoading] = useState(false);
 
   const formatDate = (value) => {
     if (!value) return "No start date";
@@ -33,9 +35,9 @@ export default function AITourHistory() {
   };
 
   const getTotal = (data = {}) =>
-    (Number(data.ADULT) || 0) +
-    (Number(data.CHILD) || 0) +
-    (Number(data.INFANT) || 0);
+    (Number(data.ADULT ?? data.adult) || 0) +
+    (Number(data.CHILD ?? data.child) || 0) +
+    (Number(data.INFANT ?? data.infant) || 0);
 
   const getTotalActivities = (tour) =>
     tour?.itineraries?.reduce(
@@ -50,6 +52,10 @@ export default function AITourHistory() {
       const items = response.data.data || [];
       setHistory(items);
       setSelectedTour(items[0] || null);
+      if (items[0]?._id) {
+        const detailResponse = await getAiTourHistoryDetail(items[0]._id);
+        setSelectedTour(detailResponse.data.data || items[0]);
+      }
     } catch (error) {
       toast.error(error?.response?.data?.message || "Cannot load AI history");
     } finally {
@@ -106,6 +112,41 @@ export default function AITourHistory() {
       toast.error(error?.response?.data?.message || "Không thể cập nhật quyết định");
     } finally {
       setDecisionLoading(false);
+    }
+  };
+
+  const handlePublishToProviders = async () => {
+    if (!selectedTour?._id) return;
+
+    try {
+      setPublishLoading(true);
+      const response = await publishAiTourRequest(selectedTour._id);
+      const updated = response.data.data;
+
+      setSelectedTour((prev) =>
+        prev
+          ? {
+              ...prev,
+              status: updated.status,
+            }
+          : prev,
+      );
+      setHistory((prev) =>
+        prev.map((item) =>
+          item._id === updated._id
+            ? {
+                ...item,
+                status: updated.status,
+              }
+            : item,
+        ),
+      );
+
+      toast.success("Đã gửi tour AI đến toàn bộ provider");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Không thể gửi tour AI đến provider");
+    } finally {
+      setPublishLoading(false);
     }
   };
 
@@ -169,7 +210,9 @@ export default function AITourHistory() {
             getTotal={getTotal}
             totalActivities={getTotalActivities(selectedTour)}
             decisionLoading={decisionLoading}
+            publishLoading={publishLoading}
             onDecision={handleDecision}
+            onPublish={handlePublishToProviders}
             onViewProposal={(tourId) => navigate(`/traveler/tour-detail/${tourId}`)}
           />
         </div>

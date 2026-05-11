@@ -29,6 +29,10 @@ const serviceSchema = new Schema(
       required: true,
       trim: true,
     },
+    aliases: {
+      type: [String],
+      default: [],
+    },
     type: {
       type: String,
       required: true,
