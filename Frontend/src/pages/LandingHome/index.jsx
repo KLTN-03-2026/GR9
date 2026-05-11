@@ -15,6 +15,8 @@ import {
 
 import ChatBotWidget from "@/pages/Traveler/ChatBot/ChatBotWidget";
 import { landingChatbotProps } from "@/pages/Traveler/ChatBot/chatbot.data";
+import LanguageToggle from "@/components/shared/language-toggle";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const CountUp = CountUpModule.default ?? CountUpModule;
 
@@ -77,40 +79,6 @@ const searchItems = [
   },
 ];
 
-const features = [
-  {
-    icon: Sparkles,
-    title: "AI goi y hanh trinh",
-    description:
-      "Tao lich trinh theo so ngay, nhom khach, ngan sach va nhu cau rieng cua traveler.",
-  },
-  {
-    icon: TicketCheck,
-    title: "Booking ro trang thai",
-    description:
-      "Theo doi thanh toan, lich khoi hanh, booking, tracking va review sau chuyen di.",
-  },
-  {
-    icon: MapPinned,
-    title: "Live tour tracking",
-    description:
-      "Guide cap nhat hoat dong, traveler va nguoi than xem tien trinh qua link chia se.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Dung quyen tung vai tro",
-    description:
-      "Traveler, provider, guide va admin co workspace rieng, giam nham lan khi van hanh.",
-  },
-];
-
-const workflow = [
-  "Chon tour hoac tao lich trinh AI",
-  "Dat tour va hoan tat thanh toan",
-  "Theo doi guide, lich trinh va trang thai chuyen di",
-  "Review trai nghiem sau khi tour hoan tat",
-];
-
 const stats = [
   { end: 4, suffix: "", label: "workspace theo vai tro" },
   { end: 24, suffix: "/7", label: "tro ly Voyager AI" },
@@ -127,8 +95,43 @@ const normalizeSearch = (value) =>
 
 export default function LandingHome() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [search, setSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const localizedFeatures = useMemo(
+    () => [
+      {
+        icon: Sparkles,
+        title: t("landing.features.aiTitle"),
+        description: t("landing.features.aiDescription"),
+      },
+      {
+        icon: TicketCheck,
+        title: t("landing.features.bookingTitle"),
+        description: t("landing.features.bookingDescription"),
+      },
+      {
+        icon: MapPinned,
+        title: t("landing.features.trackingTitle"),
+        description: t("landing.features.trackingDescription"),
+      },
+      {
+        icon: ShieldCheck,
+        title: t("landing.features.rolesTitle"),
+        description: t("landing.features.rolesDescription"),
+      },
+    ],
+    [t],
+  );
+  const localizedWorkflow = useMemo(
+    () => [
+      t("landing.workflow.choose"),
+      t("landing.workflow.book"),
+      t("landing.workflow.track"),
+      t("landing.workflow.review"),
+    ],
+    [t],
+  );
 
   const suggestions = useMemo(() => {
     const keyword = normalizeSearch(search);
@@ -176,6 +179,13 @@ export default function LandingHome() {
     navigate("/login");
   };
 
+  const scrollToSection = (sectionId) => {
+    document.getElementById(sectionId)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-surface text-on-surface">
       <ChatBotWidget {...landingChatbotProps} />
@@ -191,19 +201,46 @@ export default function LandingHome() {
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-6 lg:flex">
-            <a className="text-sm font-semibold text-on-surface-variant hover:text-primary" href="#features">
-              Tinh nang
-            </a>
-            <a className="text-sm font-semibold text-on-surface-variant hover:text-primary" href="#workflow">
-              Quy trinh
-            </a>
-            <a className="text-sm font-semibold text-on-surface-variant hover:text-primary" href="#assistant">
+          <nav className="hidden items-center gap-2 rounded-full border border-outline-variant/30 bg-white/70 p-1.5 shadow-sm backdrop-blur-xl lg:flex">
+            <motion.button
+              type="button"
+              whileHover={{ y: -3 }}
+              whileTap={{ y: 2 }}
+              onClick={() => scrollToSection("features")}
+              className="group relative rounded-full px-4 py-2 text-sm font-semibold text-on-surface-variant transition hover:text-primary"
+            >
+              {t("landing.navFeatures")}
+              <span className="absolute inset-x-4 bottom-1 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 group-hover:scale-x-100" />
+            </motion.button>
+            <motion.button
+              type="button"
+              whileHover={{ y: -3 }}
+              whileTap={{ y: 2 }}
+              onClick={() => scrollToSection("workflow")}
+              className="group relative rounded-full px-4 py-2 text-sm font-semibold text-on-surface-variant transition hover:text-primary"
+            >
+              {t("landing.navWorkflow")}
+              <span className="absolute inset-x-4 bottom-1 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 group-hover:scale-x-100" />
+            </motion.button>
+            <motion.button
+              type="button"
+              whileHover={{ y: -3 }}
+              whileTap={{ y: 2 }}
+              onClick={() => scrollToSection("assistant")}
+              className="group relative rounded-full px-4 py-2 text-sm font-semibold text-on-surface-variant transition hover:text-primary"
+            >
               Voyager AI
-            </a>
-            <Link className="text-sm font-semibold text-on-surface-variant hover:text-primary" to="/apply-provider">
-              Doi tac
-            </Link>
+              <span className="absolute inset-x-4 bottom-1 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 group-hover:scale-x-100" />
+            </motion.button>
+            <motion.div whileHover={{ y: -3 }} whileTap={{ y: 2 }}>
+              <Link
+                className="group relative block rounded-full px-4 py-2 text-sm font-semibold text-on-surface-variant transition hover:text-primary"
+                to="/apply-provider"
+              >
+              {t("landing.navPartner")}
+                <span className="absolute inset-x-4 bottom-1 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 group-hover:scale-x-100" />
+              </Link>
+            </motion.div>
           </nav>
 
           <form onSubmit={handleSearchSubmit} className="relative hidden min-w-[300px] max-w-md flex-1 md:block">
@@ -216,7 +253,7 @@ export default function LandingHome() {
                 setSearchOpen(true);
               }}
               onFocus={() => setSearchOpen(true)}
-              placeholder="Tim tour, booking, tracking..."
+              placeholder={t("landing.searchPlaceholder")}
               className="h-11 w-full rounded-full border border-outline-variant/35 bg-surface-container-low pl-11 pr-4 text-sm font-medium text-on-surface outline-none transition placeholder:text-on-surface-variant/70 focus:border-primary/45 focus:bg-white focus:ring-4 focus:ring-primary/10"
             />
 
@@ -245,7 +282,7 @@ export default function LandingHome() {
                   ))
                 ) : (
                   <p className="px-4 py-4 text-sm font-medium text-on-surface-variant">
-                    Khong tim thay goi y phu hop.
+                    {t("landing.noSuggestion")}
                   </p>
                 )}
               </motion.div>
@@ -253,17 +290,18 @@ export default function LandingHome() {
           </form>
 
           <div className="flex shrink-0 items-center gap-2">
+            <LanguageToggle />
             <Link
               to="/login"
               className="hidden rounded-full border border-outline-variant/40 bg-white px-4 py-2 text-sm font-bold text-on-surface hover:bg-surface-container-low sm:inline-flex"
             >
-              Dang nhap
+              {t("common.login")}
             </Link>
             <Link
               to="/signup"
               className="rounded-full bg-primary px-4 py-2 text-sm font-extrabold text-primary-foreground shadow-lg shadow-primary/15 hover:bg-primary-container"
             >
-              Bat dau
+              {t("common.start")}
             </Link>
           </div>
         </div>
@@ -291,31 +329,30 @@ export default function LandingHome() {
                 className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/8 px-4 py-2 text-xs font-extrabold uppercase tracking-[0.22em] text-primary"
               >
                 <Sparkles className="h-4 w-4" />
-                AI Travel Operating Platform
+                {t("landing.badge")}
               </motion.span>
               <motion.h1
                 variants={fadeUp}
                 className="mt-7 font-heading text-5xl font-extrabold leading-[0.98] tracking-tight text-on-surface md:text-7xl"
               >
-                Dat tour, theo doi chuyen di va quan ly du lich trong mot he thong.
+                {t("landing.heroTitle")}
               </motion.h1>
               <motion.p variants={fadeUp} className="mt-6 max-w-2xl text-lg leading-8 text-on-surface-variant">
-                Travel_AI ket noi traveler, provider, guide va admin bang booking, thanh toan,
-                live tracking, review va tro ly Voyager AI.
+                {t("landing.heroDescription")}
               </motion.p>
               <motion.div variants={fadeUp} className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link
                   to="/signup"
                   className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-4 text-sm font-extrabold text-primary-foreground shadow-[0_18px_50px_rgba(0,104,95,0.18)] hover:bg-primary-container"
                 >
-                  Tao tai khoan traveler
+                  {t("landing.travelerCta")}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
                 <Link
                   to="/apply-provider"
                   className="inline-flex items-center justify-center rounded-full border border-outline-variant/40 bg-white/80 px-7 py-4 text-sm font-bold text-on-surface shadow-sm backdrop-blur-xl hover:bg-white"
                 >
-                  Tro thanh doi tac
+                  {t("landing.partnerCta")}
                 </Link>
               </motion.div>
             </motion.div>
@@ -331,20 +368,20 @@ export default function LandingHome() {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
-                      Live trip board
+                      {t("landing.liveBoard")}
                     </p>
-                    <h2 className="mt-2 text-2xl font-extrabold text-on-surface">Ha Long family tour</h2>
+                    <h2 className="mt-2 text-2xl font-extrabold text-on-surface">{t("landing.familyTour")}</h2>
                   </div>
                   <span className="rounded-full bg-primary-fixed px-3 py-1 text-xs font-black text-on-primary-fixed">
-                    CONFIRMED
+                    {t("landing.confirmed")}
                   </span>
                 </div>
                 <div className="mt-6 grid gap-3">
                   {[
-                    ["Booking", "Paid and ready"],
-                    ["Guide", "Assigned"],
-                    ["Tracking", "Share link enabled"],
-                    ["Review", "Available after completion"],
+                    ["Booking", t("landing.paidReady")],
+                    ["Guide", t("landing.guideAssigned")],
+                    ["Tracking", t("landing.shareLinkEnabled")],
+                    ["Review", t("landing.reviewAfterDone")],
                   ].map(([label, value], index) => (
                     <motion.div
                       key={label}
@@ -363,7 +400,7 @@ export default function LandingHome() {
           </div>
         </section>
 
-        <section id="features" className="bg-surface px-5 py-20">
+        <section id="features" className="scroll-mt-24 bg-surface px-5 py-20">
           <div className="mx-auto max-w-7xl">
             <motion.div
               variants={container}
@@ -373,10 +410,10 @@ export default function LandingHome() {
               className="mb-10 max-w-3xl"
             >
               <motion.p variants={fadeUp} className="text-xs font-extrabold uppercase tracking-[0.25em] text-primary">
-                He sinh thai Travel_AI
+                {t("landing.ecosystem")}
               </motion.p>
               <motion.h2 variants={fadeUp} className="mt-4 text-4xl font-extrabold tracking-tight text-on-surface md:text-5xl">
-                Khong chi la trang dat tour. Day la workflow du lich day du.
+                {t("landing.featureHeading")}
               </motion.h2>
             </motion.div>
             <motion.div
@@ -386,7 +423,7 @@ export default function LandingHome() {
               viewport={{ once: true, amount: 0.2 }}
               className="grid gap-5 md:grid-cols-2 xl:grid-cols-4"
             >
-              {features.map((item) => {
+              {localizedFeatures.map((item) => {
                 const Icon = item.icon;
                 return (
                   <motion.article
@@ -407,17 +444,17 @@ export default function LandingHome() {
           </div>
         </section>
 
-        <section id="workflow" className="bg-surface-container-low px-5 py-20">
+        <section id="workflow" className="scroll-mt-24 bg-surface-container-low px-5 py-20">
           <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.8fr_1.2fr]">
             <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={container}>
               <motion.p variants={fadeUp} className="text-xs font-extrabold uppercase tracking-[0.25em] text-primary">
-                Quy trinh
+                {t("landing.navWorkflow")}
               </motion.p>
               <motion.h2 variants={fadeUp} className="mt-4 text-4xl font-extrabold tracking-tight text-on-surface">
-                Tu tim tour den review sau chuyen di.
+                {t("landing.workflowHeading")}
               </motion.h2>
               <motion.p variants={fadeUp} className="mt-4 text-on-surface-variant">
-                Cac buoc quan trong duoc giu trong mot luong ro rang de nguoi dung khong bi lac.
+                {t("landing.workflowText")}
               </motion.p>
             </motion.div>
             <motion.div
@@ -427,7 +464,7 @@ export default function LandingHome() {
               viewport={{ once: true, amount: 0.2 }}
               className="grid gap-4"
             >
-              {workflow.map((item, index) => (
+              {localizedWorkflow.map((item, index) => (
                 <motion.div
                   variants={fadeUp}
                   whileHover={{ x: 6 }}
@@ -440,7 +477,7 @@ export default function LandingHome() {
                   <div>
                     <h3 className="text-lg font-extrabold text-on-surface">{item}</h3>
                     <p className="mt-1 text-sm text-on-surface-variant">
-                      Du lieu duoc dong bo theo vai tro traveler, provider, guide va admin.
+                      {t("landing.roleSync")}
                     </p>
                   </div>
                 </motion.div>
@@ -449,7 +486,7 @@ export default function LandingHome() {
           </div>
         </section>
 
-        <section id="assistant" className="bg-surface px-5 py-20">
+        <section id="assistant" className="scroll-mt-24 bg-surface px-5 py-20">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -462,11 +499,10 @@ export default function LandingHome() {
                 Voyager AI
               </p>
               <h2 className="mt-4 text-4xl font-extrabold tracking-tight">
-                Hoi nhanh ve tour, booking va cach dung he thong.
+                {t("landing.assistantHeading")}
               </h2>
               <p className="mt-4 max-w-2xl text-primary-fixed">
-                Chat widget o goc man hinh cho khach dung thu gioi han. Khi dang nhap,
-                traveler co the hoi sau hon theo du lieu booking cua minh.
+                {t("landing.assistantText")}
               </p>
             </div>
             <div className="grid gap-3">
@@ -522,17 +558,17 @@ export default function LandingHome() {
           >
             <CalendarCheck className="mx-auto h-10 w-10" />
             <h2 className="mx-auto mt-4 max-w-2xl text-4xl font-black tracking-tight">
-              Bat dau hanh trinh du lich co to chuc hon.
+              {t("landing.finalHeading")}
             </h2>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link to="/signup" className="rounded-full bg-on-primary-fixed px-7 py-4 text-sm font-extrabold text-white">
-                Dang ky traveler
+                {t("landing.travelerCta")}
               </Link>
               <Link
                 to="/login"
                 className="inline-flex items-center justify-center rounded-full border border-on-primary-fixed/20 px-7 py-4 text-sm font-extrabold"
               >
-                Dang nhap
+                {t("common.login")}
                 <ChevronRight className="ml-1 h-4 w-4" />
               </Link>
             </div>
@@ -543,7 +579,7 @@ export default function LandingHome() {
       <footer className="border-t border-outline-variant/30 bg-white px-5 py-10">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 text-sm text-on-surface-variant md:flex-row md:items-center md:justify-between">
           <p className="font-bold text-primary">Travel_AI</p>
-          <p>© 2026 Travel_AI. All rights reserved.</p>
+          <p>{t("landing.copyright")}</p>
         </div>
       </footer>
     </div>
