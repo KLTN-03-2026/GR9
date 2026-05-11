@@ -11,8 +11,10 @@ import TrackingLinkVisualCards from "./TrackingLinkVisualCards";
 import TrackingLinkAccessCard from "./TrackingLinkAccessCard";
 import TrackingLinkPrivacyNote from "./TrackingLinkPrivacyNote";
 import { TrackingPageSkeleton } from "@/components/shared/page-skeletons";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function TrackingLinkManagement() {
+  const { t } = useI18n();
   const [tracking, setTracking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchParams] = useSearchParams();
@@ -23,7 +25,7 @@ export default function TrackingLinkManagement() {
       const response = await getTravelerTracking(searchParams.get("bookingId"));
       setTracking(response.data.data?.selected || null);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Cannot load tracking data");
+      toast.error(error?.response?.data?.message || t("trackingLink.cannotLoad"));
     } finally {
       setLoading(false);
     }
@@ -43,9 +45,9 @@ export default function TrackingLinkManagement() {
         trackingCode: response.data.data?.trackingCode,
         trackingUrl: response.data.data?.trackingUrl,
       }));
-      toast.success("Tracking link regenerated");
+      toast.success(t("trackingLink.regenerated"));
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Cannot regenerate link");
+      toast.error(error?.response?.data?.message || t("trackingLink.cannotRegenerate"));
     }
   };
 

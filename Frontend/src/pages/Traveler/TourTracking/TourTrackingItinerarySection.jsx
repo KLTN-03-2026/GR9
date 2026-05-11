@@ -6,6 +6,7 @@ import {
   CardDescription,
   CardTitle,
 } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const getBadge = (state) => {
   if (state === "ongoing") {
@@ -38,13 +39,14 @@ const getCardClass = (state) => {
 };
 
 export default function TourTrackingItinerarySection({ tracking }) {
+  const { t } = useI18n();
   const activities = tracking?.today?.activities || [];
 
   return (
     <section className="space-y-6">
       <h4 className="flex items-center font-headline text-lg font-bold text-on-surface">
         <span className="material-symbols-outlined mr-2">event_repeat</span>
-        Today&apos;s Detailed Itinerary
+        {t("tracking.detailedItinerary")}
       </h4>
 
       <div className="relative space-y-0">
@@ -90,7 +92,7 @@ export default function TourTrackingItinerarySection({ tracking }) {
                     {activity.name}
                   </CardTitle>
                   <CardDescription className="mb-4 text-sm leading-relaxed text-on-surface-variant">
-                    {activity.description || activity.address || "No description available."}
+                    {activity.description || activity.address || t("tracking.noDescription")}
                   </CardDescription>
 
                   {activity.address ? (
@@ -117,7 +119,7 @@ export default function TourTrackingItinerarySection({ tracking }) {
                           target="_blank"
                           rel="noreferrer"
                         >
-                          Follow route
+                          {t("tracking.followRoute")}
                         </a>
                       </Button>
                     </div>
@@ -129,7 +131,7 @@ export default function TourTrackingItinerarySection({ tracking }) {
         ) : (
           <Card className="rounded-2xl border-none bg-white py-0 shadow-sm">
             <CardContent className="p-6 text-sm text-on-surface-variant">
-              No itinerary is available for this tour.
+              {t("tracking.noItinerary")}
             </CardContent>
           </Card>
         )}

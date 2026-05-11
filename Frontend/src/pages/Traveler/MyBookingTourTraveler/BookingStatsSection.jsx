@@ -1,14 +1,16 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrencyVND } from "@/utils/formatPrice";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function BookingStatsSection() {
+  const { t } = useI18n();
   return (
     <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3">
       <Card className="rounded-xl border border-outline-variant/5 bg-surface-container-lowest py-0 shadow-[0px_20px_40px_rgba(25,28,30,0.04)]">
         <CardContent className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <span className="font-medium text-on-surface-variant">
-              Confirmed
+              {t("bookingPage.confirmed")}
             </span>
             <span className="material-symbols-outlined text-primary">
               check_circle
@@ -16,7 +18,7 @@ export default function BookingStatsSection() {
           </div>
           <div className="brand-font text-3xl font-bold">1</div>
           <p className="mt-1 text-xs text-on-surface-variant">
-            Upcoming experiences
+            {t("bookingPage.upcomingExperiences")}
           </p>
         </CardContent>
       </Card>
@@ -24,14 +26,14 @@ export default function BookingStatsSection() {
       <Card className="rounded-xl border border-outline-variant/5 bg-surface-container-lowest py-0 shadow-[0px_20px_40px_rgba(25,28,30,0.04)]">
         <CardContent className="p-6">
           <div className="mb-4 flex items-center justify-between">
-            <span className="font-medium text-on-surface-variant">Pending</span>
+            <span className="font-medium text-on-surface-variant">{t("bookingPage.pending")}</span>
             <span className="material-symbols-outlined text-tertiary">
               hourglass_empty
             </span>
           </div>
           <div className="brand-font text-3xl font-bold">1</div>
           <p className="mt-1 text-xs text-on-surface-variant">
-            Awaiting provider confirmation
+            {t("bookingPage.awaitingProvider")}
           </p>
         </CardContent>
       </Card>
@@ -40,7 +42,7 @@ export default function BookingStatsSection() {
         <CardContent className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <span className="font-medium text-on-surface-variant">
-              Total Spent
+              {t("bookingPage.totalSpent")}
             </span>
             <span className="material-symbols-outlined text-teal-600">
               account_balance_wallet
@@ -50,7 +52,7 @@ export default function BookingStatsSection() {
             {formatCurrencyVND(3858000)}
           </div>
           <p className="mt-1 text-xs text-on-surface-variant">
-            Across paid bookings
+            {t("bookingPage.acrossPaid")}
           </p>
         </CardContent>
       </Card>

@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const formatDateInputValue = (date) => {
   if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
@@ -41,23 +42,23 @@ function PlannerSidebar({
   describe,
   setDescribe,
 }) {
+  const { t } = useI18n();
   return (
     <section className="scrollbar-hide h-full w-full overflow-y-auto bg-surface-container-low p-8 md:w-[400px] xl:w-[450px]">
       <div className="mx-auto max-w-md">
         <header className="mb-10">
           <h1 className="mb-2 font-headline text-3xl font-extrabold tracking-tight text-on-surface">
-            Build your dream.
+            {t("planner.title")}
           </h1>
           <p className="text-sm text-on-surface-variant">
-            Fill in the details, and our AI concierge will curate a bespoke
-            itinerary just for you.
+            {t("planner.subtitle")}
           </p>
         </header>
 
         <div className="space-y-8">
           <div className="space-y-2">
             <Label className="px-1 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-              Destination
+              {t("planner.destination")}
             </Label>
             <div className="relative">
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">
@@ -74,7 +75,7 @@ function PlannerSidebar({
 
           <div className="space-y-2">
             <Label className="px-1 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-              Start Date
+              {t("planner.startDate")}
             </Label>
             <div className="relative">
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">
@@ -94,27 +95,27 @@ function PlannerSidebar({
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="px-1 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                    Duration
+                    {t("planner.duration")}
                   </Label>
                   <Select
                     value={String(duration)}
                     onValueChange={onDurationChange}
                   >
                     <SelectTrigger className="!h-14 w-full rounded-2xl border-outline-variant/20 bg-white px-4 text-base font-semibold text-on-surface">
-                      <SelectValue placeholder="Select duration" />
+                      <SelectValue placeholder={t("planner.selectDuration")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="3">3 Days</SelectItem>
-                      <SelectItem value="5">5 Days</SelectItem>
-                      <SelectItem value="7">7 Days</SelectItem>
-                      <SelectItem value="14">14 Days</SelectItem>
+                      <SelectItem value="3">{t("planner.days", { count: 3 })}</SelectItem>
+                      <SelectItem value="5">{t("planner.days", { count: 5 })}</SelectItem>
+                      <SelectItem value="7">{t("planner.days", { count: 7 })}</SelectItem>
+                      <SelectItem value="14">{t("planner.days", { count: 14 })}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
                   <Label className="px-1 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                    Budget
+                    {t("planner.budget")}
                   </Label>
                   <div className="relative">
                     <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-primary">
@@ -125,7 +126,7 @@ function PlannerSidebar({
                       min="0"
                       value={budget}
                       onChange={(e) => onBudgetChange(e.target.value)}
-                      placeholder="Enter your budget"
+                      placeholder={t("planner.enterBudget")}
                       className="h-14 rounded-2xl border-outline-variant/20 bg-white pl-9 text-base font-semibold text-on-surface"
                     />
                   </div>
@@ -133,7 +134,7 @@ function PlannerSidebar({
               </div>
 
               <div className="flex items-center justify-between rounded-2xl bg-slate-100 px-4 py-3 text-[11px] text-on-surface-variant">
-                <span>Suggested range</span>
+                <span>{t("planner.suggestedRange")}</span>
                 <span className="font-bold text-on-surface">
                   {formatCurrencyVND(2000000)} - {formatCurrencyVND(6000000)}
                 </span>
@@ -143,21 +144,21 @@ function PlannerSidebar({
 
           <div className="space-y-3">
             <Label className="px-1 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-              Describe your trip
+              {t("planner.describeTrip")}
             </Label>
             <div className="flex flex-wrap gap-2">
               <Textarea
                 value={describe}
                 onChange={(e) => setDescribe(e.target.value)}
                 className="h-32 rounded-2xl border-outline-variant/20 bg-surface-container-lowest  font-medium text-on-surface focus-visible:border-primary focus-visible:ring-primary/10"
-                placeholder="Describe your trip"
+                placeholder={t("planner.describeTrip")}
               />
             </div>
           </div>
 
           <div className="space-y-3">
             <Label className="px-1 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-              quantity
+              {t("planner.quantity")}
             </Label>
             <div className="grid grid-cols-1 gap-3">
               <Card className="overflow-hidden rounded-3xl border border-outline-variant/20 bg-white py-0 shadow-none">
@@ -167,16 +168,16 @@ function PlannerSidebar({
                       <span className="material-symbols-outlined">person</span>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-on-surface">Adult</p>
+                      <p className="font-semibold text-on-surface">{t("planner.adult")}</p>
                       <p className="text-xs text-on-surface-variant">
-                        Main travelers for this trip
+                        {t("planner.adultText")}
                       </p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
                       <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
-                        Quantity
+                        {t("planner.quantity")}
                       </p>
                       <Input
                         type="number"
@@ -190,7 +191,7 @@ function PlannerSidebar({
                     </div>
                     <div className="space-y-2">
                       <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
-                        Height
+                        {t("planner.height")}
                       </p>
                       <div className="flex h-12 items-center justify-center rounded-2xl border border-outline-variant/20 bg-slate-100 text-center font-semibold text-on-surface">
                         170 cm
@@ -207,16 +208,16 @@ function PlannerSidebar({
                       <span className="material-symbols-outlined">wc</span>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-on-surface">Child</p>
+                      <p className="font-semibold text-on-surface">{t("planner.child")}</p>
                       <p className="text-xs text-on-surface-variant">
-                        Young travelers joining the itinerary
+                        {t("planner.childText")}
                       </p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
                       <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
-                        Quantity
+                        {t("planner.quantity")}
                       </p>
                       <Input
                         type="number"
@@ -230,7 +231,7 @@ function PlannerSidebar({
                     </div>
                     <div className="space-y-2">
                       <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
-                        Height
+                        {t("planner.height")}
                       </p>
                       <div className="flex h-12 items-center justify-center rounded-2xl border border-outline-variant/20 bg-slate-100 text-center font-semibold text-on-surface">
                         120 cm
@@ -249,16 +250,16 @@ function PlannerSidebar({
                       </span>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-on-surface">Infant</p>
+                      <p className="font-semibold text-on-surface">{t("planner.infant")}</p>
                       <p className="text-xs text-on-surface-variant">
-                        Babies or toddlers needing extra care
+                        {t("planner.infantText")}
                       </p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
                       <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
-                        Quantity
+                        {t("planner.quantity")}
                       </p>
                       <Input
                         type="number"
@@ -272,7 +273,7 @@ function PlannerSidebar({
                     </div>
                     <div className="space-y-2">
                       <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
-                        Height
+                        {t("planner.height")}
                       </p>
                       <div className="flex h-12 items-center justify-center rounded-2xl border border-outline-variant/20 bg-slate-100 text-center font-semibold text-on-surface">
                         75 cm
@@ -289,7 +290,7 @@ function PlannerSidebar({
             type="button"
             className="h-auto w-full rounded-2xl bg-gradient-to-r from-primary to-primary-container py-5 font-headline text-lg font-bold text-on-primary shadow-lg transition-all hover:-translate-y-1 hover:shadow-primary/20 active:scale-95"
           >
-            <span>Generate Plan with AI</span>
+            <span>{t("planner.generate")}</span>
             <span className="material-symbols-outlined">auto_awesome</span>
           </Button>
         </div>

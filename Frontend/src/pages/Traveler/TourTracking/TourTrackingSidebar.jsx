@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { geocodeAddress } from "@/services/api/location";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const isValidCoordinate = (value) => {
   const number = Number(value);
@@ -16,6 +17,7 @@ const isValidCoordinate = (value) => {
 };
 
 export default function TourTrackingSidebar({ tracking }) {
+  const { t } = useI18n();
   const [mapPoint, setMapPoint] = useState(null);
   const [mapLoading, setMapLoading] = useState(false);
 
@@ -55,7 +57,7 @@ export default function TourTrackingSidebar({ tracking }) {
         setMapPoint({
           lat: Number(mapTarget.lat),
           lng: Number(mapTarget.lng),
-          label: mapTarget.activity?.name || tracking?.tour?.name || "Tour location",
+          label: mapTarget.activity?.name || tracking?.tour?.name || t("tracking.tourLocation"),
           address: mapTarget.activity?.address || mapTarget.query,
         });
         setMapLoading(false);
@@ -71,14 +73,14 @@ export default function TourTrackingSidebar({ tracking }) {
           setMapPoint({
             lat: Number(location.lat),
             lng: Number(location.lng),
-            label: mapTarget.activity?.name || tracking?.tour?.name || "Tour location",
+            label: mapTarget.activity?.name || tracking?.tour?.name || t("tracking.tourLocation"),
             address: location.formattedAddress || mapTarget.query,
           });
         } else if (!ignore) {
           setMapPoint({
             lat: null,
             lng: null,
-            label: mapTarget.activity?.name || tracking?.tour?.name || "Tour location",
+            label: mapTarget.activity?.name || tracking?.tour?.name || t("tracking.tourLocation"),
             address: mapTarget.query,
           });
         }
@@ -101,7 +103,7 @@ export default function TourTrackingSidebar({ tracking }) {
     return () => {
       ignore = true;
     };
-  }, [mapTarget, tracking]);
+  }, [mapTarget, tracking, t]);
 
   const mapQuery =
     mapPoint?.lat && mapPoint?.lng
@@ -117,7 +119,7 @@ export default function TourTrackingSidebar({ tracking }) {
         <div className="absolute inset-0 bg-slate-200">
           {mapSrc ? (
             <iframe
-              title={mapPoint?.label || "Tour map overview"}
+              title={mapPoint?.label || t("tracking.mapTitle")}
               className="h-full w-full border-0"
               src={mapSrc}
               loading="lazy"
@@ -125,12 +127,12 @@ export default function TourTrackingSidebar({ tracking }) {
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-surface-container text-sm font-semibold text-on-surface-variant">
-              Map location is not available
+              {t("tracking.mapUnavailable")}
             </div>
           )}
           {mapLoading ? (
             <div className="pointer-events-none absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[11px] font-bold text-on-surface shadow-sm backdrop-blur">
-              Resolving location...
+              {t("tracking.resolvingLocation")}
             </div>
           ) : null}
         </div>
@@ -139,10 +141,10 @@ export default function TourTrackingSidebar({ tracking }) {
       <Card className="rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-sm ring-0">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 p-8 pb-0">
           <CardTitle className="font-headline text-lg font-bold">
-            Traveler Pulse
+            {t("tracking.travelerPulse")}
           </CardTitle>
           <Badge className="rounded-md border-0 bg-teal-50 px-2 py-1 text-xs font-bold text-teal-600">
-            {tracking?.group?.total || 0}/{tracking?.group?.total || 0} Present
+            {t("tracking.present", { count: tracking?.group?.total || 0, total: tracking?.group?.total || 0 })}
           </Badge>
         </CardHeader>
 
@@ -153,7 +155,7 @@ export default function TourTrackingSidebar({ tracking }) {
                 <Avatar size="lg" className="after:border-transparent">
                   <AvatarImage
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuCC_zlc7Pc3ATNIDM5wW1KXIsuJRmZwzesQsSG_FA6az9HLNjfQQHqyre0AqMUwETzJLFTPfUq9QKkmg3U5Uo_KTE6Nad6zLSpfkrX0wfC5RLzWmi_EB9WhqI3YaKCUzKwa2jfH6wk9yrfe0ijt7WWg_03crFx60sEP7yS7O_xcGOmd1DSZy4BSiiqXfZmyx80ZG9I4CAgsUSGKTGfbEqCNPEw-16CU8CZqefn8pw6tAFqoK7dD3jSHGRVTrVTL6ghH3Ez-8NTVgLuC"
-                    alt={tracking?.traveler?.name || "Lead traveler"}
+                    alt={tracking?.traveler?.name || t("tracking.leadTraveler")}
                   />
                   <AvatarFallback>
                     {(tracking?.traveler?.name || "LT").slice(0, 2).toUpperCase()}
@@ -163,10 +165,10 @@ export default function TourTrackingSidebar({ tracking }) {
 
                 <div>
                   <p className="text-sm font-bold">
-                    {tracking?.traveler?.name || "Lead traveler"}
+                    {tracking?.traveler?.name || t("tracking.leadTraveler")}
                   </p>
                   <p className="text-[10px] font-medium text-on-surface-variant">
-                    Lead traveler
+                    {t("tracking.leadTraveler")}
                   </p>
                 </div>
               </div>
@@ -203,10 +205,10 @@ export default function TourTrackingSidebar({ tracking }) {
 
                 <div>
                   <p className="text-sm font-bold">
-                    {tracking?.guide?.name || "Guide not assigned"}
+                    {tracking?.guide?.name || t("tracking.guideNotAssigned")}
                   </p>
                   <p className="text-[10px] font-medium text-on-surface-variant">
-                    Guide
+                    {t("tracking.guide")}
                   </p>
                 </div>
               </div>
@@ -237,7 +239,7 @@ export default function TourTrackingSidebar({ tracking }) {
             variant="outline"
             className="h-14 w-full rounded-2xl border-2 border-dashed border-outline-variant bg-transparent text-sm font-semibold text-on-surface-variant hover:bg-surface-container-low"
           >
-            View Full Attendance Sheet
+            {t("tracking.attendanceSheet")}
           </Button>
         </CardContent>
       </Card>
@@ -252,7 +254,7 @@ export default function TourTrackingSidebar({ tracking }) {
             <span className="material-symbols-outlined text-2xl text-on-secondary-container">
               receipt_long
             </span>
-            <span className="text-xs font-bold uppercase">Expenses</span>
+            <span className="text-xs font-bold uppercase">{t("tracking.expenses")}</span>
           </div>
         </Button>
 
@@ -268,7 +270,7 @@ export default function TourTrackingSidebar({ tracking }) {
             >
               medical_services
             </span>
-            <span className="text-xs font-bold uppercase">First Aid</span>
+            <span className="text-xs font-bold uppercase">{t("tracking.firstAid")}</span>
           </div>
         </Button>
       </div>

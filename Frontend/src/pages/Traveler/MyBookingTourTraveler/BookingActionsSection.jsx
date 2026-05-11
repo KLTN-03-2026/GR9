@@ -5,8 +5,10 @@ import {
   CardDescription,
   CardTitle,
 } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function BookingActionsSection() {
+  const { t } = useI18n();
   return (
     <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
       <Card className="rounded-3xl border-none bg-surface-container-low py-0 lg:col-span-2">
@@ -19,11 +21,10 @@ export default function BookingActionsSection() {
             </div>
             <div>
               <CardTitle className="brand-font text-xl font-bold text-on-surface">
-                Need another itinerary?
+                {t("bookingPage.needAnother")}
               </CardTitle>
               <CardDescription className="mt-2 max-w-xl text-sm text-on-surface-variant">
-                Browse curated tours or generate a new AI plan, then manage
-                every reservation from the same traveler workspace.
+                {t("bookingPage.needAnotherText")}
               </CardDescription>
             </div>
           </div>
@@ -36,17 +37,17 @@ export default function BookingActionsSection() {
             auto_awesome
           </span>
           <CardTitle className="brand-font mb-2 text-xl font-bold">
-            Plan New Trip
+            {t("bookingPage.planNewTrip")}
           </CardTitle>
           <CardDescription className="text-sm text-on-primary/80">
-            Generate a fresh itinerary tailored to your pace and budget.
+            {t("bookingPage.planNewTripText")}
           </CardDescription>
           <Button
             type="button"
             variant="secondary"
             className="mt-6 bg-white/15 text-on-primary hover:bg-white/20"
           >
-            Open AI Planner
+            {t("bookingPage.openPlanner")}
           </Button>
         </CardContent>
       </Card>
