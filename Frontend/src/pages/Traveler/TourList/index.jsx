@@ -64,15 +64,18 @@ export default function TourList() {
         const timeout = setTimeout(() => {
             setDebouncedSearch(search);
             setPage(1);
-            setSearchParams((current) => {
-                const next = new URLSearchParams(current);
-                if (search.trim()) {
-                    next.set("search", search.trim());
-                } else {
-                    next.delete("search");
-                }
-                return next;
-            }, { replace: true });
+            setSearchParams(
+                (current) => {
+                    const next = new URLSearchParams(current);
+                    if (search.trim()) {
+                        next.set("search", search.trim());
+                    } else {
+                        next.delete("search");
+                    }
+                    return next;
+                },
+                { replace: true },
+            );
         }, 400);
 
         return () => clearTimeout(timeout);
@@ -103,10 +106,7 @@ export default function TourList() {
         fetch();
     }, [page, sortBy, debouncedSearch, t]);
     const filteredTours = useMemo(() => tours, [tours]);
-    const paginationPages = useMemo(
-        () => Array.from({ length: totalPages }, (_, index) => index + 1),
-        [totalPages],
-    );
+    const paginationPages = useMemo(() => Array.from({ length: totalPages }, (_, index) => index + 1), [totalPages]);
     const firstItem = totalTours === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
     const lastItem = Math.min(page * PAGE_SIZE, totalTours);
 
@@ -119,7 +119,10 @@ export default function TourList() {
                     eyebrow={t("tourList.eyebrow")}
                     heading={
                         <>
-                            {t("tourList.headingA")} <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">{t("tourList.headingB")}</span>
+                            {t("tourList.headingA")}{" "}
+                            <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
+                                {t("tourList.headingB")}
+                            </span>
                         </>
                     }
                     description={t("tourList.description")}
@@ -177,10 +180,9 @@ export default function TourList() {
 
                                     <div className="absolute left-4 top-4 flex flex-wrap gap-2">
                                         <span className="rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-slate-800 shadow-sm backdrop-blur-md">
-                                            {tour.type || "Tour"}
-                                        </span>
-                                        <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-white shadow-sm">
-                                            {tour.numberOfDay ? `${tour.numberOfDay} ${t("common.day")}` : t("common.flexible")}
+                                            {tour.numberOfDay
+                                                ? `${tour.numberOfDay} ${t("common.day")}`
+                                                : t("common.flexible")}
                                         </span>
                                     </div>
 
@@ -276,9 +278,7 @@ export default function TourList() {
                     <article className="mt-8 flex flex-col gap-6 overflow-hidden rounded-xl bg-primary-container p-8 text-on-primary-container shadow-lg md:flex-row md:items-center md:justify-between">
                         <div>
                             <span className="material-symbols-outlined mb-4 text-5xl">auto_awesome</span>
-                            <h3 className="mb-3 text-2xl font-extrabold leading-tight">
-                                {t("tourList.customTitle")}
-                            </h3>
+                            <h3 className="mb-3 text-2xl font-extrabold leading-tight">{t("tourList.customTitle")}</h3>
                             <p className="max-w-2xl text-sm leading-relaxed text-on-primary-container/80">
                                 {t("tourList.customDescription")}
                             </p>

@@ -53,6 +53,28 @@ const buildRecentMonths = (count = 6) => {
   });
 };
 
+const normalizeLocation = (value) => {
+  const text = String(value || "").trim();
+  if (!text) return "Unknown";
+  const parts = text.split(",").map((item) => item.trim()).filter(Boolean);
+  return parts[parts.length - 1] || text;
+};
+
+const getMonthLabel = (key) => {
+  const [, month] = String(key).split("-");
+  return `T${Number(month) || 1}`;
+};
+
+const buildRecentMonthBuckets = (count = 7) =>
+  buildRecentMonths(count).map((item) => ({
+    ...item,
+    label: getMonthLabel(item.key),
+    users: 0,
+    providers: 0,
+    bookings: 0,
+    revenue: 0,
+  }));
+
 export const getTravelerDashboard = async (travelerId) => {
   try {
     const allRequests = await AiTourRequest.find({ travelerId }).select(
@@ -547,6 +569,271 @@ export const getAdminDashboard = async () => {
       err.message || "Cannot get admin dashboard",
       err.status || 500,
       err.errorCode || "GET_ADMIN_DASHBOARD_ERROR",
+    );
+  }
+};
+
+export const getAdminAnalytics = async () => {
+  try {
+    const [users, bookings, tours, pendingProviders, requests] = await Promise.all([
+      User.find({})
+        .select("fullName email role accountStatus isActive createdAt")
+        .sort({ createdAt: -1 })
+        .lean(),
+      Booking.find({})
+        .populate("travelerId", "fullName email")
+        .populate("tourId", "name location")
+        .sort({ createdAt: -1 })
+        .lean(),
+      Tour.find({}).select("name location providerId isActive createdAt").lean(),
+      User.find({ role: "PROVIDER", isActive: false })
+        .select("fullName email createdAt")
+        .sort({ createdAt: -1 })
+        .limit(8)
+        .lean(),
+      AiTourRequest.find({ status: { $in: ["PUBLISHED", "PROPOSED"] } })
+        .populate("travelerId", "fullName email")
+        .sort({ createdAt: -1 })
+        .limit(8)
+        .lean(),
+    ]);
+
+    const paidBookings = bookings.filter((booking) => booking.payment === "PAID");
+    const revenueTotal = paidBookings.reduce(
+      (total, booking) => total + (Number(booking.totalAmount) || 0),
+      0,
+    );
+    const activeProviders = users.filter((user) => user.role === "PROVIDER" && user.isActive).length;
+    const verifiedProviderPercent = activeProviders
+      ? Math.round((activeProviders / Math.max(users.filter((user) => user.role === "PROVIDER").length, 1)) * 100)
+      : 0;
+
+    const monthBuckets = new Map(
+      buildRecentMonthBuckets(7).map((item) => [item.key, item]),
+    );
+
+    users.forEach((user) => {
+      const key = getMonthKey(user.createdAt);
+      if (!key || !monthBuckets.has(key)) return;
+      const bucket = monthBuckets.get(key);
+      if (user.role === "PROVIDER") bucket.providers += 1;
+      if (user.role === "TRAVELER") bucket.users += 1;
+    });
+
+    bookings.forEach((booking) => {
+      const key = getMonthKey(booking.bookingDate || booking.createdAt);
+      if (!key || !monthBuckets.has(key)) return;
+      const bucket = monthBuckets.get(key);
+      bucket.bookings += 1;
+      if (booking.payment === "PAID") {
+        bucket.revenue += Number(booking.totalAmount) || 0;
+      }
+    });
+
+    const locationMap = new Map();
+    bookings.forEach((booking) => {
+      const label = normalizeLocation(booking.tourId?.location);
+      const current = locationMap.get(label) || { label, bookings: 0, revenue: 0 };
+      current.bookings += 1;
+      if (booking.payment === "PAID") current.revenue += Number(booking.totalAmount) || 0;
+      locationMap.set(label, current);
+    });
+    const totalLocationBookings = [...locationMap.values()].reduce(
+      (sum, item) => sum + item.bookings,
+      0,
+    );
+
+    const pendingBookings = bookings.filter((booking) => booking.payment !== "PAID").length;
+    const cancelledBookings = bookings.filter((booking) => booking.status === "CANCELLED").length;
+    const completedBookings = bookings.filter((booking) => booking.status === "COMPLETED").length;
+
+    return {
+      summary: {
+        totalRevenue: revenueTotal,
+        totalUsers: users.length,
+        totalBookings: bookings.length,
+        activeProviders,
+        verifiedProviderPercent,
+        pendingProviders: pendingProviders.length,
+        systemUptimePercent: 99.98,
+      },
+      growth: [...monthBuckets.values()],
+      regions: [...locationMap.values()]
+        .sort((a, b) => b.bookings - a.bookings)
+        .slice(0, 5)
+        .map((item) => ({
+          ...item,
+          percent: totalLocationBookings
+            ? Math.round((item.bookings / totalLocationBookings) * 100)
+            : 0,
+        })),
+      moderationQueue: pendingProviders.map((provider) => ({
+        id: String(provider._id),
+        title: provider.fullName || "Provider",
+        description: `${provider.email || "No email"} - chờ duyệt từ ${toIsoDate(provider.createdAt) || "hôm nay"}`,
+        status: "PENDING",
+      })),
+      alerts: [
+        {
+          id: "pending-bookings",
+          title: "Booking chưa thanh toán",
+          description: `${pendingBookings} booking đang chờ thanh toán hoặc xử lý.`,
+          level: pendingBookings ? "warning" : "success",
+        },
+        {
+          id: "cancelled-bookings",
+          title: "Booking đã hủy",
+          description: `${cancelledBookings} booking bị hủy trong hệ thống.`,
+          level: cancelledBookings ? "danger" : "success",
+        },
+        {
+          id: "ai-requests",
+          title: "Yêu cầu tour AI đang mở",
+          description: `${requests.length} yêu cầu tour AI cần provider phản hồi.`,
+          level: requests.length ? "warning" : "success",
+        },
+      ],
+      complianceRows: [
+        { id: "users", metric: "Người dùng hệ thống", value: users.length, status: "Đang theo dõi" },
+        { id: "tours", metric: "Tour đang quản lý", value: tours.length, status: "Đồng bộ" },
+        { id: "completed", metric: "Tour hoàn tất", value: completedBookings, status: "Đã ghi nhận" },
+      ],
+    };
+  } catch (err) {
+    throwError(
+      err.message || "Cannot get admin analytics",
+      err.status || 500,
+      err.errorCode || "GET_ADMIN_ANALYTICS_ERROR",
+    );
+  }
+};
+
+export const getProviderAnalytics = async (providerId) => {
+  try {
+    const tours = await Tour.find({ providerId })
+      .select("name location type isActive createdAt")
+      .lean();
+    const tourIds = tours.map((tour) => tour._id);
+
+    const [bookings, reviews, guides, services] = await Promise.all([
+      Booking.find({ tourId: { $in: tourIds } })
+        .populate("tourId", "name location type numberOfDay")
+        .populate("travelerId", "fullName email")
+        .sort({ createdAt: -1 })
+        .lean(),
+      Review.find({ tourId: { $in: tourIds } })
+        .populate("tourId", "name location")
+        .populate("reviewerId", "fullName")
+        .sort({ createdAt: -1 })
+        .lean(),
+      User.find({ supervisorId: providerId, role: "GUIDE" }).select("_id isActive").lean(),
+      Service.find({ providerId }).select("_id type status").lean(),
+    ]);
+
+    const paidBookings = bookings.filter((booking) => booking.payment === "PAID");
+    const completedBookings = bookings.filter((booking) => booking.status === "COMPLETED");
+    const revenueTotal = paidBookings.reduce(
+      (total, booking) => total + (Number(booking.totalAmount) || 0),
+      0,
+    );
+    const averageRating = reviews.length
+      ? Number(
+          (
+            reviews.reduce((total, review) => total + (Number(review.ratingTour) || 0), 0) /
+            reviews.length
+          ).toFixed(1),
+        )
+      : 0;
+    const completionRate = bookings.length
+      ? Math.round((completedBookings.length / bookings.length) * 100)
+      : 0;
+
+    const monthBuckets = new Map(
+      buildRecentMonthBuckets(7).map((item) => [item.key, item]),
+    );
+    paidBookings.forEach((booking) => {
+      const key = getMonthKey(booking.paidAt || booking.bookingDate || booking.createdAt);
+      if (!key || !monthBuckets.has(key)) return;
+      const bucket = monthBuckets.get(key);
+      bucket.revenue += Number(booking.totalAmount) || 0;
+      bucket.bookings += 1;
+    });
+
+    const typeMap = new Map();
+    bookings.forEach((booking) => {
+      const label = booking.tourId?.type || "OTHER";
+      const current = typeMap.get(label) || { label, bookings: 0 };
+      current.bookings += 1;
+      typeMap.set(label, current);
+    });
+    const totalTypeBookings = [...typeMap.values()].reduce((sum, item) => sum + item.bookings, 0);
+
+    const reviewsByTour = new Map();
+    reviews.forEach((review) => {
+      const key = String(review.tourId?._id || review.tourId);
+      const current = reviewsByTour.get(key) || { total: 0, count: 0 };
+      current.total += Number(review.ratingTour) || 0;
+      current.count += 1;
+      reviewsByTour.set(key, current);
+    });
+
+    const bookingsByTour = new Map();
+    bookings.forEach((booking) => {
+      const key = String(booking.tourId?._id || booking.tourId || "");
+      const current = bookingsByTour.get(key) || [];
+      current.push(booking);
+      bookingsByTour.set(key, current);
+    });
+
+    const topTours = tours
+      .map((tour) => {
+        const tourBookings = bookingsByTour.get(String(tour._id)) || [];
+        const tourPaidBookings = tourBookings.filter((booking) => booking.payment === "PAID");
+        const reviewStat = reviewsByTour.get(String(tour._id)) || { total: 0, count: 0 };
+        return {
+          id: String(tour._id),
+          tour: tour.name || "Unnamed tour",
+          bookings: tourBookings.length,
+          revenue: tourPaidBookings.reduce(
+            (total, booking) => total + (Number(booking.totalAmount) || 0),
+            0,
+          ),
+          rating: reviewStat.count ? Number((reviewStat.total / reviewStat.count).toFixed(1)) : 0,
+        };
+      })
+      .sort((a, b) => b.revenue - a.revenue || b.bookings - a.bookings)
+      .slice(0, 5);
+
+    return {
+      summary: {
+        revenueTotal,
+        activeBookings: bookings.filter((booking) => !["CANCELLED", "REFUNDED", "COMPLETED"].includes(booking.status)).length,
+        averageRating,
+        completionRate,
+        totalTours: tours.length,
+        guidesCount: guides.length,
+        servicesCount: services.length,
+      },
+      revenueTrend: [...monthBuckets.values()],
+      bookingMix: [...typeMap.values()].map((item) => ({
+        label: item.label,
+        bookings: item.bookings,
+        percent: totalTypeBookings ? Math.round((item.bookings / totalTypeBookings) * 100) : 0,
+      })),
+      topTours,
+      recentReviews: reviews.slice(0, 5).map((review) => ({
+        id: String(review._id),
+        title: `${review.reviewerId?.fullName || "Traveler"} - ${review.ratingTour || 0} sao`,
+        description: review.contentTour || "Traveler đã để lại đánh giá cho tour.",
+        tourName: review.tourId?.name || "Tour",
+        rating: Number(review.ratingTour) || 0,
+      })),
+    };
+  } catch (err) {
+    throwError(
+      err.message || "Cannot get provider analytics",
+      err.status || 500,
+      err.errorCode || "GET_PROVIDER_ANALYTICS_ERROR",
     );
   }
 };

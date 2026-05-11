@@ -17,6 +17,7 @@ import BookingSuccess from "./pages/Guest/BookingSuccess";
 import ProviderApprovalPage from "./pages/Admin/ProviderApprovalPage";
 import ProviderApprovalHistory from "./pages/Admin/ProviderApprovalHistory";
 import UserManagementPage from "./pages/Admin/UserManagementPage";
+import AdminAnalytics from "./pages/Admin/AdminAnalytics";
 
 import ProviderDashboard from "./pages/Provider/ProviderDashboard";
 import ManageTours from "./pages/Provider/ManageTours";
@@ -24,6 +25,8 @@ import EditTour from "./pages/Provider/EditTour";
 import GuideManagementProvider from "./pages/Provider/GuideManagementProvider";
 import ServiceManagement from "./pages/Provider/ServiceManagement";
 import ProviderBookingManagement from "./pages/Provider/ProviderBookingManagement";
+import ProviderAnalytics from "./pages/Provider/ProviderAnalytics";
+import ProviderReviewManagement from "./pages/Provider/ProviderReviewManagement";
 import AITourRequestDetail from "./pages/Provider/AITourRequestDetail";
 import GuideLiveTourTracking from "./pages/Guide/GuideLiveTourTracking";
 import PublicTourTracking from "./pages/Guest/PublicTourTracking";
@@ -93,6 +96,7 @@ function AppRoutes() {
                     <Route path="provider-approval" element={<ProviderApprovalPage />} />
                     <Route path="provider-approval-history" element={<ProviderApprovalHistory />} />
                     <Route path="users" element={<UserManagementPage />} />
+                    <Route path="analytics" element={<AdminAnalytics />} />
                     <Route path="*" element={<NotFound />} />
                 </Route>
             </Route>
@@ -105,6 +109,8 @@ function AppRoutes() {
                     <Route path="edit-tour" element={<EditTour />} />
                     <Route path="guide-management" element={<GuideManagementProvider />} />
                     <Route path="bookings-management" element={<ProviderBookingManagement />} />
+                    <Route path="analytics" element={<ProviderAnalytics />} />
+                    <Route path="reviews" element={<ProviderReviewManagement />} />
                     <Route path="ai-tour-requests/:id" element={<AITourRequestDetail />} />
                     <Route path="service-management" element={<ServiceManagement />} />
                     <Route path="profile" element={<ProviderProfile />} />

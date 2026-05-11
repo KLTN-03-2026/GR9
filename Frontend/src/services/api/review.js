@@ -12,6 +12,10 @@ export const getMyReviews = () => {
   return apiInstance.get("/reviews/me");
 };
 
+export const getProviderReviews = () => {
+  return apiInstance.get("/reviews/provider/me");
+};
+
 export const getReviewById = (id) => {
   return apiInstance.get(`/reviews/${id}`);
 };
