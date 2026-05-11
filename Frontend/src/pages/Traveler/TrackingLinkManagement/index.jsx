@@ -10,6 +10,7 @@ import TrackingLinkOverviewSection from "./TrackingLinkOverviewSection";
 import TrackingLinkVisualCards from "./TrackingLinkVisualCards";
 import TrackingLinkAccessCard from "./TrackingLinkAccessCard";
 import TrackingLinkPrivacyNote from "./TrackingLinkPrivacyNote";
+import { TrackingPageSkeleton } from "@/components/shared/page-skeletons";
 
 export default function TrackingLinkManagement() {
   const [tracking, setTracking] = useState(null);
@@ -54,11 +55,8 @@ export default function TrackingLinkManagement() {
         <TrackingLinkHero tracking={tracking} />
 
         {loading ? (
-          <div className="rounded-2xl bg-white p-8 text-on-surface-variant shadow-sm">
-            Loading tracking data...
-          </div>
-        ) : null}
-
+          <TrackingPageSkeleton />
+        ) : (
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           <section className="space-y-8 lg:col-span-7">
             <TrackingLinkOverviewSection tracking={tracking} />
@@ -73,6 +71,7 @@ export default function TrackingLinkManagement() {
             <TrackingLinkPrivacyNote />
           </aside>
         </div>
+        )}
       </div>
     </main>
   );

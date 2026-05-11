@@ -13,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getProviderBookings } from "@/services/api/booking";
 import { useSearchParams } from "react-router-dom";
 
@@ -260,11 +261,31 @@ export default function ProviderBookingTable() {
 
             <TableBody>
               {loading ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="px-6 py-12 text-center text-sm text-slate-500">
-                    Loading bookings...
-                  </TableCell>
-                </TableRow>
+                Array.from({ length: 6 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="px-6 py-5">
+                      <div className="flex items-center gap-4">
+                        <Skeleton className="h-16 w-16 rounded-2xl" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-36" />
+                          <Skeleton className="h-3 w-48" />
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-6 py-5">
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-48" />
+                        <Skeleton className="h-3 w-32" />
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-6 py-5">
+                      <Skeleton className="h-4 w-28" />
+                    </TableCell>
+                    <TableCell className="px-6 py-5">
+                      <Skeleton className="h-7 w-28 rounded-full" />
+                    </TableCell>
+                  </TableRow>
+                ))
               ) : filteredBookings.length ? (
                 filteredBookings.map((booking) => {
                   const status = getDisplayStatus(booking);

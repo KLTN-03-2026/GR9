@@ -6,6 +6,7 @@ import TourTrackingHeader from "./TourTrackingHeader";
 import TourTrackingOverviewSection from "./TourTrackingOverviewSection";
 import TourTrackingItinerarySection from "./TourTrackingItinerarySection";
 import TourTrackingSidebar from "./TourTrackingSidebar";
+import { TrackingPageSkeleton } from "@/components/shared/page-skeletons";
 
 export default function TourTracking() {
   const [tracking, setTracking] = useState(null);
@@ -27,11 +28,8 @@ export default function TourTracking() {
         <TourTrackingHeader tracking={tracking} />
 
         {loading ? (
-          <div className="rounded-2xl bg-white p-8 text-on-surface-variant shadow-sm">
-            Loading tour tracking...
-          </div>
-        ) : null}
-
+          <TrackingPageSkeleton />
+        ) : (
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           <div className="space-y-8 lg:col-span-8">
             <TourTrackingOverviewSection tracking={tracking} />
@@ -40,6 +38,7 @@ export default function TourTracking() {
 
           <TourTrackingSidebar tracking={tracking} />
         </div>
+        )}
       </div>
     </main>
   );

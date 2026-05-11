@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { Cloud, FileCheck2, FileUp, ShieldCheck } from "lucide-react";
 
 import PageHero from "@/components/shared/page-hero";
+import { ApprovalSkeleton } from "@/components/shared/page-skeletons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -133,11 +134,7 @@ const ProviderApprovalPage = () => {
       <section className="grid grid-cols-1 gap-8 xl:grid-cols-12">
         <div className="space-y-6 xl:col-span-8">
           {loading ? (
-            <Card className="rounded-3xl border border-slate-200 bg-white shadow-sm">
-              <CardContent className="p-10 text-center text-slate-500">
-                Đang tải danh sách hồ sơ đối tác...
-              </CardContent>
-            </Card>
+            <ApprovalSkeleton />
           ) : error ? (
             <Card className="rounded-3xl border border-rose-200 bg-rose-50 shadow-sm">
               <CardContent className="p-10 text-center text-rose-700">

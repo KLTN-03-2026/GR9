@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -122,11 +123,31 @@ export default function BookingTableSection({ bookings, loading, error }) {
 
           <TableBody>
             {loading ? (
-              <TableRow>
-                <TableCell colSpan={5} className="py-8 text-center text-on-surface-variant">
-                  Đang tải dữ liệu...
-                </TableCell>
-              </TableRow>
+              Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell className="px-6 py-5">
+                    <div className="flex items-center gap-4">
+                      <Skeleton className="h-10 w-10 rounded-lg" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-40" />
+                        <Skeleton className="h-3 w-24" />
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="px-6 py-5">
+                    <Skeleton className="h-4 w-28" />
+                  </TableCell>
+                  <TableCell className="px-6 py-5">
+                    <Skeleton className="h-7 w-24 rounded-full" />
+                  </TableCell>
+                  <TableCell className="px-6 py-5">
+                    <Skeleton className="h-7 w-24 rounded-full" />
+                  </TableCell>
+                  <TableCell className="px-6 py-5 text-right">
+                    <Skeleton className="ml-auto h-9 w-28 rounded-lg" />
+                  </TableCell>
+                </TableRow>
+              ))
             ) : error ? (
               <TableRow>
                 <TableCell colSpan={5} className="py-8 text-center text-error">
