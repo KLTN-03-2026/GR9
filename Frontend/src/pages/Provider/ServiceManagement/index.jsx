@@ -142,7 +142,7 @@ const ServiceManagement = () => {
   }, [totalPages, currentPage]);
 
   return (
-    <main className="min-h-screen bg-slate-50/50">
+    <main className="min-h-screen bg-surface text-on-surface">
       <div className="mx-auto w-full space-y-8">
         <PageHero
           eyebrow="Service Catalog"
@@ -158,7 +158,7 @@ const ServiceManagement = () => {
           actions={
             <Button
               onClick={handleAdd}
-              className="w-full sm:w-auto rounded-full px-8 py-6 font-bold text-sm bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-900/10 transition-all group"
+              className="group w-full rounded-full bg-primary px-8 py-6 text-sm font-bold text-primary-foreground shadow-md shadow-primary/10 transition-all hover:bg-primary-container hover:text-on-primary-container sm:w-auto"
             >
               <span className="mr-2 group-hover:rotate-90 transition-transform">
                 <Plus className="h-4 w-4" />
@@ -222,14 +222,14 @@ const ServiceManagement = () => {
               />
             ))
           ) : (
-            <div className="col-span-full text-center text-slate-500">
+            <div className="col-span-full text-center text-on-surface-variant">
               Không có dịch vụ nào phù hợp.
             </div>
           )}
         </div>
         {totalPages > 1 && (
-          <div className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-sm text-slate-600">
+          <div className="flex flex-col gap-3 rounded-3xl border border-outline-variant/15 bg-surface-container-lowest p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-sm text-on-surface-variant">
               Hiển thị{" "}
               <span className="font-semibold">
                 {(currentPage - 1) * itemsPerPage + 1}
@@ -247,7 +247,7 @@ const ServiceManagement = () => {
                 variant="outline"
                 size="sm"
                 disabled={currentPage === 1}
-                className="bg-teal-600 text-white hover:bg-teal-700 disabled:bg-slate-200 disabled:text-slate-400"
+                className="bg-primary text-primary-foreground hover:bg-primary-container hover:text-on-primary-container disabled:bg-surface-container-high disabled:text-on-surface-variant"
                 onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               >
                 Trước
@@ -259,8 +259,8 @@ const ServiceManagement = () => {
                   size="sm"
                   className={
                     page === currentPage
-                      ? "bg-teal-600 text-white hover:bg-teal-700"
-                      : "bg-white text-slate-700 hover:bg-teal-50"
+                      ? "bg-primary text-primary-foreground hover:bg-primary-container hover:text-on-primary-container"
+                      : "bg-surface-container-lowest text-on-surface hover:bg-primary/10 hover:text-primary"
                   }
                   onClick={() => setCurrentPage(page)}
                 >
@@ -271,7 +271,7 @@ const ServiceManagement = () => {
                 variant="outline"
                 size="sm"
                 disabled={currentPage === totalPages}
-                className="bg-teal-600 text-white hover:bg-teal-700 disabled:bg-slate-200 disabled:text-slate-400"
+                className="bg-primary text-primary-foreground hover:bg-primary-container hover:text-on-primary-container disabled:bg-surface-container-high disabled:text-on-surface-variant"
                 onClick={() =>
                   setCurrentPage((prev) => Math.min(totalPages, prev + 1))
                 }

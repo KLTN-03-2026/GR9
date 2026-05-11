@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { KeyRound, MailCheck, PencilLine, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, KeyRound, MailCheck, PencilLine, Trash2 } from "lucide-react";
 import React from "react";
 
 const TableGuide = ({
@@ -18,37 +18,66 @@ const TableGuide = ({
   handleSendPassword,
   sendingPasswordId,
 }) => {
-  if (!guides) return null;
+  const safeGuides = guides || [];
+  const pageSize = 6;
+  const [page, setPage] = React.useState(1);
+  const totalPages = Math.max(1, Math.ceil(safeGuides.length / pageSize));
+  const visibleGuides = React.useMemo(
+    () => safeGuides.slice((page - 1) * pageSize, page * pageSize),
+    [safeGuides, page],
+  );
+  const visiblePageButtons = React.useMemo(() => {
+    const maxButtons = 5;
+    if (totalPages <= maxButtons) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    let start = Math.max(1, page - Math.floor(maxButtons / 2));
+    let end = start + maxButtons - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, totalPages - maxButtons + 1);
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+  }, [page, totalPages]);
+  const firstRow = safeGuides.length === 0 ? 0 : (page - 1) * pageSize + 1;
+  const lastRow = Math.min(page * pageSize, safeGuides.length);
+
+  React.useEffect(() => {
+    setPage((current) => Math.min(current, totalPages));
+  }, [totalPages]);
   return (
     <div>
       
       <Table className="w-full text-left border-collapse gap-2 mt-4">
         
         <TableHeader>
-          <TableRow className="bg-slate-50 hover:bg-slate-50">
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+          <TableRow className="bg-surface-container-low hover:bg-surface-container-low">
+            <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               Guide
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+            <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               Contact Info
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+            <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               Assignment
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+            <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               Status
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+            <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               Login Access
             </TableHead>
-            <TableHead className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">
+            <TableHead className="px-6 py-4 text-right text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               Actions
             </TableHead>
           </TableRow>
         </TableHeader>
 
-        <TableBody className="divide-y divide-slate-100">
-          {guides.map((g) => {
+        <TableBody className="divide-y divide-outline-variant/25">
+          {visibleGuides.map((g) => {
             const activeClasses = g.isActive
               ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
               : "bg-slate-100 text-slate-500 border border-slate-200";
@@ -68,11 +97,11 @@ const TableGuide = ({
             return (
               <TableRow
                 key={g._id}
-                className="hover:bg-slate-50 transition-colors"
+                className="transition-colors hover:bg-surface-container-high"
               >
                 <TableCell className="px-6 py-5">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl overflow-hidden bg-slate-200 shrink-0">
+                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-2xl bg-surface-container-high">
                       <img
                         alt={g.name}
                         className="w-full h-full object-cover"
@@ -80,27 +109,27 @@ const TableGuide = ({
                       />
                     </div>
                     <div>
-                      <p className="font-bold text-slate-900">{g.fullName}</p>
-                      <p className="text-xs text-slate-500">{g.specialty}</p>
+                      <p className="font-bold text-on-surface">{g.fullName}</p>
+                      <p className="text-xs text-on-surface-variant">{g.specialty}</p>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell className="px-6 py-5">
                   <div className="text-sm">
-                    <p className="text-slate-900 font-medium">{g.email}</p>
-                    <p className="text-slate-500 text-xs mt-1">{g.phone}</p>
+                    <p className="font-medium text-on-surface">{g.email}</p>
+                    <p className="mt-1 text-xs text-on-surface-variant">{g.phone}</p>
                   </div>
                 </TableCell>
 
                 <TableCell className="px-6 py-5">
                   <div className="text-sm">
-                    <p className="font-semibold text-slate-900">
+                    <p className="font-semibold text-on-surface">
                       {g.bookingTitle}
                     </p>
-                    <p className="text-slate-500 text-xs mt-1">
+                    <p className="mt-1 text-xs text-on-surface-variant">
                       {g.bookingCode}
                     </p>
-                    <p className="text-slate-400 text-xs mt-1">
+                    <p className="mt-1 text-xs text-on-surface-variant">
                       {g.assignedTourCount || 0} tours · {g.activeBookingCount || 0} active bookings
                     </p>
                   </div>
@@ -174,6 +203,52 @@ const TableGuide = ({
           })}
         </TableBody>
       </Table>
+      {safeGuides.length > pageSize ? (
+        <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-on-surface-variant">
+            Showing <span className="font-bold text-on-surface">{firstRow} - {lastRow}</span> of{" "}
+            <span className="font-bold text-on-surface">{safeGuides.length}</span> guides
+          </p>
+
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              disabled={page <= 1}
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              className="rounded-xl bg-surface-container-lowest"
+            >
+              <ChevronLeft className="size-4" />
+            </Button>
+            {visiblePageButtons.map((pageNumber) => (
+              <Button
+                key={pageNumber}
+                type="button"
+                variant={pageNumber === page ? "default" : "outline"}
+                onClick={() => setPage(pageNumber)}
+                className={
+                  pageNumber === page
+                    ? "rounded-xl bg-primary px-4 text-primary-foreground"
+                    : "rounded-xl bg-surface-container-lowest px-4"
+                }
+              >
+                {pageNumber}
+              </Button>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              disabled={page >= totalPages}
+              onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+              className="rounded-xl bg-surface-container-lowest"
+            >
+              <ChevronRight className="size-4" />
+            </Button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

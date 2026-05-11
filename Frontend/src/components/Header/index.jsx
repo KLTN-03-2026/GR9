@@ -13,8 +13,9 @@ import {
 import { Input } from "@/components/ui/input";
 import AuthContext from "@/context/authContext";
 import { getProviderAiNotifications } from "@/services/api/ai";
-import LanguageToggle from "@/components/shared/language-toggle";
 import { useI18n } from "@/i18n/I18nProvider";
+import ThemeModeToggle from "@/components/shared/theme-mode-toggle";
+import LanguageToggle from "@/components/shared/language-toggle";
 
 const PAGE_META = {
   "/traveler": {
@@ -366,7 +367,7 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b border-outline-variant/20 bg-white/92 px-7 backdrop-blur-md md:left-64">
+    <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b border-outline-variant/20 bg-surface-container-lowest/92 px-7 shadow-sm backdrop-blur-md md:left-64">
       <div className="mx-auto flex h-full max-w-[1920px] items-center justify-between gap-6">
         <div className="flex min-w-0 items-center gap-3">
           <h1 className="shrink-0 font-heading text-[1.05rem] font-extrabold tracking-tight text-teal-800">
@@ -388,8 +389,6 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <LanguageToggle />
-
           {showGlobalSearch ? (
             <form className="relative hidden md:block" onSubmit={handleGlobalSearch}>
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
@@ -402,6 +401,11 @@ const Header = () => {
               />
             </form>
           ) : null}
+
+          <div className="hidden items-center gap-2 sm:flex">
+            <ThemeModeToggle />
+            <LanguageToggle />
+          </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -420,10 +424,10 @@ const Header = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="w-96 rounded-xl border-outline-variant/30 bg-white p-2 shadow-xl"
+              className="w-96 rounded-xl border-outline-variant/30 bg-surface-container-lowest p-2 shadow-xl"
             >
               <div className="px-2 py-2">
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">
                   {t("header.aiRequests")}
                 </p>
               </div>
@@ -439,10 +443,10 @@ const Header = () => {
                         <Sparkles className="h-4 w-4" />
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-bold text-slate-900">
+                        <p className="truncate text-sm font-bold text-on-surface">
                           {item.location || t("header.aiGeneratedTour")}
                         </p>
-                        <p className="line-clamp-2 text-xs text-slate-500">
+                        <p className="line-clamp-2 text-xs text-on-surface-variant">
                           {t("header.aiRequestItem", {
                             name: item.travelerId?.fullName || "Traveler",
                             days: item.numberOfDay || 1,
@@ -453,7 +457,7 @@ const Header = () => {
                   </DropdownMenuItem>
                 ))
               ) : (
-                <div className="px-3 py-8 text-center text-sm text-slate-500">
+                <div className="px-3 py-8 text-center text-sm text-on-surface-variant">
                   {t("header.noAiRequests")}
                 </div>
               )}
@@ -476,7 +480,7 @@ const Header = () => {
 
             <DropdownMenuContent
               align="end"
-              className="w-48 rounded-xl border-outline-variant/30 bg-white p-1 shadow-xl"
+              className="w-48 rounded-xl border-outline-variant/30 bg-surface-container-lowest p-1 shadow-xl"
             >
               <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
                 <Link to={profilePath} className="flex items-center gap-2">
