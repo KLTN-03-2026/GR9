@@ -176,6 +176,14 @@ const ROUTE_TITLES = [
     title: "Bookings Management",
   },
   {
+    test: (p) => p.startsWith("/provider/reviews"),
+    title: "Provider Reviews",
+  },
+  {
+    test: (p) => p.startsWith("/provider/analytics"),
+    title: "Provider Analytics",
+  },
+  {
     test: (p) => p.startsWith("/provider/ai-tour-requests"),
     title: "AI Tour Request",
   },
@@ -213,6 +221,7 @@ const ROUTE_TITLES = [
   },
   { test: (p) => p.startsWith("/admin/profile"), title: "Admin Profile" },
   { test: (p) => p.startsWith("/admin/users"), title: "User Management" },
+  { test: (p) => p.startsWith("/admin/analytics"), title: "Admin Analytics" },
   {
     test: (p) => p.startsWith("/admin/provider-approval"),
     title: "Provider Approval",
@@ -234,10 +243,12 @@ const ROUTE_TITLE_KEYS = {
   "Service Management": "serviceManagement",
   "Guide Management Provider": "guideManagementProvider",
   "Bookings Management": "bookingsManagement",
+  "Provider Reviews": "providerReviews",
   "AI Tour Request": "aiTourRequest",
   "Hotels Management": "hotelsManagement",
   "Provider Profile": "providerProfile",
   "Provider Dashboard": "providerDashboard",
+  "Provider Analytics": "providerAnalytics",
   "Traveler Profile": "travelerProfile",
   "Tour List": "tourList",
   "Tour Detail": "tourDetail",
@@ -250,6 +261,7 @@ const ROUTE_TITLE_KEYS = {
   "User Management": "userManagement",
   "Provider Approval": "providerApproval",
   "Admin Dashboard": "adminDashboard",
+  "Admin Analytics": "adminAnalytics",
 };
 
 function resolveBreadcrumbTitle(pathname, fallbackTitle) {

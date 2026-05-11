@@ -46,6 +46,7 @@ const MENU = {
 
   admin: [
     { name: "Dashboard", labelKey: "dashboard", href: "", icon: ChartNoAxesColumn },
+    { name: "Analytics", labelKey: "analytics", href: "/analytics", icon: ChartNoAxesColumn },
     { name: "Users", labelKey: "users", href: "/users", icon: UserCog },
     { name: "Provider Approval", labelKey: "providerApproval", href: "/provider-approval", icon: BadgeCheck },
     {
@@ -75,6 +76,12 @@ const MENU = {
   provider: [
     { name: "Dashboard", labelKey: "dashboard", href: "", icon: LayoutDashboard },
     {
+      name: "Analytics",
+      labelKey: "analytics",
+      href: "/analytics",
+      icon: ChartNoAxesColumn,
+    },
+    {
       name: "Manage Tours",
       labelKey: "manageTours",
       href: "/manage-tours",
@@ -91,6 +98,12 @@ const MENU = {
       labelKey: "bookings",
       href: "/bookings-management",
       icon: ClipboardList,
+    },
+    {
+      name: "Reviews",
+      labelKey: "reviews",
+      href: "/reviews",
+      icon: BadgeCheck,
     },
     {
       name: "Guides",

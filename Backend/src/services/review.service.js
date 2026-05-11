@@ -117,6 +117,20 @@ export const getMyReviewsService = async (reviewerId) => {
         .sort({ createdAt: -1 });
 };
 
+export const getProviderReviewsService = async (providerId) => {
+    ensureObjectId(providerId, "providerId");
+
+    const tours = await Tour.find({ providerId }).select("_id");
+    const tourIds = tours.map((tour) => tour._id);
+
+    return Review.find({ tourId: { $in: tourIds } })
+        .populate("reviewerId", "fullName email avatarUrl")
+        .populate("GuideId", "fullName email avatarUrl specialty")
+        .populate("tourId", "name location")
+        .sort({ createdAt: -1 });
+};
+
+
 export const getReviewByIdService = async (reviewId, user) => {
     ensureObjectId(reviewId, "reviewId");
 

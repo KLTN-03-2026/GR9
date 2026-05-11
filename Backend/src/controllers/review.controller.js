@@ -2,6 +2,7 @@ import {
     createReviewService,
     deleteReviewService,
     getMyReviewsService,
+    getProviderReviewsService,
     getReviewByIdService,
     getReviewsByTourService,
     updateReviewService,
@@ -40,6 +41,19 @@ export const getMyReviewsController = async (req, res) => {
         return error(res, err.message, err.status || 500, err.errorCode);
     }
 };
+
+export const getProviderReviewsController = async (req, res) => {
+    try {
+        const providerId = req.user?._id || req.user?.id;
+        if (!providerId) return error(res, "Unauthorized", 401, "UNAUTHORIZED");
+
+        const reviews = await getProviderReviewsService(providerId);
+        return success(res, "Get provider reviews successfully", reviews);
+    } catch (err) {
+        return error(res, err.message, err.status || 500, err.errorCode);
+    }
+};
+
 
 export const getReviewByIdController = async (req, res) => {
     try {

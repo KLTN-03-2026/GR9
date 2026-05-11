@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getAdminDashboardController,
+  getAdminAnalyticsController,
   deleteUserController,
   getUsersController,
   updateUserStatusController,
@@ -11,6 +12,7 @@ const router = express.Router();
 
 router.use(protect, authorize("ADMIN"));
 router.get("/dashboard", getAdminDashboardController);
+router.get("/analytics", getAdminAnalyticsController);
 router.get("/users", getUsersController);
 router.patch("/users/:id/status", updateUserStatusController);
 router.delete("/users/:id", deleteUserController);

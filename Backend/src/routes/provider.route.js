@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import {
   applyProviderController,
+  getProviderAnalyticsController,
   getProviderDashboardController,
   listProviderApplicationsController,
   approveProviderController,
@@ -35,6 +36,7 @@ router.post(
 
 router.get("/policy", getActiveProviderPolicyController);
 router.get("/dashboard", protect, authorize("PROVIDER"), getProviderDashboardController);
+router.get("/analytics", protect, authorize("PROVIDER"), getProviderAnalyticsController);
 
 router.post(
   "/policy",
