@@ -18,6 +18,29 @@ const SORT_OPTIONS = [
     { value: "durationShort", label: "Ngắn ngày" },
 ];
 
+const SORT_LABEL_KEYS = {
+    popular: "popular",
+    topRated: "topRated",
+    mostBooked: "mostBooked",
+    priceLow: "priceLow",
+    durationShort: "durationShort",
+};
+
+const TOUR_FALLBACK_IMAGES = [
+    "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80",
+];
+
+const getTourImage = (tour, index = 0) =>
+    tour?.images?.imageUrl ||
+    tour?.images?.[0]?.imageUrl ||
+    tour?.coverImage ||
+    tour?.image ||
+    TOUR_FALLBACK_IMAGES[index % TOUR_FALLBACK_IMAGES.length];
+
 export default function TourList() {
     const { t } = useI18n();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -70,7 +93,7 @@ export default function TourList() {
                 setTours(payload.docs || payload || []);
                 setTotalTours(payload.total || 0);
                 setTotalPages(payload.totalPages || 1);
-            } catch (err) {
+            } catch {
                 setError(t("tourList.loadError"));
             } finally {
                 setLoading(false);

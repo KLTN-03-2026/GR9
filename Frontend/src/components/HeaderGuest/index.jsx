@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { MapPinned, Ticket } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const TRACKING_CODE_STORAGE_KEY = "guestTrackingCode";
 

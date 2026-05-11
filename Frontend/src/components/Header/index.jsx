@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import AuthContext from "@/context/authContext";
 import { getProviderAiNotifications } from "@/services/api/ai";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const PAGE_META = {
   "/traveler": {

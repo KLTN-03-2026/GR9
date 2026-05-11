@@ -2,7 +2,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import DialogCreateTour from "./DialogCreateTour";
 
 export default function ManageToursHero() {
-  const [service, setService] = useState(null);
   return (
     <section className="app-page-hero relative overflow-hidden rounded-[2rem] bg-[radial-gradient(circle_at_top_left,_rgba(0,104,95,0.16),_transparent_35%),linear-gradient(135deg,_#ffffff,_#eef7f5)] p-6 shadow-[0_20px_50px_rgba(15,23,42,0.06)] ring-1 ring-slate-200/70 dark:shadow-[0_24px_70px_rgba(0,0,0,0.28)] dark:ring-white/10 md:p-8">
       <div className="absolute right-0 top-0 h-44 w-44 rounded-full bg-primary/15 blur-3xl" />
