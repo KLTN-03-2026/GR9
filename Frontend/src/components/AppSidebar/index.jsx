@@ -152,14 +152,14 @@ export function AppSidebar() {
                 to={fullPath}
                 className={`group relative flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200 ${
                   isActive
-                    ? "bg-teal-50 text-teal-700"
-                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                    ? "bg-primary/12 text-primary"
+                    : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
                 }`}
               >
                 {isActive && (
                   <motion.div
                     layoutId="app-sidebar-active"
-                    className="absolute inset-0 rounded-xl border border-teal-100 bg-teal-50"
+                    className="absolute inset-0 rounded-xl border border-primary/20 bg-primary/12"
                     transition={{
                       type: "spring",
                       stiffness: 380,
@@ -171,8 +171,8 @@ export function AppSidebar() {
                 <Icon
                   className={`relative z-10 h-5 w-5 ${
                     isActive
-                      ? "text-teal-700"
-                      : "text-slate-500 group-hover:text-slate-700"
+                      ? "text-primary"
+                      : "text-on-surface-variant group-hover:text-on-surface"
                   }`}
                   strokeWidth={2.1}
                 />

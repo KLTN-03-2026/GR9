@@ -297,10 +297,10 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
                 </Button>
               </div>
             ) : (
-              <label className="flex items-center justify-center w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-lg appearance-none cursor-pointer hover:border-gray-400 focus:outline-none">
+              <label className="flex h-32 w-full cursor-pointer appearance-none items-center justify-center rounded-lg border-2 border-dashed border-outline-variant/35 bg-surface-container-lowest px-4 transition hover:border-primary/45 hover:bg-primary/5 focus:outline-none">
                 <div className="flex items-center space-x-2">
-                  <Upload className="w-5 h-5 text-gray-400" />
-                  <span className="text-gray-500 text-sm">
+                  <Upload className="h-5 w-5 text-on-surface-variant" />
+                  <span className="text-sm text-on-surface-variant">
                     Nhấp để chọn ảnh
                   </span>
                 </div>
@@ -321,7 +321,7 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
           </DialogClose>
           <Button
             onClick={handleSubmit}
-            className="bg-teal-600 hover:bg-teal-700"
+            className="bg-primary text-primary-foreground hover:bg-primary-container hover:text-on-primary-container"
             disabled={loading}
           >
             {loading ? "Đang lưu..." : "Lưu thay đổi"}
