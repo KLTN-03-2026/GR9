@@ -67,12 +67,19 @@ export default function TourHistoryDetail({
   getTotal,
   totalActivities,
   decisionLoading,
+  publishLoading,
   onDecision,
+  onPublish,
   onViewProposal,
 }) {
   const proposalTour = selectedTour?.convertedTourId;
+  const proposalTourId =
+    proposalTour && typeof proposalTour === "object" ? proposalTour._id : proposalTour;
   const showProposalActions =
-    selectedTour?.status === "PROPOSED" && proposalTour?._id;
+    selectedTour?.status === "PROPOSED" && proposalTourId;
+  const canSendToProviders =
+    selectedTour?.status === "DRAFT" ||
+    (selectedTour?.status === "EXPIRED" && selectedTour?.expiredReason === "PUBLISH_TIMEOUT");
 
   return (
     <section className="min-h-[560px] rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -89,7 +96,7 @@ export default function TourHistoryDetail({
         </div>
       ) : selectedTour ? (
         <div>
-          {proposalTour ? (
+          {proposalTourId ? (
             <Card className="mb-6 border-slate-200 shadow-none">
               <CardContent className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
                 <div>
@@ -100,13 +107,16 @@ export default function TourHistoryDetail({
                     <Badge variant="outline">Provider Proposed Tour</Badge>
                   </div>
                   <h3 className="text-lg font-bold text-slate-950">
-                    {proposalTour.name || proposalTour.location || "Tour proposal"}
+                    {proposalTour?.name || proposalTour?.location || "Tour proposal"}
                   </h3>
                   <p className="mt-1 text-sm text-slate-500">
                     {showProposalActions
                       ? "Provider đã dựng tour thật từ kế hoạch AI của bạn. Hãy xem và xác nhận trước khi booking."
                       : selectedTour.status === "APPROVED"
                         ? "Bạn đã đồng ý tour này. Chỉ tài khoản của bạn mới có thể booking."
+                        : selectedTour.status === "EXPIRED" &&
+                            selectedTour.expiredReason === "PROPOSAL_TIMEOUT"
+                          ? "Tour đề xuất này đã tự hủy vì bạn không xác nhận trong vòng 2 ngày."
                         : "Tour đề xuất này hiện không còn chờ xác nhận."}
                   </p>
                 </div>
@@ -115,10 +125,12 @@ export default function TourHistoryDetail({
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => onViewProposal?.(proposalTour._id)}
+                    onClick={() => onViewProposal?.(proposalTourId)}
                     className="rounded-xl"
                   >
-                    Xem tour đề xuất
+                    {selectedTour?.status === "APPROVED"
+                      ? "Mở tour để booking"
+                      : "Xem tour đề xuất"}
                   </Button>
 
                   {showProposalActions ? (
@@ -154,10 +166,10 @@ export default function TourHistoryDetail({
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <Badge variant="success">{selectedTour.status}</Badge>
                 <Badge variant="outline">{selectedTour.type}</Badge>
-                {proposalTour ? (
+                {proposalTourId ? (
                   <Badge variant={selectedTour.status === "APPROVED" ? "success" : "warning"}>
                     <ShieldCheck className="mr-1 h-3 w-3" />
-                    {proposalTour.travelerApprovalStatus || "PENDING"}
+                    {proposalTour?.travelerApprovalStatus || "PENDING"}
                   </Badge>
                 ) : null}
               </div>
@@ -167,6 +179,22 @@ export default function TourHistoryDetail({
               <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
                 {selectedTour.description || "No description"}
               </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {canSendToProviders ? (
+                <Button
+                  type="button"
+                  disabled={publishLoading}
+                  onClick={() => onPublish?.()}
+                  className="rounded-xl bg-teal-600 font-semibold hover:bg-teal-700"
+                >
+                  {publishLoading
+                    ? "Đang gửi..."
+                    : selectedTour?.status === "EXPIRED"
+                      ? "Gửi lại cho provider"
+                      : "Gửi tour cho provider"}
+                </Button>
+              ) : null}
             </div>
           </div>
 

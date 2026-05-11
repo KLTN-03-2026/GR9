@@ -90,7 +90,7 @@ function PlannerSidebar({
             </div>
           </div>
 
-          <Card className="overflow-hidden rounded-3xl border border-outline-variant/20 bg-gradient-to-br from-white to-slate-50 py-0 shadow-none">
+          <Card className="overflow-hidden rounded-3xl border border-outline-variant/20 bg-white py-0 shadow-none">
             <CardContent className="space-y-4 p-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">

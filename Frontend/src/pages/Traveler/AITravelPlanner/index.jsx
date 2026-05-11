@@ -144,7 +144,11 @@ export default function AITravelPlanner() {
       const response = await saveAiTourHistory({
         tour: itinerary,
       });
-      setSavedTripId(response.data.data?._id);
+      const savedTour = response.data.data;
+      setSavedTripId(savedTour?._id);
+      if (savedTour) {
+        setItinerary(savedTour);
+      }
       toast.success("Trip saved to AI Tour History");
     } catch (error) {
       console.log(error);
@@ -162,8 +166,12 @@ export default function AITravelPlanner() {
     }
 
     const response = await saveAiTourHistory({ tour: itinerary });
-    const id = response.data.data?._id;
+    const savedTour = response.data.data;
+    const id = savedTour?._id;
     setSavedTripId(id);
+    if (savedTour) {
+      setItinerary(savedTour);
+    }
     return id;
   };
 

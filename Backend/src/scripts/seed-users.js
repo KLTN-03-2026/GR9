@@ -15,6 +15,14 @@ const users = [
     phone: "0900000001",
     address: "Da Nang, Vietnam",
   },
+    {
+    email: "traveler@voyager.ai",
+    password: "Traveler@123",
+    fullName: "Voyager Traveler",
+    role: "TRAVELER",
+    phone: "0900000001",
+    address: "Da Nang, Vietnam",
+  },
   {
     email: "provider@voyager.ai",
     password: "Provider@123",
