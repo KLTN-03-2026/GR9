@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { ChevronLeft, ChevronRight, KeyRound, MailCheck, PencilLine, Trash2 } from "lucide-react";
 import React from "react";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const TableGuide = ({
   guides,
@@ -18,6 +19,7 @@ const TableGuide = ({
   handleSendPassword,
   sendingPasswordId,
 }) => {
+  const { t } = useI18n();
   const safeGuides = guides || [];
   const pageSize = 6;
   const [page, setPage] = React.useState(1);
@@ -56,22 +58,22 @@ const TableGuide = ({
         <TableHeader>
           <TableRow className="bg-surface-container-low hover:bg-surface-container-low">
             <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-              Guide
+              {t("provider.guides.guide")}
             </TableHead>
             <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-              Contact Info
+              {t("provider.guides.contactInfo")}
             </TableHead>
             <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-              Assignment
+              {t("provider.guides.assignment")}
             </TableHead>
             <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-              Status
+              {t("provider.guides.status")}
             </TableHead>
             <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-              Login Access
+              {t("provider.guides.loginAccess")}
             </TableHead>
             <TableHead className="px-6 py-4 text-right text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-              Actions
+              {t("provider.guides.actions")}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -124,13 +126,16 @@ const TableGuide = ({
                 <TableCell className="px-6 py-5">
                   <div className="text-sm">
                     <p className="font-semibold text-on-surface">
-                      {g.bookingTitle}
+                      {g.bookingTitle || t("provider.guides.noActiveBooking")}
                     </p>
                     <p className="mt-1 text-xs text-on-surface-variant">
                       {g.bookingCode}
                     </p>
                     <p className="mt-1 text-xs text-on-surface-variant">
-                      {g.assignedTourCount || 0} tours · {g.activeBookingCount || 0} active bookings
+                      {t("provider.guides.assignmentSummary", {
+                        tours: g.assignedTourCount || 0,
+                        bookings: g.activeBookingCount || 0,
+                      })}
                     </p>
                   </div>
                 </TableCell>
@@ -138,15 +143,7 @@ const TableGuide = ({
                   <span
                     className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold capitalize ${statusClasses}`}
                   >
-                    {g.status === "NOT_STARTED"
-                      ? "Not Started"
-                      : g.status === "CHECKED_IN"
-                        ? "Checked In"
-                        : g.status === "ON_GOING"
-                          ? "On Going"
-                          : g.status === "COMPLETED"
-                            ? "Completed"
-                            : "Cancelled"}
+                    {t(`provider.guides.statuses.${g.status || "CANCELLED"}`)}
                   </span>
                 </TableCell>
                 <TableCell className="px-6 py-5">
@@ -154,7 +151,7 @@ const TableGuide = ({
                     <span
                       className={`inline-flex min-w-[118px] items-center justify-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold capitalize ${activeClasses}`}
                     >
-                      {g.isActive ? "Active" : "Inactive"}
+                      {g.isActive ? t("provider.guides.active") : t("provider.guides.inactive")}
                     </span>
                     <span
                       className={`inline-flex min-w-[118px] items-center justify-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
@@ -164,7 +161,7 @@ const TableGuide = ({
                       }`}
                     >
                       <KeyRound className="h-3.5 w-3.5" />
-                      {g.hasPassword ? "Password sent" : "No password"}
+                      {g.hasPassword ? t("provider.guides.hasPassword") : t("provider.guides.noPassword")}
                     </span>
                   </div>
                 </TableCell>
@@ -175,7 +172,7 @@ const TableGuide = ({
                       variant="ghost"
                       size="icon"
                       disabled={sendingPasswordId === g._id}
-                      title={g.hasPassword ? "Resend guide password" : "Send guide password"}
+                      title={g.hasPassword ? t("provider.guides.resendPassword") : t("provider.guides.sendPassword")}
                       className="text-slate-500 hover:text-teal-700 bg-teal-50 hover:bg-teal-100 disabled:opacity-60"
                     >
                       <MailCheck className="size-4" />
@@ -206,8 +203,11 @@ const TableGuide = ({
       {safeGuides.length > pageSize ? (
         <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-on-surface-variant">
-            Showing <span className="font-bold text-on-surface">{firstRow} - {lastRow}</span> of{" "}
-            <span className="font-bold text-on-surface">{safeGuides.length}</span> guides
+            {t("provider.guides.showing", {
+              first: firstRow,
+              last: lastRow,
+              total: safeGuides.length,
+            })}
           </p>
 
           <div className="flex items-center gap-2">

@@ -149,7 +149,7 @@ export default function TourHistoryDetail({
                         type="button"
                         disabled={decisionLoading}
                         onClick={() => onDecision?.("approve")}
-                        className="rounded-xl bg-teal-600 font-semibold hover:bg-teal-700"
+                        className="rounded-xl bg-teal-600 font-semibold text-white hover:bg-teal-700"
                       >
                         <CheckCircle2 className="h-4 w-4" />
                         {decisionLoading ? "Đang xử lý..." : "Đồng ý tour này"}
@@ -186,7 +186,7 @@ export default function TourHistoryDetail({
                   type="button"
                   disabled={publishLoading}
                   onClick={() => onPublish?.()}
-                  className="rounded-xl bg-teal-600 font-semibold hover:bg-teal-700"
+                  className="rounded-xl bg-teal-600 font-semibold text-white hover:bg-teal-700"
                 >
                   {publishLoading
                     ? "Đang gửi..."

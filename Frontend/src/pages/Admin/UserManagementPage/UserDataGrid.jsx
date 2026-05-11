@@ -27,6 +27,7 @@ import {
   ChevronRight,
   AlertCircle 
 } from "lucide-react";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const UserDataGrid = ({
   users,
@@ -36,6 +37,7 @@ const UserDataGrid = ({
   onUpdateStatus,
   onDeleteUser,
 }) => {
+  const { t } = useI18n();
   const total = pagination?.total || 0;
   const page = pagination?.page || 1;
   const limit = pagination?.limit || 10;
@@ -49,11 +51,11 @@ const UserDataGrid = ({
       <Table>
         <TableHeader>
           <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
-            <TableHead className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-slate-500">User Name</TableHead>
-            <TableHead className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-slate-500">Role</TableHead>
-            <TableHead className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-slate-500">Status</TableHead>
-            <TableHead className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-slate-500">Date Joined</TableHead>
-            <TableHead className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-slate-500 text-right">Actions</TableHead>
+            <TableHead className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-slate-500">{t("admin.users.userName")}</TableHead>
+            <TableHead className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-slate-500">{t("admin.users.role")}</TableHead>
+            <TableHead className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-slate-500">{t("admin.users.status")}</TableHead>
+            <TableHead className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-slate-500">{t("admin.users.dateJoined")}</TableHead>
+            <TableHead className="px-6 py-5 text-[11px] font-bold uppercase tracking-widest text-slate-500 text-right">{t("admin.users.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -86,7 +88,7 @@ const UserDataGrid = ({
           ) : users.length === 0 ? (
             <TableRow>
               <TableCell colSpan={5} className="px-6 py-10 text-center text-sm font-semibold text-slate-500">
-                No users found.
+                {t("admin.users.noUsers")}
               </TableCell>
             </TableRow>
           ) : users.map((user) => (
@@ -139,7 +141,7 @@ const UserDataGrid = ({
                       className="h-8 bg-teal-50 text-teal-700 hover:bg-teal-600 hover:text-white font-bold text-[11px] rounded-full px-4 shadow-none border-none"
                       onClick={() => onUpdateStatus(user.id, "ACTIVE")}
                     >
-                      Activate
+                      {t("admin.users.activate")}
                     </Button>
                   ) : (
                     <>
@@ -171,13 +173,13 @@ const UserDataGrid = ({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="rounded-xl w-40">
-                      <DropdownMenuItem className="text-sm font-medium">View Profile</DropdownMenuItem>
-                      <DropdownMenuItem className="text-sm font-medium">Edit Details</DropdownMenuItem>
+                      <DropdownMenuItem className="text-sm font-medium">{t("admin.users.viewProfile")}</DropdownMenuItem>
+                      <DropdownMenuItem className="text-sm font-medium">{t("admin.users.editDetails")}</DropdownMenuItem>
                       <DropdownMenuItem
                         className="text-sm font-medium text-red-600"
                         onClick={() => onDeleteUser(user.id)}
                       >
-                        Delete User
+                        {t("admin.users.deleteUser")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -190,7 +192,7 @@ const UserDataGrid = ({
       
       <div className="px-6 py-4 bg-slate-50/30 flex items-center justify-between border-t border-slate-100">
         <span className="text-sm text-slate-500 font-medium">
-          Showing <span className="text-slate-900">{start}</span> to <span className="text-slate-900">{end}</span> of {total} users
+          {t("admin.users.showing", { start, end, total })}
         </span>
         <div className="flex items-center gap-2">
           <Button

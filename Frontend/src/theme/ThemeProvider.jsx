@@ -12,7 +12,13 @@ function getStoredMode() {
 
 function applyThemeMode(mode) {
   const root = document.documentElement;
+  root.classList.add("theme-changing");
   root.classList.toggle("dark", mode === "dark");
+  root.style.colorScheme = mode === "dark" ? "dark" : "light";
+
+  window.setTimeout(() => {
+    root.classList.remove("theme-changing");
+  }, 120);
 }
 
 export function ThemeProvider({ children }) {
