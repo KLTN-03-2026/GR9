@@ -250,6 +250,7 @@ export const listProviderApplications = async () => {
   const providers = await User.find({
     role: "PROVIDER",
     isActive: false,
+    accountStatus: "PENDING",
   })
     .select("fullName email phone gender address createdAt isActive")
     .sort({ createdAt: -1 });
@@ -262,6 +263,39 @@ export const listProviderApplications = async () => {
 
   return providers.map((provider) => ({
     ...provider.toObject(),
+    documents: images
+      .filter((image) => image.entityId.toString() === provider._id.toString())
+      .map((image) => ({
+        url: image.imageUrl,
+        cloudinaryUrl: image.cloudinaryUrl,
+        name: image.originalName || image.description,
+        fileType: image.fileType,
+        publicId: image.publicId,
+        resourceType: image.resourceType,
+        uploadedAt: image.createdAt,
+      })),
+  }));
+};
+
+export const listProcessedProviderApplications = async () => {
+  const providers = await User.find({
+    role: "PROVIDER",
+    accountStatus: { $in: ["ACTIVE", "BANNED"] },
+  })
+    .select("fullName email phone gender address createdAt updatedAt isActive accountStatus")
+    .sort({ updatedAt: -1 });
+
+  const providerIds = providers.map((provider) => provider._id);
+  const images = await Image.find({
+    entityType: "PROVIDER",
+    entityId: { $in: providerIds },
+  }).select("entityId imageUrl cloudinaryUrl description originalName fileType publicId resourceType createdAt");
+
+  return providers.map((provider) => ({
+    ...provider.toObject(),
+    status: provider.accountStatus === "BANNED" ? "rejected" : "approved",
+    processedAt: provider.updatedAt,
+    reviewer: "Admin",
     documents: images
       .filter((image) => image.entityId.toString() === provider._id.toString())
       .map((image) => ({
@@ -335,6 +369,7 @@ export const rejectProvider = async (providerId) => {
     _id: providerId,
     role: "PROVIDER",
     isActive: false,
+    accountStatus: "PENDING",
   });
   if (!provider) {
     throw throwError(
@@ -344,8 +379,12 @@ export const rejectProvider = async (providerId) => {
     );
   }
 
-  await User.findByIdAndDelete(providerId);
+  provider.isActive = false;
+  provider.accountStatus = "BANNED";
+  provider.password = null;
+  provider.emailVerifiedAt = null;
+  await provider.save();
   return {
-    message: "Hồ sơ đối tác đã bị từ chối và xóa.",
+    message: "Ho so doi tac da bi tu choi va luu vao lich su.",
   };
 };

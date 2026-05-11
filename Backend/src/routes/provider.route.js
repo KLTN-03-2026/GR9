@@ -4,6 +4,7 @@ import {
   applyProviderController,
   getProviderAnalyticsController,
   getProviderDashboardController,
+  listProcessedProviderApplicationsController,
   listProviderApplicationsController,
   approveProviderController,
   rejectProviderController,
@@ -44,6 +45,13 @@ router.post(
   authorize("ADMIN"),
   upload.single("policyDocument"),
   uploadProviderPolicyController,
+);
+
+router.get(
+  "/applications/history",
+  protect,
+  authorize("ADMIN"),
+  listProcessedProviderApplicationsController,
 );
 
 router.get(

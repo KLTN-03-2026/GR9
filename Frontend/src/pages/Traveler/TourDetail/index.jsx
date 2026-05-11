@@ -128,7 +128,7 @@ export default function TourDetail() {
     const childPrice = Number(tour?.price?.child) || 0;
     const infantPrice = Number(tour?.price?.infant) || 0;
     const privateMultiplier = Number(tour?.privateMultiplier) || 1.5;
-    const [selectedDate, setSelectedDate] = useState("2026-04-05");
+    const [selectedDate, setSelectedDate] = useState("");
     const [dateDialogOpen, setDateDialogOpen] = useState(false);
     const [hotelPref, setHotelPref] = useState("no-over-night");
     const [transportPref, setTransportPref] = useState("shared-shuttle");
@@ -163,6 +163,10 @@ export default function TourDetail() {
     }, [isPrivate]);
     const handleBooking = async () => {
         if (bookingSubmitting) return;
+        if (!selectedScheduleId || !selectedDate) {
+            toast.error("Vui lòng chọn ngày khởi hành trước khi đặt tour");
+            return;
+        }
 
         try {
             setBookingSubmitting(true);
@@ -232,14 +236,8 @@ export default function TourDetail() {
         setInfants(initialTravelers.infants);
         setIsPrivate(tour?.bookingAccess === "TARGET_TRAVELER_ONLY");
 
-        const firstSchedule = (tour?.bookingAccess === "TARGET_TRAVELER_ONLY"
-            ? tour?.schedules
-            : tour?.schedules?.filter((schedule) => schedule.isPrivate === (tour?.type === "PRIVATE")))?.[0];
-
-        if (firstSchedule) {
-            setSelectedScheduleId(firstSchedule._id);
-            setSelectedDate(formatDateISO(firstSchedule.departureDate));
-        }
+        setSelectedScheduleId(null);
+        setSelectedDate("");
     }, [tour]);
 
     const nights = Math.max((Number(tour?.numberOfDay) || 1) - 1, 0);
@@ -505,7 +503,7 @@ export default function TourDetail() {
                                     <div className="space-y-6">
                                         <div className="space-y-2">
                                             <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
-                                                Select Date
+                                                Ngày khởi hành
                                             </label>
 
                                             <Dialog open={dateDialogOpen} onOpenChange={setDateDialogOpen}>
@@ -518,8 +516,16 @@ export default function TourDetail() {
                                                             <span className="material-symbols-outlined text-on-surface-variant">
                                                                 calendar_today
                                                             </span>
-                                                            <span className="font-medium">
-                                                                {selectedDate || formatDateISO(Date.now())}
+                                                            <span
+                                                                className={`font-medium ${
+                                                                    selectedDate
+                                                                        ? "text-on-surface"
+                                                                        : "text-on-surface-variant"
+                                                                }`}
+                                                            >
+                                                                {selectedDate
+                                                                    ? formatDateDisplay(selectedDate)
+                                                                    : "Chọn ngày khởi hành"}
                                                             </span>
                                                         </div>
                                                         <span className="material-symbols-outlined text-on-surface-variant">
@@ -531,7 +537,7 @@ export default function TourDetail() {
                                                     <div className="space-y-3">
                                                         <div className="space-y-2">
                                                             <p className="text-sm font-bold text-on-surface-variant">
-                                                                Pick a date
+                                                                Chọn lịch khởi hành còn chỗ
                                                             </p>
                                                             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
                                                                 {filteredSchedules.length > 0 ? (
@@ -600,7 +606,7 @@ export default function TourDetail() {
                                                                     })
                                                                 ) : (
                                                                     <p className="text-sm text-on-surface-variant">
-                                                                        No schedules available
+                                                                        Chưa có lịch khởi hành khả dụng
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -849,7 +855,11 @@ export default function TourDetail() {
                                             onClick={handleBooking}
                                             disabled={!selectedScheduleId || bookingSubmitting || Boolean(bookingDisabledReason)}
                                         >
-                                            {bookingSubmitting ? "Creating payment..." : "Confirm Booking"}
+                                            {!selectedScheduleId
+                                                ? "Chọn ngày khởi hành để đặt tour"
+                                                : bookingSubmitting
+                                                  ? "Đang tạo thanh toán..."
+                                                  : "Xác nhận đặt tour"}
                                         </button>
 
                                         <p className="text-center text-xs text-on-surface-variant px-4">

@@ -26,20 +26,12 @@ const SORT_LABEL_KEYS = {
     durationShort: "durationShort",
 };
 
-const TOUR_FALLBACK_IMAGES = [
-    "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80",
-];
-
-const getTourImage = (tour, index = 0) =>
+const getTourImage = (tour) =>
     tour?.images?.imageUrl ||
     tour?.images?.[0]?.imageUrl ||
     tour?.coverImage ||
     tour?.image ||
-    TOUR_FALLBACK_IMAGES[index % TOUR_FALLBACK_IMAGES.length];
+    null;
 
 export default function TourList() {
     const { t } = useI18n();
@@ -166,17 +158,25 @@ export default function TourList() {
                     <TourListSkeleton />
                 ) : (
                     <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-                        {filteredTours.map((tour, index) => (
+                        {filteredTours.map((tour) => (
                             <article
                                 key={tour._id}
                                 className="group relative overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10"
                             >
                                 <div className="relative aspect-[4/3] overflow-hidden bg-surface-container-low">
-                                    <img
-                                        alt={tour.name}
-                                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                        src={getTourImage(tour, index)}
-                                    />
+                                    {getTourImage(tour) ? (
+                                        <img
+                                            alt={tour.name}
+                                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                            src={getTourImage(tour)}
+                                        />
+                                    ) : (
+                                        <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary">
+                                            <span className="material-symbols-outlined text-6xl">
+                                                travel_explore
+                                            </span>
+                                        </div>
+                                    )}
 
                                     <div className="absolute left-4 top-4 flex flex-wrap gap-2">
                                         <span className="rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-slate-800 shadow-sm backdrop-blur-md">

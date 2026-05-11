@@ -8,72 +8,14 @@ import { getTravelerDashboard } from "@/services/api/traveler";
 import { formatCurrencyVND } from "@/utils/formatPrice";
 import { useI18n } from "@/i18n/I18nProvider";
 
-const FALLBACK_UPCOMING = [
-  {
-    id: "fallback-dn",
-    location: "Da Nang, Vietnam",
-    status: "ongoing",
-    startDay: "2026-03-29",
-    endDay: "2026-03-31",
-    image:
-      "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: "fallback-st",
-    location: "Santorini, Greece",
-    status: "upcoming",
-    startDay: "2026-06-12",
-    endDay: "2026-06-18",
-    image:
-      "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=900&q=80",
-  },
-];
-
-const TRAVELER_DASHBOARD_IMAGES = [
-  "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-];
-
-const getTripImage = (trip, index = 0) =>
+const getTripImage = (trip) =>
   trip?.image ||
   trip?.coverImage ||
   trip?.tour?.image ||
   trip?.tour?.coverImage ||
   trip?.tourId?.image ||
   trip?.tourId?.coverImage ||
-  TRAVELER_DASHBOARD_IMAGES[index % TRAVELER_DASHBOARD_IMAGES.length];
-
-const FALLBACK_RECOMMENDED = [
-  {
-    id: "da-nang-coastal",
-    title: "Da Nang, Vietnam",
-    description:
-      "A premium Da Nang itinerary blending airport support, landmark visits, local food and passenger tracking.",
-    price: formatCurrencyVND(289000),
-    type: "Coastal",
-    icon: "temple_buddhist",
-  },
-  {
-    id: "hoi-an-lantern",
-    title: "Hoi An, Vietnam",
-    description:
-      "Private pickup, old town storytelling and a premium lantern workshop in Hoi An.",
-    price: formatCurrencyVND(148000),
-    type: "Lanterns",
-    icon: "temple_buddhist",
-  },
-  {
-    id: "ha-long-cruise",
-    title: "Ha Long Bay, Vietnam",
-    description:
-      "Luxury cruise through Ha Long Bay with curated caves, lagoons and cultural immersion.",
-    price: formatCurrencyVND(1249000),
-    type: "Cruise",
-    icon: "directions_boat",
-  },
-];
+  null;
 
 const formatDateRange = (startDay, endDay, language, noDateLabel) => {
   const start = startDay ? new Date(startDay) : null;
@@ -111,24 +53,14 @@ const TravelerDashboard = () => {
   }, [t]);
 
   const upcomingTrips = useMemo(() => {
-    const realTrips = [
+    return [
       ...(dashboard?.ongoingTrips || []),
       ...(dashboard?.upcomingTrips || []),
     ].slice(0, 2);
-
-    if (!realTrips.length) {
-      return FALLBACK_UPCOMING;
-    }
-
-    return realTrips;
   }, [dashboard]);
 
   const recommendedTours = useMemo(() => {
     const realTours = (dashboard?.recommendedTours || []).slice(0, 3);
-
-    if (!realTours.length) {
-      return FALLBACK_RECOMMENDED;
-    }
 
     return realTours.map((tour) => ({
       id: tour.id,
@@ -136,12 +68,13 @@ const TravelerDashboard = () => {
       description: tour.description,
       price: tour.price,
       type: tour.type,
+      image: tour.image,
       icon: tour.type === "Cruise" ? "directions_boat" : "temple_buddhist",
     }));
   }, [dashboard]);
 
-  const citiesVisited = dashboard?.profileStats?.citiesVisited ?? 24;
-  const rewardPoints = dashboard?.profileStats?.rewardPoints ?? 8400;
+  const citiesVisited = dashboard?.profileStats?.citiesVisited ?? 0;
+  const rewardPoints = dashboard?.profileStats?.rewardPoints ?? 0;
   const spendingBudget = Math.max(80, Math.ceil(rewardPoints / 1000) * 10);
   const spendingUsed = Math.min(
     spendingBudget,
@@ -227,11 +160,19 @@ const TravelerDashboard = () => {
                     className="group rounded-3xl border border-outline-variant/15 bg-surface-container-lowest p-4 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10"
                   >
                     <div className="relative mb-4 h-48 overflow-hidden rounded-2xl">
-                      <img
-                        alt={trip.location}
-                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        src={getTripImage(trip, index)}
-                      />
+                      {getTripImage(trip) ? (
+                        <img
+                          alt={trip.location}
+                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          src={getTripImage(trip)}
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary">
+                          <span className="material-symbols-outlined text-5xl">
+                            travel_explore
+                          </span>
+                        </div>
+                      )}
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-transparent to-transparent" />
                       <div className="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-teal-700 backdrop-blur-md">
                         {trip.status === "ongoing" ? t("travelerDashboard.ongoing") : t("travelerDashboard.upcoming")}
@@ -258,6 +199,12 @@ const TravelerDashboard = () => {
                   </Link>
                 ))}
               </div>
+              {upcomingTrips.length === 0 && (
+                <div className="rounded-3xl border border-dashed border-outline-variant/30 bg-surface-container-low p-8 text-center text-sm text-on-surface-variant">
+                  Bạn chưa có chuyến đi sắp tới. Khi đặt tour hoặc tạo lịch trình AI,
+                  dữ liệu thật sẽ xuất hiện tại đây.
+                </div>
+              )}
             </section>
 
             <section>
@@ -276,18 +223,22 @@ const TravelerDashboard = () => {
                 {recommendedTours.map((tour) => (
                   <Link
                     key={tour.id}
-                    to={
-                      tour.id?.startsWith?.("fallback") || tour.id?.includes?.("coastal")
-                        ? "/traveler/tour-detail"
-                        : `/traveler/tour-detail/${tour.id}`
-                    }
+                    to={`/traveler/tour-detail/${tour.id}`}
                     className="flex min-h-[230px] cursor-pointer flex-col rounded-[2rem] border border-outline-variant/15 bg-surface-container-low p-5 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10"
                   >
-                    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 shadow-sm">
-                      <span className="material-symbols-outlined text-3xl text-primary">
-                        {tour.icon}
-                      </span>
-                    </div>
+                    {tour.image ? (
+                      <img
+                        alt={tour.title}
+                        className="mb-4 h-28 w-full rounded-2xl object-cover"
+                        src={tour.image}
+                      />
+                    ) : (
+                      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 shadow-sm">
+                        <span className="material-symbols-outlined text-3xl text-primary">
+                          {tour.icon}
+                        </span>
+                      </div>
+                    )}
                     <h4 className="mb-1 font-headline text-xl font-bold text-on-surface">
                       {tour.title}
                     </h4>
@@ -305,6 +256,12 @@ const TravelerDashboard = () => {
                   </Link>
                 ))}
               </div>
+              {recommendedTours.length === 0 && (
+                <div className="rounded-3xl border border-dashed border-outline-variant/30 bg-surface-container-low p-8 text-center text-sm text-on-surface-variant">
+                  Chưa có tour đang hoạt động để gợi ý. Hãy seed dữ liệu demo
+                  hoặc tạo tour từ tài khoản provider.
+                </div>
+              )}
             </section>
           </div>
 
