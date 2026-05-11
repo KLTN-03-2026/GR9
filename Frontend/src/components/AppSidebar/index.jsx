@@ -21,90 +21,84 @@ import {
   BadgeCheck,
   History,
 } from "lucide-react";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const MENU = {
   traveler: [
-    { name: "Dashboard", href: "", icon: LayoutDashboard },
-    { name: "Tours", href: "/tour-list", icon: Plane },
-    { name: "AI Travel Planner", href: "/ai-travel-planner", icon: Sparkles },
-    { name: "AI Tour History", href: "/ai-tour-history", icon: History },
+    { name: "Dashboard", labelKey: "dashboard", href: "", icon: LayoutDashboard },
+    { name: "Tours", labelKey: "tours", href: "/tour-list", icon: Plane },
+    { name: "AI Travel Planner", labelKey: "aiTravelPlanner", href: "/ai-travel-planner", icon: Sparkles },
+    { name: "AI Tour History", labelKey: "aiTourHistory", href: "/ai-tour-history", icon: History },
     {
       name: "My Bookings",
+      labelKey: "myBookings",
       href: "/my-booking-traveler",
       icon: ClipboardList,
     },
     {
       name: "Tracking Links",
+      labelKey: "trackingLinks",
       href: "/traveler-tracking-link-management",
       icon: LinkIcon,
     },
-    { name: "Live Tracking", href: "/tour-tracking", icon: MapPin },
+    { name: "Live Tracking", labelKey: "liveTracking", href: "/tour-tracking", icon: MapPin },
   ],
 
   admin: [
-    { name: "Dashboard", href: "", icon: ChartNoAxesColumn },
-    { name: "Users", href: "/users", icon: UserCog },
-    { name: "Provider Approval", href: "/provider-approval", icon: BadgeCheck },
+    { name: "Dashboard", labelKey: "dashboard", href: "", icon: ChartNoAxesColumn },
+    { name: "Users", labelKey: "users", href: "/users", icon: UserCog },
+    { name: "Provider Approval", labelKey: "providerApproval", href: "/provider-approval", icon: BadgeCheck },
     {
       name: "Approval History",
+      labelKey: "approvalHistory",
       href: "/provider-approval-history",
       icon: FolderKanban,
     },
   ],
 
   guide: [
-    { name: "Dashboard", href: "", icon: LayoutDashboard },
+    { name: "Dashboard", labelKey: "dashboard", href: "", icon: LayoutDashboard },
     {
       name: "Assigned Tours",
+      labelKey: "assignedTours",
       href: "/assigned-tours",
       icon: ClipboardList,
     },
     {
       name: "Live Tracking",
+      labelKey: "liveTracking",
       href: "/live-tour-tracking",
       icon: Share2,
     },
   ],
 
   provider: [
-    { name: "Dashboard", href: "", icon: LayoutDashboard },
+    { name: "Dashboard", labelKey: "dashboard", href: "", icon: LayoutDashboard },
     {
       name: "Manage Tours",
+      labelKey: "manageTours",
       href: "/manage-tours",
       icon: FolderKanban,
     },
     {
       name: "Services",
+      labelKey: "services",
       href: "/service-management",
       icon: ClipboardList,
     },
     {
       name: "Bookings",
+      labelKey: "bookings",
       href: "/bookings-management",
       icon: ClipboardList,
     },
     {
       name: "Guides",
+      labelKey: "guides",
       href: "/guide-management",
       icon: Users,
     },
   ],
-};
-
-const ROLE_META = {
-  traveler: {
-    subtitle: "Traveler Suite",
-  },
-  admin: {
-    subtitle: "Admin Console",
-  },
-
-  guide: {
-    subtitle: "Guide Workspace",
-  },
-  provider: {
-    subtitle: "Provider Hub",
-  },
 };
 
 const getRoleFromPath = (pathname) => {
@@ -116,11 +110,11 @@ const getRoleFromPath = (pathname) => {
 
 export function AppSidebar() {
   const location = useLocation();
+  const { t } = useI18n();
 
   const role = getRoleFromPath(location.pathname);
   const menuItems = MENU[role];
   const basePath = `/${role === "hotel" ? "hotel" : role}`;
-  const roleMeta = ROLE_META[role];
 
   return (
     <Sidebar className="border-r border-outline-variant/20 bg-white shadow-[8px_0px_30px_rgba(25,28,30,0.04)]">
@@ -136,7 +130,7 @@ export function AppSidebar() {
                 Voyager AI
               </h3>
               <p className="text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
-                {roleMeta.subtitle}
+                {t(`sidebar.subtitles.${role}`)}
               </p>
             </div>
           </Link>
@@ -184,7 +178,7 @@ export function AppSidebar() {
                 />
 
                 <span className="relative z-10 font-heading text-[13px] font-semibold">
-                  {item.name}
+                  {t(`sidebar.items.${item.labelKey}`)}
                 </span>
               </Link>
             );

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -6,6 +6,7 @@ import PageHero from "@/components/shared/page-hero";
 import { Button } from "@/components/ui/button";
 import { getTravelerDashboard } from "@/services/api/traveler";
 import { formatCurrencyVND } from "@/utils/formatPrice";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const FALLBACK_UPCOMING = [
   {
@@ -54,12 +55,13 @@ const FALLBACK_RECOMMENDED = [
   },
 ];
 
-const formatDateRange = (startDay, endDay) => {
+const formatDateRange = (startDay, endDay, language, noDateLabel) => {
   const start = startDay ? new Date(startDay) : null;
   const end = endDay ? new Date(endDay) : null;
-  if (!start || Number.isNaN(start.getTime())) return "No date";
+  if (!start || Number.isNaN(start.getTime())) return noDateLabel;
 
-  const startLabel = start.toLocaleDateString("en-US", {
+  const locale = language === "vi" ? "vi-VN" : "en-US";
+  const startLabel = start.toLocaleDateString(locale, {
     month: "short",
     day: "2-digit",
   });
@@ -68,7 +70,7 @@ const formatDateRange = (startDay, endDay) => {
     return startLabel;
   }
 
-  const endLabel = end.toLocaleDateString("en-US", {
+  const endLabel = end.toLocaleDateString(locale, {
     month: "short",
     day: "2-digit",
   });
@@ -77,15 +79,16 @@ const formatDateRange = (startDay, endDay) => {
 };
 
 const TravelerDashboard = () => {
+  const { language, t } = useI18n();
   const [dashboard, setDashboard] = useState(null);
 
   useEffect(() => {
     getTravelerDashboard()
       .then((response) => setDashboard(response.data.data || null))
       .catch((error) =>
-        toast.error(error?.response?.data?.message || "Cannot load traveler dashboard"),
+        toast.error(error?.response?.data?.message || t("travelerDashboard.cannotLoad")),
       );
-  }, []);
+  }, [t]);
 
   const upcomingTrips = useMemo(() => {
     const realTrips = [
@@ -134,16 +137,16 @@ const TravelerDashboard = () => {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           <div className="space-y-12 lg:col-span-8">
             <PageHero
-              eyebrow="Traveler Dashboard"
+              eyebrow={t("travelerDashboard.heroEyebrow")}
               heading={
                 <>
-                  Plan your next{" "}
+                  {t("travelerDashboard.heroTitleA")}{" "}
                   <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
-                    trip with AI
+                    {t("travelerDashboard.heroTitleB")}
                   </span>
                 </>
               }
-              description="Our concierge creates bespoke itineraries based on your mood, budget, and style."
+              description={t("travelerDashboard.heroDescription")}
               actions={
                 <Button
                   asChild
@@ -156,7 +159,7 @@ const TravelerDashboard = () => {
                     >
                       auto_awesome
                     </span>
-                    Generate Plan
+                    {t("travelerDashboard.generatePlan")}
                   </Link>
                 </Button>
               }
@@ -170,10 +173,10 @@ const TravelerDashboard = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900/75 via-slate-900/10 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                     <p className="text-xs font-bold uppercase tracking-[0.3em] text-white/70">
-                      AI Concierge
+                      {t("travelerDashboard.conciergeTitle")}
                     </p>
                     <p className="mt-2 text-2xl font-extrabold leading-tight">
-                      Bespoke escapes for every travel mood
+                      {t("travelerDashboard.conciergeText")}
                     </p>
                   </div>
                 </div>
@@ -183,7 +186,7 @@ const TravelerDashboard = () => {
             <section>
               <div className="mb-6 flex items-center justify-between">
                 <h2 className="font-headline text-2xl font-bold text-on-surface">
-                  Upcoming Trips
+                  {t("travelerDashboard.upcomingTrips")}
                 </h2>
                 <Button
                   asChild
@@ -191,7 +194,7 @@ const TravelerDashboard = () => {
                   className="h-auto px-0 text-sm font-semibold text-primary hover:underline"
                 >
                   <Link to="/traveler/traveler-tracking-link-management">
-                    View all
+                    {t("travelerDashboard.viewAll")}
                   </Link>
                 </Button>
               </div>
@@ -210,7 +213,7 @@ const TravelerDashboard = () => {
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS6t51F8tBzGfKatRaZGMBz9c6EWoMtM34PoKd1fW1vskfiUQSfgOtL8BtkGEmTTPPH_2Fz4CYhRjrA4PPLj7m67_RBU6bqHvuORg0t2ufLhhZnVVwfHJXRBaqYf-pK2wdpuWA2bWsVd8LV6X0YqDe_oz8ffqpgTura_qHk-N8spDxp74SzUgts2Xso-wn2vJmf64hvi63oE_1vpPQzfxDsDXrfWAvJUm_ZDKOVkqQlULl83FUWbVXyUwGgQ0X4JsWmnRGtMaFhFeF"
                       />
                       <div className="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-teal-700 backdrop-blur-md">
-                        {trip.status === "ongoing" ? "Ongoing" : "Upcoming"}
+                        {trip.status === "ongoing" ? t("travelerDashboard.ongoing") : t("travelerDashboard.upcoming")}
                       </div>
                     </div>
                     <div>
@@ -227,7 +230,7 @@ const TravelerDashboard = () => {
                           <span className="material-symbols-outlined text-[16px]">
                             calendar_today
                           </span>
-                          <span>{formatDateRange(trip.startDay, trip.endDay)}</span>
+                          <span>{formatDateRange(trip.startDay, trip.endDay, language, t("travelerDashboard.noDate"))}</span>
                         </div>
                       </div>
                     </div>
@@ -240,10 +243,10 @@ const TravelerDashboard = () => {
               <div className="mb-6 flex items-center justify-between">
                 <div>
                   <h2 className="font-headline text-2xl font-bold text-on-surface">
-                    Recommended for You
+                    {t("travelerDashboard.recommended")}
                   </h2>
                   <p className="text-sm text-on-surface-variant">
-                    Based on your recent interest in coastal cities
+                    {t("travelerDashboard.recommendedNote")}
                   </p>
                 </div>
               </div>
@@ -272,7 +275,7 @@ const TravelerDashboard = () => {
                     </p>
                     <div className="mt-auto flex items-center justify-between">
                       <div className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm">
-                        est. {tour.price}
+                        {t("travelerDashboard.estimated")} {tour.price}
                       </div>
                       <div className="flex items-center text-xs font-bold text-teal-700">
                         {tour.type}
@@ -287,7 +290,7 @@ const TravelerDashboard = () => {
           <div className="space-y-8 lg:col-span-4">
             <section className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
               <h3 className="mb-6 text-xl font-extrabold text-slate-900">
-                Quick Actions
+                {t("travelerDashboard.quickActions")}
               </h3>
               <div className="space-y-4">
                 <Link
@@ -301,7 +304,7 @@ const TravelerDashboard = () => {
                       </span>
                     </span>
                     <span className="text-base font-bold">
-                      Generate AI Plan
+                      {t("travelerDashboard.generateAiPlan")}
                     </span>
                   </span>
                   <span className="material-symbols-outlined text-teal-500 transition-transform group-hover:translate-x-1 group-hover:text-teal-700">
@@ -319,7 +322,7 @@ const TravelerDashboard = () => {
                         explore
                       </span>
                     </span>
-                    <span className="text-base font-bold">Browse Tours</span>
+                    <span className="text-base font-bold">{t("travelerDashboard.browseTours")}</span>
                   </span>
                   <span className="material-symbols-outlined text-indigo-500 transition-transform group-hover:translate-x-1 group-hover:text-indigo-700">
                     chevron_right
@@ -336,7 +339,7 @@ const TravelerDashboard = () => {
                         book_online
                       </span>
                     </span>
-                    <span className="text-base font-bold">My Bookings</span>
+                    <span className="text-base font-bold">{t("travelerDashboard.myBookings")}</span>
                   </span>
                   <span className="material-symbols-outlined text-slate-400 transition-transform group-hover:translate-x-1 group-hover:text-slate-600">
                     chevron_right
@@ -349,7 +352,7 @@ const TravelerDashboard = () => {
               <div className="absolute left-4 top-4 z-10">
                 <div className="rounded-2xl bg-white/90 p-3 shadow-sm backdrop-blur-md">
                   <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                    Total Countries
+                    {t("travelerDashboard.totalCountries")}
                   </p>
                   <p className="font-headline text-2xl font-extrabold text-teal-800">
                     {citiesVisited}
@@ -364,14 +367,13 @@ const TravelerDashboard = () => {
               <div className="p-6">
                 <div className="mb-2 flex items-center space-x-2 text-xs font-bold text-primary">
                   <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
-                  <span>LIVE TRAVEL MAP</span>
+                  <span>{t("travelerDashboard.liveTravelMap")}</span>
                 </div>
                 <h4 className="font-headline font-bold text-on-surface">
-                  Explore your footprint
+                  {t("travelerDashboard.footprintTitle")}
                 </h4>
                 <p className="mt-1 text-sm text-on-surface-variant">
-                  See all the places you've visited and share your map with
-                  friends.
+                  {t("travelerDashboard.footprintText")}
                 </p>
               </div>
             </section>
@@ -383,16 +385,15 @@ const TravelerDashboard = () => {
                 </span>
               </div>
               <h3 className="mb-3 text-2xl font-headline font-bold tracking-tight">
-                Smart Budgeting
+                {t("travelerDashboard.smartBudgeting")}
               </h3>
               <p className="mb-6 text-base leading-relaxed text-on-tertiary/90">
-                Let Voyager AI track your expenses in real-time and suggest
-                local hidden gems that fit your daily budget.
+                {t("travelerDashboard.smartBudgetingText")}
               </p>
 
               <div className="mb-8 space-y-3 rounded-xl bg-white/10 p-4 backdrop-blur-sm">
                 <div className="flex items-center justify-between text-sm font-medium">
-                  <span>Today's spending</span>
+                  <span>{t("travelerDashboard.todaySpending")}</span>
                   <span>{formatCurrencyVND(spendingUsed * 1000)} / {formatCurrencyVND(spendingBudget * 1000)}</span>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-white/20">
@@ -406,23 +407,23 @@ const TravelerDashboard = () => {
                     <span className="material-symbols-outlined text-[14px]">
                       local_cafe
                     </span>
-                    <span>Cà phê: {formatCurrencyVND(6000)}</span>
+                    <span>{t("travelerDashboard.coffee")}: {formatCurrencyVND(6000)}</span>
                   </span>
                   <span className="flex items-center gap-1">
                     <span className="material-symbols-outlined text-[14px]">
                       restaurant
                     </span>
-                    <span>Bữa trưa: {formatCurrencyVND(18000)}</span>
+                    <span>{t("travelerDashboard.lunch")}: {formatCurrencyVND(18000)}</span>
                   </span>
                   <span className="flex items-center gap-1">
                     <span className="material-symbols-outlined text-[14px]">
                       directions_bus
                     </span>
-                    <span>Di chuyển: {formatCurrencyVND(5000)}</span>
+                    <span>{t("travelerDashboard.transport")}: {formatCurrencyVND(5000)}</span>
                   </span>
                 </div>
                 <p className="mt-2 text-xs italic text-on-tertiary/80">
-                  Reward points available: {rewardPoints.toLocaleString("en-US")}.
+                  {t("travelerDashboard.rewardPoints", { points: rewardPoints.toLocaleString(language === "vi" ? "vi-VN" : "en-US") })}
                 </p>
               </div>
 
@@ -430,7 +431,7 @@ const TravelerDashboard = () => {
                 type="button"
                 className="w-full rounded-xl bg-white py-4 text-base font-bold text-tertiary-container shadow-md transition-all hover:bg-slate-50 hover:shadow-lg active:scale-[0.98]"
               >
-                Activate Smart Tracker
+                {t("travelerDashboard.activateTracker")}
               </button>
             </section>
           </div>
@@ -441,3 +442,5 @@ const TravelerDashboard = () => {
 };
 
 export default TravelerDashboard;
+
+
