@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { BusFront, CalendarDays, Hotel, Search, Users } from "lucide-react";
+import { BusFront, CalendarDays, ChevronLeft, ChevronRight, Hotel, Search, Users } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { getProviderBookings } from "@/services/api/booking";
 import { useSearchParams } from "react-router-dom";
 
@@ -82,6 +83,8 @@ export default function ProviderBookingTable() {
   const [tourFilter, setTourFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const pageSize = 8;
 
   useEffect(() => {
     const loadBookings = async () => {
@@ -163,6 +166,38 @@ export default function ProviderBookingTable() {
     return [...map.entries()].map(([id, name]) => ({ id, name }));
   }, [bookings]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredBookings.length / pageSize));
+  const visibleBookings = useMemo(
+    () => filteredBookings.slice((page - 1) * pageSize, page * pageSize),
+    [filteredBookings, page],
+  );
+  const visiblePageButtons = useMemo(() => {
+    const maxButtons = 5;
+    if (totalPages <= maxButtons) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    let start = Math.max(1, page - Math.floor(maxButtons / 2));
+    let end = start + maxButtons - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, totalPages - maxButtons + 1);
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+  }, [page, totalPages]);
+  const firstRow = filteredBookings.length === 0 ? 0 : (page - 1) * pageSize + 1;
+  const lastRow = Math.min(page * pageSize, filteredBookings.length);
+
+  useEffect(() => {
+    setPage(1);
+  }, [keyword, tourFilter, dateFilter, statusFilter]);
+
+  useEffect(() => {
+    setPage((current) => Math.min(current, totalPages));
+  }, [totalPages]);
+
   const resetFilters = () => {
     setTourFilter("all");
     setDateFilter("");
@@ -234,7 +269,7 @@ export default function ProviderBookingTable() {
           <button
             type="button"
             onClick={resetFilters}
-            className="h-11 rounded-xl border border-outline-variant/30 bg-white px-4 text-sm font-bold text-on-surface-variant hover:bg-surface-container-low"
+            className="h-11 rounded-xl border border-outline-variant/30 bg-surface-container-lowest px-4 text-sm font-bold text-on-surface-variant hover:bg-surface-container-low"
           >
             Reset
           </button>
@@ -242,8 +277,8 @@ export default function ProviderBookingTable() {
 
         <div className="overflow-hidden rounded-[1.5rem] border border-outline-variant/20">
           <Table>
-            <TableHeader className="bg-slate-50/80">
-              <TableRow className="hover:bg-slate-50/80">
+            <TableHeader className="bg-surface-container-low">
+              <TableRow className="hover:bg-surface-container-low">
                 <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
                   Customer
                 </TableHead>
@@ -287,7 +322,7 @@ export default function ProviderBookingTable() {
                   </TableRow>
                 ))
               ) : filteredBookings.length ? (
-                filteredBookings.map((booking) => {
+                visibleBookings.map((booking) => {
                   const status = getDisplayStatus(booking);
                   return (
                     <TableRow key={booking.id} className="group">
@@ -359,7 +394,7 @@ export default function ProviderBookingTable() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="px-6 py-12 text-center text-sm text-slate-500">
+                  <TableCell colSpan={4} className="px-6 py-12 text-center text-sm text-on-surface-variant">
                     No bookings found
                   </TableCell>
                 </TableRow>
@@ -367,6 +402,52 @@ export default function ProviderBookingTable() {
             </TableBody>
           </Table>
         </div>
+        {!loading && filteredBookings.length > pageSize ? (
+          <div className="flex flex-col gap-3 rounded-[1.5rem] bg-surface-container-low px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-on-surface-variant">
+              Showing <span className="font-bold text-on-surface">{firstRow} - {lastRow}</span> of{" "}
+              <span className="font-bold text-on-surface">{filteredBookings.length}</span> bookings
+            </p>
+
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                disabled={page <= 1}
+                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                className="rounded-xl bg-surface-container-lowest"
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+              {visiblePageButtons.map((pageNumber) => (
+                <Button
+                  key={pageNumber}
+                  type="button"
+                  variant={pageNumber === page ? "default" : "outline"}
+                  onClick={() => setPage(pageNumber)}
+                  className={
+                    pageNumber === page
+                      ? "rounded-xl bg-primary px-4 text-primary-foreground"
+                      : "rounded-xl bg-surface-container-lowest px-4"
+                  }
+                >
+                  {pageNumber}
+                </Button>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                disabled={page >= totalPages}
+                onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                className="rounded-xl bg-surface-container-lowest"
+              >
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

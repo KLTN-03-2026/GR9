@@ -15,10 +15,41 @@ import { formatPrice } from "@/utils/formatPrice";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useI18n } from "@/i18n/I18nProvider";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function BookingTableSection({ bookings, loading, error }) {
   const navigate = useNavigate();
   const { language, t } = useI18n();
+  const [page, setPage] = useState(1);
+  const pageSize = 6;
+  const totalPages = Math.max(1, Math.ceil((bookings?.length || 0) / pageSize));
+  const visibleBookings = useMemo(
+    () => (bookings || []).slice((page - 1) * pageSize, page * pageSize),
+    [bookings, page],
+  );
+  const visiblePageButtons = useMemo(() => {
+    const maxButtons = 5;
+    if (totalPages <= maxButtons) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    let start = Math.max(1, page - Math.floor(maxButtons / 2));
+    let end = start + maxButtons - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, totalPages - maxButtons + 1);
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+  }, [page, totalPages]);
+  const firstRow = !bookings?.length ? 0 : (page - 1) * pageSize + 1;
+  const lastRow = Math.min(page * pageSize, bookings?.length || 0);
+
+  useEffect(() => {
+    setPage((current) => Math.min(current, totalPages));
+  }, [totalPages]);
 
   const formatBookingDate = (value) => {
     if (!value) return "-";
@@ -166,7 +197,7 @@ export default function BookingTableSection({ bookings, loading, error }) {
                 <TableCell colSpan={5} className="py-8 text-center text-on-surface-variant">{t("bookingPage.noBookings")}</TableCell>
               </TableRow>
             ) : (
-              bookings.map((booking) => (
+              visibleBookings.map((booking) => (
                 <TableRow
                   key={booking._id}
                   className="group border-surface-container hover:bg-surface-container-low/30"
@@ -281,6 +312,52 @@ export default function BookingTableSection({ bookings, loading, error }) {
             )}
           </TableBody>
         </Table>
+        {!loading && !error && (bookings?.length || 0) > pageSize ? (
+          <div className="flex flex-col gap-3 border-t border-surface-container bg-surface-container-low px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-on-surface-variant">
+              Showing <span className="font-bold text-on-surface">{firstRow} - {lastRow}</span> of{" "}
+              <span className="font-bold text-on-surface">{bookings?.length || 0}</span> bookings
+            </p>
+
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                disabled={page <= 1}
+                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                className="rounded-xl bg-surface-container-lowest"
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+              {visiblePageButtons.map((pageNumber) => (
+                <Button
+                  key={pageNumber}
+                  type="button"
+                  variant={pageNumber === page ? "default" : "outline"}
+                  onClick={() => setPage(pageNumber)}
+                  className={
+                    pageNumber === page
+                      ? "rounded-xl bg-primary px-4 text-primary-foreground"
+                      : "rounded-xl bg-surface-container-lowest px-4"
+                  }
+                >
+                  {pageNumber}
+                </Button>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                disabled={page >= totalPages}
+                onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                className="rounded-xl bg-surface-container-lowest"
+              >
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );

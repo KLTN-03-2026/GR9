@@ -3,8 +3,9 @@ import { Link, useLocation } from "react-router-dom";
 import { MapPinned, Ticket } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import LanguageToggle from "@/components/shared/language-toggle";
 import { useI18n } from "@/i18n/I18nProvider";
+import ThemeModeToggle from "@/components/shared/theme-mode-toggle";
+import LanguageToggle from "@/components/shared/language-toggle";
 
 const TRACKING_CODE_STORAGE_KEY = "guestTrackingCode";
 
@@ -33,18 +34,21 @@ const HeaderGuest = () => {
   const bookingSuccessPath = `/guest/booking-success-and-tracking-link${trackingQuery}`;
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b border-outline-variant/20 bg-white/92 px-6 backdrop-blur-xl shadow-sm">
+    <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b border-outline-variant/20 bg-surface-container-lowest/92 px-6 shadow-sm backdrop-blur-xl">
       <div className="mx-auto flex h-full max-w-[1400px] items-center justify-between gap-6">
         {/* Logo */}
        
 
         {/* Navigation */}
         <nav className="no-scrollbar hidden items-center gap-2 overflow-x-auto md:flex">
-          <LanguageToggle />
           <Link to={publicTrackingPath}>
             <Button
               
-              className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${isBookingSuccessPage === false ? 'bg-teal-50 text-teal-700' : 'bg-0 text-slate-500 hover:bg-slate-100'} `}
+              className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${
+                isBookingSuccessPage === false
+                  ? "bg-primary/12 text-primary"
+                  : "bg-transparent text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+              } `}
             >
               <MapPinned className="h-4 w-4 fill-current" />
               {t("guestHeader.publicTracking")}
@@ -54,7 +58,11 @@ const HeaderGuest = () => {
           <Link to={bookingSuccessPath}>
             <Button
               
-              className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${isBookingSuccessPage ? 'bg-teal-50 text-teal-700' : 'bg-0 text-slate-500 hover:bg-slate-100'} `}
+              className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${
+                isBookingSuccessPage
+                  ? "bg-primary/12 text-primary"
+                  : "bg-transparent text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+              } `}
             >
               <Ticket className="h-4  w-4" />
               {t("guestHeader.bookingSuccess")}
@@ -62,9 +70,13 @@ const HeaderGuest = () => {
           </Link>
         </nav>
 
-        {/* Mobile Avatar */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="hidden items-center gap-2 md:flex">
+          <ThemeModeToggle />
           <LanguageToggle />
+        </div>
+
+        {/* Mobile Avatar */}
+        <div className="md:hidden">
           <Avatar className="h-9 w-9 border border-outline-variant/30 bg-surface-container-low">
             <AvatarFallback className="text-xs font-bold text-teal-800">
               P
@@ -74,7 +86,7 @@ const HeaderGuest = () => {
       </div>
 
       {/* bottom line */}
-      <div className="absolute bottom-0 h-[1px] w-full bg-slate-100/50" />
+      <div className="absolute bottom-0 h-[1px] w-full bg-outline-variant/25" />
     </header>
   );
 };
