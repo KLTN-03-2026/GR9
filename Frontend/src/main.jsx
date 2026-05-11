@@ -6,11 +6,9 @@ import { I18nProvider } from "./i18n/I18nProvider.jsx";
 import { ThemeProvider } from "./theme/ThemeProvider.jsx";
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
     <ThemeProvider>
-      <I18nProvider>
-        <App />
-      </I18nProvider>
-    </ThemeProvider>
-  </StrictMode>,
+        <I18nProvider>
+            <App />
+        </I18nProvider>
+    </ThemeProvider>,
 );
