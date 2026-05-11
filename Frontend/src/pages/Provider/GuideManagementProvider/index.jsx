@@ -19,6 +19,10 @@ import PageHero from "@/components/shared/page-hero";
 import { StatsSkeleton, TableSkeleton } from "@/components/shared/page-skeletons";
 import { useSearchParams } from "react-router-dom";
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const PHONE_PATTERN = /^(0|\+84)(\d[\s.-]?){8,10}$/;
+const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
+
 const GuideManagementProvider = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [guides, setGuides] = useState([]);
@@ -88,6 +92,16 @@ const GuideManagementProvider = () => {
     };
   };
 
+  const validateGuideForm = () => {
+    if (fullName.trim().length < 3) return "Tên guide phải có ít nhất 3 ký tự.";
+    if (!EMAIL_PATTERN.test(email.trim())) return "Email guide không hợp lệ.";
+    if (!PHONE_PATTERN.test(phone.trim())) return "Số điện thoại guide không hợp lệ.";
+    if (specialty.trim().length < 3) return "Vui lòng nhập chuyên môn của guide.";
+    if (avatarFile && !avatarFile.type.startsWith("image/")) return "Ảnh đại diện phải là file hình ảnh.";
+    if (avatarFile && avatarFile.size > MAX_AVATAR_SIZE) return "Ảnh đại diện không được vượt quá 5MB.";
+    return "";
+  };
+
   const resetGuideForm = () => {
     setFullName("");
     setEmail("");
@@ -102,6 +116,12 @@ const GuideManagementProvider = () => {
   };
 
   const handleAddGuide = async () => {
+    const validationMessage = validateGuideForm();
+    if (validationMessage) {
+      toast.error(validationMessage);
+      return;
+    }
+
     try {
       setLoading(true);
       const nextAvatarUrl = checkAvatar();
@@ -125,6 +145,12 @@ const GuideManagementProvider = () => {
   };
 
   const handleUpdateGuide = async () => {
+    const validationMessage = validateGuideForm();
+    if (validationMessage) {
+      toast.error(validationMessage);
+      return;
+    }
+
     try {
       setLoading(true);
       const nextAvatarUrl = checkAvatar();

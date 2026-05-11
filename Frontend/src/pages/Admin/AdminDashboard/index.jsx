@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import PageHero from "@/components/shared/page-hero";
 import { getAdminDashboard } from "@/services/api/admin";
+import { formatCurrencyVND } from "@/utils/formatPrice";
 
 const AdminDashboard = () => {
   const [dashboard, setDashboard] = useState(null);
@@ -82,11 +83,7 @@ const AdminDashboard = () => {
     [dashboard],
   );
 
-  const totalRevenue = Number(dashboard?.summary?.totalRevenue || 0).toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 2,
-  });
+  const totalRevenue = formatCurrencyVND(dashboard?.summary?.totalRevenue);
   const totalUsers = Number(dashboard?.summary?.totalUsers || 0).toLocaleString("en-US");
   const totalBookings = Number(dashboard?.summary?.totalBookings || 0).toLocaleString("en-US");
 

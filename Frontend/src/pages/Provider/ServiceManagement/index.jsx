@@ -27,6 +27,7 @@ const ServiceManagement = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [services, setServices] = useState([]);
   const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get("search") || "");
   const [category, setCategory] = useState("All");
   const [loading, setLoading] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -63,21 +64,29 @@ const ServiceManagement = () => {
 
   const handleSearchChange = (value) => {
     setSearch(value);
-    setSearchParams((current) => {
-      const next = new URLSearchParams(current);
-      if (value.trim()) {
-        next.set("search", value.trim());
-      } else {
-        next.delete("search");
-      }
-      return next;
-    }, { replace: true });
   };
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setDebouncedSearch(search);
+      setSearchParams((current) => {
+        const next = new URLSearchParams(current);
+        if (search.trim()) {
+          next.set("search", search.trim());
+        } else {
+          next.delete("search");
+        }
+        return next;
+      }, { replace: true });
+    }, 300);
+
+    return () => window.clearTimeout(timeout);
+  }, [search, setSearchParams]);
 
   const filteredServices = useMemo(() => {
     return services.filter((item) => {
       const matchesCategory = category === "All" || item.type === category;
-      const searchText = search.toLowerCase();
+      const searchText = debouncedSearch.toLowerCase();
       const matchesSearch =
         !searchText ||
         item.name?.toLowerCase().includes(searchText) ||
@@ -87,11 +96,11 @@ const ServiceManagement = () => {
         item.type?.toLowerCase().includes(searchText);
       return matchesCategory && matchesSearch;
     });
-  }, [services, category, search]);
+  }, [services, category, debouncedSearch]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, category, services]);
+  }, [debouncedSearch, category, services]);
 
   const handleAdd = () => {
     setCreateDialogOpen(true);

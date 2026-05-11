@@ -2,6 +2,7 @@ import { CalendarDays, MapPin } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { formatCurrencyVND } from "@/utils/formatPrice";
 
 const formatDate = (value) => {
   if (!value) return "Chưa có ngày khởi hành";
@@ -11,13 +12,6 @@ const formatDate = (value) => {
     year: "numeric",
   }).format(new Date(value));
 };
-
-const formatCurrency = (value) =>
-  new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(Number(value) || 0);
 
 export default function BookingSuccessDetailsCard({ booking }) {
   return (
@@ -68,7 +62,7 @@ export default function BookingSuccessDetailsCard({ booking }) {
         <div className="flex items-center justify-between gap-4">
           <span className="text-slate-500">Total Amount Paid</span>
           <span className="text-3xl font-black tracking-tight text-emerald-700">
-            {formatCurrency(booking?.totalAmount)}
+            {formatCurrencyVND(booking?.totalAmount)}
           </span>
         </div>
       </CardContent>

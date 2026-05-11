@@ -3,13 +3,9 @@ import { CheckCircle2, UserRound, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { formatCurrencyVND } from "@/utils/formatPrice";
 
-const formatPrice = (value) =>
-  new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-    maximumFractionDigits: 0,
-  }).format(Number(value) || 0);
+const formatPrice = (value) => formatCurrencyVND(value);
 
 export default function TrackingLinkOverviewSection({ tracking }) {
   const highlights = tracking?.highlights || [];

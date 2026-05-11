@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { formatCurrencyVND } from "@/utils/formatPrice";
 
 export default function BookingStatsSection() {
   return (
@@ -45,7 +46,9 @@ export default function BookingStatsSection() {
               account_balance_wallet
             </span>
           </div>
-          <div className="brand-font text-3xl font-bold">$3,858</div>
+          <div className="brand-font text-3xl font-bold">
+            {formatCurrencyVND(3858000)}
+          </div>
           <p className="mt-1 text-xs text-on-surface-variant">
             Across paid bookings
           </p>

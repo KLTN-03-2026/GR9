@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import PageHero from "@/components/shared/page-hero";
 import { getProviderDashboard } from "@/services/api/provider";
+import { formatCurrencyVND } from "@/utils/formatPrice";
 
 const ProviderDashboard = () => {
   const [dashboard, setDashboard] = useState(null);
@@ -29,7 +30,7 @@ const ProviderDashboard = () => {
       },
       {
         label: "Monthly Revenue",
-        value: `$${Number(summary.revenueTotal || 0).toLocaleString("en-US")}`,
+        value: formatCurrencyVND(summary.revenueTotal),
         note: `${summary.paidBookings || 0} paid bookings recorded`,
         trend: `${summary.pendingAiRequests || 0} AI req`,
         trendClass: "text-tertiary bg-tertiary/10",
@@ -56,7 +57,7 @@ const ProviderDashboard = () => {
       month: item.label,
       height: `${Math.max(18, Math.round(((item.revenue || 0) / maxRevenue) * 100))}%`,
       active: index === revenueItems.length - 1,
-      value: `$${Number(item.revenue || 0).toLocaleString("en-US")}`,
+      value: formatCurrencyVND(item.revenue),
     }));
   }, [dashboard]);
 
