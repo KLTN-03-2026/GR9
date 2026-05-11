@@ -46,6 +46,8 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
     name: "",
     type: "HOTEL",
     address: "",
+    lat: "",
+    long: "",
     description: "",
     aliases: "",
     status: "ACTIVE",
@@ -63,6 +65,8 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
         name: "",
         type: "HOTEL",
         address: "",
+        lat: "",
+        long: "",
         description: "",
         aliases: "",
         status: "ACTIVE",
@@ -85,6 +89,8 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
       name: service.name || "",
       type: service.type || "HOTEL",
       address: service.address || "",
+      lat: service.lat ?? "",
+      long: service.long ?? "",
       description: service.description || "",
       aliases: (service.aliases || []).join(", "),
       status: service.status || "ACTIVE",
@@ -155,6 +161,8 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
         name: formData.name,
         type: formData.type,
         address: formData.address,
+        lat: formData.lat === "" ? null : Number(formData.lat),
+        long: formData.long === "" ? null : Number(formData.long),
         description: formData.description,  
         aliases: parseAliasesInput(formData.aliases),
         status: formData.status,
@@ -226,6 +234,26 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
               value={formData.address}
               onChange={(e) => handleChange("address", e.target.value)}
               placeholder="Nhập địa chỉ dịch vụ"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Vĩ độ (lat)</Label>
+            <Input
+              type="number"
+              step="any"
+              value={formData.lat}
+              onChange={(e) => handleChange("lat", e.target.value)}
+              placeholder="Ví dụ: 16.047079"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Kinh độ (long)</Label>
+            <Input
+              type="number"
+              step="any"
+              value={formData.long}
+              onChange={(e) => handleChange("long", e.target.value)}
+              placeholder="Ví dụ: 108.206230"
             />
           </div>
           <div className="col-span-1 sm:col-span-2 grid gap-2">

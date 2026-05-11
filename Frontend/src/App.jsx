@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -50,10 +50,8 @@ import AdminProfile from "./pages/Admin/AdminProfile";
 import TourSchedulePage from "./pages/Provider/TourSchedule";
 import NotFound from "./pages/NotFound";
 function AppRoutes() {
-    const location = useLocation();
-
     return (
-        <Routes location={location} key={location.pathname}>
+        <Routes>
             <Route path="/" element={<LandingHome />} />
             <Route path="/apply-provider" element={<ProviderApplicationForm />} />
             <Route path="/login" element={<LoginPage />} />

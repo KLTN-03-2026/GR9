@@ -136,13 +136,13 @@ export default function ScheduleDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl p-0 rounded-3xl bg-white shadow-2xl overflow-hidden">
+      <DialogContent className="max-w-4xl overflow-hidden rounded-3xl bg-surface-container-lowest p-0 shadow-2xl">
         {/* HEADER */}
-        <DialogHeader className="px-6 py-5 border-b bg-slate-50">
-          <DialogTitle className="text-2xl font-bold">
+        <DialogHeader className="border-b border-outline-variant/20 bg-surface-container-low px-6 py-5">
+          <DialogTitle className="text-2xl font-bold text-on-surface">
             {initialData ? "Edit Schedule" : "Create Schedule"}
           </DialogTitle>
-          <DialogDescription className="text-sm text-slate-500">
+          <DialogDescription className="text-sm text-on-surface-variant">
             Manage departure date and booking slots
           </DialogDescription>
         </DialogHeader>
@@ -154,7 +154,7 @@ export default function ScheduleDialog({
         >
           {/* DATE */}
           <div>
-            <Label className="text-xs font-bold uppercase text-slate-500">
+            <Label className="text-xs font-bold uppercase text-on-surface-variant">
               Departure Date
             </Label>
 
@@ -163,7 +163,7 @@ export default function ScheduleDialog({
                 <Button
                   type="button"
                   variant="outline"
-                  className="mt-2 w-full h-12 justify-between rounded-xl hover:bg-slate-50"
+                  className="mt-2 h-12 w-full justify-between rounded-xl bg-surface-container-lowest hover:bg-surface-container-low"
                 >
                   {departureDate
                     ? departureDate.toLocaleDateString("vi-VN")
@@ -173,7 +173,7 @@ export default function ScheduleDialog({
               </PopoverTrigger>
 
               <PopoverContent
-                className="w-[700px] p-6 rounded-2xl shadow-xl border bg-white"
+                className="w-[700px] rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-xl"
                 align="start"
                 side="bottom"
                 sideOffset={10}
@@ -190,18 +190,18 @@ export default function ScheduleDialog({
                       return current < today;
                     }}
                     initialFocus
-                    className="rounded-xl bg-slate-50 p-4"
+                    className="rounded-xl bg-surface-container-low p-4"
                     numberOfMonths={2}
                   />
 
                   {/* Sidebar info */}
                   <div className="flex-1 space-y-4">
-                    <p className="font-semibold text-lg">
+                    <p className="text-lg font-semibold text-on-surface">
                       {departureDate
                         ? `Selected: ${departureDate.toLocaleDateString("vi-VN")}`
                         : "No date selected"}
                     </p>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-on-surface-variant">
                       Choose a departure date from the calendar. 
                       You can adjust slots below.
                     </p>
@@ -213,7 +213,7 @@ export default function ScheduleDialog({
 
           {/* GUIDE */}
           <div>
-            <Label className="text-xs font-bold uppercase text-slate-500">
+            <Label className="text-xs font-bold uppercase text-on-surface-variant">
               Lead Guide
             </Label>
 
@@ -222,7 +222,7 @@ export default function ScheduleDialog({
               onValueChange={setLeadGuideServiceId}
               disabled={!departureDate || isLoadingGuides}
             >
-              <SelectTrigger className="mt-2 h-12 w-full rounded-xl border-slate-200 bg-white">
+              <SelectTrigger className="mt-2 h-12 w-full rounded-xl border-outline-variant/30 bg-surface-container-lowest">
                 <SelectValue
                   placeholder={
                     !departureDate
@@ -242,7 +242,7 @@ export default function ScheduleDialog({
               </SelectContent>
             </Select>
 
-            <div className="mt-3 flex items-start gap-3 rounded-2xl border bg-slate-50 p-4 text-sm text-slate-600">
+            <div className="mt-3 flex items-start gap-3 rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4 text-sm text-on-surface-variant">
               <UserCheck className="mt-0.5 size-4 shrink-0 text-primary" />
               <p>
                 Guide chỉ hiện khi không có tour khác trùng từ ngày bắt đầu đến ngày kết thúc của tour này.
@@ -253,7 +253,7 @@ export default function ScheduleDialog({
           {/* SLOTS */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label className="text-xs font-bold uppercase text-slate-500">
+              <Label className="text-xs font-bold uppercase text-on-surface-variant">
                 Min Slots
               </Label>
               <Input
@@ -265,7 +265,7 @@ export default function ScheduleDialog({
             </div>
 
             <div>
-              <Label className="text-xs font-bold uppercase text-slate-500">
+              <Label className="text-xs font-bold uppercase text-on-surface-variant">
                 Max Slots
               </Label>
               <Input
@@ -278,10 +278,10 @@ export default function ScheduleDialog({
           </div>
 
           {/* SWITCH */}
-          <div className="flex items-center justify-between p-4 rounded-2xl border bg-slate-50">
+          <div className="flex items-center justify-between rounded-2xl border border-outline-variant/20 bg-surface-container-low p-4">
             <div>
-              <p className="font-semibold">Private Schedule</p>
-              <p className="text-xs text-slate-500">
+              <p className="font-semibold text-on-surface">Private Schedule</p>
+              <p className="text-xs text-on-surface-variant">
                 {forcePrivate
                   ? "Tour AI proposal này chỉ dành cho đúng traveler đó nên lịch khởi hành luôn là private"
                   : "Only visible to admin & owner"}
@@ -295,7 +295,7 @@ export default function ScheduleDialog({
           </div>
 
           {/* FOOTER */}
-          <div className="border-t pt-5 flex justify-end gap-3 bg-white sticky bottom-0">
+          <div className="sticky bottom-0 flex justify-end gap-3 border-t border-outline-variant/20 bg-surface-container-lowest pt-5">
             <Button
               type="button"
               variant="ghost"

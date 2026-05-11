@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     Dialog,
     DialogContent,
@@ -29,6 +29,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@/components/ui/spinner";
 import { formatCurrencyVND, formatPrice } from "@/utils/formatPrice";
 
+const getServiceAdultPrice = (service) => service?.total?.find((item) => item.type === "ADULT")?.price ?? 0;
+
+const getServiceLocationLabel = (address = "") => {
+    const parts = String(address)
+        .split(",")
+        .map((part) => part.trim())
+        .filter(Boolean);
+
+    return parts.length ? parts[parts.length - 1] : "Chưa có địa điểm";
+};
+
 export default function DialogCreateTour({
     open,
     onOpenChange,
@@ -47,6 +58,39 @@ export default function DialogCreateTour({
     newImages,
     setNewImages,
 }) {
+    const [serviceLocationFilter, setServiceLocationFilter] = useState("");
+    const [serviceSort, setServiceSort] = useState("name-asc");
+    const getFilteredServices = (type, search = "") => {
+        const searchText = search.trim().toLowerCase();
+
+        return services
+            .filter((service) => !type || service.type === type)
+            .filter(
+                (service) =>
+                    !serviceLocationFilter.trim() ||
+                    String(service.address || "")
+                        .toLowerCase()
+                        .includes(serviceLocationFilter.trim().toLowerCase()),
+            )
+            .filter(
+                (service) =>
+                    !searchText ||
+                    service.name?.toLowerCase().includes(searchText) ||
+                    service.address?.toLowerCase().includes(searchText) ||
+                    service.description?.toLowerCase().includes(searchText) ||
+                    service.type?.toLowerCase().includes(searchText),
+            )
+            .sort((a, b) => {
+                if (serviceSort === "price-low") return getServiceAdultPrice(a) - getServiceAdultPrice(b);
+                if (serviceSort === "price-high") return getServiceAdultPrice(b) - getServiceAdultPrice(a);
+                if (serviceSort === "location") {
+                    return getServiceLocationLabel(a.address).localeCompare(getServiceLocationLabel(b.address), "vi");
+                }
+
+                return String(a.name || "").localeCompare(String(b.name || ""), "vi");
+            });
+    };
+
     useEffect(() => {
         const urls = newImages.map((file) => URL.createObjectURL(file));
 
@@ -265,6 +309,41 @@ export default function DialogCreateTour({
                                     </Button>
                                 </div>
 
+                                <div className="grid gap-3 rounded-[1.5rem] border border-outline-variant/20 bg-surface-container-lowest p-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+                                    <div className="space-y-2">
+                                        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+                                            Lọc service theo địa điểm
+                                        </p>
+                                        <Input
+                                            value={serviceLocationFilter}
+                                            onChange={(event) => setServiceLocationFilter(event.target.value)}
+                                            placeholder="Nhập địa điểm, ví dụ Đà Nẵng..."
+                                            className="h-11 rounded-xl border-outline-variant/30 bg-surface-container-low"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
+                                            Sắp xếp service
+                                        </p>
+                                        <Select value={serviceSort} onValueChange={setServiceSort}>
+                                            <SelectTrigger className="h-11 rounded-xl border-outline-variant/30 bg-surface-container-low">
+                                                <SelectValue placeholder="Sắp xếp" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="name-asc">Tên A-Z</SelectItem>
+                                                <SelectItem value="location">Theo địa điểm</SelectItem>
+                                                <SelectItem value="price-low">Giá thấp đến cao</SelectItem>
+                                                <SelectItem value="price-high">Giá cao đến thấp</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="rounded-xl bg-primary/10 px-4 py-3 text-xs font-semibold text-primary">
+                                        {!serviceLocationFilter.trim()
+                                            ? "Đang hiển thị tất cả service"
+                                            : `Đang lọc: ${serviceLocationFilter}`}
+                                    </div>
+                                </div>
+
                                 {days.map((day, dayIndex) => (
                                     <Card
                                         key={dayIndex}
@@ -326,9 +405,7 @@ export default function DialogCreateTour({
                                         </div>
                                         <CardContent className="space-y-8 p-6">
                                             {day.activities.map((activity, activityIndex) => {
-                                                const filteredServices = services.filter((s) =>
-                                                    s.name.toLowerCase().includes(activity.search.toLowerCase()),
-                                                );
+                                                const filteredServices = getFilteredServices(null, activity.search);
                                                 return (
                                                     <div
                                                         key={activityIndex}
@@ -631,11 +708,10 @@ export default function DialogCreateTour({
                                                 </SelectTrigger>
 
                                                 <SelectContent>
-                                                    {services
-                                                        .filter((s) => s.type === "HOTEL")
+                                                    {getFilteredServices("HOTEL")
                                                         .map((s) => (
                                                             <SelectItem key={s._id} value={s._id}>
-                                                                {s.name}
+                                                                {s.name} - {getServiceLocationLabel(s.address)}
                                                             </SelectItem>
                                                         ))}
                                                 </SelectContent>
@@ -781,11 +857,10 @@ export default function DialogCreateTour({
                                                 </SelectTrigger>
 
                                                 <SelectContent>
-                                                    {services
-                                                        .filter((s) => s.type === "TRANSPORT")
+                                                    {getFilteredServices("TRANSPORT")
                                                         .map((s) => (
                                                             <SelectItem key={s._id} value={s._id}>
-                                                                {s.name}
+                                                                {s.name} - {getServiceLocationLabel(s.address)}
                                                             </SelectItem>
                                                         ))}
                                                 </SelectContent>

@@ -18,41 +18,43 @@ import { useEffect, useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { formatPrice } from "@/utils/formatPrice";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const bookingStatusConfig = {
     NO_BOOKING: {
-        label: "No booking",
+        labelKey: "NO_BOOKING",
         className: "bg-slate-100 text-slate-700",
     },
     PENDING: {
-        label: "Pending",
+        labelKey: "PENDING",
         className: "bg-amber-100 text-amber-800",
     },
     CONFIRMED: {
-        label: "Confirmed",
+        labelKey: "CONFIRMED",
         className: "bg-emerald-100 text-emerald-800",
     },
     COMPLETED: {
-        label: "Completed",
+        labelKey: "COMPLETED",
         className: "bg-blue-100 text-blue-800",
     },
     CANCELLED: {
-        label: "Cancelled",
+        labelKey: "CANCELLED",
         className: "bg-red-100 text-red-700",
     },
     REFUNDED: {
-        label: "Refunded",
+        labelKey: "REFUNDED",
         className: "bg-slate-200 text-slate-700",
     },
 };
 
 const getBookingStatusBadge = (status) =>
     bookingStatusConfig[status] || {
-        label: status || "No booking",
+        labelKey: status || "NO_BOOKING",
         className: "bg-slate-100 text-slate-700",
     };
 
 export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
+    const { t } = useI18n();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const [search, setSearch] = useState(searchParams.get("search") || "");
@@ -145,25 +147,25 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                                 value="all"
                                 className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] data-[state=active]:bg-surface-container-lowest data-[state=active]:text-on-surface"
                             >
-                                All Tours
+                                {t("provider.tours.all")}
                             </TabsTrigger>
                             <TabsTrigger
                                 value="confirmed"
                                 className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] data-[state=active]:bg-surface-container-lowest data-[state=active]:text-on-surface"
                             >
-                                confirmed
+                                {t("provider.tours.confirmed")}
                             </TabsTrigger>
                             <TabsTrigger
                                 value="pending"
                                 className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] data-[state=active]:bg-surface-container-lowest data-[state=active]:text-on-surface"
                             >
-                                pending
+                                {t("provider.tours.pending")}
                             </TabsTrigger>
                             <TabsTrigger
                                 value="completed"
                                 className="rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] data-[state=active]:bg-surface-container-lowest data-[state=active]:text-on-surface"
                             >
-                                completed
+                                {t("provider.tours.completed")}
                             </TabsTrigger>
                         </TabsList>
                     </Tabs>
@@ -172,7 +174,7 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                         <div className="relative min-w-[240px] flex-1 md:min-w-[300px]">
                             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-on-surface-variant" />
                             <Input
-                                placeholder="Search tours or destinations..."
+                                placeholder={t("provider.tours.search")}
                                 value={search}
                                 onChange={(e) => handleSearchChange(e.target.value)}
                                 className="h-11 rounded-xl border-outline-variant/30 bg-surface-container-low pl-10"
@@ -180,7 +182,7 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                         </div>
 
                         <div className="flex flex-col gap-2 w-[220px]">
-                            <p className="text-xs font-semibold text-on-surface-variant">Price Range</p>
+                            <p className="text-xs font-semibold text-on-surface-variant">{t("provider.tours.priceRange")}</p>
 
                             <Slider
                                 min={10000}
@@ -198,12 +200,12 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
 
                         <Select value={sort} onValueChange={setSort}>
                             <SelectTrigger className="h-11 min-w-[150px] rounded-xl border-outline-variant/30 bg-surface-container-lowest px-4">
-                                <SelectValue placeholder="Sort: Latest" />
+                                <SelectValue placeholder={t("provider.tours.sortLatest")} />
                             </SelectTrigger>
                             <SelectContent align="end">
-                                <SelectItem value="latest">Sort: Latest</SelectItem>
-                                <SelectItem value="price-low">Price: Low to High</SelectItem>
-                                <SelectItem value="price-high">Price: High to Low</SelectItem>
+                                <SelectItem value="latest">{t("provider.tours.sortLatest")}</SelectItem>
+                                <SelectItem value="price-low">{t("provider.tours.priceLow")}</SelectItem>
+                                <SelectItem value="price-high">{t("provider.tours.priceHigh")}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -214,16 +216,16 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                         <TableHeader className="bg-surface-container-low">
                             <TableRow className="hover:bg-surface-container-low">
                                 <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                                    Tour Details
+                                    {t("provider.tours.tourDetails")}
                                 </TableHead>
                                 <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                                    Price
+                                    {t("provider.tours.price")}
                                 </TableHead>
                                 <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                                    Booking Status
+                                    {t("provider.tours.bookingStatus")}
                                 </TableHead>
                                 <TableHead className="px-6 py-4 text-right text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                                    Actions
+                                    {t("provider.tours.actions")}
                                 </TableHead>
                             </TableRow>
                         </TableHeader>
@@ -250,7 +252,7 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                                                     </p>
                                                     <p className="mt-1 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-on-surface-variant">
                                                         <MapPin className="size-3.5" />
-                                                        {tour.location || "No location"}
+                                                        {tour.location || t("provider.tours.noLocation")}
                                                     </p>
                                                 </div>
                                             </div>
@@ -262,12 +264,12 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                                                 </p>
 
                                                 <div className="text-xs text-on-surface-variant space-y-[2px]">
-                                                    <p>Child: {formatPrice(tour.price?.child || 0)} đ</p>
-                                                    <p>Infant: {formatPrice(tour.price?.infant || 0)} đ</p>
+                                                    <p>{t("provider.tours.child")}: {formatPrice(tour.price?.child || 0)} đ</p>
+                                                    <p>{t("provider.tours.infant")}: {formatPrice(tour.price?.infant || 0)} đ</p>
                                                 </div>
 
                                                 <p className="text-[10px] uppercase tracking-wide text-on-surface-variant">
-                                                    per person
+                                                    {t("provider.tours.perPerson")}
                                                 </p>
                                             </div>
                                         </TableCell>
@@ -277,10 +279,10 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                                                           ${bookingStatus.className}
                                                         `}
                                             >
-                                                {bookingStatus.label}
+                                                {t(`provider.tours.statuses.${bookingStatus.labelKey}`)}
                                             </Badge>
                                             <p className="mt-2 text-xs text-on-surface-variant">
-                                                {tour.bookingCount || 0} bookings
+                                                {t("provider.tours.bookings", { count: tour.bookingCount || 0 })}
                                             </p>
                                         </TableCell>
                                         <TableCell className="px-6 py-5">
@@ -307,15 +309,15 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                                                         <DropdownMenuItem
                                                             onClick={() => navigate(`/provider/tours/${tour._id}/schedule`)}
                                                         >
-                                                            Manage schedule
+                                                            {t("provider.tours.manageSchedule")}
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem>Duplicate tour</DropdownMenuItem>
+                                                        <DropdownMenuItem>{t("provider.tours.duplicateTour")}</DropdownMenuItem>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem
                                                             className="text-red-600 focus:text-red-600"
                                                             onClick={() => handleDelete(tour)}
                                                         >
-                                                            Archive tour
+                                                            {t("provider.tours.archiveTour")}
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
@@ -327,7 +329,7 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={4} className="py-10 text-center text-on-surface-variant">
-                                        No tours found
+                                        {t("provider.tours.noTours")}
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -337,8 +339,11 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
 
                 <div className="flex flex-col gap-3 rounded-[1.5rem] bg-surface-container-low px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-sm text-on-surface-variant">
-                        Showing <span className="font-bold text-on-surface">{firstRow} - {lastRow}</span> of{" "}
-                        <span className="font-bold text-on-surface">{filteredTours.length}</span> tours
+                        {t("provider.tours.showing", {
+                            first: firstRow,
+                            last: lastRow,
+                            total: filteredTours.length,
+                        })}
                     </p>
 
                     <div className="flex items-center gap-2">

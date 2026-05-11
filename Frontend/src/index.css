@@ -244,25 +244,32 @@ button {
     }
     body {
         @apply bg-background text-foreground;
-        transition:
-            background-color 180ms ease,
-            color 180ms ease;
     }
     html {
         @apply font-sans;
     }
     #root {
         min-height: 100vh;
+        background: var(--surface);
     }
 }
 
 @layer components {
+    .theme-changing,
+    .theme-changing *,
+    .theme-changing *::before,
+    .theme-changing *::after {
+        transition-property: none !important;
+        transition-duration: 0ms !important;
+        animation-duration: 0ms !important;
+    }
+
     .bg-primary {
         color: var(--primary-foreground);
     }
 
     .bg-primary-container {
-        color: var(--primary-foreground);
+        color: var(--on-primary-container);
     }
 
     [class~="from-primary"][class~="to-primary-container"] {
@@ -428,6 +435,13 @@ button {
     .dark [class*="bg-emerald-600"],
     .dark [class*="bg-emerald-700"] {
         background-color: var(--primary-container) !important;
+    }
+
+    .dark button[class*="bg-teal-600"],
+    .dark button[class*="bg-teal-700"],
+    .dark a[class*="bg-teal-600"],
+    .dark a[class*="bg-teal-700"] {
+        color: var(--on-primary-container) !important;
     }
 
     .dark [class*="text-teal"],

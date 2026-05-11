@@ -15,12 +15,12 @@ export default function Layout() {
 
     return (
         <SidebarProvider>
-            <div className="flex w-full">
+            <div className="flex min-h-screen w-full bg-surface text-on-surface">
                 {hasAppShell && <AppSidebar />}
-                <div className="flex-1 min-w-0 flex flex-col">
+                <div className="flex min-w-0 flex-1 flex-col bg-surface">
                     {hasAppShell ? <Header /> : <HeaderGuest />}
                     {roleCurrent === "traveler" ? <ChatBot /> : null}
-                    <div className="app-shell-page w-full pt-22 px-3 pb-24 md:px-4 md:pb-8 lg:px-5">
+                    <div className="app-shell-page w-full bg-surface px-3 pb-24 pt-22 md:px-4 md:pb-8 lg:px-5">
                         <div className="flex min-h-screen w-full bg-surface">
                             <AnimatePresence mode="wait">
                                 <motion.div

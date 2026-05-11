@@ -175,14 +175,14 @@ export default function AITourHistory() {
               type="button"
               variant="outline"
               onClick={handleBackToPlanner}
-              className="rounded-xl bg-white px-5 font-semibold"
+              className="rounded-xl bg-surface-container-lowest px-5 font-semibold text-on-surface"
             >
               Back to Planner
             </Button>
             <Button
               type="button"
               onClick={loadHistory}
-              className="rounded-xl bg-teal-600 px-5 font-semibold hover:bg-teal-700"
+              className="rounded-xl bg-teal-600 px-5 font-semibold text-white hover:bg-teal-700"
             >
               Refresh
             </Button>
