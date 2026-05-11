@@ -13,9 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import AuthContext from "@/context/authContext";
 import { getProviderAiNotifications } from "@/services/api/ai";
-import LanguageToggle from "@/components/shared/language-toggle";
-import { useI18n } from "@/i18n/I18nProvider";
-import ThemeModeToggle from "@/components/shared/theme-mode-toggle";
 
 const PAGE_META = {
   "/traveler": {
@@ -389,9 +386,6 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <ThemeModeToggle />
-          <LanguageToggle />
-
           {showGlobalSearch ? (
             <form className="relative hidden md:block" onSubmit={handleGlobalSearch}>
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />

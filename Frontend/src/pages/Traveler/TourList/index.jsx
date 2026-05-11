@@ -18,29 +18,6 @@ const SORT_OPTIONS = [
     { value: "durationShort", label: "Ngắn ngày" },
 ];
 
-const TOUR_FALLBACK_IMAGES = [
-    "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80",
-];
-
-const getTourImage = (tour, index = 0) =>
-    tour?.images?.imageUrl ||
-    tour?.images?.[0]?.imageUrl ||
-    tour?.coverImage ||
-    tour?.image ||
-    TOUR_FALLBACK_IMAGES[index % TOUR_FALLBACK_IMAGES.length];
-
-const SORT_LABEL_KEYS = {
-    popular: "popular",
-    topRated: "topRated",
-    mostBooked: "mostBooked",
-    priceLow: "priceLow",
-    durationShort: "durationShort",
-};
-
 export default function TourList() {
     const { t } = useI18n();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -129,8 +106,8 @@ export default function TourList() {
                                 <Input
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    placeholder={t("tourList.searchPlaceholder")}
-                                    className="h-11 rounded-full border-outline-variant/20 bg-surface-container-lowest/95 text-on-surface placeholder:text-on-surface-variant"
+                                    placeholder="Search tours..."
+                                    className="h-11 rounded-full border-outline-variant/20 bg-white/95 text-slate-900 placeholder:text-slate-500"
                                 />
                             </div>
 
@@ -142,8 +119,8 @@ export default function TourList() {
                                         setPage(1);
                                     }}
                                 >
-                                    <SelectTrigger className="h-11 w-full rounded-full border-outline-variant/20 bg-surface-container-lowest/95 px-4 text-on-surface shadow-sm sm:w-[220px]">
-                                        <SelectValue placeholder={t("tourList.sortPlaceholder")} />
+                                    <SelectTrigger className="h-11 w-full rounded-full border-outline-variant/20 bg-white/95 px-4 text-slate-900 shadow-sm sm:w-[220px]">
+                                        <SelectValue placeholder="Sắp xếp tour" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {SORT_OPTIONS.map((option) => (
@@ -198,15 +175,15 @@ export default function TourList() {
                                 <div className="space-y-5 p-5">
                                     <div className="flex items-start justify-between gap-4">
                                         <div>
-                                            <p className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-                                                {t("common.from")}
+                                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                                Từ
                                             </p>
                                             <span className="text-2xl font-extrabold text-primary">
                                                 {Number(tour?.price?.adult) > 0
                                                     ? `${formatPrice(tour?.price?.adult)}đ`
                                                     : t("common.contact")}
                                             </span>
-                                            <span className="text-xs font-medium text-on-surface-variant"> / {t("common.adult")}</span>
+                                            <span className="text-xs font-medium text-slate-500"> / người lớn</span>
                                         </div>
 
                                         <div className="rounded-2xl bg-amber-50 px-3 py-2 text-right dark:bg-amber-400/10">
@@ -217,12 +194,12 @@ export default function TourList() {
                                                 >
                                                     star
                                                 </span>
-                                                <span className="text-sm font-extrabold text-on-surface">
-                                                    {Number(tour.averageRating) > 0 ? tour.averageRating : t("common.new")}
+                                                <span className="text-sm font-extrabold text-slate-900">
+                                                    {Number(tour.averageRating) > 0 ? tour.averageRating : "Mới"}
                                                 </span>
                                             </div>
-                                            <p className="mt-0.5 text-[11px] font-semibold text-on-surface-variant">
-                                                {t("tourList.reviews", { count: tour.reviewCount || 0 })}
+                                            <p className="mt-0.5 text-[11px] font-semibold text-slate-500">
+                                                {tour.reviewCount || 0} đánh giá
                                             </p>
                                         </div>
                                     </div>
@@ -238,24 +215,24 @@ export default function TourList() {
                                             <span className="material-symbols-outlined text-[20px] leading-none text-primary">
                                                 schedule
                                             </span>
-                                            <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-on-surface">
-                                                {tour.numberOfDay || "-"} {t("common.day")}
+                                            <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-slate-900">
+                                                {tour.numberOfDay || "-"} ngày
                                             </span>
                                         </div>
                                         <div className="flex min-h-[72px] flex-col items-center justify-center gap-1 border-r border-outline-variant/15 px-2 text-center">
                                             <span className="material-symbols-outlined text-[20px] leading-none text-primary">
                                                 groups
                                             </span>
-                                            <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-on-surface">
-                                                {tour.travelerCount || 0} {t("common.guest")}
+                                            <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-slate-900">
+                                                {tour.travelerCount || 0} khách
                                             </span>
                                         </div>
                                         <div className="flex min-h-[72px] flex-col items-center justify-center gap-1 px-2 text-center">
                                             <span className="material-symbols-outlined text-[20px] leading-none text-primary">
                                                 confirmation_number
                                             </span>
-                                            <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-on-surface">
-                                                {tour.bookingCount || 0} {t("common.bookingTurn")}
+                                            <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-slate-900">
+                                                {tour.bookingCount || 0} lượt
                                             </span>
                                         </div>
                                     </div>
