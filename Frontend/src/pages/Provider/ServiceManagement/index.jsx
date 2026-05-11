@@ -9,6 +9,7 @@ import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import PageHero from "@/components/shared/page-hero";
+import { CardGridSkeleton } from "@/components/shared/page-skeletons";
 import { useSearchParams } from "react-router-dom";
 
 const typeLabels = {
@@ -190,8 +191,8 @@ const ServiceManagement = () => {
         />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading ? (
-            <div className="col-span-full text-center text-slate-500">
-              Đang tải dịch vụ...
+            <div className="col-span-full">
+              <CardGridSkeleton count={6} />
             </div>
           ) : visibleServices.length ? (
             visibleServices.map((service) => (

@@ -269,6 +269,7 @@ const Header = () => {
   const canSearchCurrentPage = SEARCHABLE_PATHS.some((path) =>
     location.pathname.startsWith(path),
   );
+  const showGlobalSearch = !canSearchCurrentPage;
 
   const targetSearchPath = useMemo(() => {
     const intentPath = resolveSearchIntentPath(currentRole, globalSearch);
@@ -278,9 +279,8 @@ const Header = () => {
   }, [canSearchCurrentPage, currentRole, globalSearch, location.pathname]);
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setGlobalSearch(params.get("search") || "");
-  }, [location.pathname, location.search]);
+    setGlobalSearch("");
+  }, [location.pathname]);
 
   useEffect(() => {
     let ignore = false;
@@ -349,16 +349,18 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <form className="relative hidden md:block" onSubmit={handleGlobalSearch}>
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
-            <Input
-              type="text"
-              value={globalSearch}
-              onChange={(event) => setGlobalSearch(event.target.value)}
-              placeholder={currentMeta.searchPlaceholder}
-              className="h-11 w-72 rounded-full border border-outline-variant/30 bg-surface-container-low px-11 pr-4 text-sm text-on-surface placeholder:text-on-surface-variant focus:border-primary/25 focus-visible:ring-2 focus-visible:ring-primary/15"
-            />
-          </form>
+          {showGlobalSearch ? (
+            <form className="relative hidden md:block" onSubmit={handleGlobalSearch}>
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
+              <Input
+                type="text"
+                value={globalSearch}
+                onChange={(event) => setGlobalSearch(event.target.value)}
+                placeholder={currentMeta.searchPlaceholder}
+                className="h-11 w-72 rounded-full border border-outline-variant/30 bg-surface-container-low px-11 pr-4 text-sm text-on-surface placeholder:text-on-surface-variant focus:border-primary/25 focus-visible:ring-2 focus-visible:ring-primary/15"
+              />
+            </form>
+          ) : null}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

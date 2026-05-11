@@ -16,6 +16,7 @@ import TableGuide from "./TableGuide";
 import { Input } from "@/components/ui/input";
 import DialogDeleteGuide from "./DialogDeleteGuide";
 import PageHero from "@/components/shared/page-hero";
+import { StatsSkeleton, TableSkeleton } from "@/components/shared/page-skeletons";
 import { useSearchParams } from "react-router-dom";
 
 const GuideManagementProvider = () => {
@@ -272,6 +273,8 @@ const GuideManagementProvider = () => {
     handleGetGuides();
   }, []);
 
+  const initialLoading = loading && guides.length === 0;
+
   return (
     <div className="space-y-8 text-slate-900 font-sans">
       <PageHero
@@ -306,7 +309,10 @@ const GuideManagementProvider = () => {
           </div>
         }
       />
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {initialLoading ? (
+        <StatsSkeleton count={4} />
+      ) : (
+        <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {cards.map((c) => (
           <div
             key={c.label}
@@ -320,10 +326,14 @@ const GuideManagementProvider = () => {
             </span>
           </div>
         ))}
-      </section>
+        </section>
+      )}
 
       {/* BẢNG DỮ LIỆU */}
-      <section className="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+      {initialLoading ? (
+        <TableSkeleton columns={5} rows={6} />
+      ) : (
+        <section className="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-200">
         <div className="overflow-x-auto">
           <TableGuide
             guides={dataGuides}
@@ -333,7 +343,8 @@ const GuideManagementProvider = () => {
             sendingPasswordId={sendingPasswordId}
           />
         </div>
-      </section>
+        </section>
+      )}
       <DialogGuide
         open={open}
         onOpenChange={handleDialogOpenChange}

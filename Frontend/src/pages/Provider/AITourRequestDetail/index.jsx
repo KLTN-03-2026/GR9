@@ -14,6 +14,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DetailPageSkeleton } from "@/components/shared/page-skeletons";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
@@ -340,7 +341,7 @@ export default function AITourRequestDetail() {
   }, [travelerProposalStatus]);
 
   if (loading) {
-    return <div className="p-8 text-sm text-slate-500">Loading AI request...</div>;
+    return <DetailPageSkeleton />;
   }
 
   if (!request) {

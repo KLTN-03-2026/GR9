@@ -3,37 +3,35 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function TourListSkeleton() {
     return (
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
-                    {/* IMAGE - match aspect ratio */}
-                    <Skeleton className="aspect-[4/5] w-full" />
+            {Array.from({ length: 9 }).map((_, i) => (
+                <div key={i} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <Skeleton className="aspect-[4/3] w-full rounded-none" />
 
-                    <div className="p-6">
-                        {/* type badge + favorite row */}
-                        <div className="flex justify-between mb-4">
+                    <div className="space-y-5 p-5">
+                        <div className="flex gap-2">
                             <Skeleton className="h-5 w-20 rounded-full" />
-                            <Skeleton className="h-10 w-10 rounded-full" />
+                            <Skeleton className="h-5 w-16 rounded-full" />
                         </div>
 
-                        {/* location */}
-                        <Skeleton className="h-4 w-1/2 mb-2" />
-
-                        {/* title */}
-                        <Skeleton className="h-6 w-3/4 mb-6" />
-
-                        {/* price + rating */}
-                        <div className="flex justify-between items-center mb-6">
-                            <Skeleton className="h-6 w-24" />
-                            <Skeleton className="h-4 w-20" />
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="space-y-2">
+                                <Skeleton className="h-3 w-10" />
+                                <Skeleton className="h-7 w-28" />
+                            </div>
+                            <Skeleton className="h-12 w-20 rounded-2xl" />
                         </div>
 
-                        {/* meta */}
-                        <div className="flex gap-4 mb-8">
-                            <Skeleton className="h-4 w-16" />
-                            <Skeleton className="h-4 w-16" />
+                        <div className="space-y-2">
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-2/3" />
                         </div>
 
-                        {/* button */}
+                        <div className="grid grid-cols-3 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50">
+                            <Skeleton className="h-[72px] rounded-none" />
+                            <Skeleton className="h-[72px] rounded-none" />
+                            <Skeleton className="h-[72px] rounded-none" />
+                        </div>
+
                         <Skeleton className="h-11 w-full rounded-xl" />
                     </div>
                 </div>

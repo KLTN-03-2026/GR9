@@ -5,6 +5,7 @@ import { ensureProvider } from "../middlewares/authorizeProvider.js";
 import Image from "../models/image.model.js";
 import TourSchedule from "../models/tourSchedule.model.js";
 import Booking from "../models/booking.model.js";
+import Review from "../models/review.model.js";
 import cloudinary from "../config/cloudinary.js";
 
 const existUser = async (userId) => {
@@ -119,7 +120,6 @@ export const getAllTourService = async ({ page = 1, limit = 9, search = "", sort
     try {
         const currentPage = Math.max(Number(page) || 1, 1);
         const pageLimit = Math.min(Math.max(Number(limit) || 9, 1), 50);
-        const skip = (currentPage - 1) * pageLimit;
         const keyword = String(search || "").trim();
         const filter = {
             $and: [
@@ -142,23 +142,15 @@ export const getAllTourService = async ({ page = 1, limit = 9, search = "", sort
             const keywordRegex = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
             filter.$and.push({
                 $or: [
-                { name: keywordRegex },
-                { location: keywordRegex },
-                { description: keywordRegex },
-                { type: keywordRegex },
+                    { name: keywordRegex },
+                    { location: keywordRegex },
+                    { description: keywordRegex },
+                    { type: keywordRegex },
                 ],
             });
         }
 
-        const sortMap = {
-            priceLow: { "price.adult": 1, createdAt: -1 },
-            ratingHigh: { rating: -1, createdAt: -1 },
-            popular: { createdAt: -1 },
-        };
-        const sortOption = sortMap[sort] || sortMap.popular;
-
-        const [tours, total] = await Promise.all([
-            Tour.find(filter)
+        const tours = await Tour.find(filter)
             .populate("providerId", "name email")
             .populate({
                 path: "itineraries.activities.serviceId",
@@ -166,28 +158,107 @@ export const getAllTourService = async ({ page = 1, limit = 9, search = "", sort
             .populate({
                 path: "availableServices.serviceId",
             })
-            .sort(sortOption)
-            .skip(skip)
-            .limit(pageLimit),
-            Tour.countDocuments(filter),
-        ]);
-        // Fetch all images for all tours
-        const images = await Image.find({
-            entityType: "TOUR",
-            entityId: { $in: tours.map((t) => t._id) },
-        });
+            .sort({ createdAt: -1 });
 
-        // Attach images to each tour
+        const tourIds = tours.map((tour) => tour._id);
+        const [images, reviewStats, bookingStats] = await Promise.all([
+            Image.find({
+                entityType: "TOUR",
+                entityId: { $in: tourIds },
+            }),
+            Review.aggregate([
+                { $match: { tourId: { $in: tourIds } } },
+                {
+                    $group: {
+                        _id: "$tourId",
+                        averageRating: { $avg: "$ratingTour" },
+                        reviewCount: { $sum: 1 },
+                    },
+                },
+            ]),
+            Booking.aggregate([
+                {
+                    $match: {
+                        tourId: { $in: tourIds },
+                        payment: "PAID",
+                        status: { $nin: ["CANCELLED", "REFUNDED"] },
+                    },
+                },
+                {
+                    $group: {
+                        _id: "$tourId",
+                        bookingCount: { $sum: 1 },
+                        travelerCount: {
+                            $sum: {
+                                $add: [
+                                    { $ifNull: ["$quantity.adults", 0] },
+                                    { $ifNull: ["$quantity.children", 0] },
+                                    { $ifNull: ["$quantity.infants", 0] },
+                                ],
+                            },
+                        },
+                    },
+                },
+            ]),
+        ]);
+
+        const reviewStatsMap = new Map(
+            reviewStats.map((item) => [
+                String(item._id),
+                {
+                    averageRating: Number(item.averageRating || 0),
+                    reviewCount: Number(item.reviewCount || 0),
+                },
+            ]),
+        );
+        const bookingStatsMap = new Map(
+            bookingStats.map((item) => [
+                String(item._id),
+                {
+                    bookingCount: Number(item.bookingCount || 0),
+                    travelerCount: Number(item.travelerCount || 0),
+                },
+            ]),
+        );
+
         const toursWithImages = tours.map((tour) => {
-            const tourImages = images.filter((img) => img.entityId.toString() === tour._id.toString());
+            const tourId = String(tour._id);
+            const tourImages = images.filter((img) => img.entityId.toString() === tourId);
+            const rating = reviewStatsMap.get(tourId) || { averageRating: 0, reviewCount: 0 };
+            const booking = bookingStatsMap.get(tourId) || { bookingCount: 0, travelerCount: 0 };
+
             return {
                 ...tour.toObject(),
                 images: tourImages,
+                averageRating: Number(rating.averageRating.toFixed(1)),
+                reviewCount: rating.reviewCount,
+                bookingCount: booking.bookingCount,
+                travelerCount: booking.travelerCount,
             };
         });
 
+        const sorters = {
+            topRated: (a, b) =>
+                (b.averageRating || 0) - (a.averageRating || 0) ||
+                (b.reviewCount || 0) - (a.reviewCount || 0),
+            mostBooked: (a, b) =>
+                (b.travelerCount || 0) - (a.travelerCount || 0) ||
+                (b.bookingCount || 0) - (a.bookingCount || 0),
+            priceLow: (a, b) =>
+                (Number(a.price?.adult) || 0) - (Number(b.price?.adult) || 0),
+            durationShort: (a, b) =>
+                (Number(a.numberOfDay) || 1) - (Number(b.numberOfDay) || 1),
+            popular: (a, b) =>
+                (b.travelerCount || 0) - (a.travelerCount || 0) ||
+                (b.averageRating || 0) - (a.averageRating || 0) ||
+                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        };
+        const orderedTours = [...toursWithImages].sort(sorters[sort] || sorters.popular);
+        const total = orderedTours.length;
+        const docs = orderedTours.slice((currentPage - 1) * pageLimit, currentPage * pageLimit);
+
         return {
-            docs: toursWithImages,
+            docs,
             total,
             page: currentPage,
             limit: pageLimit,

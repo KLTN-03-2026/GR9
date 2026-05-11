@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   MoreVertical, 
   LockOpen, 
@@ -57,11 +58,31 @@ const UserDataGrid = ({
         </TableHeader>
         <TableBody>
           {loading ? (
-            <TableRow>
-              <TableCell colSpan={5} className="px-6 py-10 text-center text-sm font-semibold text-slate-500">
-                Loading users...
-              </TableCell>
-            </TableRow>
+            Array.from({ length: 6 }).map((_, index) => (
+              <TableRow key={index}>
+                <TableCell className="px-6 py-4">
+                  <div className="flex items-center gap-4">
+                    <Skeleton className="h-10 w-10 rounded-xl" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-44" />
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="px-6 py-4">
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                </TableCell>
+                <TableCell className="px-6 py-4">
+                  <Skeleton className="h-5 w-24" />
+                </TableCell>
+                <TableCell className="px-6 py-4">
+                  <Skeleton className="h-4 w-24" />
+                </TableCell>
+                <TableCell className="px-6 py-4">
+                  <Skeleton className="ml-auto h-9 w-28 rounded-lg" />
+                </TableCell>
+              </TableRow>
+            ))
           ) : users.length === 0 ? (
             <TableRow>
               <TableCell colSpan={5} className="px-6 py-10 text-center text-sm font-semibold text-slate-500">

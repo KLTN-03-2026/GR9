@@ -305,7 +305,7 @@ export default function ChatBotWidget({
 
         {!minimized ? (
           <>
-            <div className="max-h-[min(400px,calc(100vh-220px))] space-y-4 overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.10),transparent_34%),linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] px-4 py-4">
+            <div className="max-h-[min(500px,calc(100vh-220px))] space-y-4 overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.10),transparent_34%),linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] px-4 py-4">
               {messages.map((message) => (
                 <div
                   key={message.id}
