@@ -290,6 +290,15 @@ export default function TourDetail() {
                   reviewCount
               ).toFixed(1)
             : tour?.rating || 0;
+    const memoryCards = useMemo(() => {
+        return (tour?.images || [])
+            .map((image, index) => ({
+                img: image.imageUrl || image.cloudinaryUrl || image.url,
+                by: tour?.providerId?.fullName || tour?.providerId?.name || tour?.name || "Provider",
+                alt: `${tour?.name || "Tour"} ${index + 1}`,
+            }))
+            .filter((item) => item.img);
+    }, [tour, t]);
     const selectedServices = [
         {
             serviceType: "HOTEL",
@@ -1038,69 +1047,58 @@ export default function TourDetail() {
                                     <h3 className="text-xl font-headline font-bold text-on-surface">
                                         {t("tourDetail.travelerMemories")}
                                     </h3>
-                                    <button className="text-primary text-sm font-bold flex items-center gap-1 hover:underline transition-all">
+                                    <button
+                                        className="text-primary text-sm font-bold flex items-center gap-1 hover:underline transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                                        disabled={memoryCards.length === 0}
+                                        type="button"
+                                    >
                                         {t("tourDetail.viewAllPhotos")}
                                         <span className="material-symbols-outlined text-sm">arrow_forward</span>
                                     </button>
                                 </div>
 
-                                <div className="flex gap-4 overflow-x-auto hide-scrollbar pb-2">
-                                    {MEMORY_CARDS.map((m) => (
-                                        <div
-                                            key={m.alt}
-                                            className="min-w-[240px] h-[320px] rounded-2xl overflow-hidden relative group"
-                                        >
-                                            <img
-                                                alt={m.alt}
-                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                                src={m.img}
-                                            />
-                                            <div className="absolute bottom-4 left-4 text-white">
-                                                <p className="text-xs font-medium opacity-80">
-                                                    {t("tourDetail.photoBy", { name: m.by })}
-                                                </p>
-                                            </div>
+                                {memoryCards.length > 0 ? (
+                                    <>
+                                        <div className="flex gap-4 overflow-x-auto hide-scrollbar pb-2">
+                                            {memoryCards.map((m) => (
+                                                <div
+                                                    key={m.alt}
+                                                    className="relative h-[320px] min-w-[240px] overflow-hidden rounded-2xl bg-surface-container-lowest group"
+                                                >
+                                                    <img
+                                                        alt={m.alt}
+                                                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                        src={m.img}
+                                                    />
+                                                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4 text-white">
+                                                        <p className="line-clamp-1 text-xs font-semibold opacity-90">
+                                                            {t("tourDetail.photoBy", { name: m.by })}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))}
-                                </div>
 
-                                <div className="mt-12 flex justify-center items-center gap-4">
-                                    <button
-                                        className="p-2 border border-outline-variant/20 rounded-xl hover:bg-surface-container transition-colors disabled:opacity-30"
-                                        disabled
-                                        type="button"
-                                    >
-                                        <span className="material-symbols-outlined">chevron_left</span>
-                                    </button>
-                                    <div className="flex items-center gap-2">
-                                        {[1, 2, 3].map((p, idx) => (
-                                            <button
-                                                key={p}
-                                                className={`w-10 h-10 rounded-xl ${
-                                                    idx === 0
-                                                        ? "bg-primary text-on-primary font-bold text-sm"
-                                                        : "hover:bg-surface-container font-semibold text-sm"
-                                                }`}
-                                                type="button"
-                                            >
-                                                {p}
-                                            </button>
-                                        ))}
-                                        <span className="px-2 text-on-surface-variant">...</span>
-                                        <button
-                                            className="w-10 h-10 rounded-xl hover:bg-surface-container font-semibold text-sm"
-                                            type="button"
-                                        >
-                                            42
-                                        </button>
+                                        {memoryCards.length > 3 ? (
+                                            <div className="mt-10 flex justify-center items-center gap-3 text-sm font-semibold text-on-surface-variant">
+                                                <span className="rounded-xl bg-primary px-4 py-2 text-on-primary">1</span>
+                                                <span>{memoryCards.length} photos</span>
+                                            </div>
+                                        ) : null}
+                                    </>
+                                ) : (
+                                    <div className="rounded-2xl border border-dashed border-outline-variant/40 bg-surface-container-lowest p-8 text-center">
+                                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                            <span className="material-symbols-outlined">photo_camera</span>
+                                        </div>
+                                        <p className="font-headline text-lg font-bold text-on-surface">
+                                            Chưa có ảnh thực tế cho tour này
+                                        </p>
+                                        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-on-surface-variant">
+                                            Khi provider thêm ảnh tour, khu vực này sẽ tự động hiển thị album ở đúng giao diện hiện tại.
+                                        </p>
                                     </div>
-                                    <button
-                                        className="p-2 border border-outline-variant/20 rounded-xl hover:bg-surface-container transition-colors"
-                                        type="button"
-                                    >
-                                        <span className="material-symbols-outlined">chevron_right</span>
-                                    </button>
-                                </div>
+                                )}
 
                                 <div className="space-y-6 mt-8">
                                     {reviews.length === 0 ? (
