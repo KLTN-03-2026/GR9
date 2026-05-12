@@ -83,6 +83,7 @@ export const getBookingSuccessController = async (req, res) => {
     } catch (err) {
         return error(res, err.message, err.status, err.errorCode);
     }
+};
 /**
  * CANCEL BOOKING
  */
@@ -113,6 +114,7 @@ export const getProviderBookingsController = async (req, res) => {
     try {
         const bookings = await getProviderBookingsService(req.user._id);
 
+        return success(res, "Get provider bookings success", bookings, 200);
     } catch (err) {
         return error(res, err.message, err.status, err.errorCode);
     }
