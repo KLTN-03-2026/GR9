@@ -140,18 +140,18 @@ export function AppSidebar() {
       collapsible="icon"
       className="border-r border-outline-variant/20 bg-white shadow-[8px_0px_30px_rgba(25,28,30,0.04)]"
     >
-      <SidebarHeader className="px-4 pt-8 pb-4 group-data-[collapsible=icon]:px-2">
-        <div className="flex items-center justify-between gap-2 px-4 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:px-0">
-          <Link to={basePath} className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+      <SidebarHeader className="px-4 pb-5 pt-7 group-data-[collapsible=icon]:px-2">
+        <div className="flex items-center gap-3 rounded-2xl px-2 py-1.5 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:px-0">
+          <Link to={basePath} className="flex min-w-0 flex-1 items-center gap-3 group-data-[collapsible=icon]:justify-center">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
               <Plane className="h-5 w-5" strokeWidth={2.2} />
             </div>
 
             <div className="min-w-0 transition-all duration-200 group-data-[collapsible=icon]:hidden">
-              <h3 className="font-heading text-sm font-bold text-on-surface">
+              <h3 className="font-heading text-[15px] font-extrabold leading-tight text-on-surface">
                 Voyager AI
               </h3>
-              <p className="text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
+              <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.28em] text-on-surface-variant">
                 {t(`sidebar.subtitles.${role}`)}
               </p>
             </div>
@@ -162,7 +162,7 @@ export function AppSidebar() {
             onClick={toggleSidebar}
             title={isCollapsed ? "Mở sidebar" : "Thu sidebar"}
             aria-label={isCollapsed ? "Mở sidebar" : "Thu sidebar"}
-            className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-full border border-outline-variant/20 bg-surface-container-lowest text-on-surface-variant transition-all hover:bg-surface-container-high hover:text-primary md:flex group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8"
+            className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-outline-variant/15 bg-surface-container-low text-on-surface-variant transition-all hover:border-primary/25 hover:bg-primary/10 hover:text-primary md:flex group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:rounded-xl"
           >
             <ToggleIcon className="h-4 w-4" />
           </button>
