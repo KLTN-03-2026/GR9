@@ -716,42 +716,55 @@ export default function TourDetail() {
                                                             type="button"
                                                             onClick={() => setHotelPref(opt.id)}
                                                         >
-                                                            <div className="flex items-start justify-between gap-4">
-                                                                <div>
-                                                                    <p className="font-bold text-sm">{opt.label}</p>
-                                                                    <p className="text-xs text-on-surface-variant mt-1">
+                                                            <div className="space-y-3">
+                                                                <div className="space-y-2">
+                                                                    <p className="text-base font-bold leading-snug text-on-surface break-words sm:text-lg">
+                                                                        {opt.label}
+                                                                    </p>
+                                                                    <span
+                                                                        className={`inline-flex max-w-full rounded-full px-3 py-1 text-xs font-bold leading-tight sm:text-sm ${
+                                                                            selected
+                                                                                ? "bg-primary/12 text-primary"
+                                                                                : "bg-surface-container text-primary"
+                                                                        }`}
+                                                                    >
+                                                                        {formatPrice(opt.adultPrice)}
+                                                                        <span className="ml-1">
+                                                                            {t("tourDetail.perRoomNight")}
+                                                                        </span>
+                                                                    </span>
+                                                                    <p className="text-xs text-on-surface-variant">
                                                                         {opt.subtitle}
                                                                     </p>
-                                                                    <p className="text-xs text-on-surface-variant mt-2 leading-relaxed">
+                                                                    <p className="text-xs leading-relaxed text-on-surface-variant sm:text-sm">
                                                                         {opt.description}
                                                                     </p>
                                                                 </div>
-                                                                <span className="text-sm font-bold text-primary whitespace-nowrap">
-                                                                    {formatPrice(opt.adultPrice)}{t("tourDetail.perRoomNight")}
-                                                                </span>
                                                             </div>
                                                         </button>
                                                     );
                                                 })}
                                             </div>
                                             {selectedHotel ? (
-                                                <div className="flex items-center justify-between rounded-xl border border-outline-variant/30 p-3">
-                                                    <div>
-                                                        <p className="text-sm font-medium">{t("tourDetail.rooms")}</p>
-                                                        <p className="text-xs text-on-surface-variant">
+                                                <div className="flex flex-col gap-4 rounded-xl border border-outline-variant/30 bg-surface-container-low/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+                                                    <div className="min-w-0">
+                                                        <p className="text-base font-semibold">{t("tourDetail.rooms")}</p>
+                                                        <p className="mt-1 text-sm text-on-surface-variant break-words">
                                                             {formatPrice(hotelUnitPrice)} x {t("tourDetail.nights", { nights })}
                                                         </p>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex items-center justify-end gap-3 self-end sm:self-auto">
                                                         <button
                                                             type="button"
+                                                            className="flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant/30 text-lg font-semibold transition-colors hover:bg-surface-container"
                                                             onClick={() => setRoomCount((value) => Math.max(1, value - 1))}
                                                         >
                                                             -
                                                         </button>
-                                                        <span className="w-6 text-center">{roomCount}</span>
+                                                        <span className="min-w-8 text-center text-lg font-semibold">{roomCount}</span>
                                                         <button
                                                             type="button"
+                                                            className="flex h-9 w-9 items-center justify-center rounded-full border border-outline-variant/30 text-lg font-semibold transition-colors hover:bg-surface-container"
                                                             onClick={() => setRoomCount((value) => value + 1)}
                                                         >
                                                             +
@@ -779,19 +792,30 @@ export default function TourDetail() {
                                                             type="button"
                                                             onClick={() => setTransportPref(opt.id)}
                                                         >
-                                                            <div className="flex items-start justify-between gap-4">
-                                                                <div>
-                                                                    <p className="font-bold text-sm">{opt.label}</p>
-                                                                    <p className="text-xs text-on-surface-variant mt-1">
+                                                            <div className="space-y-3">
+                                                                <div className="space-y-2">
+                                                                    <p className="text-base font-bold leading-snug text-on-surface break-words sm:text-lg">
+                                                                        {opt.label}
+                                                                    </p>
+                                                                    <span
+                                                                        className={`inline-flex max-w-full rounded-full px-3 py-1 text-xs font-bold leading-tight sm:text-sm ${
+                                                                            selected
+                                                                                ? "bg-primary/12 text-primary"
+                                                                                : "bg-surface-container text-primary"
+                                                                        }`}
+                                                                    >
+                                                                        {formatPrice(opt.adultPrice)}
+                                                                        <span className="ml-1">
+                                                                            {t("tourDetail.perBooking")}
+                                                                        </span>
+                                                                    </span>
+                                                                    <p className="text-xs text-on-surface-variant">
                                                                         {opt.subtitle}
                                                                     </p>
-                                                                    <p className="text-xs text-on-surface-variant mt-2 leading-relaxed">
+                                                                    <p className="text-xs leading-relaxed text-on-surface-variant sm:text-sm">
                                                                         {opt.description}
                                                                     </p>
                                                                 </div>
-                                                                <span className="text-sm font-bold text-primary whitespace-nowrap">
-                                                                    {formatPrice(opt.adultPrice)}{t("tourDetail.perBooking")}
-                                                                </span>
                                                             </div>
                                                         </button>
                                                     );
@@ -800,31 +824,31 @@ export default function TourDetail() {
                                         </div>
 
                                         <div className="pt-6 space-y-3 border-t border-outline-variant/20">
-                                            <div className="flex justify-between text-on-surface-variant">
-                                                <span>{t("tourDetail.basePrice", { adults })}</span>
-                                                <span>{formatPrice(basePrice * adults)}</span>
+                                            <div className="flex items-start justify-between gap-4 text-on-surface-variant">
+                                                <span className="min-w-0">{t("tourDetail.basePrice", { adults })}</span>
+                                                <span className="shrink-0 text-right">{formatPrice(basePrice * adults)}</span>
                                             </div>
 
-                                            <div className="flex justify-between text-on-surface-variant">
-                                                <span>{t("tourDetail.childrenLine", { children })}</span>
-                                                <span>{formatPrice(childPrice * children)}</span>
+                                            <div className="flex items-start justify-between gap-4 text-on-surface-variant">
+                                                <span className="min-w-0">{t("tourDetail.childrenLine", { children })}</span>
+                                                <span className="shrink-0 text-right">{formatPrice(childPrice * children)}</span>
                                             </div>
 
                                             {infants > 0 || infantPrice > 0 ? (
-                                                <div className="flex justify-between text-on-surface-variant">
-                                                    <span>{t("tourDetail.infantsLine", { infants })}</span>
-                                                    <span>{formatPrice(infantPrice * infants)}</span>
+                                                <div className="flex items-start justify-between gap-4 text-on-surface-variant">
+                                                    <span className="min-w-0">{t("tourDetail.infantsLine", { infants })}</span>
+                                                    <span className="shrink-0 text-right">{formatPrice(infantPrice * infants)}</span>
                                                 </div>
                                             ) : null}
 
-                                            <div className="flex justify-between text-on-surface-variant">
-                                                <span>{t("tourDetail.hotelLine", { rooms: roomCount, nights })}</span>
-                                                <span>{formatPrice(hotelTotal)}</span>
+                                            <div className="flex items-start justify-between gap-4 text-on-surface-variant">
+                                                <span className="min-w-0">{t("tourDetail.hotelLine", { rooms: roomCount, nights })}</span>
+                                                <span className="shrink-0 text-right">{formatPrice(hotelTotal)}</span>
                                             </div>
 
-                                            <div className="flex justify-between text-on-surface-variant">
-                                                <span>{t("tourDetail.transport")}</span>
-                                                <span>{formatPrice(transportTotal)}</span>
+                                            <div className="flex items-start justify-between gap-4 text-on-surface-variant">
+                                                <span className="min-w-0">{t("tourDetail.transport")}</span>
+                                                <span className="shrink-0 text-right">{formatPrice(transportTotal)}</span>
                                             </div>
                                             <div className="flex justify-between items-center pt-2">
                                                 <span className="font-bold text-xl">{t("tourDetail.total")}</span>
@@ -1180,4 +1204,3 @@ export default function TourDetail() {
         </div>
     );
 }
-
