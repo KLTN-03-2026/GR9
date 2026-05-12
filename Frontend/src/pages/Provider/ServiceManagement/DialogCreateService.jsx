@@ -80,9 +80,36 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
     setImagePreview(null);
   };
 
+  const validateServiceForm = () => {
+    if (!serviceData.name.trim()) return "Vui lòng nhập tên dịch vụ.";
+    if (!serviceData.type) return "Vui lòng chọn loại dịch vụ.";
+    if (
+      serviceData.lat !== "" &&
+      (Number.isNaN(Number(serviceData.lat)) || Number(serviceData.lat) < -90 || Number(serviceData.lat) > 90)
+    ) {
+      return "Vĩ độ phải nằm trong khoảng -90 đến 90.";
+    }
+    if (
+      serviceData.long !== "" &&
+      (Number.isNaN(Number(serviceData.long)) || Number(serviceData.long) < -180 || Number(serviceData.long) > 180)
+    ) {
+      return "Kinh độ phải nằm trong khoảng -180 đến 180.";
+    }
+    if (
+      [serviceData.priceAdult, serviceData.priceChild, serviceData.priceInfant].some(
+        (value) => value !== "" && Number(value) < 0,
+      )
+    ) {
+      return "Giá dịch vụ không được âm.";
+    }
+    if (imageFile && !imageFile.type.startsWith("image/")) return "File tải lên phải là hình ảnh.";
+    return "";
+  };
+
   const handleSubmit = async () => {
-    if (!serviceData.name.trim()) {
-      toast.error("Vui lòng nhập tên dịch vụ.");
+    const validationMessage = validateServiceForm();
+    if (validationMessage) {
+      toast.error(validationMessage);
       return;
     }
 

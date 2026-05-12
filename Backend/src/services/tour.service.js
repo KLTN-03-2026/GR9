@@ -7,6 +7,75 @@ import TourSchedule from "../models/tourSchedule.model.js";
 import Booking from "../models/booking.model.js";
 import Review from "../models/review.model.js";
 import cloudinary from "../config/cloudinary.js";
+import mongoose from "mongoose";
+
+const allowedTourTypes = ["GROUP", "PRIVATE", "CUSTOM"];
+const allowedScheduleTypes = ["FIXED", "DAILY", "FLEXIBLE"];
+const allowedAvailableServiceTypes = ["HOTEL", "TRANSPORT", "FOOD", "ACTIVITY"];
+const isValidObjectId = (value) => mongoose.Types.ObjectId.isValid(String(value || ""));
+const toNumber = (value) => Number(value);
+
+const validateTourPayload = (payload = {}) => {
+    if (!String(payload.name || "").trim()) {
+        throwError("Vui lòng nhập tên tour", 400, "TOUR_NAME_REQUIRED");
+    }
+
+    if (!String(payload.location || "").trim()) {
+        throwError("Vui lòng nhập địa điểm tour", 400, "TOUR_LOCATION_REQUIRED");
+    }
+
+    if (!String(payload.description || "").trim()) {
+        throwError("Vui lòng nhập mô tả tour", 400, "TOUR_DESCRIPTION_REQUIRED");
+    }
+
+    if (!Number.isInteger(toNumber(payload.numberOfDay)) || toNumber(payload.numberOfDay) < 1) {
+        throwError("Thời lượng tour phải từ 1 ngày trở lên", 400, "TOUR_DURATION_INVALID");
+    }
+
+    if (payload.type && !allowedTourTypes.includes(payload.type)) {
+        throwError("Loại tour không hợp lệ", 400, "TOUR_TYPE_INVALID");
+    }
+
+    if (payload.scheduleType && !allowedScheduleTypes.includes(payload.scheduleType)) {
+        throwError("Kiểu lịch khởi hành không hợp lệ", 400, "TOUR_SCHEDULE_TYPE_INVALID");
+    }
+
+    ["adult", "child", "infant"].forEach((key) => {
+        const value = toNumber(payload.price?.[key] ?? 0);
+        if (!Number.isFinite(value) || value < 0) {
+            throwError("Giá tour không được âm", 400, "TOUR_PRICE_INVALID");
+        }
+    });
+
+    if (!Array.isArray(payload.itineraries) || payload.itineraries.length === 0) {
+        throwError("Vui lòng thêm ít nhất 1 ngày lịch trình", 400, "TOUR_ITINERARY_REQUIRED");
+    }
+
+    payload.itineraries.forEach((day, dayIndex) => {
+        if (!Number.isInteger(toNumber(day.dayNumber)) || toNumber(day.dayNumber) < 1) {
+            throwError(`Ngày ${dayIndex + 1} không hợp lệ`, 400, "TOUR_DAY_INVALID");
+        }
+
+        (day.activities || []).forEach((activity, activityIndex) => {
+            if (activity.serviceId && !isValidObjectId(activity.serviceId)) {
+                throwError(
+                    `Dịch vụ ở ngày ${dayIndex + 1}, hoạt động ${activityIndex + 1} không hợp lệ`,
+                    400,
+                    "TOUR_ACTIVITY_SERVICE_INVALID",
+                );
+            }
+        });
+    });
+
+    (payload.availableServices || []).forEach((item, index) => {
+        if (!allowedAvailableServiceTypes.includes(item.type)) {
+            throwError(`Loại dịch vụ phụ trợ số ${index + 1} không hợp lệ`, 400, "TOUR_SERVICE_TYPE_INVALID");
+        }
+        if (!isValidObjectId(item.serviceId)) {
+            throwError(`Dịch vụ phụ trợ số ${index + 1} không hợp lệ`, 400, "TOUR_SERVICE_ID_INVALID");
+        }
+    });
+};
 
 const existUser = async (userId) => {
     const user = await User.findById(userId);
@@ -19,6 +88,7 @@ export const createTourService = async (payload, userId) => {
     try {
         await existUser(userId);
         delete payload.leadGuideServiceId;
+        validateTourPayload(payload);
         const tour = await Tour.create({
             ...payload,
             providerId: userId,
@@ -42,6 +112,7 @@ export const updateTourService = async (tourId, payload, userId, files) => {
             throwError("Tour not found or not authorized", 404, "TOUR_NOT_FOUND");
         }
         delete payload.leadGuideServiceId;
+        validateTourPayload(payload);
         Object.assign(tour, payload);
         await tour.save();
         if (files && files.length > 0) {

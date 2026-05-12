@@ -95,15 +95,15 @@ const GuideManagementProvider = () => {
   };
 
   const validateGuideForm = () => {
-    if (fullName.trim().length < 3) return "Tên guide phải có ít nhất 3 ký tự.";
-    if (!EMAIL_PATTERN.test(email.trim())) return "Email guide không hợp lệ.";
-    if (!PHONE_PATTERN.test(phone.trim())) return "Số điện thoại guide không hợp lệ.";
-    if (specialty.trim().length < 3) return "Vui lòng nhập chuyên môn của guide.";
-    if (avatarFile && !avatarFile.type.startsWith("image/")) return "Ảnh đại diện phải là file hình ảnh.";
-    if (avatarFile && avatarFile.size > MAX_AVATAR_SIZE) return "Ảnh đại diện không được vượt quá 5MB.";
+    if (!fullName.trim()) return "Vui l\u00f2ng nh\u1eadp t\u00ean guide.";
+    if (fullName.trim().length < 3) return "T\u00ean guide ph\u1ea3i c\u00f3 \u00edt nh\u1ea5t 3 k\u00fd t\u1ef1.";
+    if (!EMAIL_PATTERN.test(email.trim())) return "Email guide kh\u00f4ng h\u1ee3p l\u1ec7.";
+    if (!PHONE_PATTERN.test(phone.trim())) return "S\u1ed1 \u0111i\u1ec7n tho\u1ea1i guide kh\u00f4ng h\u1ee3p l\u1ec7.";
+    if (specialty.trim().length < 3) return "Vui l\u00f2ng nh\u1eadp chuy\u00ean m\u00f4n c\u1ee7a guide.";
+    if (avatarFile && !avatarFile.type.startsWith("image/")) return "\u1ea2nh \u0111\u1ea1i di\u1ec7n ph\u1ea3i l\u00e0 file h\u00ecnh \u1ea3nh.";
+    if (avatarFile && avatarFile.size > MAX_AVATAR_SIZE) return "\u1ea2nh \u0111\u1ea1i di\u1ec7n kh\u00f4ng \u0111\u01b0\u1ee3c v\u01b0\u1ee3t qu\u00e1 5MB.";
     return "";
   };
-
   const resetGuideForm = () => {
     setFullName("");
     setEmail("");
@@ -135,9 +135,9 @@ const GuideManagementProvider = () => {
         await uploadImagesApi([avatarFile], "GUIDE", newGuideId);
       }
 
-      toast.success("thêm mới thành công");
+      toast.success("Th\u00eam guide th\u00e0nh c\u00f4ng");
     } catch (error) {
-      toast.error("Lỗi khi thêm mới guide");
+      toast.error(error?.response?.data?.message || "L\u1ed7i khi th\u00eam m\u1edbi guide");
     } finally {
       setLoading(false);
       setOpen(false);
@@ -163,9 +163,9 @@ const GuideManagementProvider = () => {
         await uploadImagesApi([avatarFile], "GUIDE", guideId);
       }
 
-      toast.success("Cập nhật guide thành công");
+      toast.success("C\u1eadp nh\u1eadt guide th\u00e0nh c\u00f4ng");
     } catch (error) {
-      toast.error("Lỗi khi cập nhật guide");
+      toast.error(error?.response?.data?.message || "L\u1ed7i khi c\u1eadp nh\u1eadt guide");
     } finally {
       setLoading(false);
       setOpen(false);

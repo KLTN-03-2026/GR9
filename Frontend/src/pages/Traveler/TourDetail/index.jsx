@@ -171,8 +171,24 @@ export default function TourDetail() {
     }, [isPrivate]);
     const handleBooking = async () => {
         if (bookingSubmitting) return;
+        if (!tour?._id && !tourId) {
+            toast.error("Không tìm thấy tour để đặt.");
+            return;
+        }
+        if (!Number.isInteger(Number(adults)) || Number(adults) < 1) {
+            toast.error("Vui lòng chọn ít nhất 1 người lớn.");
+            return;
+        }
+        if (Number(children) < 0 || Number(infants) < 0) {
+            toast.error("Số lượng trẻ em hoặc em bé không hợp lệ.");
+            return;
+        }
         if (!selectedScheduleId || !selectedDate) {
             toast.error(t("tourDetail.chooseDateToast"));
+            return;
+        }
+        if (Number(total) < 0 || !Number.isFinite(Number(total))) {
+            toast.error("Tổng tiền booking không hợp lệ.");
             return;
         }
 

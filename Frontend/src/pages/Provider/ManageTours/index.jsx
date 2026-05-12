@@ -11,6 +11,7 @@ import { createTour, deleteTourById, updateTourById } from "@/services/api/tour"
 import { getTours } from "@/services/api/tour";
 import { syncTourImagesApi, uploadImagesApi } from "@/services/api/image";
 import ManageToursTableSkeleton from "./ManageToursTableSkeleton";
+import { useI18n } from "@/i18n/I18nProvider";
 const defaultTour = {
     location: "",
     price: {
@@ -44,6 +45,7 @@ const defaultDays = [
     },
 ];
 export default function ManageTours() {
+    const { t } = useI18n();
     const [loading, setLoading] = useState(false);
     const [tours, setTours] = useState([]);
     const [tour, setTour] = useState(defaultTour);
@@ -87,24 +89,55 @@ export default function ManageTours() {
         return days.map((d) => ({
             dayNumber: d.dayNumber,
             description: d.description,
-            activities: d.activities.map((a) => ({
-                time: a.time,
-                serviceId: a.serviceId,
-                statusActivity: a.statusActivity,
-            })),
+            activities: d.activities
+                .filter((a) => a.serviceId)
+                .map((a) => ({
+                    time: a.time || null,
+                    serviceId: a.serviceId,
+                    statusActivity: a.statusActivity || "NOT_DONE",
+                })),
         }));
     };
+    const validateTourForm = () => {
+        if (!tour.name.trim()) return "Vui lòng nhập tên tour.";
+        if (!tour.location.trim()) return "Vui lòng nhập địa điểm tour.";
+        if (!tour.description.trim()) return "Vui lòng nhập mô tả tour.";
+        if (!Number.isInteger(Number(tour.numberOfDay)) || Number(tour.numberOfDay) < 1) {
+            return "Thời lượng tour phải từ 1 ngày trở lên.";
+        }
+        if (Number(tour.price?.adult) < 0 || Number(tour.price?.child) < 0 || Number(tour.price?.infant) < 0) {
+            return "Giá tour không được âm.";
+        }
+        if (!days.length) return "Vui lòng thêm ít nhất 1 ngày lịch trình.";
+        const hasActivity = days.some((day) => day.activities?.some((activity) => activity.serviceId));
+        if (!hasActivity) return "Vui lòng chọn ít nhất 1 dịch vụ cho lịch trình.";
+        return "";
+    };
     const handleCreateTour = async () => {
+        const validationMessage = validateTourForm();
+        if (validationMessage) {
+            toast.error(validationMessage);
+            return;
+        }
+
         try {
             setLoading(true);
             const payload = {
                 ...tour,
+                name: tour.name.trim(),
+                location: tour.location.trim(),
+                description: tour.description.trim(),
                 leadGuideServiceId: undefined,
                 itineraries: mapDaysToItineraries(days),
             };
             const res = await createTour(payload);
             const newTour = res?.data?.data;
-            let updatedTour;
+            let updatedTour = newTour;
+
+            if (!newTour?._id) {
+                throw new Error(t("provider.tours.toastCreateFailed"));
+            }
+
             if (newImages.length > 0) {
                 const uploadRes = await uploadImagesApi(newImages, "TOUR", newTour._id);
 
@@ -115,25 +148,34 @@ export default function ManageTours() {
                     images: uploadedUrls.map((url) => ({ imageUrl: url })),
                 };
             }
-            setTours((prev) => [updatedTour, ...prev]);
-            toast.success("Create tour successfully!");
+            setTours((prev) => [updatedTour, ...prev].filter(Boolean));
+            toast.success(t("provider.tours.toastCreateSuccess"));
             setTour(defaultTour);
             setDays(defaultDays);
             setExistingImages([]);
             setNewImages([]);
             setOpen(false);
         } catch (err) {
-            toast.error(err?.response?.data?.message || "Create tour failed!");
+            toast.error(err?.response?.data?.message || t("provider.tours.toastCreateFailed"));
         } finally {
             setLoading(false);
         }
     };
     const handleUpdateTour = async () => {
+        const validationMessage = validateTourForm();
+        if (validationMessage) {
+            toast.error(validationMessage);
+            return;
+        }
+
         try {
             setLoading(true);
 
             const payload = {
                 ...tour,
+                name: tour.name.trim(),
+                location: tour.location.trim(),
+                description: tour.description.trim(),
                 leadGuideServiceId: undefined,
                 itineraries: mapDaysToItineraries(days),
             };
@@ -151,7 +193,7 @@ export default function ManageTours() {
             const keptUrls = [...oldUrls, ...uploadedUrls];
             await syncTourImagesApi(editingTourId, "TOUR", keptUrls);
 
-            toast.success("Update tour successfully!");
+            toast.success(t("provider.tours.toastUpdateSuccess"));
 
             setTour(defaultTour);
             setDays(defaultDays);
@@ -162,14 +204,14 @@ export default function ManageTours() {
 
             await loadTours();
         } catch (err) {
-            toast.error(err?.response?.data?.message || "Update failed!");
+            toast.error(err?.response?.data?.message || t("provider.tours.toastUpdateFailed"));
         } finally {
             setLoading(false);
         }
     };
     const handleEdit = async (tour) => {
         if (services.length === 0) {
-            toast.error("Services chưa load xong");
+            toast.error(t("provider.tours.servicesLoading"));
             return;
         }
         const normalizedServices = (tour.availableServices || []).map((s, index, arr) => {
@@ -210,9 +252,9 @@ export default function ManageTours() {
             await deleteTourById(id);
             await syncTourImagesApi(id, "TOUR", []);
             setTours((prev) => prev.filter((t) => t._id !== id));
-            toast.success("Deleted successfully");
+            toast.success(t("provider.tours.toastDeleteSuccess"));
         } catch (err) {
-            toast.error(err?.response?.data?.message || "Delete failed");
+            toast.error(err?.response?.data?.message || t("provider.tours.toastDeleteFailed"));
         }
     };
     const loadTours = async () => {
@@ -222,7 +264,7 @@ export default function ManageTours() {
             setTours(res?.data?.data || []);
         } catch (err) {
             console.error(err);
-            toast.error(err?.response?.data?.message || "Failed to load tours");
+            toast.error(err?.response?.data?.message || t("provider.tours.toastLoadToursFailed"));
         } finally {
             setLoadingTours(false);
         }
@@ -234,7 +276,7 @@ export default function ManageTours() {
             setServices(res?.data?.data || []);
         } catch (err) {
             console.error("Failed to load services", err);
-            toast.error(err?.response?.data?.message || "Unable to load services at the moment.");
+            toast.error(err?.response?.data?.message || t("provider.tours.toastLoadServicesFailed"));
         } finally {
             setLoading(false);
         }
@@ -250,15 +292,14 @@ export default function ManageTours() {
                 <div className="relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
                     <div className="max-w-2xl">
                         <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.3em] text-primary">
-                            Inventory Overview
+                            {t("provider.tours.heroEyebrow")}
                         </p>
                         <h2 className="font-headline text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl md:text-5xl">
-                            Manage Your{" "}
-                            <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">Experiences</span>
+                            {t("provider.tours.heroTitleA")}{" "}
+                            <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">{t("provider.tours.heroTitleB")}</span>
                         </h2>
                         <p className="mt-3 max-w-xl text-sm leading-6 text-on-surface-variant md:text-base">
-                            Curate, update, and monitor your tour performance across global markets from a single
-                            editorial dashboard.
+                            {t("provider.tours.heroDescription")}
                         </p>
                     </div>
 
@@ -272,8 +313,8 @@ export default function ManageTours() {
                                 <AvatarFallback>ST</AvatarFallback>
                             </Avatar>
                             <div>
-                                <p className="text-sm font-bold text-on-surface">Skyline Tours</p>
-                                <p className="text-xs font-medium text-on-surface-variant">Verified Provider</p>
+                                <p className="text-sm font-bold text-on-surface">{t("provider.tours.providerName")}</p>
+                                <p className="text-xs font-medium text-on-surface-variant">{t("provider.tours.providerLabel")}</p>
                             </div>
                         </div>
 
@@ -282,7 +323,7 @@ export default function ManageTours() {
                             className="h-12 w-full rounded-2xl bg-gradient-to-br from-primary to-primary-container px-6 font-headline text-sm font-bold text-primary-foreground shadow-lg shadow-primary/15 hover:-translate-y-0.5 hover:shadow-xl sm:w-auto"
                         >
                             <Plus className="size-4" />
-                            Create Tour
+                            {t("provider.tours.createTour")}
                         </Button>
                     </div>
                 </div>

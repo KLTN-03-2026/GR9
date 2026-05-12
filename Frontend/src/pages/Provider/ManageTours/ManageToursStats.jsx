@@ -2,14 +2,17 @@ import { ArrowUpRight, Sparkles, TrendingUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatCurrencyVND } from "@/utils/formatPrice";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function ManageToursStats() {
+  const { t } = useI18n();
+
   return (
     <section className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_1fr_1fr_1.15fr]">
       <Card className="rounded-[1.5rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
         <CardContent className="p-6">
           <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-            Total Revenue
+            {t("provider.tours.stats.totalRevenue")}
           </p>
           <div className="mt-4 space-y-2">
             <div className="flex items-center gap-2">
@@ -26,7 +29,7 @@ export default function ManageToursStats() {
       <Card className="rounded-[1.5rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
         <CardContent className="p-6">
           <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-            Active Tours
+            {t("provider.tours.stats.activeTours")}
           </p>
           <div className="mt-4 space-y-2">
             <div className="flex items-center gap-2">
@@ -35,7 +38,7 @@ export default function ManageToursStats() {
               </span>
             </div>
             <p className="text-xs font-medium text-on-surface-variant">
-              Currently listed
+              {t("provider.tours.stats.currentlyListed")}
             </p>
           </div>
         </CardContent>
@@ -44,7 +47,7 @@ export default function ManageToursStats() {
       <Card className="rounded-[1.5rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
         <CardContent className="p-6">
           <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-            Booking Rate
+            {t("provider.tours.stats.bookingRate")}
           </p>
           <div className="mt-4 space-y-2">
             <div className="flex items-center gap-2">
@@ -53,7 +56,7 @@ export default function ManageToursStats() {
               </span>
             </div>
             <p className="text-xs font-medium text-on-surface-variant">
-              Strong conversion this month
+              {t("provider.tours.stats.strongConversion")}
             </p>
             <Progress value={84} className="mt-3 h-1.5 bg-slate-200" />
           </div>
@@ -64,14 +67,13 @@ export default function ManageToursStats() {
         <CardContent className="p-6">
           <div className="mb-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-teal-50/90">
             <Sparkles className="size-4" />
-            AI Insight
+            {t("provider.tours.stats.aiInsight")}
           </div>
           <p className="text-sm leading-6 text-teal-50/95">
-            Luxury Amalfi Coast tours are trending. Consider adding a sunset
-            private boat option to capture higher-intent travelers.
+            {t("provider.tours.stats.aiInsightText")}
           </p>
           <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-white">
-            View suggestions
+            {t("provider.tours.stats.viewSuggestions")}
             <ArrowUpRight className="size-4" />
           </div>
         </CardContent>
