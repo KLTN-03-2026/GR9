@@ -30,12 +30,14 @@ import { applyProvider, getActiveProviderPolicy } from "@/services/api/provider"
 import InfomationCard from "./InfomationCard";
 import SubmissionWaiting from "./SubmissionWaiting";
 import UploadFile from "./UploadFile";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const MAX_DOCUMENT_SIZE = 10 * 1024 * 1024;
 const PHONE_PATTERN = /^(0|\+84)(\d[\s.-]?){8,10}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const ProviderApplicationForm = () => {
+  const { t } = useI18n();
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -117,7 +119,7 @@ const ProviderApplicationForm = () => {
         <Button asChild variant="ghost" className="mb-6 rounded-full">
           <Link to="/">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Về trang chủ
+            {t("guestHeader.backHome")}
           </Link>
         </Button>
 

@@ -1,16 +1,18 @@
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/theme/ThemeProvider";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function ThemeModeToggle({ className = "" }) {
   const { isDark, toggleThemeMode } = useTheme();
+  const { t } = useI18n();
 
   return (
     <Button
       type="button"
       variant="outline"
       onClick={toggleThemeMode}
-      title={isDark ? "Chuyển sang giao diện sáng" : "Chuyển sang giao diện tối"}
+      title={isDark ? t("common.switchToLight") : t("common.switchToDark")}
       className={`theme-mode-toggle group/theme relative h-10 w-[74px] shrink-0 overflow-hidden rounded-full border-outline-variant/35 bg-surface-container-lowest p-1 shadow-sm transition-all duration-300 hover:shadow-md active:scale-95 ${className}`}
     >
       <span

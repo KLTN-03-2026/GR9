@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
 import { geocodeAddress } from "@/services/api/location";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const CurrentLocationMap = ({ tracking }) => {
+  const { t } = useI18n();
   const [mapQuery, setMapQuery] = useState("");
 
   const target = useMemo(() => {
@@ -68,7 +70,7 @@ const CurrentLocationMap = ({ tracking }) => {
       <div className="absolute top-6 left-6 z-10 bg-white/90 backdrop-blur-md px-5 py-2.5 rounded-xl flex items-center gap-3 border border-white/20 shadow-lg">
         <MapPin className="w-5 h-5 text-teal-600" />
         <span className="text-sm font-bold text-slate-800 tracking-tight">
-          Current Location: {target.activity?.name || tracking?.tour?.location || "Tour location"}
+          {t("publicTrackingPage.currentLocation")}: {target.activity?.name || tracking?.tour?.location || t("publicTrackingPage.fallbackTourLocation")}
         </span>
       </div>
       {mapSrc ? (
@@ -81,7 +83,7 @@ const CurrentLocationMap = ({ tracking }) => {
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-slate-500">
-          Map location is not available
+          {t("publicTrackingPage.mapUnavailable")}
         </div>
       )}
     </Card>

@@ -520,4 +520,3 @@ export const getGuestBookingSuccessService = async ({ orderCode, trackingCode })
         },
     };
 };
-
