@@ -5,8 +5,10 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function BookingSuccessTrackingCard({ booking }) {
+  const { t } = useI18n();
   const trackingUrl = booking?.tracking?.url || "";
   const trackingCode = booking?.tracking?.code || "";
   const publicTrackingUrl = trackingCode
@@ -22,7 +24,7 @@ export default function BookingSuccessTrackingCard({ booking }) {
     if (!publicTrackingUrl) return;
 
     await navigator.clipboard.writeText(publicTrackingUrl);
-    toast.success("Đã copy link tracking");
+    toast.success(t("bookingSuccessPage.copiedLink"));
   };
 
   return (
@@ -34,12 +36,10 @@ export default function BookingSuccessTrackingCard({ booking }) {
           </div>
           <div className="space-y-1">
             <h2 className="text-2xl font-black tracking-tight text-slate-950">
-              Shared Passenger Tracking Link
+              {t("bookingSuccessPage.sharedTrackingTitle")}
             </h2>
             <p className="leading-7 text-slate-600">
-              Keep everyone in the loop. Share this live-tracking dashboard
-              with your group members so they can follow the journey in
-              real-time.
+              {t("bookingSuccessPage.sharedTrackingDescription")}
             </p>
           </div>
         </div>
@@ -61,7 +61,7 @@ export default function BookingSuccessTrackingCard({ booking }) {
               className="h-14 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-500 px-8 text-white shadow-lg shadow-emerald-200 transition hover:opacity-95"
             >
               <Copy className="size-4" />
-              Copy Link
+              {t("bookingSuccessPage.copyLink")}
             </Button>
           </div>
 
@@ -69,27 +69,26 @@ export default function BookingSuccessTrackingCard({ booking }) {
             <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
               {qrCodeUrl ? (
                 <img
-                  alt="Tracking QR code"
+                  alt={t("bookingSuccessPage.qrAlt")}
                   className="h-40 w-40 rounded-lg border-4 border-white bg-white object-cover"
                   src={qrCodeUrl}
                 />
               ) : (
                 <div className="flex h-40 w-40 items-center justify-center rounded-lg bg-slate-100 text-center text-xs font-semibold text-slate-500">
-                  QR not available
+                  {t("bookingSuccessPage.qrUnavailable")}
                 </div>
               )}
             </div>
 
             <div className="space-y-2 text-center md:text-left">
-              <p className="text-lg font-bold text-slate-900">Scan to Share</p>
+              <p className="text-lg font-bold text-slate-900">{t("bookingSuccessPage.scanToShare")}</p>
               <p className="max-w-md leading-7 text-slate-600">
-                Let your companions scan this QR code directly from your screen
-                for instant mobile tracking access.
+                {t("bookingSuccessPage.scanDescription")}
               </p>
               {publicTrackingUrl ? (
                 <Button asChild variant="link" className="h-auto px-0 font-bold text-emerald-700">
                   <Link to={`/guest?trackingCode=${encodeURIComponent(trackingCode)}`}>
-                    Open public tracking
+                    {t("bookingSuccessPage.openPublicTracking")}
                   </Link>
                 </Button>
               ) : null}

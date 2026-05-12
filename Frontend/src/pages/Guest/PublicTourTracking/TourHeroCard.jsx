@@ -2,14 +2,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-const statusLabel = {
-  upcoming: "Upcoming",
-  ongoing: "Ongoing",
-  completed: "Completed",
-};
+import { useI18n } from "@/i18n/I18nProvider";
 
 const TourHeroCard = ({ tracking }) => {
+  const { t } = useI18n();
   const progress = tracking?.progress?.percent || 0;
 
   return (
@@ -27,15 +23,15 @@ const TourHeroCard = ({ tracking }) => {
           <div className="flex justify-between items-start gap-4">
             <div>
               <span className="text-[11px] font-bold tracking-widest uppercase text-teal-600 mb-1 block">
-                {tracking?.tour?.location || "Tour tracking"}
+                {tracking?.tour?.location || t("publicTrackingPage.trackingFallback")}
               </span>
               <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                {tracking?.tour?.name || "Tour Tracking"}
+                {tracking?.tour?.name || t("publicTrackingPage.titleFallback")}
               </h1>
             </div>
             <Badge className="bg-teal-50 text-teal-700 border-teal-100 hover:bg-teal-50 gap-1.5 px-3 py-1 rounded-full">
               <span className="w-2 h-2 bg-teal-600 rounded-full animate-pulse" />
-              {statusLabel[tracking?.status] || "Tracking"}
+              {t(`publicTrackingPage.status.${tracking?.status || "ongoing"}`) || t("publicTrackingPage.badgeFallback")}
             </Badge>
           </div>
 
@@ -47,9 +43,9 @@ const TourHeroCard = ({ tracking }) => {
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Professional Guide</p>
+              <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider">{t("publicTrackingPage.guideLabel")}</p>
               <p className="font-bold text-slate-900">
-                {tracking?.guide?.name || "Guide not assigned"}
+                {tracking?.guide?.name || t("publicTrackingPage.guideFallback")}
               </p>
             </div>
           </div>
@@ -57,10 +53,13 @@ const TourHeroCard = ({ tracking }) => {
           <div className="space-y-3">
             <div className="flex justify-between items-end">
               <span className="text-sm font-bold text-slate-900">
-                Day {tracking?.schedule?.currentDay || 1} of {tracking?.tour?.numberOfDay || 1}
+                {t("publicTrackingPage.dayOf", {
+                  current: tracking?.schedule?.currentDay || 1,
+                  total: tracking?.tour?.numberOfDay || 1,
+                })}
               </span>
               <span className="text-xs font-bold text-teal-600">
-                {progress}% Completed
+                {t("publicTrackingPage.progressCompleted", { percent: progress })}
               </span>
             </div>
             <Progress value={progress} className="h-2.5 bg-slate-100" />

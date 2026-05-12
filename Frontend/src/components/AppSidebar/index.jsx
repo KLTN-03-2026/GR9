@@ -4,7 +4,6 @@ import {
   SidebarHeader,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -172,9 +171,9 @@ export function AppSidebar() {
           <button
             type="button"
             onClick={toggleSidebar}
-            title={isCollapsed ? "Mở sidebar" : "Thu sidebar"}
-            aria-label={isCollapsed ? "Mở sidebar" : "Thu sidebar"}
-            className="mt-0.5 hidden h-8 w-8 shrink-0 items-center justify-center self-start rounded-xl border border-outline-variant/15 bg-surface-container-low text-on-surface-variant transition-all hover:border-primary/25 hover:bg-primary/10 hover:text-primary md:flex group-data-[collapsible=icon]:mt-0 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8"
+            title={isCollapsed ? t("common.openSidebar") : t("common.collapseSidebar")}
+            aria-label={isCollapsed ? t("common.openSidebar") : t("common.collapseSidebar")}
+            className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-outline-variant/15 bg-surface-container-low text-on-surface-variant transition-all hover:border-primary/25 hover:bg-primary/10 hover:text-primary md:flex group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:rounded-xl"
           >
             <ToggleIcon className="h-4 w-4" />
           </button>

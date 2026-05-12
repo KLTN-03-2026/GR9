@@ -9,7 +9,7 @@ import { formatPrice } from "@/utils/formatPrice";
 import TourListSkeleton from "./TourListSkeleton";
 import { useI18n } from "@/i18n/I18nProvider";
 
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 15;
 const SORT_OPTIONS = [
     { value: "popular", label: "Phổ biến" },
     { value: "topRated", label: "Đánh giá cao" },
@@ -182,7 +182,7 @@ export default function TourList() {
                         {filteredTours.map((tour) => (
                             <article
                                 key={tour._id}
-                                className="group relative overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10"
+                                className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10"
                             >
                                 <div className="relative aspect-[4/3] overflow-hidden bg-surface-container-low">
                                     {getTourImage(tour) ? (
@@ -218,43 +218,55 @@ export default function TourList() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-5 p-5">
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div>
+                                <div className="flex flex-1 flex-col gap-5 p-5">
+                                    <div className="flex min-h-[88px] items-start justify-between gap-4">
+                                        <div className="min-w-0 flex-1">
                                             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                                                Từ
+                                                {t("common.from")}
                                             </p>
-                                            <span className="text-2xl font-extrabold text-primary">
-                                                {Number(tour?.price?.adult) > 0
-                                                    ? `${formatPrice(tour?.price?.adult)}đ`
-                                                    : t("common.contact")}
-                                            </span>
-                                            <span className="text-xs font-medium text-slate-500"> / người lớn</span>
+                                            <div className="mt-1 flex flex-wrap items-end gap-x-2 gap-y-1">
+                                                <span className="text-2xl font-extrabold leading-none text-primary">
+                                                    {Number(tour?.price?.adult) > 0
+                                                        ? `${formatPrice(tour?.price?.adult)}đ`
+                                                        : t("common.contact")}
+                                                </span>
+                                                <span className="text-xs font-medium text-slate-500">{t("common.perAdult")}</span>
+                                            </div>
                                         </div>
 
-                                        <div className="rounded-2xl bg-amber-50 px-3 py-2 text-right dark:bg-amber-400/10">
-                                            <div className="flex items-center justify-end gap-1">
-                                                <span
-                                                    className="material-symbols-outlined text-sm text-amber-500"
-                                                    style={{ fontVariationSettings: '"FILL" 1' }}
-                                                >
-                                                    star
+                                        <div className="flex min-h-[70px] min-w-[104px] flex-col justify-center rounded-2xl border border-amber-200/60 bg-gradient-to-br from-amber-50 via-white to-amber-50/60 px-3 py-2 shadow-sm dark:border-primary/15 dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-900 dark:to-slate-800/90 dark:shadow-none">
+                                            <div className="flex items-center gap-2">
+                                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-400/15 text-amber-500 dark:bg-primary/14 dark:text-primary">
+                                                    <span
+                                                        className="material-symbols-outlined text-[15px]"
+                                                        style={{ fontVariationSettings: '"FILL" 1' }}
+                                                    >
+                                                        star
+                                                    </span>
                                                 </span>
-                                                <span className="text-sm font-extrabold text-slate-900">
-                                                    {Number(tour.averageRating) > 0 ? tour.averageRating : "Mới"}
-                                                </span>
+                                                <div className="min-w-0">
+                                                    <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                                                        {t("common.reviewsLabel")}
+                                                    </p>
+                                                    <div className="mt-0.5 flex items-baseline gap-1">
+                                                        <span className="text-base font-extrabold leading-none text-slate-900 dark:text-slate-100">
+                                                            {Number(tour.averageRating) > 0 ? tour.averageRating : "Mới"}
+                                                        </span>
+                                                        {Number(tour.averageRating) > 0 ? (
+                                                            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">/5</span>
+                                                        ) : null}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <p className="mt-0.5 text-[11px] font-semibold text-slate-500">
-                                                {tour.reviewCount || 0} đánh giá
+                                            <p className="mt-1.5 text-[10px] font-medium leading-4 text-slate-500 dark:text-slate-400">
+                                                {t("tourList.reviews", { count: tour.reviewCount || 0 })}
                                             </p>
                                         </div>
                                     </div>
 
-                                    {tour.description && (
-                                        <p className="line-clamp-2 min-h-[48px] text-sm leading-6 text-on-surface-variant">
-                                            {tour.description}
-                                        </p>
-                                    )}
+                                    <p className="line-clamp-3 min-h-[78px] text-sm leading-6 text-on-surface-variant">
+                                        {tour.description || t("tourList.noDescription")}
+                                    </p>
 
                                     <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low text-on-surface-variant sm:grid-cols-3">
                                         <div className="flex min-h-[64px] flex-col items-center justify-center gap-1 border-b border-outline-variant/15 px-2 text-center sm:min-h-[72px] sm:border-b-0 sm:border-r">
@@ -285,7 +297,7 @@ export default function TourList() {
 
                                     <Button
                                         asChild
-                                        className="h-11 w-full rounded-xl bg-primary font-bold text-white shadow-sm transition-all hover:bg-primary/90 hover:shadow-md active:scale-95"
+                                        className="mt-auto h-11 w-full rounded-xl bg-primary font-bold text-white shadow-sm transition-all hover:bg-primary/90 hover:shadow-md active:scale-95"
                                     >
                                         <Link to={`/traveler/tour-detail/${tour._id}`}>{t("common.viewDetails")}</Link>
                                     </Button>
