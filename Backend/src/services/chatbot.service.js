@@ -75,7 +75,7 @@ const isInTravelAiScope = (message) => {
 
 const buildCleanOutOfScopeAnswer = () =>
   [
-    "Mình chỉ hỗ trợ các câu hỏi liên quan đến Travel_AI, tour du lịch, đặt tour, thanh toán, đánh giá, chính sách và hướng dẫn sử dụng hệ thống.",
+    "M?nh ch? h? tr? c?c c?u h?i li?n quan ??n Travel_AI, tour du l?ch, ??t tour, thanh to?n, ??nh gi?, ch?nh s?ch v? h??ng d?n s? d?ng h? th?ng.",
     "",
     "Bạn có thể hỏi mình ví dụ:",
     "- Gợi ý tour phù hợp cho gia đình",

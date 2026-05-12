@@ -20,8 +20,8 @@ export const chatbotProps = {
       id: "insight",
       role: "assistant",
       content:
-        "Bạn có thể bắt đầu bằng các câu hỏi như: Travel_AI dùng để làm gì, cách đặt tour, điều kiện đánh giá tour, hoặc gợi ý tour theo nhu cầu.",
-      label: "Gợi ý bắt đầu",
+        "B?n c? th? b?t ??u b?ng c?c c?u h?i nh?: Travel_AI d?ng ?? l?m g?, c?ch ??t tour, ?i?u ki?n ??nh gi? tour, ho?c g?i ? tour theo nhu c?u.",
+      label: "G?i ? b?t ??u",
       sources: [],
     },
   ],
@@ -46,8 +46,8 @@ export const landingChatbotProps = {
       id: "landing-insight",
       role: "assistant",
       content:
-        "Nếu muốn hỏi sâu hơn theo lịch sử đặt tour, tracking hoặc gợi ý cá nhân hóa, bạn cần đăng nhập tài khoản traveler.",
-      label: "Dành cho khách",
+        "N?u mu?n h?i s?u h?n theo l?ch s? ??t tour, tracking ho?c g?i ? c? nh?n h?a, b?n c?n ??ng nh?p t?i kho?n traveler.",
+      label: "D?nh cho kh?ch",
       sources: [],
     },
   ],
