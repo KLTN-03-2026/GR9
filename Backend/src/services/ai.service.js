@@ -27,6 +27,8 @@ const getPublishedExpiry = (request) =>
 const getClaimExpiry = (request) =>
   request?.claimExpiresAt ? new Date(request.claimExpiresAt) : null;
 
+const getDocumentId = (value) => String(value?._id || value || "");
+
 const refreshAiTourRequestLifecycle = async () => {
   const now = new Date();
 
@@ -132,7 +134,7 @@ const ensureProviderClaimWindow = async (request, providerId) => {
     return request;
   }
 
-  if (request.status === "CLAIMED" && String(request.claimedBy || "") === String(providerId)) {
+  if (request.status === "CLAIMED" && getDocumentId(request.claimedBy) === String(providerId)) {
     if (!request.claimExpiresAt) {
       request.claimExpiresAt = new Date(now.getTime() + AI_REQUEST_CLAIM_WINDOW_MS);
       await request.save();
@@ -893,8 +895,8 @@ export const getProviderAiTourRequestById = async (id, providerId) => {
 
     const canViewPublished = request.status === "PUBLISHED";
     const ownedByProvider =
-      String(request.claimedBy?._id || request.claimedBy || "") === String(providerId) ||
-      String(request.convertedBy?._id || request.convertedBy || "") === String(providerId);
+      getDocumentId(request.claimedBy) === String(providerId) ||
+      getDocumentId(request.convertedBy) === String(providerId);
 
     if (!canViewPublished && !ownedByProvider) {
       throwError("AI tour request not found", 404, "AI_TOUR_REQUEST_NOT_FOUND");
@@ -1012,7 +1014,7 @@ export const convertAiTourRequestToTour = async (id, providerId) => {
 
     await ensureProviderClaimWindow(request, providerId);
 
-    if (request.status !== "CLAIMED" || String(request.claimedBy || "") !== String(providerId)) {
+    if (request.status !== "CLAIMED" || getDocumentId(request.claimedBy) !== String(providerId)) {
       throwError("AI tour request đã được provider khác xử lý", 409, "AI_TOUR_REQUEST_ALREADY_CLAIMED");
     }
 
