@@ -28,16 +28,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { formatCurrencyVND, formatPrice } from "@/utils/formatPrice";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const getServiceAdultPrice = (service) => service?.total?.find((item) => item.type === "ADULT")?.price ?? 0;
 
-const getServiceLocationLabel = (address = "") => {
+
+const getServiceLocationLabel = (address = "", fallback = "No location") => {
     const parts = String(address)
         .split(",")
         .map((part) => part.trim())
         .filter(Boolean);
 
-    return parts.length ? parts[parts.length - 1] : "Chưa có địa điểm";
+    return parts.length ? parts[parts.length - 1] : fallback;
 };
 
 export default function DialogCreateTour({
@@ -58,6 +60,8 @@ export default function DialogCreateTour({
     newImages,
     setNewImages,
 }) {
+    const { t } = useI18n();
+    const text = (key, values) => t(`provider.tours.dialog.${key}`, values);
     const [serviceLocationFilter, setServiceLocationFilter] = useState("");
     const [serviceSort, setServiceSort] = useState("name-asc");
     const getFilteredServices = (type, search = "") => {
@@ -84,7 +88,10 @@ export default function DialogCreateTour({
                 if (serviceSort === "price-low") return getServiceAdultPrice(a) - getServiceAdultPrice(b);
                 if (serviceSort === "price-high") return getServiceAdultPrice(b) - getServiceAdultPrice(a);
                 if (serviceSort === "location") {
-                    return getServiceLocationLabel(a.address).localeCompare(getServiceLocationLabel(b.address), "vi");
+                    return getServiceLocationLabel(a.address, text("noServiceLocation")).localeCompare(
+                        getServiceLocationLabel(b.address, text("noServiceLocation")),
+                        "vi",
+                    );
                 }
 
                 return String(a.name || "").localeCompare(String(b.name || ""), "vi");
@@ -272,11 +279,10 @@ export default function DialogCreateTour({
                 <DialogContent className="flex max-h-[92vh] max-w-[calc(100%-2rem)] flex-col overflow-hidden rounded-[2rem] border-none bg-surface p-0 sm:max-w-6xl">
                     <DialogHeader className="border-b border-slate-200 px-6 py-5">
                         <DialogTitle className="font-headline text-2xl font-extrabold text-on-surface">
-                            Create Tour
+                            {editingTourId ? text("titleEdit") : text("titleCreate")}
                         </DialogTitle>
                         <DialogDescription className="text-sm text-on-surface-variant">
-                            Fill in the tour details, itinerary, and logistics without leaving the manage tours
-                            dashboard.
+                            {text("description")}
                         </DialogDescription>
                     </DialogHeader>
 
@@ -290,11 +296,10 @@ export default function DialogCreateTour({
                                         </div>
                                         <div>
                                             <h2 className="font-headline text-2xl font-bold uppercase tracking-tight">
-                                                Itinerary Builder
+                                                {text("itineraryBuilder")}
                                             </h2>
                                             <p className="text-sm text-on-surface-variant">
-                                                Build a vivid, traveler-friendly day plan with strong visual cues and
-                                                descriptive copy.
+                                                {text("itineraryHelp")}
                                             </p>
                                         </div>
                                     </div>
@@ -305,7 +310,7 @@ export default function DialogCreateTour({
                                         className="h-11 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 px-4 font-bold text-primary"
                                     >
                                         <CirclePlus className="size-4" />
-                                        Add Day
+                                        {text("addDay")}
                                     </Button>
                                 </div>
 
@@ -339,8 +344,8 @@ export default function DialogCreateTour({
                                     </div>
                                     <div className="rounded-xl bg-primary/10 px-4 py-3 text-xs font-semibold text-primary">
                                         {!serviceLocationFilter.trim()
-                                            ? "Đang hiển thị tất cả service"
-                                            : `Đang lọc: ${serviceLocationFilter}`}
+                                            ? text("allServices")
+                                            : `${text("filtering")}: ${serviceLocationFilter}`}
                                     </div>
                                 </div>
 
@@ -356,12 +361,12 @@ export default function DialogCreateTour({
                                                 </span>
                                                 <div>
                                                     <h3 className="font-headline text-lg font-bold text-on-surface">
-                                                        Day {dayIndex + 1}
+                                                        {text("day")} {dayIndex + 1}
                                                     </h3>
                                                     <p className="text-xs text-on-surface-variant">
                                                         {dayIndex === 0
-                                                            ? "Introduce the rhythm, setting, and tone of the tour."
-                                                            : "Shape the next chapter of the traveler experience."}
+                                                            ? text("firstDayHelp")
+                                                            : text("nextDayHelp")}
                                                     </p>
                                                 </div>
                                             </div>
@@ -373,7 +378,7 @@ export default function DialogCreateTour({
                                                     className="h-10 rounded-xl border-dashed border-primary/25 bg-primary/5 px-4 font-semibold text-primary"
                                                 >
                                                     <CirclePlus className="size-4" />
-                                                    Add Activity
+                                                    {text("addActivity")}
                                                 </Button>
                                                 <Button
                                                     type="button"
@@ -382,22 +387,22 @@ export default function DialogCreateTour({
                                                     className="h-10 rounded-xl border-dashed border-red-800/25 bg-red-800/5 px-4 font-semibold text-red-800"
                                                 >
                                                     <X className="size-4" />
-                                                    Delete Day
+                                                    {text("deleteDay")}
                                                 </Button>
                                             </div>
                                         </div>
                                         <div className="px-6 pt-6">
                                             <div className="mb-3 flex items-center justify-between">
                                                 <label className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
-                                                    Day Description
+                                                    {text("dayDescription")}
                                                 </label>
                                                 <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-                                                    Optional
+                                                    {text("optional")}
                                                 </span>
                                             </div>
 
                                             <Textarea
-                                                placeholder="Describe what travelers will experience this day..."
+                                                placeholder={text("dayDescriptionPlaceholder")}
                                                 value={day.description}
                                                 onChange={(e) => updateDayDescription(dayIndex, e.target.value)}
                                                 className="min-h-[90px] rounded-xl border border-slate-200 bg-surface-container-low px-4 py-3 text-sm leading-relaxed focus:ring-2 focus:ring-primary/20"
@@ -455,7 +460,7 @@ export default function DialogCreateTour({
                                                             <div className="relative">
                                                                 <div className="relative">
                                                                     <Input
-                                                                        placeholder="Search service..."
+                                                                        placeholder={text("searchService")}
                                                                         value={activity.search}
                                                                         onChange={(e) =>
                                                                             updateActivity(dayIndex, activityIndex, {
@@ -630,7 +635,7 @@ export default function DialogCreateTour({
                                                 className="h-11 rounded-2xl border-2 border-dashed border-primary/20 bg-primary/5 px-4 font-bold text-primary"
                                             >
                                                 <CirclePlus className="size-4" />
-                                                Add Activity To Day {dayIndex + 1}
+                                                {text("addActivity")} - {text("day")} {dayIndex + 1}
                                             </Button>
                                         </CardContent>
                                     </Card>
@@ -711,7 +716,7 @@ export default function DialogCreateTour({
                                                     {getFilteredServices("HOTEL")
                                                         .map((s) => (
                                                             <SelectItem key={s._id} value={s._id}>
-                                                                {s.name} - {getServiceLocationLabel(s.address)}
+                                                                {s.name} - {getServiceLocationLabel(s.address, text("noServiceLocation"))}
                                                             </SelectItem>
                                                         ))}
                                                 </SelectContent>
@@ -860,7 +865,7 @@ export default function DialogCreateTour({
                                                     {getFilteredServices("TRANSPORT")
                                                         .map((s) => (
                                                             <SelectItem key={s._id} value={s._id}>
-                                                                {s.name} - {getServiceLocationLabel(s.address)}
+                                                                {s.name} - {getServiceLocationLabel(s.address, text("noServiceLocation"))}
                                                             </SelectItem>
                                                         ))}
                                                 </SelectContent>
@@ -960,10 +965,10 @@ export default function DialogCreateTour({
                             <Card className="rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_16px_40px_rgba(15,23,42,0.05)]">
                                 <CardHeader className="px-6 pt-6">
                                     <CardTitle className="font-headline text-2xl font-bold">
-                                        Basic Information
+                                        {text("basicInfo")}
                                     </CardTitle>
                                     <p className="text-sm text-on-surface-variant">
-                                        Configure your tour details and how it will be scheduled.
+                                        {text("basicInfoHelp")}
                                     </p>
                                 </CardHeader>
 
@@ -971,7 +976,7 @@ export default function DialogCreateTour({
                                     {/* IMAGE */}
                                     <div className="md:col-span-2">
                                         <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
-                                            Tour Images
+                                            {text("tourImages")}
                                         </label>
 
                                         <Input
@@ -1039,7 +1044,7 @@ export default function DialogCreateTour({
                                                     ))}
                                                 </>
                                             ) : (
-                                                <p className="text-sm text-slate-400">No images</p>
+                                                <p className="text-sm text-slate-400">{text("noImages")}</p>
                                             )}
                                         </div>
                                     </div>
@@ -1047,7 +1052,7 @@ export default function DialogCreateTour({
                                     {/* NAME */}
                                     <div>
                                         <label className="mb-2 text-xs font-bold uppercase text-slate-500">
-                                            Tour Name
+                                            {text("tourName")}
                                         </label>
                                         <Input
                                             value={tour.name}
@@ -1058,7 +1063,7 @@ export default function DialogCreateTour({
                                     {/* LOCATION */}
                                     <div>
                                         <label className="mb-2 text-xs font-bold uppercase text-slate-500">
-                                            Location
+                                            {text("location")}
                                         </label>
                                         <Input
                                             value={tour.location}
@@ -1069,7 +1074,7 @@ export default function DialogCreateTour({
                                     {/* DESCRIPTION */}
                                     <div className="md:col-span-2">
                                         <label className="mb-2 text-xs font-bold uppercase text-slate-500">
-                                            Description
+                                            {text("descriptionLabel")}
                                         </label>
                                         <Textarea
                                             value={tour.description}
@@ -1079,7 +1084,7 @@ export default function DialogCreateTour({
 
                                     {/* PRICE */}
                                     <div>
-                                        <label className="mb-2 text-xs font-bold uppercase text-slate-500">Price</label>
+                                        <label className="mb-2 text-xs font-bold uppercase text-slate-500">{text("price")}</label>
                                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                                             {["adult", "child", "infant"].map((t) => (
                                                 <Input
@@ -1101,7 +1106,7 @@ export default function DialogCreateTour({
                                     {/* TYPE */}
                                     <div>
                                         <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
-                                            Tour Type
+                                            {text("tourType")}
                                         </label>
 
                                         <Select
@@ -1109,13 +1114,13 @@ export default function DialogCreateTour({
                                             onValueChange={(value) => setTour({ ...tour, type: value })}
                                         >
                                             <SelectTrigger className="h-14 w-full rounded-2xl bg-surface-container-low px-4 font-semibold">
-                                                <SelectValue placeholder="Select tour type" />
+                                                <SelectValue placeholder={text("selectTourType")} />
                                             </SelectTrigger>
 
                                             <SelectContent className="rounded-xl">
-                                                <SelectItem value="GROUP">Group</SelectItem>
-                                                <SelectItem value="PRIVATE">Private</SelectItem>
-                                                <SelectItem value="CUSTOM">Custom</SelectItem>
+                                                <SelectItem value="GROUP">{text("group")}</SelectItem>
+                                                <SelectItem value="PRIVATE">{text("private")}</SelectItem>
+                                                <SelectItem value="CUSTOM">{text("custom")}</SelectItem>
                                             </SelectContent>
                                         </Select>
 
@@ -1129,7 +1134,7 @@ export default function DialogCreateTour({
                                     {/* SCHEDULE TYPE */}
                                     <div>
                                         <label className="mb-2 block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">
-                                            Schedule Type
+                                            {text("scheduleType")}
                                         </label>
 
                                         <Select
@@ -1137,13 +1142,13 @@ export default function DialogCreateTour({
                                             onValueChange={(value) => setTour({ ...tour, scheduleType: value })}
                                         >
                                             <SelectTrigger className="h-14 w-full rounded-2xl bg-surface-container-low px-4 font-semibold">
-                                                <SelectValue placeholder="Select schedule type" />
+                                                <SelectValue placeholder={text("selectScheduleType")} />
                                             </SelectTrigger>
 
                                             <SelectContent className="rounded-xl">
-                                                <SelectItem value="FIXED">Fixed</SelectItem>
-                                                <SelectItem value="DAILY">Daily</SelectItem>
-                                                <SelectItem value="FLEXIBLE">Flexible</SelectItem>
+                                                <SelectItem value="FIXED">{text("fixed")}</SelectItem>
+                                                <SelectItem value="DAILY">{text("daily")}</SelectItem>
+                                                <SelectItem value="FLEXIBLE">{text("flexible")}</SelectItem>
                                             </SelectContent>
                                         </Select>
 
@@ -1157,7 +1162,7 @@ export default function DialogCreateTour({
                                     {/* DURATION */}
                                     <div>
                                         <label className="mb-2 text-xs font-bold uppercase text-slate-500">
-                                            Duration (Days)
+                                            {text("duration")}
                                         </label>
                                         <Input value={tour.numberOfDay} readOnly />
                                     </div>
@@ -1173,7 +1178,7 @@ export default function DialogCreateTour({
                             onClick={() => onOpenChange?.(false)}
                             className="h-11 rounded-xl border-slate-200 bg-white px-5 font-semibold text-slate-600"
                         >
-                            Cancel
+                            {text("cancel")}
                         </Button>
 
                         <div className="flex flex-col gap-3 sm:flex-row">
@@ -1182,14 +1187,14 @@ export default function DialogCreateTour({
                                 variant="outline"
                                 className="h-11 rounded-xl border-outline-variant/30 bg-white px-5 font-semibold text-slate-600"
                             >
-                                Save Draft
+                                {text("saveDraft")}
                             </Button>
                             <Button
                                 onClick={handleClick}
                                 disabled={loading}
                                 className="h-11 rounded-xl bg-gradient-to-br from-primary to-primary-container px-6 font-bold text-on-primary shadow-lg shadow-primary/15"
                             >
-                                {loading ? <Spinner /> : `${editingTourId ? "Update Tour" : "Publish Tour"}`}
+                                {loading ? <Spinner /> : editingTourId ? text("updateTour") : text("publishTour")}
                             </Button>
                         </div>
                     </DialogFooter>

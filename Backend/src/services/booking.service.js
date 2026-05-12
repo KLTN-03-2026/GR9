@@ -25,6 +25,40 @@ const getBookingLifecycleStatus = (booking) => {
     return "CONFIRMED";
 };
 
+const isValidObjectId = (value) => mongoose.Types.ObjectId.isValid(String(value || ""));
+const toInteger = (value) => (Number.isInteger(Number(value)) ? Number(value) : NaN);
+
+const validateBookingPayload = (data = {}) => {
+    if (!isValidObjectId(data.travelerId)) {
+        throwError("Vui lòng đăng nhập để đặt tour", 401, "TRAVELER_REQUIRED");
+    }
+
+    if (!isValidObjectId(data.tourId) && !isValidObjectId(data.tourScheduleId)) {
+        throwError("Vui lòng chọn tour cần đặt", 400, "TOUR_REQUIRED");
+    }
+
+    const adults = toInteger(data.quantity?.adults);
+    const children = toInteger(data.quantity?.children ?? 0);
+    const infants = toInteger(data.quantity?.infants ?? 0);
+
+    if (!Number.isFinite(adults) || adults < 1) {
+        throwError("Vui lòng chọn ít nhất 1 người lớn", 400, "BOOKING_ADULT_REQUIRED");
+    }
+
+    if (!Number.isFinite(children) || children < 0 || !Number.isFinite(infants) || infants < 0) {
+        throwError("Số lượng trẻ em hoặc em bé không hợp lệ", 400, "BOOKING_QUANTITY_INVALID");
+    }
+
+    const totalAmount = Number(data.totalAmount);
+    if (!Number.isFinite(totalAmount) || totalAmount < 0) {
+        throwError("Tổng tiền booking không hợp lệ", 400, "BOOKING_TOTAL_INVALID");
+    }
+
+    if (data.tourScheduleId && !isValidObjectId(data.tourScheduleId)) {
+        throwError("Lịch khởi hành không hợp lệ", 400, "TOUR_SCHEDULE_INVALID");
+    }
+};
+
 /**
  * CREATE BOOKING (ANTI OVERBOOKING)
  */
@@ -33,6 +67,7 @@ export const createBookingService = async (data) => {
     session.startTransaction();
 
     try {
+        validateBookingPayload(data);
         const { travelerId, tourId, tourScheduleId, quantity, totalAmount, selectedServices, isPrivate, startDate } =
             data;
 
@@ -84,7 +119,7 @@ export const createBookingService = async (data) => {
         // =========================
         if (!normalizedIsPrivate) {
             if (!tourScheduleId) {
-                throw new Error("Tour schedule is required for group booking");
+                throwError("Vui lòng chọn ngày khởi hành", 400, "TOUR_SCHEDULE_REQUIRED");
             }
 
             schedule = await TourSchedule.findOne(
@@ -98,7 +133,7 @@ export const createBookingService = async (data) => {
             ).session(session);
 
             if (!schedule) {
-                throw new Error("Hết chỗ hoặc không đủ slot");
+                throwError("Lịch khởi hành đã hết chỗ hoặc không đủ slot", 400, "TOUR_SCHEDULE_FULL");
             }
 
             if (String(schedule.tourId) !== String(tour._id)) {
@@ -113,7 +148,7 @@ export const createBookingService = async (data) => {
 
         if (normalizedIsPrivate) {
             if (!startDate) {
-                throw new Error("Start date is required for private booking");
+                throwError("Vui lòng chọn ngày bắt đầu cho tour riêng", 400, "PRIVATE_START_DATE_REQUIRED");
             }
         }
 
@@ -124,7 +159,7 @@ export const createBookingService = async (data) => {
             }).session(session);
 
             if (!schedule) {
-                throw new Error("Lịch khởi hành riêng tư không hợp lệ");
+                throwError("Lịch khởi hành riêng tư không hợp lệ", 400, "PRIVATE_SCHEDULE_INVALID");
             }
 
             if (!schedule.isPrivate) {
