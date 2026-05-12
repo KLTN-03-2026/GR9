@@ -23,7 +23,7 @@ const mfa = {
 export default function AdminOverview({ profile }) {
   const profileFields = [
     { label: "Full Name", value: profile?.fullName || "System Admin" },
-    { label: "Email", value: profile?.email || "admin@voyager.ai" },
+    { label: "Email", value: profile?.email || "admin@smarttravel.ai" },
     { label: "Phone", value: profile?.phone || "Not provided" },
     { label: "Address", value: profile?.address || "Not provided" },
     { label: "Gender", value: profile?.gender || "OTHER" },

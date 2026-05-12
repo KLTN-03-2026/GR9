@@ -20,7 +20,7 @@ export default function BookingSuccessSidebar({ booking }) {
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm">
             <Sparkles className="size-4 text-emerald-300" />
             <span className="text-xs font-bold uppercase tracking-[0.25em] text-emerald-100">
-              Voyager Exclusive
+              SmartTravel Exclusive
             </span>
           </div>
           <div>
@@ -49,7 +49,7 @@ export default function BookingSuccessSidebar({ booking }) {
           <div className="mb-3 flex items-center gap-2 text-orange-700">
             <Lightbulb className="size-5" />
             <span className="text-xs font-bold uppercase tracking-[0.2em]">
-              Voyager Tip
+              SmartTravel Tip
             </span>
           </div>
           <p className="leading-7 text-orange-950/80">

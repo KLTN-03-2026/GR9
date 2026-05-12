@@ -19,6 +19,7 @@ import { landingChatbotProps } from "@/pages/Traveler/ChatBot/chatbot.data";
 import LanguageToggle from "@/components/shared/language-toggle";
 import { useI18n } from "@/i18n/I18nProvider";
 import ThemeModeToggle from "@/components/shared/theme-mode-toggle";
+import BrandLogo from "@/components/shared/brand-logo";
 
 const heroImage =
   "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1800&q=85";
@@ -72,9 +73,9 @@ const searchItems = [
     to: "/apply-provider",
   },
   {
-    title: "Voyager AI",
+    title: "SmartTravel",
     description: "Chat thu tro ly AI de hoi ve tour, booking va Travel_AI.",
-    keywords: ["ai", "chatbot", "voyager", "tro ly"],
+    keywords: ["ai", "chatbot", "smarttravel", "tro ly"],
     hash: "assistant",
   },
 ];
@@ -241,12 +242,7 @@ export default function LandingHome() {
       <header className="fixed inset-x-0 top-0 z-50 border-b border-outline-variant/30 bg-white/82 shadow-[0_10px_32px_rgba(15,23,42,0.06)] backdrop-blur-2xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:h-18 sm:gap-3 sm:px-5 sm:py-4">
           <Link to="/" className="flex shrink-0 items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-              <MapPinned className="h-5 w-5" />
-            </span>
-            <span className="font-heading text-base font-extrabold tracking-[0.08em] text-on-surface sm:text-lg sm:tracking-[0.12em]">
-              Travel_AI
-            </span>
+            <BrandLogo iconClassName="h-10 w-10" className="gap-2.5" />
           </Link>
 
           <nav className="hidden shrink-0 items-center gap-1 rounded-full border border-outline-variant/30 bg-white/70 p-1.5 shadow-sm backdrop-blur-xl xl:flex">
@@ -277,7 +273,7 @@ export default function LandingHome() {
               onClick={() => scrollToSection("assistant")}
               className="group relative whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold leading-none text-on-surface-variant transition hover:text-primary"
             >
-              Voyager AI
+              SmartTravel
               <span className="absolute inset-x-4 bottom-1 h-0.5 origin-left scale-x-0 rounded-full bg-primary transition-transform duration-300 group-hover:scale-x-100" />
             </motion.button>
             <motion.div whileHover={{ y: -3 }} whileTap={{ y: 2 }}>

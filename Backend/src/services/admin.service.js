@@ -22,11 +22,11 @@ const generateRandomPassword = (length = 10) => {
 const sendProviderApprovalMail = async (user, password) => {
   await sendMail({
     to: user.email,
-    subject: "Tài khoản đối tác Voyager AI đã được kích hoạt",
+    subject: "Tài khoản đối tác SmartTravel đã được kích hoạt",
     text: `Tài khoản của bạn đã được phê duyệt.\nEmail: ${user.email}\nMật khẩu: ${password}\nVui lòng đăng nhập và thay đổi mật khẩu ngay lập tức.`,
     html: `
       <div style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;">
-        <h2 style="margin-bottom: 12px;">Tài khoản đối tác Voyager AI đã được phê duyệt</h2>
+        <h2 style="margin-bottom: 12px;">Tài khoản đối tác SmartTravel đã được phê duyệt</h2>
         <p>Xin chào ${user.fullName || "đối tác"},</p>
         <p>Chúc mừng! Hồ sơ của bạn đã được xác nhận bởi quản trị viên.</p>
         <p>Dưới đây là thông tin đăng nhập của bạn:</p>

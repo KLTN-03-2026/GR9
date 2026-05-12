@@ -9,7 +9,7 @@ export default function EditTour() {
         .querySelector('meta[name="description"]')
         ?.getAttribute("content") ?? "";
 
-    document.title = "Edit Tour | Voyager AI Provider";
+    document.title = "Edit Tour | SmartTravel Provider";
 
     let descriptionTag = document.querySelector('meta[name="description"]');
     if (!descriptionTag) {
@@ -20,7 +20,7 @@ export default function EditTour() {
 
     descriptionTag.setAttribute(
       "content",
-      "Create and optimize provider tours in Voyager AI with itinerary planning, logistics setup, pricing, and traveler-ready experience details.",
+      "Create and optimize provider tours in SmartTravel with itinerary planning, logistics setup, pricing, and traveler-ready experience details.",
     );
 
     return () => {

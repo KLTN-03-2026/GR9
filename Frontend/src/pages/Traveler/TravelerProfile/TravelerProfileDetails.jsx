@@ -74,7 +74,7 @@ export default function TravelerProfileDetails({ profile }) {
           <div>
             <CardTitle>Profile Information</CardTitle>
             <CardDescription>
-              Personal details and account metadata from your Voyager AI user
+              Personal details and account metadata from your SmartTravel user
               profile.
             </CardDescription>
           </div>
