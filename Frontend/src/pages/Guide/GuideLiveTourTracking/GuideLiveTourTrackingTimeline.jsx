@@ -13,6 +13,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const iconMap = {
   HOTEL: Hotel,
@@ -21,12 +22,6 @@ const iconMap = {
   TRANSPORT: Navigation,
   ACTIVITY: Activity,
   ATTRACTION_TICKET: MapPinned,
-};
-
-const statusLabel = {
-  completed: "Completed",
-  ongoing: "In Progress",
-  pending: "Scheduled",
 };
 
 const statusClass = {
@@ -46,6 +41,7 @@ export default function GuideLiveTourTrackingTimeline({
   onUpdateActivityStatus,
   updatingActivityId,
 }) {
+  const { t } = useI18n();
   const activities = tracking?.allActivities || tracking?.today?.activities || [];
   const totalGuests = tracking?.group?.total || 0;
 
@@ -54,10 +50,10 @@ export default function GuideLiveTourTrackingTimeline({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <span className="text-[10px] font-bold uppercase tracking-widest text-teal-600">
-            {tracking?.tour?.name || "Execution Mode"}
+            {tracking?.tour?.name || t("guidePages.liveTracking.executionMode")}
           </span>
           <h1 className="mt-1 font-headline text-3xl font-extrabold text-on-surface">
-            Today&apos;s Live Timeline
+            {t("guidePages.liveTracking.timelineTitle")}
           </h1>
           <p className="mt-2 text-sm font-semibold text-on-surface-variant">
             Day {tracking?.schedule?.currentDay || 1} of {tracking?.tour?.numberOfDay || 1} ·{" "}
@@ -67,7 +63,7 @@ export default function GuideLiveTourTrackingTimeline({
 
         <span className="inline-flex items-center gap-2 rounded-full bg-tertiary-container/10 px-3 py-1 text-xs font-bold text-tertiary">
           <span className="h-2 w-2 animate-pulse rounded-full bg-tertiary" />
-          LIVE UPDATING
+          {t("guidePages.liveTracking.liveUpdating")}
         </span>
       </div>
 
@@ -116,7 +112,7 @@ export default function GuideLiveTourTrackingTimeline({
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-tight ${statusClass[activityItem.state] || statusClass.pending}`}
                       >
-                        {statusLabel[activityItem.state] || "Scheduled"}
+                        {activityItem.state === "completed" ? t("guidePages.liveTracking.completed") : activityItem.state === "ongoing" ? t("guidePages.liveTracking.inProgress") : t("guidePages.liveTracking.scheduled")}
                       </span>
                     </div>
 
@@ -127,7 +123,7 @@ export default function GuideLiveTourTrackingTimeline({
                       </span>
                       <span className="flex items-center gap-1">
                         <Users className="h-4 w-4" />
-                        {totalGuests} Guests
+                        {totalGuests} {t("guidePages.liveTracking.guests")}
                       </span>
                     </div>
 
@@ -142,7 +138,7 @@ export default function GuideLiveTourTrackingTimeline({
                           variant="ghost"
                         >
                           <CheckCircle2 className="h-5 w-5" />
-                          Mark Done
+                          {t("guidePages.liveTracking.markDone")}
                         </Button>
                         <Button
                           disabled
@@ -150,7 +146,7 @@ export default function GuideLiveTourTrackingTimeline({
                           variant="ghost"
                         >
                           <AlertTriangle className="h-5 w-5" />
-                          Delay
+                          {t("guidePages.liveTracking.delay")}
                         </Button>
                         <Button
                           disabled
@@ -158,7 +154,7 @@ export default function GuideLiveTourTrackingTimeline({
                           variant="ghost"
                         >
                           <FileText className="h-5 w-5" />
-                          Note
+                          {t("guidePages.liveTracking.note")}
                         </Button>
                       </div>
                     ) : null}
@@ -170,7 +166,7 @@ export default function GuideLiveTourTrackingTimeline({
         ) : (
           <Card className="rounded-xl border border-outline-variant/10 bg-white py-0 shadow-sm">
             <CardContent className="p-6 text-sm text-on-surface-variant">
-              No itinerary is available for this assigned tour.
+              {t("guidePages.liveTracking.noItinerary")}
             </CardContent>
           </Card>
         )}

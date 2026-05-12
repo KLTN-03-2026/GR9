@@ -5,6 +5,8 @@ import { throwError } from "../utils/throwError.js";
 import { deleteImagesByEntity } from "../services/image.service.js";
 
 const allowCreateRoles = ["PROVIDER", "ADMIN", "USER"];
+const allowedServiceTypes = ["HOTEL", "TRANSPORT", "RESTAURANT", "ACTIVITY", "FOOD", "ATTRACTION_TICKET", "COMBO", "OTHER"];
+const allowedStatuses = ["DRAFT", "ACTIVE", "INACTIVE", "BLOCKED"];
 
 const normalizeAliases = (aliases = []) =>
   Array.from(
@@ -21,6 +23,43 @@ const checkUserExists = async (userId) => {
     throwError("Không tìm thấy người dùng", 404, "USER_NOT_FOUND");
   }
   return user;
+};
+
+const validateServicePayload = (payload = {}) => {
+  if (!String(payload.name || "").trim()) {
+    throwError("Vui lòng nhập tên dịch vụ", 400, "SERVICE_NAME_REQUIRED");
+  }
+
+  if (!allowedServiceTypes.includes(payload.type)) {
+    throwError("Loại dịch vụ không hợp lệ", 400, "SERVICE_TYPE_INVALID");
+  }
+
+  if (payload.status && !allowedStatuses.includes(payload.status)) {
+    throwError("Trạng thái dịch vụ không hợp lệ", 400, "SERVICE_STATUS_INVALID");
+  }
+
+  if (payload.lat !== null && payload.lat !== undefined && payload.lat !== "") {
+    const lat = Number(payload.lat);
+    if (!Number.isFinite(lat) || lat < -90 || lat > 90) {
+      throwError("Vĩ độ phải nằm trong khoảng -90 đến 90", 400, "SERVICE_LAT_INVALID");
+    }
+  }
+
+  if (payload.long !== null && payload.long !== undefined && payload.long !== "") {
+    const long = Number(payload.long);
+    if (!Number.isFinite(long) || long < -180 || long > 180) {
+      throwError("Kinh độ phải nằm trong khoảng -180 đến 180", 400, "SERVICE_LONG_INVALID");
+    }
+  }
+
+  (payload.total || []).forEach((item) => {
+    if (!["ADULT", "CHILD", "INFANT"].includes(item.type)) {
+      throwError("Nhóm giá dịch vụ không hợp lệ", 400, "SERVICE_PRICE_TYPE_INVALID");
+    }
+    if (!Number.isFinite(Number(item.price)) || Number(item.price) < 0) {
+      throwError("Giá dịch vụ không được âm", 400, "SERVICE_PRICE_INVALID");
+    }
+  });
 };
 
 const buildOwnershipFilter = (serviceId, user) => {
@@ -61,6 +100,8 @@ export const createService = async (payload, user) => {
       throwError("Không có quyền tạo dịch vụ", 403, "UNAUTHORIZED");
     }
 
+    validateServicePayload(payload);
+
     const serviceData = {
       ...payload,
       aliases: normalizeAliases(payload.aliases),
@@ -69,6 +110,7 @@ export const createService = async (payload, user) => {
 
     return await Service.create(serviceData);
   } catch (error) {
+    if (error.status) throw error;
     throwError(
       "Không thể tạo dịch vụ",
       error.status || 500,
@@ -85,6 +127,8 @@ export const updateService = async (serviceId, payload, user) => {
     if (Object.prototype.hasOwnProperty.call(updatePayload, "aliases")) {
       updatePayload.aliases = normalizeAliases(updatePayload.aliases);
     }
+
+    validateServicePayload(updatePayload);
 
     const updatedService = await Service.findOneAndUpdate(
       filter,
@@ -105,6 +149,7 @@ export const updateService = async (serviceId, payload, user) => {
 
     return updatedService;
   } catch (error) {
+    if (error.status) throw error;
     throwError(
       "Không thể cập nhật dịch vụ",
       error.status || 500,

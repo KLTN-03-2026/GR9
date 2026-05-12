@@ -41,6 +41,27 @@ const buildPromptHistory = (messages, promptHistorySize) =>
 const CHATBOT_BUSY_MESSAGE =
   "Voyager AI đang có nhiều yêu cầu cùng lúc nên tạm thời chưa trả lời được. Bạn vui lòng thử lại sau ít phút.";
 
+const isReadableSourceTitle = (title) => {
+  const text = String(title || "").trim();
+  if (text.length < 4) return false;
+  if (/^(bl+a|bla+bla+|adawd|awd|test|demo|sample)$/i.test(text)) return false;
+  if (!/[\p{L}\p{N}]/u.test(text)) return false;
+  return true;
+};
+
+const getDisplaySources = (sources = []) => {
+  const seen = new Set();
+
+  return sources
+    .filter((source) => isReadableSourceTitle(source?.title))
+    .filter((source) => {
+      const key = `${source.type || "source"}-${String(source.title || "").trim().toLowerCase()}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 3);
+};
 const getChatbotErrorMessage = (error) => {
   const status = error?.response?.status;
   const errorCode = error?.response?.data?.errorCode;
@@ -334,12 +355,12 @@ export default function ChatBotWidget({
                       content={message.content}
                       isUser={message.role === "user"}
                     />
-                    {message.sources?.length ? (
+                    {getDisplaySources(message.sources).length ? (
                       <div className="mt-3 space-y-1 border-t border-slate-200/70 pt-3">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                          Nguồn tham khảo
+                          Nguồn dữ liệu
                         </p>
-                        {message.sources.slice(0, 3).map((source) => (
+                        {getDisplaySources(message.sources).map((source) => (
                           <p
                             key={source.id}
                             className="truncate text-xs text-slate-500"

@@ -2,8 +2,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrencyVND } from "@/utils/formatPrice";
 import { useI18n } from "@/i18n/I18nProvider";
 
-export default function BookingStatsSection() {
+const getDisplayStatus = (booking) => booking.displayStatus || booking.status;
+
+export default function BookingStatsSection({ bookings = [], loading = false }) {
   const { t } = useI18n();
+
+  const confirmedCount = bookings.filter(
+    (booking) => getDisplayStatus(booking) === "CONFIRMED",
+  ).length;
+  const pendingCount = bookings.filter(
+    (booking) =>
+      getDisplayStatus(booking) === "PENDING" || booking.payment === "UNPAID",
+  ).length;
+  const totalSpent = bookings
+    .filter((booking) => booking.payment === "PAID")
+    .reduce((total, booking) => total + Number(booking.totalAmount || 0), 0);
+
   return (
     <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3">
       <Card className="rounded-xl border border-outline-variant/5 bg-surface-container-lowest py-0 shadow-[0px_20px_40px_rgba(25,28,30,0.04)]">
@@ -16,7 +30,9 @@ export default function BookingStatsSection() {
               check_circle
             </span>
           </div>
-          <div className="brand-font text-3xl font-bold">1</div>
+          <div className="brand-font text-3xl font-bold">
+            {loading ? "..." : confirmedCount}
+          </div>
           <p className="mt-1 text-xs text-on-surface-variant">
             {t("bookingPage.upcomingExperiences")}
           </p>
@@ -31,7 +47,9 @@ export default function BookingStatsSection() {
               hourglass_empty
             </span>
           </div>
-          <div className="brand-font text-3xl font-bold">1</div>
+          <div className="brand-font text-3xl font-bold">
+            {loading ? "..." : pendingCount}
+          </div>
           <p className="mt-1 text-xs text-on-surface-variant">
             {t("bookingPage.awaitingProvider")}
           </p>
@@ -49,7 +67,7 @@ export default function BookingStatsSection() {
             </span>
           </div>
           <div className="brand-font text-3xl font-bold">
-            {formatCurrencyVND(3858000)}
+            {loading ? "..." : formatCurrencyVND(totalSpent)}
           </div>
           <p className="mt-1 text-xs text-on-surface-variant">
             {t("bookingPage.acrossPaid")}

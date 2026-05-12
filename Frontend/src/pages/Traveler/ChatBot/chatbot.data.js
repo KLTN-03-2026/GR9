@@ -1,5 +1,5 @@
 export const chatbotProps = {
-  memoryKey: "voyager-ai-chat-memory-v1",
+  memoryKey: "voyager-ai-chat-memory-v2",
   memoryWindowSize: 16,
   promptHistorySize: 10,
   suggestions: [
@@ -29,7 +29,7 @@ export const chatbotProps = {
 
 export const landingChatbotProps = {
   ...chatbotProps,
-  memoryKey: "voyager-ai-landing-chat-memory-v1",
+  memoryKey: "voyager-ai-landing-chat-memory-v2",
   guestMode: true,
   guestLimit: 3,
   guestCountKey: "voyager-ai-landing-guest-count-v1",

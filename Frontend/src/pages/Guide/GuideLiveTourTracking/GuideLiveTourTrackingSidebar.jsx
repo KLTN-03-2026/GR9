@@ -10,12 +10,14 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { geocodeAddress } from "@/services/api/location";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function GuideLiveTourTrackingSidebar({
   tracking,
   tours,
   onSelectTour,
 }) {
+  const { t } = useI18n();
   const [mapQuery, setMapQuery] = useState("");
   const activities = tracking?.today?.activities || [];
   const activeActivity = useMemo(
@@ -77,7 +79,7 @@ export default function GuideLiveTourTrackingSidebar({
       <Card className="overflow-hidden rounded-xl border border-outline-variant/10 py-0 shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between border-b border-outline-variant/10 px-4 py-4">
           <CardTitle className="font-headline text-base font-bold text-on-surface">
-            Live Tracking Map
+            {t("guidePages.liveTracking.liveTrackingMap")}
           </CardTitle>
           <span className="rounded bg-teal-50 px-2 py-0.5 text-[10px] font-bold text-teal-600">
             GOOGLE MAP
@@ -95,7 +97,7 @@ export default function GuideLiveTourTrackingSidebar({
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-surface-container text-sm font-semibold text-on-surface-variant">
-              Map location is not available
+              {t("guidePages.liveTracking.mapUnavailable")}
             </div>
           )}
         </CardContent>
@@ -104,7 +106,7 @@ export default function GuideLiveTourTrackingSidebar({
       <Card className="rounded-xl border border-outline-variant/10 py-0 shadow-sm">
         <CardHeader className="border-b border-outline-variant/10 px-4 py-4">
           <CardTitle className="font-headline text-base font-bold text-on-surface">
-            Assigned Live Tours
+            {t("guidePages.liveTracking.assignedLiveTours")}
           </CardTitle>
         </CardHeader>
 
@@ -125,13 +127,13 @@ export default function GuideLiveTourTrackingSidebar({
                 <div className="min-w-0">
                   <p className="truncate text-sm font-bold">{tour.tourName}</p>
                   <p className="mt-1 text-xs font-semibold text-on-surface-variant">
-                    {tour.travelerName} · {tour.groupTotal} guests · {tour.startDay}
+                    {tour.travelerName} · {tour.groupTotal} {t("guidePages.liveTracking.guests")} · {tour.startDay}
                   </p>
                 </div>
               </Button>
             ))
           ) : (
-            <p className="text-sm text-on-surface-variant">No active assigned tours.</p>
+            <p className="text-sm text-on-surface-variant">{t("guidePages.liveTracking.noActiveAssignedTours")}</p>
           )}
         </CardContent>
       </Card>
@@ -139,7 +141,7 @@ export default function GuideLiveTourTrackingSidebar({
       <Card className="rounded-xl border border-outline-variant/10 py-0 shadow-sm">
         <CardHeader className="border-b border-outline-variant/10 px-4 py-4">
           <CardTitle className="font-headline text-base font-bold text-on-surface">
-            Passenger Notifications
+            {t("guidePages.liveTracking.passengerNotifications")}
           </CardTitle>
         </CardHeader>
 
@@ -150,21 +152,21 @@ export default function GuideLiveTourTrackingSidebar({
               className="rounded-full border border-transparent bg-secondary-container px-4 py-2 text-xs font-bold"
               variant="ghost"
             >
-              We are on the way
+              {t("guidePages.liveTracking.onTheWay")}
             </Button>
             <Button
               disabled
               className="rounded-full border border-transparent bg-secondary-container px-4 py-2 text-xs font-bold"
               variant="ghost"
             >
-              Arrived at location
+              {t("guidePages.liveTracking.arrived")}
             </Button>
             <Button
               disabled
               className="rounded-full border border-transparent bg-secondary-container px-4 py-2 text-xs font-bold"
               variant="ghost"
             >
-              Next activity updated
+              {t("guidePages.liveTracking.nextUpdated")}
             </Button>
           </div>
 
@@ -172,7 +174,7 @@ export default function GuideLiveTourTrackingSidebar({
 
           <div>
             <p className="mb-3 text-[10px] font-bold uppercase text-on-surface-variant">
-              Emergency Contacts
+              {t("guidePages.liveTracking.emergencyContacts")}
             </p>
 
             <div className="space-y-3">
@@ -184,10 +186,10 @@ export default function GuideLiveTourTrackingSidebar({
 
                   <div>
                     <p className="text-xs font-bold text-on-surface">
-                      Operations Desk
+                      {t("guidePages.liveTracking.operationsDesk")}
                     </p>
                     <p className="text-[10px] font-medium text-on-surface-variant">
-                      Priority Support
+                      {t("guidePages.liveTracking.prioritySupport")}
                     </p>
                   </div>
                 </div>
@@ -209,10 +211,10 @@ export default function GuideLiveTourTrackingSidebar({
 
                   <div>
                     <p className="text-xs font-bold text-on-surface">
-                      Local Medical
+                      {t("guidePages.liveTracking.localMedical")}
                     </p>
                     <p className="text-[10px] font-medium text-on-surface-variant">
-                      Emergency support
+                      {t("guidePages.liveTracking.emergencySupport")}
                     </p>
                   </div>
                 </div>

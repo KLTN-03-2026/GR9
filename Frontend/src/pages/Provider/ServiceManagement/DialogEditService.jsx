@@ -130,14 +130,27 @@ const DialogEditService = ({ open, setOpen, service, onUpdated }) => {
   setImagePreview(null); 
 };
 
-  const handleSubmit = async () => {
-    if (!service?._id) {
-      toast.error("Dịch vụ không hợp lệ.");
-      return;
+  const validateServiceForm = () => {
+    if (!service?._id) return "D?ch v? kh?ng h?p l?.";
+    if (!formData.name.trim()) return "Vui l?ng nh?p t?n d?ch v?.";
+    if (!formData.type) return "Vui l?ng ch?n lo?i d?ch v?.";
+    if (formData.lat !== "" && (Number.isNaN(Number(formData.lat)) || Number(formData.lat) < -90 || Number(formData.lat) > 90)) {
+      return "V? ?? ph?i n?m trong kho?ng -90 ??n 90.";
     }
+    if (formData.long !== "" && (Number.isNaN(Number(formData.long)) || Number(formData.long) < -180 || Number(formData.long) > 180)) {
+      return "Kinh ?? ph?i n?m trong kho?ng -180 ??n 180.";
+    }
+    if ([formData.priceAdult, formData.priceChild, formData.priceInfant].some((value) => value !== "" && Number(value) < 0)) {
+      return "Gi? d?ch v? kh?ng ???c ?m.";
+    }
+    if (imageFile && !imageFile.type.startsWith("image/")) return "File t?i l?n ph?i l? h?nh ?nh.";
+    return "";
+  };
 
-    if (!formData.name.trim()) {
-      toast.error("Vui lòng nhập tên dịch vụ.");
+  const handleSubmit = async () => {
+    const validationMessage = validateServiceForm();
+    if (validationMessage) {
+      toast.error(validationMessage);
       return;
     }
 

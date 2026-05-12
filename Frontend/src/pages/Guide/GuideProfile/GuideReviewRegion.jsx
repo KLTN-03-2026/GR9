@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const review = {
   name: "Sarah Jenkins",
@@ -27,15 +28,16 @@ const region = {
 };
 
 export default function GuideReviewRegion() {
+  const { t } = useI18n();
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <Card className="border-outline-variant/20 bg-white shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Quote className="h-5 w-5 text-teal-700" />
-            Latest Review
+            {t("guidePages.profile.latestReview")}
           </CardTitle>
-          <CardDescription>{review.context}</CardDescription>
+          <CardDescription>{t("guidePages.profile.recentFeedback")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4 flex items-center gap-3">
@@ -56,9 +58,9 @@ export default function GuideReviewRegion() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MapPinned className="h-5 w-5 text-teal-700" />
-            Primary Region
+            {t("guidePages.profile.primaryRegion")}
           </CardTitle>
-          <CardDescription>{region.description}</CardDescription>
+          <CardDescription>{t("guidePages.profile.primaryRegionDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-hidden rounded-xl">
@@ -69,7 +71,7 @@ export default function GuideReviewRegion() {
             />
           </div>
           <p className="mt-4 font-bold text-slate-950">{region.name}</p>
-          <p className="text-sm text-slate-500">{region.label}</p>
+          <p className="text-sm text-slate-500">{t("guidePages.profile.centralCoastHub")}</p>
         </CardContent>
       </Card>
     </div>

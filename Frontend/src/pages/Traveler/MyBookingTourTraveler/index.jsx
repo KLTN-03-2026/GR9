@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { getMyBookings, syncPaymentStatus } from "@/services/api/booking";
 import BookingActionsSection from "./BookingActionsSection";
@@ -8,6 +8,7 @@ import BookingStatsSection from "./BookingStatsSection";
 import BookingTableSection from "./BookingTableSection";
 
 export default function MyBookingTourTraveler() {
+    const navigate = useNavigate();
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -29,12 +30,37 @@ export default function MyBookingTourTraveler() {
         const orderCode = searchParams.get("orderCode");
 
         if (payment === "success" && orderCode) {
+            let redirected = false;
+
             syncPaymentStatus(orderCode)
-                .then(() => toast.success("Thanh toán thành công"))
-                .catch(() => toast.error("Không thể cập nhật trạng thái thanh toán"))
+                .then((response) => {
+                    const syncedBooking = response.data.data;
+                    toast.success("Thanh toán thành công");
+
+                    if (syncedBooking?.status === "CONFIRMED") {
+                        redirected = true;
+                        navigate(
+                            "/guest/booking-success-and-tracking-link?" +
+                                new URLSearchParams({
+                                    payment: "success",
+                                    bookingId:
+                                        syncedBooking._id ||
+                                        searchParams.get("bookingId") ||
+                                        "",
+                                    orderCode,
+                                }).toString(),
+                            { replace: true },
+                        );
+                    }
+                })
+                .catch(() =>
+                    toast.error("Không thể cập nhật trạng thái thanh toán"),
+                )
                 .finally(() => {
-                    setSearchParams({});
-                    loadBookings();
+                    if (!redirected) {
+                        setSearchParams({});
+                        loadBookings();
+                    }
                 });
             return;
         }
@@ -51,8 +77,12 @@ export default function MyBookingTourTraveler() {
         <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface">
             <div className="mx-auto w-full px-4 pb-10 pt-6 sm:px-6 md:px-10 md:pt-24">
                 <BookingHeader />
-                <BookingStatsSection />
-                <BookingTableSection bookings={bookings} loading={loading} error={error} />
+                <BookingStatsSection bookings={bookings} loading={loading} />
+                <BookingTableSection
+                    bookings={bookings}
+                    loading={loading}
+                    error={error}
+                />
                 <BookingActionsSection />
             </div>
         </main>

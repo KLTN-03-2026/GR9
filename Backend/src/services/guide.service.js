@@ -14,6 +14,36 @@ const generateRandomPassword = (length = 10) => {
     ).join("");
 };
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_PATTERN = /^[0-9+\-\s()]{8,15}$/;
+const allowedGenders = ["MALE", "FEMALE", "OTHER"];
+
+const validateGuidePayload = (guideData = {}) => {
+    if (!String(guideData.fullName || "").trim()) {
+        throwError("Vui lòng nhập tên guide", 400, "GUIDE_NAME_REQUIRED");
+    }
+
+    if (String(guideData.fullName || "").trim().length < 3) {
+        throwError("Tên guide phải có ít nhất 3 ký tự", 400, "GUIDE_NAME_TOO_SHORT");
+    }
+
+    if (!EMAIL_PATTERN.test(String(guideData.email || "").trim())) {
+        throwError("Email guide không hợp lệ", 400, "GUIDE_EMAIL_INVALID");
+    }
+
+    if (!PHONE_PATTERN.test(String(guideData.phone || "").trim())) {
+        throwError("Số điện thoại guide không hợp lệ", 400, "GUIDE_PHONE_INVALID");
+    }
+
+    if (!String(guideData.specialty || "").trim()) {
+        throwError("Vui lòng nhập chuyên môn của guide", 400, "GUIDE_SPECIALTY_REQUIRED");
+    }
+
+    if (guideData.gender && !allowedGenders.includes(guideData.gender)) {
+        throwError("Giới tính guide không hợp lệ", 400, "GUIDE_GENDER_INVALID");
+    }
+};
+
 const sendGuidePasswordMail = async (guide, password) => {
     await sendMail({
         to: guide.email,
@@ -124,6 +154,7 @@ export const findGuideScheduleConflicts = async ({
 
 export const createGuide = async (providerId, guideData) => {
     await ensureProvider(providerId);
+    validateGuidePayload(guideData);
 
     const existingGuide = await User.findOne({ email: guideData.email });
 
@@ -382,6 +413,7 @@ export const deleteGuide = async (providerId, guideId) => {
 
 export const updateGuide = async (providerId, guideId, guideData) => {
     await ensureProvider(providerId);
+    validateGuidePayload(guideData);
 
     const guide = await User.findOne({
         _id: guideId,
