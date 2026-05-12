@@ -60,7 +60,6 @@ const validateBookingPayload = (data = {}) => {
         throwError("Lịch khởi hành không hợp lệ", 400, "TOUR_SCHEDULE_INVALID");
     }
 };
-
 /**
  * CREATE BOOKING (ANTI OVERBOOKING)
  */
@@ -521,4 +520,3 @@ export const getGuestBookingSuccessService = async ({ orderCode, trackingCode })
         },
     };
 };
-

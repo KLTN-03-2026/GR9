@@ -8,26 +8,27 @@ import LatestUpdateBanner from './LatestUpdateBanner';
 import ActivityTimeline from './ActivityTimeline';
 import EmergencySupport from './EmergencySupport';
 import { TrackingPageSkeleton } from "@/components/shared/page-skeletons";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const PublicTourTracking = () => {
+  const { t } = useI18n();
   const [searchParams] = useSearchParams();
   const [tracking, setTracking] = useState(null);
-  const [loading, setLoading] = useState(true);
   const trackingCode = searchParams.get("trackingCode");
+  const [loading, setLoading] = useState(Boolean(trackingCode));
 
   useEffect(() => {
     if (!trackingCode) {
-      setLoading(false);
       return;
     }
 
     getGuestTracking(trackingCode)
       .then((response) => setTracking(response.data.data))
       .catch((error) =>
-        toast.error(error?.response?.data?.message || "Không thể tải tracking public"),
+        toast.error(error?.response?.data?.message || t("guestHeader.loadTrackingError")),
       )
       .finally(() => setLoading(false));
-  }, [trackingCode]);
+  }, [trackingCode, t]);
 
   if (loading) {
     return (
@@ -42,13 +43,13 @@ const PublicTourTracking = () => {
       <main className="mx-auto min-h-screen max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="space-y-4 rounded-3xl bg-white p-8 shadow-sm">
           <h1 className="text-2xl font-black text-slate-950">
-            Tracking link không hợp lệ
+            {t("guestHeader.invalidTrackingTitle")}
           </h1>
           <p className="text-slate-600">
-            Link có thể đã bị tắt, chưa thanh toán thành công hoặc thiếu mã tracking.
+            {t("guestHeader.invalidTrackingDescription")}
           </p>
           <Link className="font-bold text-teal-700" to="/">
-            Về trang chủ
+            {t("guestHeader.backHome")}
           </Link>
         </div>
       </main>

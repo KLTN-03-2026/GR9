@@ -2,6 +2,7 @@ import { useContext, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import AuthContext from "@/context/authContext";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const roleLoginPath = {
   ADMIN: "/admin-login",
@@ -33,6 +34,7 @@ const hasToken = (session) =>
 
 export default function ProtectedRoute({ allowedRoles = [] }) {
   const { user } = useContext(AuthContext);
+  const { t } = useI18n();
   const location = useLocation();
   const session = useMemo(() => user || getStoredUser(), [user]);
   const role = getRole(session);
@@ -45,14 +47,14 @@ export default function ProtectedRoute({ allowedRoles = [] }) {
 
   useEffect(() => {
     if (isUnauthenticated) {
-      toast.error("Vui lòng đăng nhập để tiếp tục.");
+      toast.error(t("common.loginToContinue"));
       return;
     }
 
     if (isForbidden) {
-      toast.error("Bạn không có quyền truy cập trang này.");
+      toast.error(t("common.noPermission"));
     }
-  }, [isUnauthenticated, isForbidden]);
+  }, [isUnauthenticated, isForbidden, t]);
 
   if (isUnauthenticated) {
     return <Navigate to={loginPath} replace state={{ from: location }} />;

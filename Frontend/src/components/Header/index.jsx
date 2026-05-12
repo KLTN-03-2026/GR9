@@ -400,7 +400,7 @@ const Header = () => {
             size="icon"
             onClick={toggleSidebar}
             className="h-10 w-10 shrink-0 rounded-xl border border-outline-variant/20 bg-surface-container-low text-on-surface-variant hover:bg-primary/10 hover:text-primary md:hidden"
-            aria-label="Mở menu"
+            aria-label={t("common.openMenu")}
           >
             <Menu className="h-5 w-5" />
           </Button>
