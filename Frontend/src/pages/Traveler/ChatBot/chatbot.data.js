@@ -3,25 +3,25 @@ export const chatbotProps = {
   memoryWindowSize: 16,
   promptHistorySize: 10,
   suggestions: [
-    "Giới thiệu Voyager AI cho tôi",
-    "Travel_AI có những tính năng gì?",
-    "Tôi có thể đặt tour và theo dõi tour như thế nào?",
-    "Hãy giới thiệu các tour phù hợp cho gia đình",
+    "Gi?i thi?u Voyager AI cho t?i",
+    "Travel_AI c? nh?ng t?nh n?ng g??",
+    "T?i c? th? ??t tour v? theo d?i tour nh? th? n?o?",
+    "H?y gi?i thi?u c?c tour ph? h?p cho gia ??nh",
   ],
   defaultMessages: [
     {
       id: "welcome",
       role: "assistant",
       content:
-        "Chào bạn, tôi là Voyager AI. Tôi có thể giới thiệu hệ thống Travel_AI, giải thích cách đặt tour, gợi ý lịch trình và hỗ trợ bạn tìm thông tin trong dữ liệu tour.",
+        "Ch?o b?n, t?i l? Voyager AI. T?i c? th? gi?i thi?u h? th?ng Travel_AI, gi?i th?ch c?ch ??t tour, g?i ? l?ch tr?nh v? h? tr? b?n t?m th?ng tin trong d? li?u tour.",
       sources: [],
     },
     {
       id: "insight",
       role: "assistant",
       content:
-        "Bạn có thể bắt đầu bằng các câu hỏi như: Travel_AI dùng để làm gì, cách đặt tour, điều kiện đánh giá tour, hoặc gợi ý tour theo nhu cầu.",
-      label: "Gợi ý bắt đầu",
+        "B?n c? th? b?t ??u b?ng c?c c?u h?i nh?: Travel_AI d?ng ?? l?m g?, c?ch ??t tour, ?i?u ki?n ??nh gi? tour, ho?c g?i ? tour theo nhu c?u.",
+      label: "G?i ? b?t ??u",
       sources: [],
     },
   ],
@@ -39,15 +39,15 @@ export const landingChatbotProps = {
       id: "landing-welcome",
       role: "assistant",
       content:
-        "Chào bạn, tôi là Voyager AI. Bạn có **3 lượt hỏi miễn phí** để tìm hiểu nhanh về Travel_AI, tour, booking và các tính năng chính.",
+        "Ch?o b?n, t?i l? Voyager AI. B?n c? **3 l??t h?i mi?n ph?** ?? t?m hi?u nhanh v? Travel_AI, tour, booking v? c?c t?nh n?ng ch?nh.",
       sources: [],
     },
     {
       id: "landing-insight",
       role: "assistant",
       content:
-        "Nếu muốn hỏi sâu hơn theo lịch sử đặt tour, tracking hoặc gợi ý cá nhân hóa, bạn cần đăng nhập tài khoản traveler.",
-      label: "Dành cho khách",
+        "N?u mu?n h?i s?u h?n theo l?ch s? ??t tour, tracking ho?c g?i ? c? nh?n h?a, b?n c?n ??ng nh?p t?i kho?n traveler.",
+      label: "D?nh cho kh?ch",
       sources: [],
     },
   ],

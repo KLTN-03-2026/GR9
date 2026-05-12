@@ -22,49 +22,11 @@ const normalizeForMatch = (value) =>
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const buildSearchTerms = (message) => {
-  const normalized = normalizeText(message)
-    .normalize("NFC")
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
+  const normalized = normalizeForMatch(message);
   const stopWords = new Set([
-    "tôi",
-    "toi",
-    "bạn",
-    "ban",
-    "có",
-    "co",
-    "không",
-    "khong",
-    "hãy",
-    "hay",
-    "cho",
-    "tìm",
-    "tim",
-    "gợi",
-    "goi",
-    "ý",
-    "y",
-    "tour",
-    "lịch",
-    "lich",
-    "trình",
-    "trinh",
-    "giá",
-    "gia",
-    "địa",
-    "dia",
-    "điểm",
-    "diem",
-    "phù",
-    "phu",
-    "hợp",
-    "hop",
-    "với",
-    "voi",
-    "đình",
-    "dinh",
+    "toi", "ban", "co", "khong", "hay", "cho", "tim", "goi", "y",
+    "tour", "lich", "trinh", "gia", "dia", "diem", "phu", "hop", "voi", "dinh",
+    "cac", "nhung", "mot", "so", "duoc", "khong", "nao", "nua", "them",
   ]);
 
   const words = normalized
@@ -90,17 +52,11 @@ const buildHistoryText = (history = []) => {
 };
 
 const isTourFollowUp = (message, history = []) => {
-  const text = normalizeText(message);
-  const historyText = normalizeText(buildHistoryText(history));
+  const text = normalizeForMatch(message);
+  const historyText = normalizeForMatch(buildHistoryText(history));
 
-  const asksForMore =
-    /(còn|con|khác|khac|nữa|nua|thêm|them|tiếp|tiep|another|more|cái nào khác|cai nao khac|tour nào khác|tour nao khac)/i.test(
-      text,
-    );
-  const previousWasTour =
-    /(tour|gợi ý|goi y|địa điểm|dia diem|gia đình|gia dinh|nha trang|đà nẵng|da nang|hội an|hoi an|hà nội|ha noi|sa pa|sapa|hạ long|ha long|huế|hue|đà lạt|da lat|phú quốc|phu quoc)/i.test(
-      historyText,
-    );
+  const asksForMore = /(con|khac|nua|them|tiep|another|more|cai nao khac|tour nao khac)/i.test(text);
+  const previousWasTour = /(tour|goi y|dia diem|gia dinh|nha trang|da nang|hoi an|ha noi|sa pa|sapa|ha long|hue|da lat|phu quoc|can tho)/i.test(historyText);
 
   return asksForMore && previousWasTour;
 };
@@ -111,45 +67,34 @@ const buildEffectiveMessage = (message, history = []) =>
     : message;
 
 const isInTravelAiScope = (message) => {
-  const text = normalizeText(message);
-  const scopePattern =
-    /(travel_ai|voyager|tour|du lịch|du lich|lịch trình|lich trinh|booking|đặt tour|dat tour|thanh toán|thanh toan|payment|payos|đánh giá|danh gia|review|vé|ve|hướng dẫn|huong dan|chính sách|chinh sach|hướng dẫn viên|huong dan vien|guide|khách sạn|khach san|địa điểm|dia diem|gia đình|gia dinh|biển|bien|núi|nui|đảo|dao|việt nam|viet nam)/i;
+  const text = normalizeForMatch(message);
+  const scopePattern = /(travel_ai|travel ai|voyager|tour|du lich|lich trinh|booking|dat tour|thanh toan|payment|payos|danh gia|review|ve|huong dan|chinh sach|huong dan vien|guide|khach san|dia diem|gia dinh|bien|nui|dao|viet nam|goi y|nghi duong|cap doi|van hoa|mien bac|mien trung|mien nam|ha noi|da nang|hoi an|hue|nha trang|phu quoc|da lat|ha long|sa pa|sapa|can tho)/i;
 
   return scopePattern.test(text);
 };
 
 const buildCleanOutOfScopeAnswer = () =>
   [
-    "Mình chỉ hỗ trợ các câu hỏi liên quan đến Travel_AI, tour du lịch, đặt tour, thanh toán, đánh giá, chính sách và hướng dẫn sử dụng hệ thống.",
+    "M?nh ch? h? tr? c?c c?u h?i li?n quan ??n Travel_AI, tour du l?ch, ??t tour, thanh to?n, ??nh gi?, ch?nh s?ch v? h??ng d?n s? d?ng h? th?ng.",
     "",
-    "Bạn có thể hỏi mình ví dụ:",
-    "- Gợi ý tour phù hợp cho gia đình",
-    "- Cách đặt tour và theo dõi booking",
-    "- Điều kiện đánh giá tour sau khi đi xong",
-    "- Travel_AI có những tính năng gì",
+    "B?n c? th? h?i m?nh v? d?:",
+    "- G?i ? tour ph? h?p cho gia ??nh",
+    "- C?ch ??t tour v? theo d?i booking",
+    "- ?i?u ki?n ??nh gi? tour sau khi ?i xong",
+    "- Travel_AI c? nh?ng t?nh n?ng g?",
   ].join("\n");
 
 const chooseTools = (message) => {
-  const text = normalizeText(message);
-  const asksBooking =
-    /(booking|đặt tour|dat tour|thanh toán|thanh toan|payment|payos|hủy|huy|đánh giá|danh gia|review|vé|ve)/i.test(
-      text,
-    );
-  const asksTour =
-    /(tour|lịch trình|lich trinh|gợi ý|goi y|giá|gia|địa điểm|dia diem|gia đình|gia dinh|khách sạn|khach san|biển|bien|núi|nui|đảo|dao)/i.test(
-      text,
-    );
-  const asksPolicyOrIntro =
-    /(giới thiệu|gioi thieu|travel_ai|voyager|chính sách|chinh sach|tính năng|tinh nang|hướng dẫn|huong dan|cách|cach)/i.test(
-      text,
-    );
+  const text = normalizeForMatch(message);
+  const asksBooking = /(booking|dat tour|thanh toan|payment|payos|huy|danh gia|review|ve|trang thai|theo doi)/i.test(text);
+  const asksTour = /(tour|lich trinh|goi y|gia|dia diem|gia dinh|khach san|bien|nui|dao|nghi duong|cap doi|van hoa|mien bac|mien trung|mien nam|ha noi|da nang|hoi an|hue|nha trang|phu quoc|da lat|ha long|sa pa|sapa|can tho)/i.test(text);
+  const asksPolicyOrIntro = /(gioi thieu|travel_ai|travel ai|voyager|chinh sach|tinh nang|huong dan|cach|su dung|he thong)/i.test(text);
 
   const tools = new Set();
 
   if (asksTour) tools.add("database_tours");
   if (asksBooking) tools.add("database_bookings");
-  if (!asksTour && asksPolicyOrIntro) tools.add("kb_search");
-  if (tools.size === 0) tools.add("kb_search");
+  if (asksPolicyOrIntro || tools.size === 0) tools.add("kb_search");
 
   return [...tools];
 };
