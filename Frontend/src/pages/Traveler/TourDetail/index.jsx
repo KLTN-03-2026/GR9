@@ -13,6 +13,7 @@ import { getReviewsByTour } from "@/services/api/review";
 import { Switch } from "@/components/ui/switch";
 import toast from "react-hot-toast";
 import { useI18n } from "@/i18n/I18nProvider";
+import { localizeItineraryDescription, localizeTourDescription } from "@/utils/localizedTourContent";
 
 const FEATURE_CARDS = [
     { icon: "temple_buddhist", titleKey: "tourDetail.featureHeritage" },
@@ -172,15 +173,15 @@ export default function TourDetail() {
     const handleBooking = async () => {
         if (bookingSubmitting) return;
         if (!tour?._id && !tourId) {
-            toast.error("Không tìm thấy tour để đặt.");
+            toast.error(t("tourDetail.bookingTourMissing"));
             return;
         }
         if (!Number.isInteger(Number(adults)) || Number(adults) < 1) {
-            toast.error("Vui lòng chọn ít nhất 1 người lớn.");
+            toast.error(t("tourDetail.bookingAdultRequired"));
             return;
         }
         if (Number(children) < 0 || Number(infants) < 0) {
-            toast.error("Số lượng trẻ em hoặc em bé không hợp lệ.");
+            toast.error(t("tourDetail.bookingQuantityInvalid"));
             return;
         }
         if (!selectedScheduleId || !selectedDate) {
@@ -188,7 +189,7 @@ export default function TourDetail() {
             return;
         }
         if (Number(total) < 0 || !Number.isFinite(Number(total))) {
-            toast.error("Tổng tiền booking không hợp lệ.");
+            toast.error(t("tourDetail.bookingTotalInvalid"));
             return;
         }
 
@@ -298,7 +299,7 @@ export default function TourDetail() {
                 alt: `${tour?.name || "Tour"} ${index + 1}`,
             }))
             .filter((item) => item.img);
-    }, [tour, t]);
+    }, [tour]);
     const selectedServices = [
         {
             serviceType: "HOTEL",
@@ -422,7 +423,7 @@ export default function TourDetail() {
                                     {t("tourDetail.overview")}
                                 </h2>
                                 <p className="max-w-3xl text-base leading-relaxed text-on-surface-variant sm:text-lg">
-                                    {tour?.description || t("tourDetail.overviewFallback", { location: tour?.location || "" })}
+                                    {localizeTourDescription(tour?.description, language, tour) || t("tourDetail.overviewFallback", { location: tour?.location || "" })}
                                 </p>
                                 <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-4">
                                     {FEATURE_CARDS.map((c) => (
@@ -460,14 +461,13 @@ export default function TourDetail() {
                                                 {index + 1}
                                             </div>
 
-                                            {/* Title (giữ style cũ) */}
                                             <h3 className="text-xl font-bold font-headline mb-2">
                                                 {t("tourDetail.day", { day: day.dayNumber })}
                                             </h3>
 
                                             {/* Description */}
                                             <p className="text-on-surface-variant mb-4">
-                                                {day.description || t("tourDetail.noDescription")}
+                                                {localizeItineraryDescription(day.description, language, tour) || t("tourDetail.noDescription")}
                                             </p>
 
                                             {/* Activities */}
@@ -892,7 +892,7 @@ export default function TourDetail() {
                                         </div>
                                         {isLockedPrivate ? (
                                             <p className="text-sm text-primary font-medium">
-                                                Tour này được provider thiết kế riêng cho nhóm của bạn nên chỉ đặt ở chế độ private.
+                                                {t("tourDetail.lockedPrivateOnly")}
                                             </p>
                                         ) : null}
                                         {bookingDisabledReason ? (
@@ -1092,10 +1092,10 @@ export default function TourDetail() {
                                             <span className="material-symbols-outlined">photo_camera</span>
                                         </div>
                                         <p className="font-headline text-lg font-bold text-on-surface">
-                                            Chưa có ảnh thực tế cho tour này
+                                            {t("tourDetail.noRealPhotos")}
                                         </p>
                                         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-on-surface-variant">
-                                            Khi provider thêm ảnh tour, khu vực này sẽ tự động hiển thị album ở đúng giao diện hiện tại.
+                                            {t("tourDetail.noRealPhotosDescription")}
                                         </p>
                                     </div>
                                 )}

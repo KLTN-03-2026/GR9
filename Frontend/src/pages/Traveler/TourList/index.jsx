@@ -8,14 +8,17 @@ import { getAllTours } from "@/services/api/guest";
 import { formatPrice } from "@/utils/formatPrice";
 import TourListSkeleton from "./TourListSkeleton";
 import { useI18n } from "@/i18n/I18nProvider";
+import { localizeTourDescription } from "@/utils/localizedTourContent";
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 6;
+const MAX_PAGINATION_PAGES = 9;
+const MAX_VISIBLE_TOURS = PAGE_SIZE * MAX_PAGINATION_PAGES;
 const SORT_OPTIONS = [
-    { value: "popular", label: "Phổ biến" },
-    { value: "topRated", label: "Đánh giá cao" },
-    { value: "mostBooked", label: "Nhiều người đặt" },
-    { value: "priceLow", label: "Giá tốt nhất" },
-    { value: "durationShort", label: "Ngắn ngày" },
+    { value: "popular" },
+    { value: "topRated" },
+    { value: "mostBooked" },
+    { value: "priceLow" },
+    { value: "durationShort" },
 ];
 
 const SORT_LABEL_KEYS = {
@@ -34,7 +37,7 @@ const getTourImage = (tour) =>
     null;
 
 export default function TourList() {
-    const { t } = useI18n();
+    const { language, t } = useI18n();
     const [searchParams, setSearchParams] = useSearchParams();
     const [search, setSearch] = useState("");
     const [sortBy, setSortBy] = useState("popular");
@@ -87,9 +90,15 @@ export default function TourList() {
                 });
 
                 const payload = res.data.data;
+                const total = payload.total || 0;
+                const nextTotalPages = Math.min(
+                    Math.max(Math.ceil(total / PAGE_SIZE), 1),
+                    MAX_PAGINATION_PAGES,
+                );
                 setTours(payload.docs || payload || []);
-                setTotalTours(payload.total || 0);
-                setTotalPages(payload.totalPages || 1);
+                setTotalTours(Math.min(total, MAX_VISIBLE_TOURS));
+                setTotalPages(nextTotalPages);
+                setPage((current) => Math.min(current, nextTotalPages));
             } catch {
                 setError(t("tourList.loadError"));
             } finally {
@@ -145,7 +154,7 @@ export default function TourList() {
                                 <Input
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="Search tours..."
+                                    placeholder={t("tourList.searchPlaceholder")}
                                     className="h-11 rounded-full border-outline-variant/20 bg-white/95 text-slate-900 placeholder:text-slate-500"
                                 />
                             </div>
@@ -159,7 +168,7 @@ export default function TourList() {
                                     }}
                                 >
                                     <SelectTrigger className="h-11 w-full rounded-full border-outline-variant/20 bg-white/95 px-4 text-slate-900 shadow-sm sm:w-[220px]">
-                                        <SelectValue placeholder="Sắp xếp tour" />
+                                        <SelectValue placeholder={t("tourList.sortPlaceholder")} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {SORT_OPTIONS.map((option) => (
@@ -250,7 +259,7 @@ export default function TourList() {
                                                     </p>
                                                     <div className="mt-0.5 flex items-baseline gap-1">
                                                         <span className="text-base font-extrabold leading-none text-slate-900 dark:text-slate-100">
-                                                            {Number(tour.averageRating) > 0 ? tour.averageRating : "Mới"}
+                                                            {Number(tour.averageRating) > 0 ? tour.averageRating : t("common.new")}
                                                         </span>
                                                         {Number(tour.averageRating) > 0 ? (
                                                             <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">/5</span>
@@ -265,7 +274,7 @@ export default function TourList() {
                                     </div>
 
                                     <p className="line-clamp-3 min-h-[78px] text-sm leading-6 text-on-surface-variant">
-                                        {tour.description || t("tourList.noDescription")}
+                                        {localizeTourDescription(tour.description, language, tour) || t("tourList.noDescription")}
                                     </p>
 
                                     <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low text-on-surface-variant sm:grid-cols-3">
@@ -274,7 +283,7 @@ export default function TourList() {
                                                 schedule
                                             </span>
                                             <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-slate-900">
-                                                {tour.numberOfDay || "-"} ngày
+                                                {tour.numberOfDay || "-"} {t("common.day")}
                                             </span>
                                         </div>
                                         <div className="flex min-h-[64px] flex-col items-center justify-center gap-1 border-b border-outline-variant/15 px-2 text-center sm:min-h-[72px] sm:border-b-0 sm:border-r">
@@ -282,7 +291,7 @@ export default function TourList() {
                                                 groups
                                             </span>
                                             <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-slate-900">
-                                                {tour.travelerCount || 0} khách
+                                                {tour.travelerCount || 0} {t("common.guest")}
                                             </span>
                                         </div>
                                         <div className="flex min-h-[64px] flex-col items-center justify-center gap-1 px-2 text-center sm:min-h-[72px]">
@@ -290,7 +299,7 @@ export default function TourList() {
                                                 confirmation_number
                                             </span>
                                             <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-slate-900">
-                                                {tour.bookingCount || 0} lượt
+                                                {tour.bookingCount || 0} {t("common.bookingTurn")}
                                             </span>
                                         </div>
                                     </div>

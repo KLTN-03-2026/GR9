@@ -3,51 +3,53 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import PageHero from "@/components/shared/page-hero";
 import { getProviderDashboard } from "@/services/api/provider";
+import { useI18n } from "@/i18n/I18nProvider";
 import { formatCurrencyVND } from "@/utils/formatPrice";
 
 const ProviderDashboard = () => {
+  const { t } = useI18n();
   const [dashboard, setDashboard] = useState(null);
 
   useEffect(() => {
     getProviderDashboard()
       .then((response) => setDashboard(response.data.data || null))
       .catch((error) =>
-        toast.error(error?.response?.data?.message || "Cannot load provider dashboard"),
+        toast.error(error?.response?.data?.message || t("provider.dashboard.loadError")),
       );
-  }, []);
+  }, [t]);
 
   const stats = useMemo(() => {
     const summary = dashboard?.summary || {};
     return [
       {
-        label: "Total Bookings",
+        label: t("provider.dashboard.totalBookings"),
         value: Number(summary.totalBookings || 0).toLocaleString("en-US"),
-        note: `Across ${summary.activeTours || 0} active packages`,
-        trend: `${summary.confirmedBookings || 0} confirmed`,
+        note: t("provider.dashboard.activePackages", { count: summary.activeTours || 0 }),
+        trend: t("provider.dashboard.confirmedCount", { count: summary.confirmedBookings || 0 }),
         trendClass: "text-primary bg-primary/10",
         icon: "confirmation_number",
         iconClass: "bg-secondary-container text-on-secondary-container",
       },
       {
-        label: "Monthly Revenue",
+        label: t("provider.dashboard.monthlyRevenue"),
         value: formatCurrencyVND(summary.revenueTotal),
-        note: `${summary.paidBookings || 0} paid bookings recorded`,
-        trend: `${summary.pendingAiRequests || 0} AI req`,
+        note: t("provider.dashboard.paidBookingsRecorded", { count: summary.paidBookings || 0 }),
+        trend: t("provider.dashboard.aiRequestsShort", { count: summary.pendingAiRequests || 0 }),
         trendClass: "text-tertiary bg-tertiary/10",
         icon: "payments",
         iconClass: "bg-tertiary-fixed text-on-tertiary-fixed",
       },
       {
-        label: "Active Tours",
+        label: t("provider.dashboard.activeTours"),
         value: Number(summary.activeTours || 0).toLocaleString("en-US"),
-        note: `${summary.servicesCount || 0} services connected`,
-        trend: `${summary.guidesCount || 0} guides`,
+        note: t("provider.dashboard.servicesConnected", { count: summary.servicesCount || 0 }),
+        trend: t("provider.dashboard.guidesCount", { count: summary.guidesCount || 0 }),
         trendClass: "bg-slate-100 text-slate-500",
         icon: "explore",
         iconClass: "bg-primary-fixed text-on-primary-fixed",
       },
     ];
-  }, [dashboard]);
+  }, [dashboard, t]);
 
   const chartData = useMemo(() => {
     const revenueItems = dashboard?.monthlyRevenue || [];
@@ -63,38 +65,46 @@ const ProviderDashboard = () => {
 
   const activities = useMemo(() => {
     const recentBookings = (dashboard?.recentBookings || []).slice(0, 2).map((booking) => ({
-      title: "New Booking",
-      time: booking.startDate || "Recently",
-      description: `${booking.travelerName} booked "${booking.tourName}"`,
+      title: t("provider.dashboard.newBooking"),
+      time: booking.startDate || t("provider.dashboard.recently"),
+      description: t("provider.dashboard.bookingActivityDescription", {
+        traveler: booking.travelerName,
+        tour: booking.tourName,
+      }),
       image:
         "https://lh3.googleusercontent.com/aida-public/AB6AXuCB_ATMzqmcxMiBDLPBaN2jAGvFssTBbJvuC1UsM9JQea0m9jl2ingysZNNiIZC53EHQJID2AwWj7OZIuYLkzSmu3pfW0P4XexH6dvXm_dzcR-vxALDSJZzhLCk_qsv1lTMoqrM49apCnZOpiRUcxeIbpLYTyEZb0g95Y6_Bo8nxb4czzgQ0iruF3ZPPOoV-VGz4mhX0wnvghYXMTCCzMBQGdSSutcoglSUQ5CcaezdEnT9AGw3PwgavbTUuICzH_CJeeo_v5fWmzvh",
       imageAlt: booking.travelerName,
     }));
 
     const aiItems = (dashboard?.recentAiRequests || []).slice(0, 2).map((request) => ({
-      title: request.status === "PUBLISHED" ? "AI Tour Request" : "Proposal Update",
-      time: request.startDay || "Recently",
-      description: `${request.travelerName} requested "${request.location}"`,
+      title: request.status === "PUBLISHED"
+        ? t("provider.dashboard.aiTourRequest")
+        : t("provider.dashboard.proposalUpdate"),
+      time: request.startDay || t("provider.dashboard.recently"),
+      description: t("provider.dashboard.aiActivityDescription", {
+        traveler: request.travelerName,
+        location: request.location,
+      }),
       icon: "auto_awesome",
       iconWrapperClass: "bg-primary-fixed text-on-primary-fixed",
     }));
 
     return [...recentBookings, ...aiItems].slice(0, 4);
-  }, [dashboard]);
+  }, [dashboard, t]);
 
   return (
     <div className="space-y-6 text-on-surface sm:space-y-8">
       <PageHero
-        eyebrow="Performance Overview"
+        eyebrow={t("provider.dashboard.heroEyebrow")}
         heading={
           <>
-            Provider{" "}
+            {t("provider.dashboard.titleA")}{" "}
             <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
-              Dashboard
+              {t("provider.dashboard.titleB")}
             </span>
           </>
         }
-        description="Welcome back, Skyline. Here is what's happening today across bookings, revenue, and tour performance."
+        description={t("provider.dashboard.description")}
         actions={
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
             <div className="relative">
@@ -112,7 +122,7 @@ const ProviderDashboard = () => {
               className="flex w-full items-center justify-center space-x-2 rounded-xl bg-gradient-to-br from-primary to-primary-container px-6 py-2.5 font-heading font-semibold text-on-primary shadow-sm transition-all hover:opacity-90 active:scale-95 sm:w-auto"
             >
               <span className="material-symbols-outlined text-[20px]">add</span>
-              <span>New Tour</span>
+              <span>{t("provider.dashboard.newTour")}</span>
             </Link>
           </div>
         }
@@ -150,16 +160,16 @@ const ProviderDashboard = () => {
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h4 className="font-heading text-lg font-bold">
-                Revenue Analysis
+                {t("provider.dashboard.revenueAnalysis")}
               </h4>
               <p className="text-sm text-on-surface-variant">
-                Monthly earnings for 2024
+                {t("provider.dashboard.monthlyEarnings")}
               </p>
             </div>
 
             <select className="rounded-xl border-0 bg-surface-container-low p-3 pr-8 text-sm font-semibold focus:ring-primary">
-              <option>Last 6 Months</option>
-              <option>Year to Date</option>
+              <option>{t("provider.dashboard.lastSixMonths")}</option>
+              <option>{t("provider.dashboard.yearToDate")}</option>
             </select>
           </div>
 
@@ -199,9 +209,9 @@ const ProviderDashboard = () => {
 
         <div className="rounded-3xl bg-surface-container-lowest p-5 sm:p-8">
           <div className="mb-6 flex items-center justify-between">
-            <h4 className="font-heading text-lg font-bold">Recent Activity</h4>
+            <h4 className="font-heading text-lg font-bold">{t("provider.dashboard.recentActivity")}</h4>
             <Link to="/provider/bookings-management" className="font-heading text-xs font-bold text-primary hover:underline">
-              View All
+              {t("provider.dashboard.viewAll")}
             </Link>
           </div>
 
@@ -267,19 +277,22 @@ const ProviderDashboard = () => {
 
           <div className="relative z-10 flex w-full max-w-xl flex-col items-start">
             <span className="rounded-md bg-white/10 px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-[0.2em] text-teal-100">
-              SmartTravel Insights
+              {t("provider.dashboard.insights")}
             </span>
 
             <h4 className="mt-5 font-heading text-2xl font-bold leading-tight md:text-[32px]">
-              Boost your bookings this summer with AI-driven pricing.
+              {t("provider.dashboard.insightsTitle")}
             </h4>
 
             <p className="mt-3 text-sm text-white/80 md:text-base">
-              Your workspace currently has {dashboard?.summary?.pendingAiRequests || 0} open AI requests and {dashboard?.summary?.servicesCount || 0} connected services.
+              {t("provider.dashboard.insightsDescription", {
+                aiRequests: dashboard?.summary?.pendingAiRequests || 0,
+                services: dashboard?.summary?.servicesCount || 0,
+              })}
             </p>
 
             <Link to="/provider/manage-tours" className="mt-8 rounded-xl bg-white px-6 py-3 font-heading text-sm font-bold text-[#125d4f] transition-colors hover:bg-gray-100 shadow-sm">
-              Apply Optimization
+              {t("provider.dashboard.applyOptimization")}
             </Link>
           </div>
         </div>
