@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const certifications = [
   {
@@ -27,11 +28,12 @@ const certifications = [
 ];
 
 export default function GuideCertifications() {
+  const { t } = useI18n();
   return (
     <Card className="border-outline-variant/20 bg-white shadow-sm">
       <CardHeader>
-        <CardTitle>Certifications</CardTitle>
-        <CardDescription>Licenses and operational qualifications.</CardDescription>
+        <CardTitle>{t("guidePages.profile.certifications")}</CardTitle>
+        <CardDescription>{t("guidePages.profile.certificationsDescription")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {certifications.map((certification) => {

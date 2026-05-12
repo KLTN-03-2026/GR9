@@ -6,9 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-
-const about =
-  "Born and raised in Da Nang, Alex connects traditional Vietnamese heritage with the modern coastal lifestyle through sustainable, local-first tours.";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const languages = [
   { name: "Vietnamese", level: "Native", score: 100 },
@@ -17,20 +15,27 @@ const languages = [
 ];
 
 export default function GuideExpertise({ profile }) {
+  const { t } = useI18n();
   const profileFields = [
-    { label: "Email", value: profile?.email || "Not provided" },
-    { label: "Phone", value: profile?.phone || "Not provided" },
-    { label: "Address", value: profile?.address || "Not provided" },
-    { label: "Gender", value: profile?.gender || "OTHER" },
-    { label: "Auth Type", value: profile?.authType || "LOCAL" },
-    { label: "Status", value: profile?.isActive ? "Active" : "Inactive" },
+    { label: t("guidePages.profile.email"), value: profile?.email || t("guidePages.profile.notProvided") },
+    { label: t("guidePages.profile.phone"), value: profile?.phone || t("guidePages.profile.notProvided") },
+    { label: t("guidePages.profile.address"), value: profile?.address || t("guidePages.profile.notProvided") },
+    { label: t("guidePages.profile.gender"), value: profile?.gender || "OTHER" },
+    { label: t("guidePages.profile.authType"), value: profile?.authType || "LOCAL" },
+    { label: t("guidePages.profile.status"), value: profile?.isActive ? t("guidePages.profile.active") : t("guidePages.profile.inactive") },
+  ];
+
+  const displayLanguages = [
+    { ...languages[0], name: t("guidePages.profile.vietnamese"), level: t("guidePages.profile.native") },
+    { ...languages[1], name: t("guidePages.profile.english"), level: t("guidePages.profile.fluent") },
+    { ...languages[2], name: t("guidePages.profile.korean"), level: t("guidePages.profile.conversational") },
   ];
 
   return (
     <Card className="border-outline-variant/20 bg-white shadow-sm">
       <CardHeader>
-        <CardTitle>Professional Expertise</CardTitle>
-        <CardDescription>{about}</CardDescription>
+        <CardTitle>{t("guidePages.profile.expertiseTitle")}</CardTitle>
+        <CardDescription>{t("guidePages.profile.expertiseDescription")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid gap-3 sm:grid-cols-2">
@@ -48,7 +53,7 @@ export default function GuideExpertise({ profile }) {
             </div>
           ))}
         </div>
-        {languages.map((language) => (
+        {displayLanguages.map((language) => (
           <div key={language.name} className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="font-semibold text-slate-800">{language.name}</span>

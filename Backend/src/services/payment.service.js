@@ -26,18 +26,21 @@ const updateScheduleStatus = async (schedule) => {
     schedule.status = "PENDING";
   }
 
-  await schedule.save();
+  await schedule.save({ validateBeforeSave: false });
+  return schedule;
 };
 
 const reserveBookingSlots = async (booking) => {
   if (booking.slotsReserved) {
-    return;
+    return booking.tourScheduleId
+      ? TourSchedule.findById(booking.tourScheduleId)
+      : null;
   }
 
   if (booking.isPrivate || !booking.tourScheduleId) {
     booking.slotsReserved = true;
     await booking.save();
-    return;
+    return null;
   }
 
   const totalPeople =
@@ -49,24 +52,17 @@ const reserveBookingSlots = async (booking) => {
     return;
   }
 
-  const schedule = await TourSchedule.findOneAndUpdate(
-    {
-      _id: booking.tourScheduleId,
-      $expr: {
-        $lte: [{ $add: ["$currentBooked", totalPeople] }, "$maxSlots"],
-      },
-    },
-    { $inc: { currentBooked: totalPeople } },
-    { new: true },
-  );
+  const schedule = await TourSchedule.findById(booking.tourScheduleId);
 
-  if (!schedule) {
+  if (!schedule || schedule.currentBooked + totalPeople > schedule.maxSlots) {
     throwError("Tour schedule not found", 404, "TOUR_SCHEDULE_NOT_FOUND");
   }
 
+  schedule.currentBooked += totalPeople;
   await updateScheduleStatus(schedule);
   booking.slotsReserved = true;
   await booking.save();
+  return schedule;
 };
 
 const releaseBookingSlots = async (booking) => {
@@ -120,9 +116,21 @@ const markBookingPaid = async (booking, paymentLinkId = null) => {
     return booking;
   }
 
-  await reserveBookingSlots(booking);
+  let schedule = null;
+  let slotReserveError = null;
+
+  try {
+    schedule = await reserveBookingSlots(booking);
+  } catch (error) {
+    slotReserveError = error;
+  }
+
   booking.payment = "PAID";
-  booking.status = "CONFIRMED";
+  booking.status =
+    !slotReserveError &&
+    (booking.isPrivate || !booking.tourScheduleId || schedule?.status === "FULL")
+      ? "CONFIRMED"
+      : "PAID";
   booking.paidAt = booking.paidAt || new Date();
   booking.trackingCode = paymentLinkId || booking.trackingCode;
   booking.paymentLinkId = paymentLinkId || booking.paymentLinkId;
@@ -168,7 +176,7 @@ export const createBookingPaymentLink = async (bookingId, travelerId = null) => 
       orderCode,
       amount,
       description,
-      returnUrl: `${frontendUrl}/guest/booking-success-and-tracking-link?payment=success&bookingId=${booking._id}&orderCode=${orderCode}`,
+      returnUrl: `${frontendUrl}/traveler/my-booking-traveler?payment=success&bookingId=${booking._id}&orderCode=${orderCode}`,
       cancelUrl: `${frontendUrl}/traveler/my-booking-traveler?payment=cancel&bookingId=${booking._id}&orderCode=${orderCode}`,
       expiredAt,
       items: [
@@ -243,10 +251,15 @@ export const handlePayOSWebhook = async (payload) => {
 export const syncPayOSPaymentStatus = async (orderCode, travelerId) => {
   try {
     const payOS = getPayOSClient();
-    const booking = await Booking.findOne({
+    const query = {
       orderCode: String(orderCode),
-      travelerId,
-    });
+    };
+
+    if (travelerId) {
+      query.travelerId = travelerId;
+    }
+
+    const booking = await Booking.findOne(query);
 
     if (!booking) {
       throwError("Booking not found", 404, "BOOKING_NOT_FOUND");

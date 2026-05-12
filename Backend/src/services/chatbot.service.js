@@ -75,13 +75,13 @@ const isInTravelAiScope = (message) => {
 
 const buildCleanOutOfScopeAnswer = () =>
   [
-    "M?nh ch? h? tr? c?c c?u h?i li?n quan ??n Travel_AI, tour du l?ch, ??t tour, thanh to?n, ??nh gi?, ch?nh s?ch v? h??ng d?n s? d?ng h? th?ng.",
+    "Mình chỉ hỗ trợ các câu hỏi liên quan đến Travel_AI, tour du lịch, đặt tour, thanh toán, đánh giá, chính sách và hướng dẫn sử dụng hệ thống.",
     "",
-    "B?n c? th? h?i m?nh v? d?:",
-    "- G?i ? tour ph? h?p cho gia ??nh",
-    "- C?ch ??t tour v? theo d?i booking",
-    "- ?i?u ki?n ??nh gi? tour sau khi ?i xong",
-    "- Travel_AI c? nh?ng t?nh n?ng g?",
+    "Bạn có thể hỏi mình ví dụ:",
+    "- Gợi ý tour phù hợp cho gia đình",
+    "- Cách đặt tour và theo dõi booking",
+    "- Điều kiện đánh giá tour sau khi đi xong",
+    "- Travel_AI có những tính năng gì?",
   ].join("\n");
 
 const chooseTools = (message) => {

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import UserProfileEditDialog from "@/components/Profile/UserProfileEditDialog";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const guide = {
   avatarFallback: "A",
@@ -18,6 +19,7 @@ const guide = {
 };
 
 export default function GuideProfileHero({ profile, onUpdateProfile }) {
+  const { t } = useI18n();
   const displayGuide = {
     ...guide,
     avatarFallback:
@@ -25,8 +27,9 @@ export default function GuideProfileHero({ profile, onUpdateProfile }) {
       guide.avatarFallback,
     avatarUrl: profile?.avatarUrl || guide.avatarUrl,
     fullName: profile?.fullName || guide.fullName,
-    title: profile?.specialty || guide.title,
-    location: profile?.address || guide.location,
+    title: profile?.specialty || t("guidePages.profile.defaultTitle"),
+    location: profile?.address || t("guidePages.profile.defaultLocation"),
+    bio: profile?.bio || t("guidePages.profile.defaultBio"),
   };
 
   return (
@@ -39,7 +42,7 @@ export default function GuideProfileHero({ profile, onUpdateProfile }) {
           </Avatar>
           <Badge className="absolute -bottom-2 -right-2 gap-1 bg-teal-700 text-white">
             <BadgeCheck className="h-3.5 w-3.5" />
-            Verified
+            {t("guidePages.profile.verified")}
           </Badge>
         </div>
 
@@ -66,12 +69,12 @@ export default function GuideProfileHero({ profile, onUpdateProfile }) {
           <UserProfileEditDialog
             profile={profile}
             onUpdateProfile={onUpdateProfile}
-            title="Edit Guide Profile"
-            description="Update guide contact and profile information."
+            title={t("guidePages.profile.editTitle")}
+            description={t("guidePages.profile.editDescription")}
           />
           <Button variant="outline">
             <CalendarDays className="h-4 w-4" />
-            Schedule Interview
+            {t("guidePages.profile.scheduleInterview")}
           </Button>
         </div>
       </CardContent>

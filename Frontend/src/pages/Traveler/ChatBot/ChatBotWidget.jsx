@@ -45,7 +45,7 @@ const isReadableSourceTitle = (title) => {
   const text = String(title || "").trim();
   if (text.length < 4) return false;
   if (/^(bl+a|bla+bla+|adawd|awd|test|demo|sample)$/i.test(text)) return false;
-  if (!/[a-zA-Z?-?0-9]/.test(text)) return false;
+  if (!/[\p{L}\p{N}]/u.test(text)) return false;
   return true;
 };
 
@@ -358,7 +358,7 @@ export default function ChatBotWidget({
                     {getDisplaySources(message.sources).length ? (
                       <div className="mt-3 space-y-1 border-t border-slate-200/70 pt-3">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                          Nguồn tham khảo
+                          Nguồn dữ liệu
                         </p>
                         {getDisplaySources(message.sources).map((source) => (
                           <p

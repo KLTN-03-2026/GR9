@@ -21,9 +21,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import PageHero from "@/components/shared/page-hero";
 import { getGuideAssignedTours, getGuideDashboard } from "@/services/api/guide";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function GuideDashboardHome() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [stats, setStats] = useState(null);
   const [assignedTours, setAssignedTours] = useState([]);
 
@@ -34,7 +36,7 @@ export default function GuideDashboardHome() {
         .querySelector('meta[name="description"]')
         ?.getAttribute("content") ?? "";
 
-    document.title = "Guide Dashboard | Voyager AI";
+    document.title = `${t("guidePages.dashboard.title")} | Voyager AI`;
 
     let descriptionTag = document.querySelector('meta[name="description"]');
     if (!descriptionTag) {
@@ -45,7 +47,7 @@ export default function GuideDashboardHome() {
 
     descriptionTag.setAttribute(
       "content",
-      "Guide dashboard for Voyager AI with assigned tours, shift actions, live tour operations, schedule insights, and incident reporting overview.",
+      t("guidePages.dashboard.metaDescription"),
     );
 
     Promise.all([getGuideDashboard(), getGuideAssignedTours()])
@@ -54,7 +56,7 @@ export default function GuideDashboardHome() {
         setAssignedTours(toursResponse.data.data || []);
       })
       .catch((error) =>
-        toast.error(error?.response?.data?.message || "Cannot load guide dashboard"),
+        toast.error(error?.response?.data?.message || t("guidePages.dashboard.loadError")),
       );
 
     return () => {
@@ -71,21 +73,21 @@ export default function GuideDashboardHome() {
 
     return [
       {
-        label: "Assigned Today",
+        label: t("guidePages.dashboard.assignedToday"),
         value: String(ongoingTours || 0).padStart(2, "0"),
         icon: ClipboardCheck,
         iconClass: "text-primary",
         iconBg: "bg-primary/10",
       },
       {
-        label: "Upcoming Tours",
+        label: t("guidePages.dashboard.upcomingTours"),
         value: String(upcomingTours || 0).padStart(2, "0"),
         icon: CalendarDays,
         iconClass: "text-secondary",
         iconBg: "bg-secondary/10",
       },
       {
-        label: "Ongoing Tours",
+        label: t("guidePages.dashboard.ongoingTours"),
         value: String(ongoingTours || 0).padStart(2, "0"),
         icon: Footprints,
         iconClass: "text-primary-container",
@@ -93,7 +95,7 @@ export default function GuideDashboardHome() {
         valueClass: "text-primary",
       },
       {
-        label: "Pending Reports",
+        label: t("guidePages.dashboard.pendingReports"),
         value: "00",
         icon: AlertTriangle,
         iconClass: "text-tertiary",
@@ -106,21 +108,21 @@ export default function GuideDashboardHome() {
 
   const quickActions = [
     {
-      title: "View Assigned Tours",
+      title: t("guidePages.dashboard.viewAssignedTours"),
       icon: Globe2,
       hoverText: "group-hover:text-primary",
       hoverIcon: "group-hover:bg-primary group-hover:text-on-primary",
       onClick: () => navigate("/guide/assigned-tours"),
     },
     {
-      title: "Start Ongoing Tour",
+      title: t("guidePages.dashboard.startOngoingTour"),
       icon: PlayCircle,
       hoverText: "group-hover:text-primary",
       hoverIcon: "group-hover:bg-primary group-hover:text-on-primary",
       onClick: () => navigate("/guide/live-tour-tracking"),
     },
     {
-      title: "Submit Incident Report",
+      title: t("guidePages.dashboard.submitIncidentReport"),
       icon: FileWarning,
       hoverText: "group-hover:text-on-surface",
       hoverIcon: "group-hover:bg-error group-hover:text-on-error",
@@ -135,22 +137,22 @@ export default function GuideDashboardHome() {
         id: tour.code || tour.id,
         title: tour.title,
         location: tour.locationShortLabel || "Unknown location",
-        shift: index === 0 ? "Morning Departure" : "Evening Experience",
+        shift: index === 0 ? t("guidePages.dashboard.morningDeparture") : t("guidePages.dashboard.eveningExperience"),
         shiftClass:
           index === 0
             ? "bg-tertiary-container/10 text-tertiary"
             : "bg-secondary-container text-on-secondary-container",
-        status: tour.status === "ongoing" ? "CONFIRMED" : "PENDING START",
+        status: tour.status === "ongoing" ? t("guidePages.dashboard.confirmed") : t("guidePages.dashboard.pendingStart"),
         statusClass:
           tour.status === "ongoing"
             ? "bg-primary-fixed-dim/20 text-on-primary-fixed-variant"
             : "bg-surface-container-highest text-on-surface-variant",
         dotClass: tour.status === "ongoing" ? "bg-primary-container" : "bg-slate-400",
-        time: tour.dateRangeLabel || "No schedule",
-        passengers: `${tour.passengerCount || 0} Guests`,
-        detailLabel: "Language",
+        time: tour.dateRangeLabel || t("guidePages.dashboard.noSchedule"),
+        passengers: `${tour.passengerCount || 0} ${t("guidePages.dashboard.guests")}`,
+        detailLabel: t("guidePages.dashboard.language"),
         detailValue: (stats?.languages || []).join(", ") || "VI",
-        primaryAction: tour.status === "ongoing" ? "Open Live Tracking" : "Review Tour",
+        primaryAction: tour.status === "ongoing" ? t("guidePages.dashboard.openLiveTracking") : t("guidePages.dashboard.reviewTour"),
         primaryVariant: tour.status === "ongoing" ? "default" : "outline",
         image:
           tour.cardImage ||
@@ -163,20 +165,20 @@ export default function GuideDashboardHome() {
   return (
     <main className="mx-auto w-full max-w-[1600px] space-y-8 pb-10 pt-6 text-on-surface md:space-y-10 md:pt-24">
       <PageHero
-        eyebrow="Shift Overview"
+        eyebrow={t("guidePages.dashboard.heroEyebrow")}
         heading={
           <>
-            Welcome back,{" "}
+            {t("guidePages.dashboard.welcomeBack")}{" "}
             <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
-              Guide
+              {t("guidePages.dashboard.guide")}
             </span>
           </>
         }
-        description="Track today's assignments, launch active tours, and keep field operations moving with a cleaner guide command surface."
+        description={t("guidePages.dashboard.description")}
         meta={
           <p className="flex items-center gap-2 text-on-surface-variant">
             <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary-container" />
-            {assignedTours.length} Tours Assigned
+            {assignedTours.length} {t("guidePages.dashboard.toursAssigned")}
           </p>
         }
         actions={
@@ -186,13 +188,13 @@ export default function GuideDashboardHome() {
               className="h-11 rounded-2xl bg-secondary-container px-5 text-sm font-semibold text-on-secondary-container"
               asChild
             >
-              <Link to="/guide/assigned-tours">Schedule View</Link>
+              <Link to="/guide/assigned-tours">{t("guidePages.dashboard.scheduleView")}</Link>
             </Button>
             <Button
               className="h-11 rounded-2xl bg-primary px-5 text-sm font-semibold text-on-primary shadow-md shadow-primary/10 hover:bg-emerald-500"
               asChild
             >
-              <Link to="/guide/live-tour-tracking">Start Shift</Link>
+              <Link to="/guide/live-tour-tracking">{t("guidePages.dashboard.startShift")}</Link>
             </Button>
           </div>
         }
@@ -228,7 +230,7 @@ export default function GuideDashboardHome() {
       </section>
 
       <section className="space-y-6">
-        <h2 className="text-lg font-bold text-on-surface">Quick Operations</h2>
+        <h2 className="text-lg font-bold text-on-surface">{t("guidePages.dashboard.quickOperations")}</h2>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {quickActions.map((action) => {
             const Icon = action.icon;
@@ -259,14 +261,14 @@ export default function GuideDashboardHome() {
       <section className="space-y-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="font-headline text-2xl font-extrabold text-on-surface">
-            Today&apos;s Assigned Tours
+            {t("guidePages.dashboard.todaysAssignedTours")}
           </h2>
           <Button
             variant="link"
             className="h-auto px-0 font-semibold text-primary"
             asChild
           >
-            <Link to="/guide/assigned-tours">View Full Calendar</Link>
+            <Link to="/guide/assigned-tours">{t("guidePages.dashboard.viewFullCalendar")}</Link>
           </Button>
         </div>
 
@@ -323,7 +325,7 @@ export default function GuideDashboardHome() {
                     <div className="grid grid-cols-1 gap-4 border-t border-outline-variant/10 py-4 sm:grid-cols-3 sm:gap-6">
                       <div className="flex flex-col">
                         <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
-                          Time
+                          {t("guidePages.dashboard.time")}
                         </span>
                         <span className="flex items-center gap-2 text-sm font-semibold">
                           <Clock3 className="size-4 text-on-surface-variant" />
@@ -333,7 +335,7 @@ export default function GuideDashboardHome() {
 
                       <div className="flex flex-col">
                         <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
-                          Passengers
+                          {t("guidePages.dashboard.passengers")}
                         </span>
                         <span className="flex items-center gap-2 text-sm font-semibold">
                           <Users className="size-4 text-on-surface-variant" />
