@@ -24,6 +24,95 @@ const normalizeForMatch = (value) =>
     .trim();
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+const TOUR_STYLE_RULES = [
+  {
+    key: "family",
+    triggers: ["gia dinh", "tre em", "family", "kid", "children"],
+    matches: [
+      "family",
+      "gia dinh",
+      "tre em",
+      "resort",
+      "bien",
+      "vui choi",
+      "nghi duong",
+      "hoi an",
+      "da nang",
+      "nha trang",
+      "phu quoc",
+      "ha long",
+    ],
+  },
+  {
+    key: "couple",
+    triggers: ["cap doi", "honeymoon", "lang man", "couple"],
+    matches: ["cap doi", "honeymoon", "lang man", "da lat", "hoi an", "phu quoc"],
+  },
+  {
+    key: "relax",
+    triggers: ["nghi duong", "thu gian", "bien", "resort", "relax"],
+    matches: ["nghi duong", "thu gian", "bien", "resort", "nha trang", "phu quoc", "quy nhon", "mui ne"],
+  },
+  {
+    key: "culture",
+    triggers: ["van hoa", "lich su", "am thuc", "di san", "culture"],
+    matches: ["van hoa", "lich su", "am thuc", "di san", "hue", "hoi an", "ha noi", "can tho"],
+  },
+  {
+    key: "nature",
+    triggers: ["thien nhien", "nui", "trekking", "hang dong", "nature"],
+    matches: ["thien nhien", "nui", "trekking", "hang dong", "sa pa", "ha giang", "phong nha", "ninh binh"],
+  },
+  {
+    key: "budget",
+    triggers: ["tiet kiem", "gia re", "re nhat", "budget", "cheap"],
+    matches: ["tiet kiem", "gia re", "classic", "retreat", "discovery"],
+  },
+];
+
+const detectTourPreferences = (message, historyText = "") => {
+  const text = normalizeForMatch(`${message} ${historyText}`);
+  const styles = TOUR_STYLE_RULES.filter((rule) =>
+    rule.triggers.some((trigger) => text.includes(trigger)),
+  );
+
+  return {
+    styles,
+    sortByPriceAsc: /(re nhat|gia re|tiet kiem|cheap|cheapest|budget)/i.test(text),
+    sortByRatingDesc: /(danh gia cao|rating cao|tot nhat|best|top)/i.test(text),
+  };
+};
+
+const scoreTourByIntent = (tour, searchTerms = [], preferences = {}) => {
+  const tourText = normalizeForMatch(
+    `${tour.name || ""} ${tour.location || ""} ${tour.description || ""} ${tour.type || ""}`,
+  );
+
+  let score = 0;
+
+  searchTerms.forEach((term) => {
+    const normalizedTerm = normalizeForMatch(term);
+    if (!normalizedTerm) return;
+    if (normalizeForMatch(tour.location).includes(normalizedTerm)) score += 8;
+    else if (normalizeForMatch(tour.name).includes(normalizedTerm)) score += 5;
+    else if (tourText.includes(normalizedTerm)) score += 3;
+  });
+
+  preferences.styles?.forEach((rule) => {
+    if (rule.matches.some((keyword) => tourText.includes(keyword))) {
+      score += 10;
+    }
+  });
+
+  if (preferences.sortByPriceAsc) {
+    const price = Number(tour.price?.adult || 0);
+    if (price > 0 && price <= 900000) score += 5;
+    if (price > 0 && price <= 1500000) score += 2;
+  }
+
+  return score;
+};
+
 const buildSearchTerms = (message) => {
   const normalized = normalizeForMatch(message);
   const stopWords = new Set([
@@ -108,7 +197,6 @@ const isLikelyEllipticalFollowUp = (message) => {
 
   return (
     !!text &&
-    !isInTravelAiScope(message) &&
     wordCount > 0 &&
     wordCount <= 8 &&
     text.length <= 48 &&
@@ -137,16 +225,16 @@ const buildEffectiveMessage = (message, history = []) =>
     ? `${message} - cau hoi noi tiep dua tren cac tour vua duoc nhac trong lich su hoi thoai`
     : message;
 
-const isInTravelAiScope = (message) => {
+const hasBookingContext = (message, history = []) => {
   const text = normalizeForMatch(message);
-  const scopePattern =
-    /(travel_ai|travel ai|voyager|tour|du lich|lich trinh|booking|dat tour|thanh toan|payment|payos|danh gia|review|ve|huong dan|chinh sach|huong dan vien|guide|khach san|dia diem|gia dinh|bien|nui|dao|viet nam|goi y|nghi duong|cap doi|van hoa|mien bac|mien trung|mien nam|ha noi|da nang|hoi an|hue|nha trang|phu quoc|da lat|ha long|sa pa|sapa|can tho|duong link|chi tiet)/i;
+  const historyText = normalizeForMatch(buildHistoryText(history));
 
-  return scopePattern.test(text);
+  return /(booking|dat tour|thanh toan|payment|payos|huy|danh gia|review|ve|trang thai|theo doi)/i.test(
+    `${text} ${historyText}`,
+  );
 };
 
-const isScopedByHistory = (message, history = []) =>
-  isTourFollowUp(message, history);
+const hasSearchIntent = (message) => buildSearchTerms(message).length > 0;
 
 const buildCleanOutOfScopeAnswer = () =>
   [
@@ -159,27 +247,19 @@ const buildCleanOutOfScopeAnswer = () =>
     "- Travel_AI có những tính năng gì?",
   ].join("\n");
 
-const chooseTools = (message, history = []) => {
-  const text = normalizeForMatch(message);
-  const asksBooking =
-    /(booking|dat tour|thanh toan|payment|payos|huy|danh gia|review|ve|trang thai|theo doi)/i.test(
-      text,
-    );
-  const asksTour =
-    /(tour|lich trinh|goi y|gia|dia diem|gia dinh|khach san|bien|nui|dao|nghi duong|cap doi|van hoa|mien bac|mien trung|mien nam|ha noi|da nang|hoi an|hue|nha trang|phu quoc|da lat|ha long|sa pa|sapa|can tho|duong link|chi tiet|xem tour)/i.test(
-      text,
-    );
-  const asksPolicyOrIntro =
-    /(gioi thieu|travel_ai|travel ai|voyager|chinh sach|tinh nang|huong dan|cach|su dung|he thong)/i.test(
-      text,
-    );
-
+const chooseTools = (message, history = [], user = null) => {
   const tools = new Set();
+  const followUpTour = isTourFollowUp(message, history);
 
-  if (asksTour) tools.add("database_tours");
-  if (isScopedByHistory(message, history)) tools.add("database_tours");
-  if (asksBooking) tools.add("database_bookings");
-  if (asksPolicyOrIntro || tools.size === 0) tools.add("kb_search");
+  tools.add("kb_search");
+
+  if (followUpTour || hasStructuredTourContext(history) || hasSearchIntent(message)) {
+    tools.add("database_tours");
+  }
+
+  if (user && hasBookingContext(message, history)) {
+    tools.add("database_bookings");
+  }
 
   return [...tools];
 };
@@ -208,6 +288,7 @@ const searchToursTool = async (message, options = {}) => {
   let searchTerms = buildSearchTerms(message);
   const historyText = buildHistoryText(options.history);
   const historyLocations = extractLocationsFromHistory(options.history);
+  const preferences = detectTourPreferences(message, historyText);
   const filter = {
     isActive: true,
   };
@@ -233,10 +314,10 @@ const searchToursTool = async (message, options = {}) => {
   const queryTours = (mongoFilter, limit = 18) =>
     Tour.find(mongoFilter).sort({ createdAt: -1 }).limit(limit).lean();
 
-  let tours = await queryTours(filter);
+  let tours = await queryTours(filter, 30);
 
   if (tours.length === 0 && searchTerms.length > 0) {
-    tours = await queryTours({ isActive: true });
+    tours = await queryTours({ isActive: true }, 40);
   }
 
   if (options.excludeSeenTours && historyText) {
@@ -245,7 +326,7 @@ const searchToursTool = async (message, options = {}) => {
     );
 
     if (unseenTours.length < 3) {
-      const allTours = await queryTours({ isActive: true }, 30);
+      const allTours = await queryTours({ isActive: true }, 40);
       unseenTours = allTours.filter(
         (tour) => !hasTourAppearedInHistory(tour, historyText),
       );
@@ -256,7 +337,28 @@ const searchToursTool = async (message, options = {}) => {
     }
   }
 
-  const selectedTours = tours.slice(0, 6);
+  const scoredTours = tours
+    .map((tour) => ({
+      tour,
+      score: scoreTourByIntent(tour, searchTerms, preferences),
+    }))
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+
+      if (preferences.sortByPriceAsc) {
+        return Number(a.tour.price?.adult || 0) - Number(b.tour.price?.adult || 0);
+      }
+
+      return new Date(b.tour.createdAt || 0) - new Date(a.tour.createdAt || 0);
+    });
+
+  const hasIntentScore = scoredTours.some((item) => item.score > 0);
+  const selectedTours = (hasIntentScore
+    ? scoredTours.filter((item) => item.score > 0)
+    : scoredTours
+  )
+    .slice(0, 6)
+    .map((item) => item.tour);
   const tourIds = selectedTours.map((tour) => tour._id);
 
   const [images, reviewStats] = await Promise.all([
@@ -475,6 +577,20 @@ const flattenSources = (toolResults, tools = []) => {
   return [...kbSources, ...tourSources, ...bookingSources];
 };
 
+const hasRelevantKbEvidence = (toolResults) =>
+  (toolResults.kb_search || []).some(
+    (doc) =>
+      doc.title !== "System information unavailable" &&
+      Number(doc.similarity || 0) >= 0.58,
+  );
+
+const hasRelevantToolEvidence = (toolResults) =>
+  Boolean(
+    toolResults.database_tours?.length ||
+      toolResults.database_bookings?.length ||
+      hasRelevantKbEvidence(toolResults),
+  );
+
 const formatMemoryWindow = (history = []) => {
   if (!Array.isArray(history)) return "No previous conversation.";
 
@@ -524,6 +640,10 @@ const buildCleanQuotaFallbackAnswer = (toolResults, tools = []) => {
   const hasBookingResults = toolResults.database_bookings?.length > 0;
   const shouldShowKb =
     tools.includes("kb_search") && !tools.includes("database_tours");
+
+  if (!hasRelevantToolEvidence(toolResults)) {
+    return "Mình chưa tìm thấy dữ liệu phù hợp trong hệ thống Travel_AI cho câu hỏi này. Bạn có thể hỏi về tour, booking, thanh toán, đánh giá hoặc tính năng của hệ thống.";
+  }
 
   if (hasTourResults) {
     lines.push(
@@ -597,17 +717,7 @@ export const askChatbotService = async (message, user = null, history = []) => {
     const effectiveMessage = buildEffectiveMessage(message, history);
     const isFollowUpTourQuestion = isTourFollowUp(message, history);
 
-  if (!isInTravelAiScope(effectiveMessage) && !isScopedByHistory(message, history)) {
-      return {
-        answer: buildCleanOutOfScopeAnswer(),
-        tools: [],
-        sources: [],
-        refused: true,
-        errorCode: "OUT_OF_SCOPE",
-      };
-    }
-
-    const tools = chooseTools(effectiveMessage, history);
+    const tools = chooseTools(effectiveMessage, history, user);
     const toolResults = await runTools(tools, effectiveMessage, user, {
       history,
       excludeSeenTours: isFollowUpTourQuestion,
@@ -625,7 +735,8 @@ Bạn có các tool đã được backend gọi sẵn:
 
 Quy tắc:
 - Chỉ trả lời câu hỏi liên quan đến Travel_AI, tour du lịch, booking, thanh toán, đánh giá, chính sách, hướng dẫn sử dụng hệ thống hoặc dữ liệu trong Tool Results.
-- Nếu user hỏi ngoài phạm vi hệ thống, từ chối ngắn gọn và gợi ý hỏi lại về Travel_AI hoặc tour.
+- Hãy dựa trên Tool Results và Conversation Memory Window để hiểu ngữ cảnh trước, không suy luận phạm vi chỉ từ vài từ khóa lẻ.
+- Nếu câu hỏi không đủ liên quan đến dữ liệu hoặc tính năng của Travel_AI, hãy từ chối ngắn gọn và gợi ý hỏi lại về Travel_AI hoặc tour.
 - Trả lời bằng tiếng Việt nếu user hỏi tiếng Việt.
 - Chỉ dùng dữ liệu trong Tool Results khi nói về tour, booking, giá, đánh giá hoặc đường link.
 - Không bịa giá, link, trạng thái booking, lịch trình, chính sách hoặc đánh giá.

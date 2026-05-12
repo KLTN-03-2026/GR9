@@ -75,6 +75,15 @@ const formatPrice = (value) => {
 
 const isTourSource = (source) => source?.type === "database_tour";
 
+const shouldShowTourCards = (content = "", sources = []) => {
+  const text = String(content || "").toLowerCase();
+  if (!sources.some(isTourSource)) return false;
+
+  return /tour|gợi ý|goi y|chi tiết|chi tiet|link|xem|giá|gia|địa điểm|dia diem|rating|đánh giá|danh gia/.test(
+    text,
+  );
+};
+
 const getChatbotErrorMessage = (error) => {
   const status = error?.response?.status;
   const errorCode = error?.response?.data?.errorCode;
@@ -97,19 +106,20 @@ const getChatbotErrorMessage = (error) => {
     return "SmartTravel AI đang có nhiều yêu cầu cùng lúc nên mình sẽ ưu tiên trả lời bằng dữ liệu có sẵn trong hệ thống. Bạn vui lòng thử lại sau ít phút nếu cần phân tích chi tiết hơn.";
   }
 
-  return (
-    error?.response?.data?.message ||
-    "Hiện tại tôi chưa thể lấy thông tin từ hệ thống. Bạn vui lòng thử lại sau ít phút."
-  );
+  if (status >= 500 || errorCode) {
+    return "Hệ thống chatbot đang gặp lỗi tạm thời. Bạn vui lòng thử lại sau ít phút.";
+  }
+
+  return "Hiện tại tôi chưa thể lấy thông tin từ hệ thống. Bạn vui lòng thử lại sau ít phút.";
 };
 
 function TourSourceCard({ source }) {
   return (
     <a
       href={source.tourPath || "#"}
-      className="group overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-surface-container"
+      className="group grid grid-cols-[88px_minmax(0,1fr)] overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-surface-container"
     >
-      <div className="aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-900">
+      <div className="h-full min-h-[118px] overflow-hidden bg-slate-100 dark:bg-slate-900">
         {source.imageUrl ? (
           <img
             alt={source.title}
@@ -118,14 +128,14 @@ function TourSourceCard({ source }) {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-teal-500/15 to-cyan-500/10 text-teal-600 dark:text-primary">
-            <MessageCircle className="h-8 w-8" />
+            <MessageCircle className="h-6 w-6" />
           </div>
         )}
       </div>
 
-      <div className="space-y-3 p-3">
+      <div className="min-w-0 space-y-2 p-3">
         <div className="space-y-1">
-          <h4 className="line-clamp-2 text-sm font-extrabold text-slate-900 dark:text-on-surface">
+          <h4 className="line-clamp-2 text-[13px] font-extrabold leading-5 text-slate-900 dark:text-on-surface">
             {source.title}
           </h4>
           <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-on-surface-variant">
@@ -134,39 +144,24 @@ function TourSourceCard({ source }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-2">
-          <div className="rounded-xl bg-slate-50 px-2 py-2 text-center dark:bg-white/5">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-              Giá
-            </p>
-            <p className="mt-1 text-xs font-extrabold text-primary">
-              {formatPrice(source.priceAdult)}
-            </p>
-          </div>
-          <div className="rounded-xl bg-slate-50 px-2 py-2 text-center dark:bg-white/5">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-              Ngày
-            </p>
-            <p className="mt-1 text-xs font-extrabold text-slate-900 dark:text-on-surface">
-              {source.numberOfDay || "-"}
-            </p>
-          </div>
-          <div className="rounded-xl bg-slate-50 px-2 py-2 text-center dark:bg-white/5">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-              Rating
-            </p>
-            <p className="mt-1 flex items-center justify-center gap-1 text-xs font-extrabold text-slate-900 dark:text-on-surface">
-              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-              {source.averageRating > 0 ? source.averageRating : "Mới"}
-            </p>
-          </div>
+        <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold text-slate-600 dark:text-on-surface-variant">
+          <span className="rounded-full bg-teal-50 px-2 py-1 text-teal-700 dark:bg-primary/10 dark:text-primary">
+            {formatPrice(source.priceAdult)}
+          </span>
+          <span className="rounded-full bg-slate-100 px-2 py-1 dark:bg-white/5">
+            {source.numberOfDay || "-"} ngày
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1 dark:bg-white/5">
+            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+            {source.averageRating > 0 ? source.averageRating : "Mới"}
+          </span>
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <p className="text-xs text-slate-500 dark:text-on-surface-variant">
+          <p className="truncate text-[11px] text-slate-500 dark:text-on-surface-variant">
             {source.reviewCount || 0} đánh giá
           </p>
-          <span className="inline-flex h-8 items-center rounded-full bg-teal-600 px-3 text-xs font-bold text-white transition group-hover:bg-teal-700 dark:bg-primary dark:text-primary-foreground">
+          <span className="inline-flex h-7 shrink-0 items-center rounded-full bg-teal-600 px-3 text-[11px] font-bold text-white shadow-sm shadow-teal-900/10 transition group-hover:bg-teal-700 dark:bg-teal-500 dark:text-slate-950 dark:shadow-teal-950/30 dark:group-hover:bg-teal-400">
             Vào tour
           </span>
         </div>
@@ -424,12 +419,15 @@ export default function ChatBotWidget({
         </div>
 
         {!minimized ? (
-          <>
-            <div className="max-h-[min(500px,calc(100vh-220px))] space-y-4 overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.13),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(14,165,233,0.10),transparent_30%),linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] px-4 py-4 dark:bg-[radial-gradient(circle_at_top_left,rgba(107,216,203,0.12),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(20,184,166,0.10),transparent_30%),linear-gradient(180deg,#101416_0%,#161a1c_100%)]">
+          <div className="flex min-h-0 flex-1 flex-col">
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.13),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(14,165,233,0.10),transparent_30%),linear-gradient(180deg,#f8fafc_0%,#ffffff_100%)] px-4 py-4 dark:bg-[radial-gradient(circle_at_top_left,rgba(107,216,203,0.12),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(20,184,166,0.10),transparent_30%),linear-gradient(180deg,#101416_0%,#161a1c_100%)]">
               {messages.map((message, index) => {
                 const isUser = message.role === "user";
                 const sources = getDisplaySources(message.sources);
-                const tourSources = sources.filter(isTourSource);
+                const showTourCards = shouldShowTourCards(message.content, sources);
+                const tourSources = showTourCards
+                  ? sources.filter(isTourSource).slice(0, 2)
+                  : [];
                 const textSources = sources.filter((source) => !isTourSource(source));
 
                 return (
@@ -590,7 +588,7 @@ export default function ChatBotWidget({
                 Powered by SmartTravel
               </p>
             </div>
-          </>
+          </div>
         ) : null}
       </div>
     </>
