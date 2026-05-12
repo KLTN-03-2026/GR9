@@ -4,8 +4,10 @@ import toast from "react-hot-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function GuideLiveTourTrackingFooterActions({ tracking }) {
+  const { t } = useI18n();
   const passengers = tracking?.passengers || [];
   const trackingUrl = tracking?.trackingUrl || "";
 
@@ -36,7 +38,7 @@ export default function GuideLiveTourTrackingFooterActions({ tracking }) {
           </div>
 
           <span className="text-xs font-semibold text-slate-500">
-            {tracking?.group?.total || 0} guests tracking your live link
+            {tracking?.group?.total || 0} {t("guidePages.liveTracking.guestsTracking")}
           </span>
         </div>
 
@@ -45,7 +47,7 @@ export default function GuideLiveTourTrackingFooterActions({ tracking }) {
             disabled
             className="flex-1 rounded-xl border-2 border-outline-variant/30 px-6 py-3 font-bold shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/20 hover:bg-white hover:text-primary hover:shadow-lg active:translate-y-0 md:flex-none"
           >
-            Save Progress Update
+            {t("guidePages.liveTracking.saveProgress")}
           </Button>
           <Button
             type="button"
@@ -54,7 +56,7 @@ export default function GuideLiveTourTrackingFooterActions({ tracking }) {
             className="flex-1 rounded-xl border-2 border-outline-variant/30 px-6 py-3 font-bold shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/20 hover:bg-white hover:text-primary hover:shadow-lg active:translate-y-0 md:flex-none"
           >
             <Plus className="h-4 w-4" />
-            Copy Public Link
+            {t("guidePages.liveTracking.copyPublicLink")}
           </Button>
         </div>
       </CardContent>

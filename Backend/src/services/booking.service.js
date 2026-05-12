@@ -4,6 +4,7 @@ import Tour from "../models/tour.model.js";
 import TourSchedule from "../models/tourSchedule.model.js";
 import Image from "../models/image.model.js";
 import { ensureTrackingCode, getTrackingUrl } from "./tracking.service.js";
+import { syncPayOSPaymentStatus } from "./payment.service.js";
 import { throwError } from "../utils/throwError.js";
 
 const addDays = (date, days) =>
@@ -22,7 +23,8 @@ const getBookingLifecycleStatus = (booking) => {
     if (booking.payment !== "PAID") {
         return booking.status;
     }
-    return "CONFIRMED";
+
+    return booking.status === "CONFIRMED" ? "CONFIRMED" : "PAID";
 };
 
 const isValidObjectId = (value) => mongoose.Types.ObjectId.isValid(String(value || ""));
@@ -239,10 +241,27 @@ export const cancelBookingService = async (bookingId) => {
 };
 
 export const getMyBookingsService = async (travelerId) => {
-    const bookings = await Booking.find({ travelerId, payment: "PAID" })
+    const unpaidBookingsWithPaymentLink = await Booking.find({
+        travelerId,
+        payment: { $ne: "PAID" },
+        status: { $nin: ["CANCELLED", "REFUNDED"] },
+        orderCode: { $nin: [null, ""] },
+    })
+        .select("orderCode")
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean();
+
+    if (unpaidBookingsWithPaymentLink.length > 0) {
+        for (const booking of unpaidBookingsWithPaymentLink) {
+            await syncPayOSPaymentStatus(booking.orderCode, travelerId).catch(() => null);
+        }
+    }
+
+    const bookings = await Booking.find({ travelerId })
         .populate({
             path: "tourId",
-            select: "name location price numberOfDay",
+            select: "name location price numberOfDay leadGuideServiceId",
         })
         .populate({
             path: "tourScheduleId",
@@ -434,6 +453,7 @@ export const getGuestBookingSuccessService = async ({ orderCode, trackingCode })
         query.status = { $nin: ["CANCELLED", "REFUNDED", "COMPLETED"] };
         query.trackingEnabled = { $ne: false };
     } else if (orderCode) {
+        await syncPayOSPaymentStatus(orderCode, null);
         query.orderCode = String(orderCode);
     } else {
         const error = new Error("Order code or tracking code is required");

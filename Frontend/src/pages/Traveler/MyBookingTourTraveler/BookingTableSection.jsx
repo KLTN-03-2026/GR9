@@ -93,13 +93,13 @@ export default function BookingTableSection({ bookings, loading, error }) {
       const checkoutUrl = response.data.data?.payment?.checkoutUrl;
 
       if (!checkoutUrl) {
-        toast.error("KhÃ´ng thá»ƒ táº¡o link thanh toÃ¡n");
+        toast.error(t("bookingPage.payLinkError"));
         return;
       }
 
       window.location.href = checkoutUrl;
     } catch (err) {
-      toast.error(err?.response?.data?.message || "KhÃ´ng thá»ƒ thanh toÃ¡n booking");
+      toast.error(err?.response?.data?.message || t("bookingPage.payError"));
     }
   };
 
@@ -298,6 +298,17 @@ export default function BookingTableSection({ bookings, loading, error }) {
                         </Button>
                       ) : null}
 
+                      {booking.payment !== "PAID" && booking.status === "CANCELLED" && booking.tourId?._id ? (
+                        <Button
+                          type="button"
+                          variant="link"
+                          className="h-auto px-0 text-[12px] font-bold uppercase tracking-tight text-primary"
+                          onClick={() => navigate(`/traveler/tour-detail/${booking.tourId._id}`)}
+                        >
+                          {t("bookingPage.bookAgain")}
+                        </Button>
+                      ) : null}
+
                       {booking.tourId?._id ? (
                         <Button
                           type="button"
@@ -318,8 +329,10 @@ export default function BookingTableSection({ bookings, loading, error }) {
         {!loading && !error && (bookings?.length || 0) > pageSize ? (
           <div className="flex flex-col gap-3 border-t border-surface-container bg-surface-container-low px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-on-surface-variant">
-              Showing <span className="font-bold text-on-surface">{firstRow} - {lastRow}</span> of{" "}
-              <span className="font-bold text-on-surface">{bookings?.length || 0}</span> bookings
+              {t("bookingPage.showing")} <span className="font-bold text-on-surface">{firstRow} - {lastRow}</span>{" "}
+              {t("bookingPage.of")}{" "}
+              <span className="font-bold text-on-surface">{bookings?.length || 0}</span>{" "}
+              {t("bookingPage.bookings")}
             </p>
 
             <div className="flex items-center gap-2">

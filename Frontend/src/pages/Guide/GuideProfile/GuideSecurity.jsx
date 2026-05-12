@@ -21,16 +21,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const security = {
-  title: "Account Security",
-  description: "Manage guide account access and password settings.",
-  passwordTitle: "Update Password",
-  passwordDescription: "Use your current password to confirm the change.",
-  protectedLabel: "Guide access is protected",
-};
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function GuideSecurity({ onChangePassword }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
@@ -64,9 +58,9 @@ export default function GuideSecurity({ onChangePassword }) {
     <Card className="rounded-[2rem] border border-outline-variant/20 bg-surface-container-lowest py-0 shadow-[0_18px_40px_rgba(25,28,30,0.04)]">
       <CardHeader className="p-8 pb-0">
         <CardTitle className="font-headline text-2xl font-bold">
-          {security.title}
+          {t("guidePages.profile.securityTitle")}
         </CardTitle>
-        <CardDescription>{security.description}</CardDescription>
+        <CardDescription>{t("guidePages.profile.securityDescription")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5 p-8">
         <div className="flex flex-col gap-4 rounded-[1.5rem] bg-surface-container-low p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -76,31 +70,31 @@ export default function GuideSecurity({ onChangePassword }) {
             </div>
             <div>
               <p className="font-bold text-on-surface">
-                {security.passwordTitle}
+                {t("guidePages.profile.passwordTitle")}
               </p>
               <p className="text-xs text-on-surface-variant">
-                {security.passwordDescription}
+                {t("guidePages.profile.passwordDescription")}
               </p>
             </div>
           </div>
 
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline">Change Password</Button>
+              <Button variant="outline">{t("guidePages.profile.changePassword")}</Button>
             </DialogTrigger>
             <DialogContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <DialogHeader>
-                  <DialogTitle>Change Guide Password</DialogTitle>
+                  <DialogTitle>{t("guidePages.profile.changePasswordTitle")}</DialogTitle>
                   <DialogDescription>
-                    Enter your current password and choose a new one.
+                    {t("guidePages.profile.changePasswordDescription")}
                   </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-3">
                   <div className="space-y-2">
                     <Label htmlFor="guide-current-password">
-                      Current Password
+                      {t("guidePages.profile.currentPassword")}
                     </Label>
                     <Input
                       id="guide-current-password"
@@ -113,7 +107,7 @@ export default function GuideSecurity({ onChangePassword }) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="guide-new-password">New Password</Label>
+                    <Label htmlFor="guide-new-password">{t("guidePages.profile.newPassword")}</Label>
                     <Input
                       id="guide-new-password"
                       type="password"
@@ -126,7 +120,7 @@ export default function GuideSecurity({ onChangePassword }) {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="guide-confirm-password">
-                      Confirm Password
+                      {t("guidePages.profile.confirmPassword")}
                     </Label>
                     <Input
                       id="guide-confirm-password"
@@ -142,7 +136,7 @@ export default function GuideSecurity({ onChangePassword }) {
 
                 <DialogFooter>
                   <Button type="submit" disabled={saving}>
-                    {saving ? "Changing..." : "Change Password"}
+                    {saving ? t("guidePages.profile.changing") : t("guidePages.profile.changePassword")}
                   </Button>
                 </DialogFooter>
               </form>
@@ -153,9 +147,9 @@ export default function GuideSecurity({ onChangePassword }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-semibold text-on-surface-variant">
             <ShieldCheck className="h-4 w-4 text-emerald-600" />
-            {security.protectedLabel}
+            {t("guidePages.profile.protectedLabel")}
           </div>
-          <Badge variant="success">Enabled</Badge>
+          <Badge variant="success">{t("guidePages.profile.enabled")}</Badge>
         </div>
       </CardContent>
     </Card>

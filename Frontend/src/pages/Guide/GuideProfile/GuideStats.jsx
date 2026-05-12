@@ -1,6 +1,7 @@
 import { History, Languages, Star } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const formatNumber = (value) => String(Number(value) || 0);
 
@@ -20,35 +21,38 @@ const getLanguageList = (stats, profile) => {
     .filter(Boolean);
 };
 
-const getStats = (stats, profile) => {
+const getStats = (stats, profile, t) => {
   const languages = getLanguageList(stats, profile);
 
   return [
     {
-      label: "Average Rating",
+      label: t("guidePages.profile.averageRating"),
       value: formatRating(stats?.averageRating ?? profile?.rate),
-      note: `From ${formatNumber(stats?.reviewCount)} verified reviews`,
+      note: t("guidePages.profile.fromReviews", { count: formatNumber(stats?.reviewCount) }),
       icon: Star,
     },
     {
-      label: "Total Tours",
+      label: t("guidePages.profile.totalTours"),
       value: formatNumber(stats?.totalTours),
-      note: `${formatNumber(stats?.completionRate)}% completion rate`,
+      note: t("guidePages.profile.completionRate", { rate: formatNumber(stats?.completionRate) }),
       icon: History,
     },
     {
-      label: "Languages",
+      label: t("guidePages.profile.languages"),
       value: formatNumber(stats?.languageCount ?? languages.length),
-      note: languages.length ? `${languages.join(", ")} supported` : "No languages provided",
+      note: languages.length
+        ? t("guidePages.profile.supported", { languages: languages.join(", ") })
+        : t("guidePages.profile.noLanguages"),
       icon: Languages,
     },
   ];
 };
 
 export default function GuideStats({ stats, profile }) {
+  const { t } = useI18n();
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      {getStats(stats, profile).map((stat) => {
+      {getStats(stats, profile, t).map((stat) => {
         const Icon = stat.icon;
 
         return (

@@ -14,8 +14,10 @@ import GuideProfileHero from "./GuideProfileHero";
 import GuideReviewRegion from "./GuideReviewRegion";
 import GuideSecurity from "./GuideSecurity";
 import GuideStats from "./GuideStats";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function GuideProfile() {
+  const { t } = useI18n();
   const [profile, setProfile] = useState(null);
   const [stats, setStats] = useState(null);
   const { syncUserProfile } = useContext(AuthContext);
@@ -30,7 +32,7 @@ export default function GuideProfile() {
       setProfile(profileResponse.data.data);
       setStats(dashboardResponse.data.data?.guideStats || null);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Unable to load profile.");
+      toast.error(error?.response?.data?.message || t("guidePages.profile.loadError"));
     }
   };
 
@@ -44,9 +46,9 @@ export default function GuideProfile() {
       const updatedProfile = response.data.data;
       setProfile(updatedProfile);
       syncUserProfile(updatedProfile);
-      toast.success("Profile updated successfully");
+      toast.success(t("guidePages.profile.updateSuccess"));
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Unable to update profile.");
+      toast.error(error?.response?.data?.message || t("guidePages.profile.updateError"));
       throw error;
     }
   };
@@ -54,10 +56,10 @@ export default function GuideProfile() {
   const handleChangePassword = async (payload) => {
     try {
       await changeMyPassword(payload);
-      toast.success("Password changed successfully");
+      toast.success(t("guidePages.profile.passwordSuccess"));
     } catch (error) {
       toast.error(
-        error?.response?.data?.message || "Unable to change password.",
+        error?.response?.data?.message || t("guidePages.profile.passwordError"),
       );
       throw error;
     }

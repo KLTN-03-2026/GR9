@@ -49,20 +49,15 @@ import {
 import PageHero from "@/components/shared/page-hero";
 import { CardGridSkeleton } from "@/components/shared/page-skeletons";
 import { getGuideAssignedTours } from "@/services/api/guide";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const SEGMENTS = [
-  { id: "all", label: "All" },
-  { id: "today", label: "Today" },
-  { id: "upcoming", label: "Upcoming" },
-  { id: "ongoing", label: "Ongoing" },
-  { id: "completed", label: "Completed" },
+  { id: "all", labelKey: "all" },
+  { id: "today", labelKey: "today" },
+  { id: "upcoming", labelKey: "upcoming" },
+  { id: "ongoing", labelKey: "ongoing" },
+  { id: "completed", labelKey: "completed" },
 ];
-
-const STATUS_LABEL = {
-  ongoing: "Ongoing",
-  scheduled: "Scheduled",
-  completed: "Completed",
-};
 
 function parseIso(d) {
   const x = new Date(`${d}T12:00:00`);
@@ -112,6 +107,7 @@ function sortTours(list, sortBy) {
 }
 
 const AssignedToursList = () => {
+  const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [segment, setSegment] = useState("all");
@@ -132,7 +128,7 @@ const AssignedToursList = () => {
     getGuideAssignedTours()
       .then((response) => setAssignedTours(response.data.data || []))
       .catch((error) =>
-        toast.error(error?.response?.data?.message || "Cannot load assigned tours"),
+        toast.error(error?.response?.data?.message || t("guidePages.assignedTours.loadError")),
       )
       .finally(() => setLoadingTours(false));
   }, []);
@@ -240,16 +236,16 @@ const AssignedToursList = () => {
   return (
     <div className="mx-auto w-full max-w-[1600px] pb-10 pt-6 text-on-surface md:pt-24">
       <PageHero
-        eyebrow="Assignment Board"
+        eyebrow={t("guidePages.assignedTours.heroEyebrow")}
         heading={
           <>
-            My{" "}
+            {t("guidePages.assignedTours.headingA")}{" "}
             <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
-              Itineraries
+              {t("guidePages.assignedTours.headingB")}
             </span>
           </>
         }
-        description="Review assigned journeys, filter by schedule state, and move from planning to live operations without leaving the guide workspace."
+        description={t("guidePages.assignedTours.description")}
         actions={
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
             <div className="relative w-full sm:w-[280px]">
@@ -257,7 +253,7 @@ const AssignedToursList = () => {
               <Input
                 value={search}
                 onChange={(event) => handleSearchChange(event.target.value)}
-                placeholder="Search assigned tours..."
+                placeholder={t("guidePages.assignedTours.searchPlaceholder")}
                 className="h-11 rounded-2xl border-outline-variant/30 bg-white pl-10"
               />
             </div>
@@ -266,7 +262,7 @@ const AssignedToursList = () => {
               className="w-full rounded-2xl bg-gradient-to-br from-primary to-primary-container px-6 py-3 font-bold text-on-primary shadow-lg shadow-primary/15 sm:w-auto"
             >
               <Plus className="size-4" />
-              Propose New Tour
+              {t("guidePages.assignedTours.proposeNewTour")}
             </Button>
           </div>
         }
@@ -287,7 +283,7 @@ const AssignedToursList = () => {
               }
               onClick={() => setSegment(s.id)}
             >
-              {s.label}
+              {t(`guidePages.assignedTours.${s.labelKey}`)}
             </Button>
           ))}
         </div>
@@ -300,28 +296,28 @@ const AssignedToursList = () => {
             onClick={() => setSheetOpen(true)}
           >
             <Filter className="size-4" />
-            Filters
+            {t("guidePages.assignedTours.filters")}
           </Button>
           <SheetContent side="right" className="w-full gap-0 sm:max-w-md">
             <SheetHeader className="border-b border-outline-variant/15 pb-4">
               <SheetTitle className="font-headline">
-                Filter itineraries
+                {t("guidePages.assignedTours.filterTitle")}
               </SheetTitle>
               <SheetDescription>
-                Narrow the list by region, lifecycle state, and sort order.
+                {t("guidePages.assignedTours.filterDescription")}
               </SheetDescription>
             </SheetHeader>
             <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-4">
               <div className="space-y-2">
                 <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                  Region
+                  {t("guidePages.assignedTours.region")}
                 </p>
                 <Select value={filterRegion} onValueChange={setFilterRegion}>
                   <SelectTrigger className="h-11 w-full rounded-xl border-outline-variant/30">
-                    <SelectValue placeholder="Region" />
+                    <SelectValue placeholder={t("guidePages.assignedTours.region")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All regions</SelectItem>
+                    <SelectItem value="all">{t("guidePages.assignedTours.allRegions")}</SelectItem>
                     <SelectItem value="vietnam">Vietnam</SelectItem>
                     <SelectItem value="greece">Greece</SelectItem>
                   </SelectContent>
@@ -330,44 +326,44 @@ const AssignedToursList = () => {
 
               <div className="space-y-2">
                 <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                  Sort by
+                  {t("guidePages.assignedTours.sortBy")}
                 </p>
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="h-11 w-full rounded-xl border-outline-variant/30">
-                    <SelectValue placeholder="Sort" />
+                    <SelectValue placeholder={t("guidePages.assignedTours.sortBy")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="startDate">Start date</SelectItem>
-                    <SelectItem value="title">Title</SelectItem>
-                    <SelectItem value="passengers">Passenger count</SelectItem>
+                    <SelectItem value="startDate">{t("guidePages.assignedTours.startDate")}</SelectItem>
+                    <SelectItem value="title">{t("guidePages.assignedTours.title")}</SelectItem>
+                    <SelectItem value="passengers">{t("guidePages.assignedTours.passengerCount")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-3">
                 <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                  Status
+                  {t("guidePages.assignedTours.status")}
                 </p>
                 <label className="flex cursor-pointer items-center gap-3 text-sm">
                   <Checkbox
                     checked={showOngoing}
                     onCheckedChange={(v) => setShowOngoing(!!v)}
                   />
-                  Ongoing
+                  {t("guidePages.assignedTours.ongoing")}
                 </label>
                 <label className="flex cursor-pointer items-center gap-3 text-sm">
                   <Checkbox
                     checked={showScheduled}
                     onCheckedChange={(v) => setShowScheduled(!!v)}
                   />
-                  Scheduled
+                  {t("guidePages.assignedTours.scheduled")}
                 </label>
                 <label className="flex cursor-pointer items-center gap-3 text-sm">
                   <Checkbox
                     checked={showCompleted}
                     onCheckedChange={(v) => setShowCompleted(!!v)}
                   />
-                  Completed
+                  {t("guidePages.assignedTours.completed")}
                 </label>
               </div>
             </div>
@@ -377,10 +373,10 @@ const AssignedToursList = () => {
                 className="w-full"
                 onClick={resetFilters}
               >
-                Reset filters
+                {t("guidePages.assignedTours.resetFilters")}
               </Button>
               <Button className="w-full" onClick={() => setSheetOpen(false)}>
-                Apply
+                {t("guidePages.assignedTours.apply")}
               </Button>
             </SheetFooter>
           </SheetContent>
@@ -392,7 +388,7 @@ const AssignedToursList = () => {
       ) : !heroTour && (
         <Card className="border-dashed border-outline-variant/40 bg-surface-container-lowest/50 py-12 text-center ring-0">
           <CardContent className="text-on-surface-variant">
-            No tours match these filters. Try another tab or reset filters.
+            {t("guidePages.assignedTours.noTours")}
           </CardContent>
         </Card>
       )}
@@ -411,10 +407,10 @@ const AssignedToursList = () => {
                   <Badge
                     className={`${statusBadgeClass(heroTour.status)} rounded-full px-3 py-1 text-xs font-bold uppercase tracking-widest`}
                   >
-                    {STATUS_LABEL[heroTour.status] ?? heroTour.status}
+                    {t(`guidePages.assignedTours.${heroTour.status}`)}
                   </Badge>
                   <Badge className="rounded-full border-0 bg-tertiary-container px-3 py-1 text-xs font-bold tracking-widest text-on-tertiary-fixed uppercase">
-                    Guide View
+                    {t("guidePages.assignedTours.guideView")}
                   </Badge>
                 </div>
                 <div className="absolute bottom-4 left-4">
@@ -433,12 +429,12 @@ const AssignedToursList = () => {
                     </h2>
                     <p className="flex items-center gap-2 text-on-surface-variant">
                       <MapPin className="size-4 shrink-0" />
-                      Pickup: {heroTour.pickup}
+                      {t("guidePages.assignedTours.pickup")}: {heroTour.pickup}
                     </p>
                   </div>
                   <div className="text-right">
                     <span className="mb-1 block text-xs font-bold tracking-widest text-on-surface-variant uppercase">
-                      Guide
+                      {t("guidePages.assignedTours.guide")}
                     </span>
                     <span className="font-semibold text-primary">
                       {heroTour.guideName}
@@ -449,7 +445,7 @@ const AssignedToursList = () => {
                   <div className="flex flex-wrap gap-8">
                     <div className="flex flex-col">
                       <span className="text-xs font-medium text-on-surface-variant">
-                        Passengers
+                        {t("guidePages.assignedTours.passengers")}
                       </span>
                       <span className="flex items-center gap-1 text-lg font-bold">
                         {heroTour.passengerCount}
@@ -458,7 +454,7 @@ const AssignedToursList = () => {
                     </div>
                     <div className="flex flex-col">
                       <span className="text-xs font-medium text-on-surface-variant">
-                        Duration
+                        {t("guidePages.assignedTours.duration")}
                       </span>
                       <span className="text-lg font-bold">
                         {heroTour.dateRangeLabel}
@@ -473,12 +469,12 @@ const AssignedToursList = () => {
                   >
                     {heroTour.status === "completed" ? (
                       <span>
-                        Completed
+                        {t("guidePages.assignedTours.completedLabel")}
                         <ArrowRight className="size-4" />
                       </span>
                     ) : (
                       <Link to={`/guide/live-tour-tracking?bookingId=${heroTour.bookingId}`}>
-                        Open Live Tracking
+                        {t("guidePages.assignedTours.openLiveTracking")}
                         <ArrowRight className="size-4" />
                       </Link>
                     )}
@@ -489,57 +485,57 @@ const AssignedToursList = () => {
           </div>
 
           <div className="flex flex-col gap-6 lg:col-span-4">
-            {sidebarTours.map((t) => (
+            {sidebarTours.map((tour) => (
               <Card
-                key={t.id}
+                key={tour.id}
                 className="group overflow-hidden rounded-2xl border-0 bg-surface-container-lowest py-0 shadow-sm ring-0 transition-all hover:shadow-lg"
               >
                 <div className="relative h-48 overflow-hidden">
                   <img
-                    alt={t.title}
+                    alt={tour.title}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    src={t.cardImage}
+                    src={tour.cardImage}
                   />
                   <div className="absolute top-4 left-4">
                     <Badge
-                      className={`${statusBadgeClass(t.status)} rounded-full px-3 py-1 text-[10px] font-bold tracking-widest uppercase shadow-sm`}
+                      className={`${statusBadgeClass(tour.status)} rounded-full px-3 py-1 text-[10px] font-bold tracking-widest uppercase shadow-sm`}
                     >
-                      {t.status}
+                      {t(`guidePages.assignedTours.${tour.status}`)}
                     </Badge>
                   </div>
                 </div>
                 <CardContent className="p-6">
                   <span className="mb-1 block text-[10px] font-bold tracking-widest text-on-surface-variant uppercase">
-                    {t.code}
+                    {tour.code}
                   </span>
                   <h3 className="mb-4 font-headline text-xl font-bold">
-                    {t.title}
+                    {tour.title}
                   </h3>
                   <div className="space-y-3 text-sm text-on-surface-variant">
                     <div className="flex items-center gap-3">
                       <CalendarDays className="size-[18px] shrink-0" />
-                      <span>{t.dateRangeLabel}</span>
+                      <span>{tour.dateRangeLabel}</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <Users className="size-[18px] shrink-0" />
-                      <span>{t.passengerCount} Passengers</span>
+                      <span>{tour.passengerCount} {t("guidePages.assignedTours.passengers")}</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <MapPin className="size-[18px] shrink-0" />
-                      <span>{t.locationShortLabel}</span>
+                      <span>{tour.locationShortLabel}</span>
                     </div>
                   </div>
                   <Button
                     variant="outline"
                     className="mt-6 w-full rounded-xl border-outline-variant/30 font-bold text-primary hover:bg-primary/5"
-                    disabled={t.status === "completed"}
+                    disabled={tour.status === "completed"}
                     asChild
                   >
-                    {t.status === "completed" ? (
-                      <span>Completed</span>
+                    {tour.status === "completed" ? (
+                      <span>{t("guidePages.assignedTours.completedLabel")}</span>
                     ) : (
-                      <Link to={`/guide/live-tour-tracking?bookingId=${t.bookingId}`}>
-                        View Details
+                      <Link to={`/guide/live-tour-tracking?bookingId=${tour.bookingId}`}>
+                        {t("guidePages.assignedTours.viewDetails")}
                       </Link>
                     )}
                   </Button>
@@ -550,11 +546,10 @@ const AssignedToursList = () => {
             <Card className="relative overflow-hidden rounded-2xl border-0 bg-primary-container py-6 text-on-primary shadow-lg ring-0 shadow-primary-container/20">
               <CardContent className="relative z-10 px-6">
                 <h3 className="mb-2 font-headline text-lg font-bold">
-                  Live Fleet View
+                  {t("guidePages.assignedTours.liveFleetView")}
                 </h3>
                 <p className="mb-6 text-sm text-on-primary-container/80">
-                  {activeFleetCount} tour{activeFleetCount === 1 ? "" : "s"}{" "}
-                  currently active in your region.
+                  {activeFleetCount} {t("guidePages.assignedTours.activeInRegion")}
                 </p>
                 <div className="relative mb-4 h-32 overflow-hidden rounded-xl bg-white/10 backdrop-blur-md">
                   <div className="absolute inset-0 flex items-center justify-center bg-slate-200/20">
@@ -566,7 +561,7 @@ const AssignedToursList = () => {
                   className="w-full rounded-lg bg-on-primary text-xs font-bold tracking-widest text-primary-container uppercase hover:bg-on-primary-container"
                   asChild
                 >
-                  <Link to="/guide/live-tour-tracking">Open Tracking</Link>
+                  <Link to="/guide/live-tour-tracking">{t("guidePages.assignedTours.openTracking")}</Link>
                 </Button>
               </CardContent>
               <div className="pointer-events-none absolute -right-8 -bottom-8 size-32 rounded-full bg-on-primary/10 blur-2xl" />
@@ -575,35 +570,35 @@ const AssignedToursList = () => {
 
           <div className="mt-4 lg:col-span-12">
             <h4 className="mb-6 font-headline text-xl font-bold text-on-surface">
-              Later this week
+              {t("guidePages.assignedTours.laterThisWeek")}
             </h4>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              {laterTours.map((t) => (
+              {laterTours.map((tour) => (
                 <Card
-                  key={t.id}
+                  key={tour.id}
                   className="flex flex-col justify-between rounded-2xl border border-transparent bg-surface-container-low py-6 transition-all hover:border-outline-variant/20 hover:bg-surface-container-high"
                 >
                   <CardContent className="flex flex-col gap-4 px-6">
                     <div>
                       <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
                         <span className="text-[10px] font-bold tracking-widest text-on-surface-variant uppercase">
-                          {t.code}
+                          {tour.code}
                         </span>
                         <Badge
                           variant="muted"
                           className="rounded px-2 py-0.5 text-[10px] font-bold uppercase"
                         >
-                          {t.status}
+                          {t(`guidePages.assignedTours.${tour.status}`)}
                         </Badge>
                       </div>
-                      <h5 className="mb-2 text-lg font-bold">{t.title}</h5>
+                      <h5 className="mb-2 text-lg font-bold">{tour.title}</h5>
                       <p className="mb-4 text-xs text-on-surface-variant">
-                        {t.dateRangeLabel} · {t.passengerCount} passengers
+                        {tour.dateRangeLabel} · {tour.passengerCount} {t("guidePages.assignedTours.passengers")}
                       </p>
                     </div>
                     <div className="mt-4 flex items-center justify-between">
                       <AvatarGroup>
-                        {t.passengers.slice(0, 3).map((p) => (
+                        {tour.passengers.slice(0, 3).map((p) => (
                           <Avatar
                             key={p.id}
                             className="size-6 border-2 border-white"
@@ -618,14 +613,14 @@ const AssignedToursList = () => {
                       <Button
                         variant="link"
                         className="h-auto p-0 text-xs font-semibold"
-                        disabled={t.status === "completed"}
+                        disabled={tour.status === "completed"}
                         asChild
                       >
-                        {t.status === "completed" ? (
-                          <span>Completed</span>
+                        {tour.status === "completed" ? (
+                          <span>{t("guidePages.assignedTours.completedLabel")}</span>
                         ) : (
-                          <Link to={`/guide/live-tour-tracking?bookingId=${t.bookingId}`}>
-                            Manage Tour
+                          <Link to={`/guide/live-tour-tracking?bookingId=${tour.bookingId}`}>
+                            {t("guidePages.assignedTours.manageTour")}
                           </Link>
                         )}
                       </Button>
@@ -643,10 +638,10 @@ const AssignedToursList = () => {
                   <Plus className="size-7" />
                 </div>
                 <h5 className="text-lg font-bold text-on-surface">
-                  Propose New Tour
+                  {t("guidePages.assignedTours.proposeNewTour")}
                 </h5>
                 <p className="text-sm text-on-surface-variant">
-                  Design a custom route for your next group
+                  {t("guidePages.assignedTours.proposeDescription")}
                 </p>
               </button>
             </div>
@@ -657,38 +652,38 @@ const AssignedToursList = () => {
       <Dialog open={proposeOpen} onOpenChange={setProposeOpen}>
         <DialogContent className="max-w-md rounded-2xl sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-headline">Propose a tour</DialogTitle>
+            <DialogTitle className="font-headline">{t("guidePages.assignedTours.proposeDialogTitle")}</DialogTitle>
             <DialogDescription>
-              Send a draft route to operations. This demo only confirms locally.
+              {t("guidePages.assignedTours.proposeDialogDescription")}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-2">
             <div className="space-y-2">
               <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                Working title
+                {t("guidePages.assignedTours.workingTitle")}
               </span>
               <Input
                 value={proposalTitle}
                 onChange={(e) => setProposalTitle(e.target.value)}
-                placeholder="e.g. Hue heritage express"
+                placeholder={t("guidePages.assignedTours.workingTitlePlaceholder")}
                 className="h-11 rounded-xl border-outline-variant/30"
               />
             </div>
             <div className="space-y-2">
               <span className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                Primary region
+                {t("guidePages.assignedTours.primaryRegion")}
               </span>
               <Input
                 value={proposalRegion}
                 onChange={(e) => setProposalRegion(e.target.value)}
-                placeholder="City / country"
+                placeholder={t("guidePages.assignedTours.primaryRegionPlaceholder")}
                 className="h-11 rounded-xl border-outline-variant/30"
               />
             </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setProposeOpen(false)}>
-              Cancel
+              {t("guidePages.assignedTours.cancel")}
             </Button>
             <Button
               disabled={!proposalTitle.trim() || submitting}
@@ -697,10 +692,10 @@ const AssignedToursList = () => {
               {submitting ? (
                 <>
                   <Loader2 className="size-4 animate-spin" />
-                  Sending…
+                  {t("guidePages.assignedTours.sending")}
                 </>
               ) : (
-                "Submit draft"
+                t("guidePages.assignedTours.submitDraft")
               )}
             </Button>
           </DialogFooter>

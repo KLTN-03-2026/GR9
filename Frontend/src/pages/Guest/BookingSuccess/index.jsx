@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { getGuestBookingSuccess } from "@/services/api/guest";
 import BookingSuccessConfirmation from "./BookingSuccessConfirmation";
 import BookingSuccessDetailsCard from "./BookingSuccessDetailsCard";
@@ -8,6 +8,7 @@ import BookingSuccessTrackingCard from "./BookingSuccessTrackingCard";
 import BookingSuccessSidebar from "./BookingSuccessSidebar";
 
 export default function BookingSuccess() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -23,7 +24,14 @@ export default function BookingSuccess() {
 
       try {
         const response = await getGuestBookingSuccess({ orderCode, trackingCode });
-        setBooking(response.data.data);
+        const bookingData = response.data.data;
+
+        if (orderCode && bookingData?.status !== "CONFIRMED") {
+          navigate("/traveler/my-booking-traveler", { replace: true });
+          return;
+        }
+
+        setBooking(bookingData);
       } catch (error) {
         toast.error(
           error?.response?.data?.message ||
@@ -35,7 +43,7 @@ export default function BookingSuccess() {
     };
 
     loadBookingSuccess();
-  }, [orderCode, trackingCode]);
+  }, [navigate, orderCode, trackingCode]);
 
   if (loading) {
     return (
@@ -57,7 +65,10 @@ export default function BookingSuccess() {
           <p className="text-slate-600">
             Vui lòng kiểm tra lại lịch sử đặt tour của bạn hoặc thử thanh toán lại.
           </p>
-          <Link className="font-bold text-emerald-700" to="/traveler/my-booking-traveler">
+          <Link
+            className="font-bold text-emerald-700"
+            to="/traveler/my-booking-traveler"
+          >
             Về My Booking
           </Link>
         </div>
