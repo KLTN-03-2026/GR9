@@ -2,6 +2,7 @@ import { success, error } from "../utils/response.js";
 import {
   applyProvider,
   listProviderApplications,
+  listProcessedProviderApplications,
   approveProvider,
   rejectProvider,
   getActiveProviderPolicy,
@@ -40,6 +41,15 @@ export const listProviderApplicationsController = async (req, res) => {
   try {
     const providers = await listProviderApplications();
     return success(res, "Pending provider applications loaded", providers, 200);
+  } catch (err) {
+    return error(res, err.message, err.status, err.errorCode);
+  }
+};
+
+export const listProcessedProviderApplicationsController = async (req, res) => {
+  try {
+    const providers = await listProcessedProviderApplications();
+    return success(res, "Processed provider applications loaded", providers, 200);
   } catch (err) {
     return error(res, err.message, err.status, err.errorCode);
   }

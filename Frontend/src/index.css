@@ -264,6 +264,13 @@ button {
         animation-duration: 0ms !important;
     }
 
+    .theme-changing .theme-mode-toggle,
+    .theme-changing .theme-mode-toggle * {
+        transition-property: transform, color, background-color, box-shadow, opacity !important;
+        transition-duration: 300ms !important;
+        transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+    }
+
     .bg-primary {
         color: var(--primary-foreground);
     }

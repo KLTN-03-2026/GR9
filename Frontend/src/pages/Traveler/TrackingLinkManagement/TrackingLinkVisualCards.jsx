@@ -9,7 +9,7 @@ export default function TrackingLinkVisualCards() {
         <CardContent className="relative h-72 p-0">
           <img
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwmkRrtLnRzhPIk_SXpFhXc9_BrPXl1frzsLIPp1gZZqJ9EEVswVJHLbpzFIofr8wrEhDuMgbk_dFN_4sYD32_L8-9eoPB5ru_4PTC4QW-NLYy41Fm9n7AnoC6I2ZKxoNn_Umn6ZHu_XTDlP6eWXbYtcINJJkbaQ4czmJcryaR8UTPc8h1oQXKTVLXU3KEyUaCkUFqfNpmrxrFY13s5ebgkcnj3bVcAckJ7XKBSHXROILxVM-ZfUIbJU_MximSZZ9_byHbtiib2XfT"
-            alt="Santorini route map"
+            alt="Live tracking route map"
             className="h-full w-full object-cover opacity-85"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent" />

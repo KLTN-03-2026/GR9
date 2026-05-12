@@ -5,6 +5,7 @@ import Service from "../models/service.model.js";
 import Tour from "../models/tour.model.js";
 import TourSchedule from "../models/tourSchedule.model.js";
 import User from "../models/user.model.js";
+import Image from "../models/image.model.js";
 import { throwError } from "../utils/throwError.js";
 
 const formatMoney = (value) => {
@@ -90,9 +91,25 @@ export const getTravelerDashboard = async (travelerId) => {
       travelerId,
       status: { $nin: ["CANCELLED", "REFUNDED"] },
     })
-      .populate("tourId", "location numberOfDay")
+      .populate("tourId", "name location description numberOfDay price type")
       .populate("tourScheduleId", "departureDate")
       .select("tourId tourScheduleId startDate bookingDate payment status totalAmount isPrivate");
+
+    const bookingTourIds = bookings.map((booking) => booking.tourId?._id).filter(Boolean);
+    const bookingTourImages = await Image.find({
+      entityType: "TOUR",
+      entityId: { $in: bookingTourIds },
+    })
+      .sort({ createdAt: 1 })
+      .select("entityId imageUrl cloudinaryUrl");
+
+    const bookingTourImageMap = new Map();
+    bookingTourImages.forEach((image) => {
+      const key = String(image.entityId);
+      if (!bookingTourImageMap.has(key)) {
+        bookingTourImageMap.set(key, image.cloudinaryUrl || image.imageUrl);
+      }
+    });
 
     const trips = requests.map((item) => {
       const startDay = toIsoDate(item.startDay) || toIsoDate(item.createdAt);
@@ -136,14 +153,16 @@ export const getTravelerDashboard = async (travelerId) => {
       }
     });
 
-    bookings.forEach((booking) => {
+    const bookingTrips = bookings.map((booking) => {
       const location = booking.tourId?.location;
       const start = new Date(
         booking.isPrivate
           ? booking.startDate
           : booking.tourScheduleId?.departureDate || booking.startDate || booking.bookingDate,
       );
-      if (Number.isNaN(start.getTime())) return;
+      const displayStart = Number.isNaN(start.getTime()) ? booking.bookingDate : start;
+      const numberOfDay = Number(booking.tourId?.numberOfDay) || 1;
+      const end = addDays(displayStart, numberOfDay - 1);
 
       if (
         start > now &&
@@ -160,6 +179,21 @@ export const getTravelerDashboard = async (travelerId) => {
           visitedLocations.add(location.trim().toLowerCase());
         }
       }
+
+      return {
+        id: String(booking._id),
+        bookingId: String(booking._id),
+        tourId: booking.tourId?._id ? String(booking.tourId._id) : null,
+        location: booking.tourId?.name || location || "Unknown destination",
+        numberOfDay,
+        startDay: toIsoDate(displayStart),
+        endDay: toIsoDate(end),
+        status: booking.status === "COMPLETED" ? "completed" : getTripStatus(displayStart),
+        image: booking.tourId?._id
+          ? bookingTourImageMap.get(String(booking.tourId._id)) || null
+          : null,
+        estimatedPrice: formatMoney(booking.totalAmount || 0),
+      };
     });
 
     const paidAmount = bookings.reduce((total, booking) => {
@@ -182,6 +216,21 @@ export const getTravelerDashboard = async (travelerId) => {
       .limit(6)
       .select("name location description price type numberOfDay");
 
+    const recommendedTourImages = await Image.find({
+      entityType: "TOUR",
+      entityId: { $in: recommendedToursRaw.map((tour) => tour._id) },
+    })
+      .sort({ createdAt: 1 })
+      .select("entityId imageUrl cloudinaryUrl");
+
+    const recommendedTourImageMap = new Map();
+    recommendedTourImages.forEach((image) => {
+      const key = String(image.entityId);
+      if (!recommendedTourImageMap.has(key)) {
+        recommendedTourImageMap.set(key, image.cloudinaryUrl || image.imageUrl);
+      }
+    });
+
     const recommendedTours = recommendedToursRaw.map((tour) => ({
       id: String(tour._id),
       title: tour.name || "Unnamed tour",
@@ -190,10 +239,17 @@ export const getTravelerDashboard = async (travelerId) => {
       duration: `${Number(tour.numberOfDay) || 1} Days`,
       type: tour.type || "GROUP",
       price: formatMoney(tour.price?.adult || 0),
+      image: recommendedTourImageMap.get(String(tour._id)) || null,
     }));
 
-    const upcomingTrips = trips.filter((t) => t.status === "upcoming");
-    const ongoingTrips = trips.filter((t) => t.status === "ongoing");
+    const combinedTrips = [...bookingTrips, ...trips].sort((a, b) => {
+      const aDate = new Date(a.startDay || 0).getTime();
+      const bDate = new Date(b.startDay || 0).getTime();
+      return aDate - bDate;
+    });
+
+    const upcomingTrips = combinedTrips.filter((t) => t.status === "upcoming");
+    const ongoingTrips = combinedTrips.filter((t) => t.status === "ongoing");
 
     return {
       quickStats: {

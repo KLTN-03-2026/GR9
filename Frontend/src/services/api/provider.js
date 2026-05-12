@@ -16,6 +16,10 @@ export const getProviderApplications = async () => {
   return await api.get("/provider/applications");
 };
 
+export const getProcessedProviderApplications = async () => {
+  return await api.get("/provider/applications/history");
+};
+
 export const approveProviderApplication = async (id) => {
   return await api.put(`/provider/applications/${id}/approve`);
 };
