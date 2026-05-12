@@ -25,7 +25,10 @@ export const createBookingController = async (req, res) => {
             ...req.body,
             travelerId: req.user._id,
         });
-        const paymentData = await createBookingPaymentLink(booking._id, req.user._id);
+        const paymentData = await createBookingPaymentLink(
+            booking._id,
+            req.user._id,
+        );
 
         return success(res, "Booking success", paymentData, 201);
     } catch (err) {
@@ -113,7 +116,7 @@ export const getMyBookingsController = async (req, res) => {
 export const getProviderBookingsController = async (req, res) => {
     try {
         const bookings = await getProviderBookingsService(req.user._id);
-
+        
         return success(res, "Get provider bookings success", bookings, 200);
     } catch (err) {
         return error(res, err.message, err.status, err.errorCode);
