@@ -20,7 +20,7 @@ export default function Layout() {
                 <div className="flex min-w-0 flex-1 flex-col bg-surface">
                     {hasAppShell ? <Header /> : <HeaderGuest />}
                     {roleCurrent === "traveler" ? <ChatBot /> : null}
-                    <div className="app-shell-page w-full bg-surface px-3 pb-24 pt-22 md:px-4 md:pb-8 lg:px-5">
+                    <div className="app-shell-page w-full min-w-0 bg-surface px-3 pb-24 pt-20 sm:px-4 md:pb-8 lg:px-5">
                         <div className="flex min-h-screen w-full bg-surface">
                             <AnimatePresence mode="wait">
                                 <motion.div

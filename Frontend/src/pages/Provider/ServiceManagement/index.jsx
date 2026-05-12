@@ -168,7 +168,7 @@ const ServiceManagement = () => {
 
   return (
     <main className="min-h-screen bg-surface text-on-surface">
-      <div className="mx-auto w-full space-y-8">
+      <div className="mx-auto w-full space-y-6 sm:space-y-8">
         <PageHero
           eyebrow={t("provider.services.eyebrow")}
           heading={
@@ -225,7 +225,7 @@ const ServiceManagement = () => {
             setSelectedService(null);
           }}
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
           {loading ? (
             <div className="col-span-full">
               <CardGridSkeleton count={6} />

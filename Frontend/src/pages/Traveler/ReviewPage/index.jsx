@@ -158,13 +158,13 @@ export default function ReviewPage() {
 
   return (
     <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface">
-      <div className="mx-auto w-full px-6 pb-12 pt-24 md:px-10">
+      <div className="mx-auto w-full px-4 pb-10 pt-6 sm:px-6 md:px-10 md:pt-24">
         <ReviewHero
           onSubmit={handleSubmitReview}
           isSubmitting={isSubmitting}
         />
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
           <div className="space-y-6">
             <ReviewRatingCard
               tourName="Amalfi Coast: Hidden Coves & Limoncello"
@@ -208,7 +208,7 @@ export default function ReviewPage() {
               ]}
             />
 
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col justify-end gap-3 sm:flex-row">
               {editingReviewId ? (
                 <Button
                   type="button"

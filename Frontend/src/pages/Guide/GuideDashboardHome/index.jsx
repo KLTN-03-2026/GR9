@@ -161,7 +161,7 @@ export default function GuideDashboardHome() {
   );
 
   return (
-    <main className="mx-auto w-full max-w-[1600px] space-y-10 pb-12 pt-24 text-on-surface">
+    <main className="mx-auto w-full max-w-[1600px] space-y-8 pb-10 pt-6 text-on-surface md:space-y-10 md:pt-24">
       <PageHero
         eyebrow="Shift Overview"
         heading={
@@ -257,7 +257,7 @@ export default function GuideDashboardHome() {
       </section>
 
       <section className="space-y-6">
-        <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="font-headline text-2xl font-extrabold text-on-surface">
             Today&apos;s Assigned Tours
           </h2>
@@ -320,7 +320,7 @@ export default function GuideDashboardHome() {
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-8 border-t border-outline-variant/10 py-4">
+                    <div className="grid grid-cols-1 gap-4 border-t border-outline-variant/10 py-4 sm:grid-cols-3 sm:gap-6">
                       <div className="flex flex-col">
                         <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
                           Time

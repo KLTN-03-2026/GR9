@@ -47,7 +47,7 @@ const ProviderApprovalHistory = () => {
   const rows = useMemo(() => formatProviderHistory(history), [history]);
 
   return (
-    <div className="mx-auto max-w-[1600px] space-y-8 pb-12 pt-24">
+    <div className="mx-auto max-w-[1600px] space-y-6 pb-10 pt-6 md:space-y-8 md:pt-24">
       <PageHero
         eyebrow="Audit Trail"
         heading={

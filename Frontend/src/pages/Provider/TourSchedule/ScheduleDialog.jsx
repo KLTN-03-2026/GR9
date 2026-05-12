@@ -173,7 +173,7 @@ export default function ScheduleDialog({
               </PopoverTrigger>
 
               <PopoverContent
-                className="w-[700px] rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-xl"
+                className="w-[calc(100vw-2rem)] rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-4 shadow-xl sm:w-[700px] sm:p-6"
                 align="start"
                 side="bottom"
                 sideOffset={10}
@@ -251,7 +251,7 @@ export default function ScheduleDialog({
           </div>
 
           {/* SLOTS */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label className="text-xs font-bold uppercase text-on-surface-variant">
                 Min Slots

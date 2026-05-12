@@ -58,7 +58,7 @@ export default function ProviderAnalytics() {
 
   return (
     <main className="min-h-screen bg-surface text-on-surface">
-      <div className="mx-auto w-full space-y-8">
+      <div className="mx-auto w-full space-y-6 sm:space-y-8">
         <PageHero
           eyebrow={hero.eyebrow}
           heading={
@@ -74,7 +74,7 @@ export default function ProviderAnalytics() {
             <Button
               onClick={loadAnalytics}
               disabled={loading}
-              className="rounded-full bg-primary px-6 py-5 font-bold text-primary-foreground hover:bg-primary-container hover:text-on-primary-container disabled:opacity-70"
+              className="w-full rounded-full bg-primary px-6 py-5 font-bold text-primary-foreground hover:bg-primary-container hover:text-on-primary-container disabled:opacity-70 sm:w-auto"
             >
               <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
               Làm mới dữ liệu

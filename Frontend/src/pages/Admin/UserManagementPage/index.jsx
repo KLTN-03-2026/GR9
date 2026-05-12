@@ -141,7 +141,7 @@ const UserManagementPage = () => {
   };
 
   return (
-    <div className="pt-24 pb-12 max-w-[1600px] mx-auto space-y-8">
+    <div className="mx-auto max-w-[1600px] space-y-6 pb-10 pt-6 md:space-y-8 md:pt-24">
       <PageHero
         eyebrow="Identity Control"
         heading={
@@ -165,9 +165,9 @@ const UserManagementPage = () => {
         onDeleteUser={handleDeleteUser}
       />
 
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-6">
         <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
-          <CardContent className="p-8 flex flex-col justify-between h-full">
+          <CardContent className="flex h-full flex-col justify-between p-5 sm:p-8">
             <div className="flex items-center gap-3 mb-4 text-teal-600">
               <TrendingUp className="h-5 w-5" />
               <p className="text-[11px] font-bold uppercase tracking-wider">
@@ -184,7 +184,7 @@ const UserManagementPage = () => {
         </Card>
 
         <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
-          <CardContent className="p-8 flex flex-col justify-between h-full">
+          <CardContent className="flex h-full flex-col justify-between p-5 sm:p-8">
             <div className="flex items-center gap-3 mb-4 text-orange-600">
               <ShieldAlert className="h-5 w-5" />
               <p className="text-[11px] font-bold uppercase tracking-wider">
@@ -203,7 +203,7 @@ const UserManagementPage = () => {
         </Card>
 
         <Card className="relative overflow-hidden rounded-3xl bg-teal-900 border-none text-white md:col-span-2 shadow-lg">
-          <CardContent className="p-8 relative z-10 h-full flex flex-col justify-between">
+          <CardContent className="relative z-10 flex h-full flex-col justify-between p-5 sm:p-8">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider opacity-60">
                 Account Lifecycle

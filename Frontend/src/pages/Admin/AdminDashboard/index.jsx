@@ -88,7 +88,7 @@ const AdminDashboard = () => {
   const totalBookings = Number(dashboard?.summary?.totalBookings || 0).toLocaleString("en-US");
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] space-y-8 pb-12 pt-24">
+    <div className="mx-auto w-full max-w-[1600px] space-y-6 pb-10 pt-6 md:space-y-8 md:pt-24">
       <PageHero
         eyebrow="Command Center"
         heading={
@@ -101,13 +101,13 @@ const AdminDashboard = () => {
         }
         description="Theo dõi tình trạng hoạt động của nền tảng, xem xét hoạt động trên thị trường và phản hồi nhanh chóng các tín hiệu về kiểm duyệt và vận hành."
       />
-      <section className="grid grid-cols-1 gap-6 md:grid-cols-4">
-        <div className="relative overflow-hidden rounded-2xl bg-primary p-8 text-on-primary md:col-span-2">
+      <section className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-4">
+        <div className="relative overflow-hidden rounded-2xl bg-primary p-5 text-on-primary sm:p-8 md:col-span-2">
           <div className="relative z-10">
             <p className="text-sm font-medium tracking-wide text-primary-fixed/80">
               TOTAL REVENUE (MTD)
             </p>
-            <h2 className="mt-2 text-4xl font-extrabold tracking-tighter">
+            <h2 className="mt-2 text-3xl font-extrabold tracking-tighter sm:text-4xl">
               {totalRevenue}
             </h2>
             <div className="mt-4 inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">
@@ -122,7 +122,7 @@ const AdminDashboard = () => {
         </div>
 
         <Card className="rounded-2xl border-none bg-surface-container-lowest shadow-sm">
-          <CardContent className="flex h-full flex-col justify-between p-8">
+          <CardContent className="flex h-full flex-col justify-between p-5 sm:p-8">
             <div>
               <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-secondary-container text-primary">
                 <Users className="size-5" />
@@ -141,7 +141,7 @@ const AdminDashboard = () => {
         </Card>
 
         <Card className="rounded-2xl border-none bg-surface-container-lowest shadow-sm">
-          <CardContent className="flex h-full flex-col justify-between p-8">
+          <CardContent className="flex h-full flex-col justify-between p-5 sm:p-8">
             <div>
               <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-tertiary-container/10 text-tertiary">
                 <Ticket className="size-5" />
@@ -163,7 +163,7 @@ const AdminDashboard = () => {
 
       <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-lg font-bold text-on-surface">
               Global Activity Feed
             </h3>

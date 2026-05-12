@@ -56,7 +56,7 @@ export default function AdminAnalytics() {
 
   return (
     <main className="min-h-screen bg-surface text-on-surface">
-      <div className="mx-auto w-full space-y-8">
+      <div className="mx-auto w-full space-y-6 sm:space-y-8">
         <PageHero
           eyebrow={hero.eyebrow}
           heading={
@@ -69,7 +69,7 @@ export default function AdminAnalytics() {
           }
           description={hero.description}
           actions={
-            <Button className="rounded-full bg-primary px-6 py-5 font-bold text-primary-foreground hover:bg-primary-container hover:text-on-primary-container">
+            <Button className="w-full rounded-full bg-primary px-6 py-5 font-bold text-primary-foreground hover:bg-primary-container hover:text-on-primary-container sm:w-auto">
               Mở hàng chờ duyệt
               <ArrowRight className="size-4" />
             </Button>

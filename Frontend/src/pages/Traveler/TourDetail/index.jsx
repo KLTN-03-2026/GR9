@@ -340,12 +340,12 @@ export default function TourDetail() {
      `}
             </style>
 
-            <main className="pt-16 min-h-screen">
-                <section className="relative h-[716px] w-full overflow-hidden">
+            <main className="min-h-screen pt-4 sm:pt-8 md:pt-16">
+                <section className="relative h-[520px] w-full overflow-hidden rounded-3xl sm:h-[640px] md:h-[716px] md:rounded-none">
                     <img src={tour?.images?.[0]?.imageUrl} alt={tour?.name} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 hero-scrim" />
 
-                    <div className="absolute bottom-0 left-0 w-full p-8 md:p-16">
+                    <div className="absolute bottom-0 left-0 w-full p-4 sm:p-8 md:p-16">
                         <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
                             <div className="space-y-2">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tertiary-container text-on-tertiary-fixed text-xs font-semibold tracking-wide uppercase">
@@ -357,10 +357,10 @@ export default function TourDetail() {
                                     </span>
                                     {t("tourDetail.aiRecommended")}
                                 </div>
-                                <h1 className="text-4xl md:text-6xl font-extrabold text-white font-headline leading-tight tracking-tight">
+                                <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl md:text-6xl">
                                     {tour?.name}
                                 </h1>
-                                <div className="flex flex-wrap items-center gap-4 text-white/90 font-medium">
+                                <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-white/90 sm:gap-4 sm:text-base">
                                     <span className="flex items-center gap-1">
                                         <span className="material-symbols-outlined text-primary-fixed">
                                             location_on
@@ -378,9 +378,9 @@ export default function TourDetail() {
                                 </div>
                             </div>
 
-                            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 text-white border border-white/20">
+                            <div className="rounded-2xl border border-white/20 bg-white/10 p-4 text-white backdrop-blur-md sm:p-6">
                                 <p className="text-sm opacity-80 mb-1 font-medium">{t("tourDetail.startingFrom")}</p>
-                                <p className="text-3xl font-bold font-headline">
+                                <p className="text-2xl font-bold sm:text-3xl">
                                     {formatPrice(basePrice)}
                                     <span className="text-lg font-normal opacity-80">{t("tourDetail.perPerson")}</span>
                                 </p>
@@ -389,21 +389,21 @@ export default function TourDetail() {
                     </div>
                 </section>
 
-                <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-12 lg:py-20">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                        <div className="lg:col-span-8 space-y-16">
+                <div className="mx-auto max-w-[1440px] px-4 py-10 sm:px-6 md:px-12 lg:py-20">
+                    <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
+                        <div className="space-y-10 lg:col-span-8 lg:space-y-16">
                             <section className="space-y-6">
-                                <h2 className="text-3xl font-bold font-headline text-on-surface">
+                                <h2 className="text-2xl font-bold text-on-surface sm:text-3xl">
                                     {t("tourDetail.overview")}
                                 </h2>
-                                <p className="text-lg text-on-surface-variant leading-relaxed max-w-3xl">
+                                <p className="max-w-3xl text-base leading-relaxed text-on-surface-variant sm:text-lg">
                                     {tour?.description || t("tourDetail.overviewFallback", { location: tour?.location || "" })}
                                 </p>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                                <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-4">
                                     {FEATURE_CARDS.map((c) => (
                                         <div
                                             key={c.titleKey}
-                                            className="p-6 rounded-2xl bg-surface-container-low flex flex-col items-center text-center gap-3"
+                                            className="flex flex-col items-center gap-3 rounded-2xl bg-surface-container-low p-4 text-center sm:p-6"
                                         >
                                             <span className="material-symbols-outlined text-primary text-3xl">
                                                 {c.icon}
@@ -415,8 +415,8 @@ export default function TourDetail() {
                             </section>
 
                             <section className="space-y-8">
-                                <div className="flex items-center justify-between">
-                                    <h2 className="text-3xl font-bold font-headline text-on-surface">
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <h2 className="text-2xl font-bold text-on-surface sm:text-3xl">
                                         {t("tourDetail.timeline")}
                                     </h2>
                                     <Link
@@ -446,7 +446,7 @@ export default function TourDetail() {
                                             </p>
 
                                             {/* Activities */}
-                                            <div className="grid gap-4 md:grid-cols-2">
+                                            <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                                                 {day.activities?.length > 0 ? (
                                                     day.activities.map((it) => (
                                                         <div
@@ -477,9 +477,9 @@ export default function TourDetail() {
                                 </div>
                             </section>
 
-                            <section className="p-8 rounded-3xl bg-secondary-container/30 space-y-6">
-                                <h2 className="text-2xl font-bold font-headline text-on-surface">{t("tourDetail.includedServices")}</h2>
-                                <div className="grid md:grid-cols-2 gap-8">
+                            <section className="space-y-6 rounded-3xl bg-secondary-container/30 p-5 sm:p-8">
+                                <h2 className="text-xl font-bold text-on-surface sm:text-2xl">{t("tourDetail.includedServices")}</h2>
+                                <div className="grid gap-5 md:grid-cols-2 md:gap-8">
                                     <div className="flex gap-4">
                                         <span className="material-symbols-outlined text-primary">check_circle</span>
                                         <div>
@@ -503,8 +503,8 @@ export default function TourDetail() {
                         </div>
 
                         <div className="lg:col-span-4">
-                            <div className="sticky top-24 space-y-6">
-                                <div className="bg-surface-container-lowest rounded-3xl p-8 shadow-2xl shadow-on-surface/5 border border-outline-variant/10">
+                            <div className="space-y-6 lg:sticky lg:top-24">
+                                <div className="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest p-5 shadow-2xl shadow-on-surface/5 sm:p-8">
                                     <h3 className="text-2xl font-bold font-headline mb-6">{t("tourDetail.bookExperience")}</h3>
 
                                     <div className="space-y-6">

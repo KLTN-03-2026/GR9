@@ -128,10 +128,10 @@ export default function TourSchedulePage() {
 
     // ================= UI =================
     return (
-        <section className="min-h-screen bg-slate-50 py-8 px-4 md:px-8">
-            <div className="max-w-5xl mx-auto space-y-6">
+        <section className="min-h-screen bg-slate-50 px-3 py-4 sm:px-4 sm:py-6 md:px-8 md:py-8">
+            <div className="mx-auto max-w-5xl space-y-5 sm:space-y-6">
                 {/* HEADER (UPGRADED UI STYLE) */}
-                <div className="flex items-center justify-between bg-white rounded-2xl border px-6 py-5 shadow-sm">
+                <div className="flex flex-col gap-4 rounded-2xl border bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5">
                     <div className="flex items-center gap-3">
                         <div className="p-2 rounded-xl bg-slate-100">
                             <CalendarDays className="size-5 text-slate-600" />
@@ -143,7 +143,7 @@ export default function TourSchedulePage() {
                         </div>
                     </div>
 
-                    <Button onClick={handleOpenCreate} className="rounded-xl font-semibold">
+                    <Button onClick={handleOpenCreate} className="w-full rounded-xl font-semibold sm:w-auto">
                         <Plus className="size-4 mr-2" />
                         Add Schedule
                     </Button>

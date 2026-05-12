@@ -591,7 +591,7 @@ export default function DialogCreateTour({
                                                                             {serviceMap[activity.serviceId].description}
                                                                         </p>
 
-                                                                        <div className="mt-2 grid grid-cols-3 gap-2">
+                                                                        <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
                                                                             {serviceMap[activity.serviceId].total?.map(
                                                                                 (t) => (
                                                                                     <div
@@ -1080,7 +1080,7 @@ export default function DialogCreateTour({
                                     {/* PRICE */}
                                     <div>
                                         <label className="mb-2 text-xs font-bold uppercase text-slate-500">Price</label>
-                                        <div className="grid grid-cols-3 gap-3">
+                                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                                             {["adult", "child", "infant"].map((t) => (
                                                 <Input
                                                     key={t}
@@ -1198,7 +1198,7 @@ export default function DialogCreateTour({
             <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
                 <DialogContent
                     showCloseButton={false}
-                    className="sm:max-w-[750px] max-h-[750px] bg-amber-200/0 border-none shadow-none p-0"
+                    className="max-h-[calc(100vh-2rem)] border-none bg-amber-200/0 p-0 shadow-none sm:max-w-[750px]"
                 >
                     <DialogDescription>
                         <img src={selectedImage} className="w-full h-full shadow-2xl rounded-2xl" alt="" />
