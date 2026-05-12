@@ -114,10 +114,7 @@ export const getProviderBookingsController = async (req, res) => {
     try {
         const bookings = await getProviderBookingsService(req.user._id);
 
-<<<<<<< HEAD
         return success(res, "Get provider bookings success", bookings, 200);
-=======
->>>>>>> 2fae1ce1de0a4522e851ec40c319faa51909d3c8
     } catch (err) {
         return error(res, err.message, err.status, err.errorCode);
     }
