@@ -114,7 +114,7 @@ export const GUIDE_ASSIGNED_TOURS = [
             note: "Vegetarian and nut-free portions have been pre-ordered.",
             dotClass: "bg-slate-200",
             cardClass: "rounded-3xl p-6 bg-white/50 border border-dashed border-outline-variant/40",
-            notes: "Table 4 reserved under Voyager / Chau.",
+            notes: "Table 4 reserved under SmartTravel / Chau.",
           },
           {
             id: "a4",

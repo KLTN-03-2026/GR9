@@ -160,7 +160,7 @@ const ProviderApplicationForm = () => {
                     id="fullName"
                     value={form.fullName}
                     onChange={handleChange("fullName")}
-                    placeholder="Voyager Travel Company"
+                    placeholder="SmartTravel Company"
                     className="h-12 border-none bg-slate-50"
                   />
                 </div>

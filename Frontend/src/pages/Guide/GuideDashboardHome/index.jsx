@@ -36,7 +36,7 @@ export default function GuideDashboardHome() {
         .querySelector('meta[name="description"]')
         ?.getAttribute("content") ?? "";
 
-    document.title = `${t("guidePages.dashboard.title")} | Voyager AI`;
+    document.title = `${t("guidePages.dashboard.title")} | SmartTravel`;
 
     let descriptionTag = document.querySelector('meta[name="description"]');
     if (!descriptionTag) {

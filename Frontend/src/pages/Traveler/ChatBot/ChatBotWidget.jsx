@@ -39,7 +39,7 @@ const buildPromptHistory = (messages, promptHistorySize) =>
     }));
 
 const CHATBOT_BUSY_MESSAGE =
-  "Voyager AI đang có nhiều yêu cầu cùng lúc nên tạm thời chưa trả lời được. Bạn vui lòng thử lại sau ít phút.";
+  "SmartTravel AI đang có nhiều yêu cầu cùng lúc nên tạm thời chưa trả lời được. Bạn vui lòng thử lại sau ít phút.";
 
 const isReadableSourceTitle = (title) => {
   const text = String(title || "").trim();
@@ -81,7 +81,7 @@ const getChatbotErrorMessage = (error) => {
   }
 
   if (errorCode === "GEMINI_QUOTA_EXCEEDED") {
-    return "Voyager AI đang có nhiều yêu cầu cùng lúc nên mình sẽ ưu tiên trả lời bằng dữ liệu có sẵn trong hệ thống. Bạn vui lòng thử lại sau ít phút nếu cần phân tích chi tiết hơn.";
+    return "SmartTravel AI đang có nhiều yêu cầu cùng lúc nên mình sẽ ưu tiên trả lời bằng dữ liệu có sẵn trong hệ thống. Bạn vui lòng thử lại sau ít phút nếu cần phân tích chi tiết hơn.";
   }
 
   return (
@@ -151,7 +151,7 @@ export default function ChatBotWidget({
     [
       `Bạn đã dùng hết **${guestLimit} lượt hỏi miễn phí** trên landing page.`,
       "",
-      "Đăng nhập để Voyager AI hỗ trợ sâu hơn với tour, booking, lịch sử đặt tour và gợi ý cá nhân hóa.",
+      "Đăng nhập để SmartTravel AI hỗ trợ sâu hơn với tour, booking, lịch sử đặt tour và gợi ý cá nhân hóa.",
       "",
       `[Đăng nhập để tiếp tục](${loginPath})`,
     ].join("\n");
@@ -230,7 +230,7 @@ export default function ChatBotWidget({
           window.setTimeout(scrollToBottom, 80);
         }}
         className="fixed bottom-6 right-6 z-[80] h-16 w-16 rounded-full bg-gradient-to-br from-teal-500 via-emerald-500 to-cyan-500 p-0 text-white shadow-[0_22px_55px_rgba(13,148,136,0.38)] transition duration-300 hover:scale-105 hover:shadow-[0_26px_70px_rgba(13,148,136,0.48)]"
-        aria-label="Open Voyager AI chat"
+        aria-label="Open SmartTravel chat"
       >
         <span className="absolute inset-0 rounded-full bg-teal-400/40 [animation:chatPulse_2.2s_ease-out_infinite]" />
         <MessageCircle className="relative h-7 w-7" />
@@ -272,7 +272,7 @@ export default function ChatBotWidget({
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <h3 className="brand-font truncate text-sm font-bold">
-                    Voyager AI
+                    SmartTravel AI
                   </h3>
                   <span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(110,231,183,0.9)]" />
                 </div>
@@ -397,7 +397,7 @@ export default function ChatBotWidget({
                     <span className="h-2 w-2 animate-bounce rounded-full bg-teal-500 [animation-delay:0.15s]" />
                     <span className="h-2 w-2 animate-bounce rounded-full bg-emerald-500 [animation-delay:0.3s]" />
                   </span>
-                  Voyager AI đang chuẩn bị câu trả lời...
+                  SmartTravel AI đang chuẩn bị câu trả lời...
                 </div>
               ) : null}
 
@@ -407,7 +407,7 @@ export default function ChatBotWidget({
             <div className="shrink-0 border-t border-slate-200/80 bg-white/85 p-4">
               {guestMode && guestQuestionCount >= guestLimit ? (
                 <div className="mb-3 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold leading-5 text-amber-800">
-                  Bạn đã hết lượt hỏi miễn phí. Đăng nhập để tiếp tục dùng Voyager AI đầy đủ.
+                  Bạn đã hết lượt hỏi miễn phí. Đăng nhập để tiếp tục dùng SmartTravel AI đầy đủ.
                   <button
                     type="button"
                     onClick={() => {
@@ -434,7 +434,7 @@ export default function ChatBotWidget({
                   placeholder={
                     guestMode && guestQuestionCount >= guestLimit
                       ? "Đăng nhập để hỏi tiếp..."
-                      : "Hỏi Voyager AI..."
+                      : "Hỏi SmartTravel AI..."
                   }
                   type="text"
                   disabled={guestMode && guestQuestionCount >= guestLimit}
@@ -455,7 +455,7 @@ export default function ChatBotWidget({
                 </Button>
               </div>
               <p className="mt-3 text-center text-[10px] font-medium text-slate-500">
-                Powered by Voyager AI
+                Powered by SmartTravel
               </p>
             </div>
           </>
