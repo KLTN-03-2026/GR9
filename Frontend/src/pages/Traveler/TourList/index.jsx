@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,8 @@ export default function TourList() {
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const pageTopRef = useRef(null);
+    const skipPageScrollRef = useRef(true);
 
     const [debouncedSearch, setDebouncedSearch] = useState(search);
 
@@ -97,6 +99,25 @@ export default function TourList() {
 
         fetch();
     }, [page, sortBy, debouncedSearch, t]);
+
+    useEffect(() => {
+        if (skipPageScrollRef.current) {
+            skipPageScrollRef.current = false;
+            return;
+        }
+
+        const frameId = window.requestAnimationFrame(() => {
+            if (pageTopRef.current) {
+                pageTopRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+                return;
+            }
+
+            window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+        });
+
+        return () => window.cancelAnimationFrame(frameId);
+    }, [page, sortBy, debouncedSearch]);
+
     const filteredTours = useMemo(() => tours, [tours]);
     const paginationPages = useMemo(() => Array.from({ length: totalPages }, (_, index) => index + 1), [totalPages]);
     const firstItem = totalTours === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
@@ -104,7 +125,7 @@ export default function TourList() {
 
     return (
         <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface">
-            <div className="mx-auto w-full max-w-[1600px] px-6 pb-12 pt-24 md:px-10">
+            <div ref={pageTopRef} className="mx-auto w-full max-w-[1600px] scroll-mt-24 px-6 pb-12 pt-24 md:px-10">
                 <PageHero
                     className="mb-12"
                     contentClassName="xl:items-center"

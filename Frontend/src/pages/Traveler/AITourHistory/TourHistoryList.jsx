@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import usePaginationScroll from "@/hooks/usePaginationScroll";
 
 export default function TourHistoryList({
   history,
@@ -39,6 +40,8 @@ export default function TourHistoryList({
   useEffect(() => {
     setPage((current) => Math.min(current, totalPages));
   }, [totalPages]);
+
+  usePaginationScroll([page]);
 
   return (
     <aside className="space-y-3">

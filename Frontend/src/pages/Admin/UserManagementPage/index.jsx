@@ -12,6 +12,7 @@ import {
 } from "@/services/api/admin";
 import toast from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
+import usePaginationScroll from "@/hooks/usePaginationScroll";
 
 const formatRole = (role) =>
   String(role || "TRAVELER")
@@ -116,6 +117,8 @@ const UserManagementPage = () => {
   const handlePageChange = (page) => {
     setFilters((current) => ({ ...current, page }));
   };
+
+  usePaginationScroll([filters.page]);
 
   const handleUpdateStatus = async (id, accountStatus) => {
     try {

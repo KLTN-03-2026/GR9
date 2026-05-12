@@ -12,6 +12,7 @@ import PageHero from "@/components/shared/page-hero";
 import { CardGridSkeleton } from "@/components/shared/page-skeletons";
 import { useSearchParams } from "react-router-dom";
 import { useI18n } from "@/i18n/I18nProvider";
+import usePaginationScroll from "@/hooks/usePaginationScroll";
 
 const typeLabels = {
   HOTEL: "Accommodation",
@@ -162,6 +163,8 @@ const ServiceManagement = () => {
 
     return Array.from({ length: end - start + 1 }, (_, index) => start + index);
   }, [totalPages, currentPage]);
+
+  usePaginationScroll([currentPage]);
 
   return (
     <main className="min-h-screen bg-surface text-on-surface">

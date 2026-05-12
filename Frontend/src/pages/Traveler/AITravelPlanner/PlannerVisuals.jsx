@@ -24,9 +24,9 @@ function PlannerVisuals({ itinerary, location }) {
   }
 
   return (
-    <div className="space-y-8">
-      <Card className="group relative rounded-[2rem] border-none bg-surface-container-lowest p-2 shadow-sm">
-        <div className="relative aspect-[4/5] overflow-hidden rounded-[1.75rem] bg-slate-200">
+    <div className="space-y-8 xl:sticky xl:top-24 xl:self-start">
+      <Card className="group relative rounded-[2rem] border border-outline-variant/15 bg-surface-container-lowest p-2 shadow-sm">
+        <div className="relative h-[420px] overflow-hidden rounded-[1.75rem] bg-slate-200 xl:h-[560px]">
           <APIProvider apiKey={import.meta.env.VITE_MAP_API_KEY}>
             <div style={{ width: "100%", height: "100%" }}>
               <Map

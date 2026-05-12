@@ -10,11 +10,11 @@ function PlannerItinerary({ itinerary, handleGetLatLng }) {
     return null;
   }
   return (
-    <div className="w-full min-w-0 space-y-12 p-8 xl:h-full xl:min-h-0 xl:overflow-y-auto xl:pr-3">
+    <div className="w-full min-w-0 space-y-8 rounded-[2rem] border border-outline-variant/15 bg-surface-container-lowest p-5 shadow-sm md:p-7">
       {itinerary.itineraries.map((itineraryActivity, index) => (
         <div
           key={`${itineraryActivity.description}-${index}`}
-          className="relative border-l-2 border-dashed border-outline-variant/30 pl-8"
+          className="relative border-l-2 border-dashed border-outline-variant/30 pl-6 md:pl-8"
         >
           <div className="absolute -left-[13px] top-0 flex h-6 w-6 items-center justify-center rounded-full border-4 border-surface bg-primary text-[10px] font-bold text-on-primary">
             {index + 1}
@@ -28,10 +28,10 @@ function PlannerItinerary({ itinerary, handleGetLatLng }) {
               <Card
                 onClick={() => handleGetLatLng(activity.serviceId.address)}
                 key={`${activity.time}-${activity.serviceId.name}`}
-                className="cursor-pointer rounded-2xl border-none bg-transparent py-0 shadow-none ring-0 transition-all hover:bg-surface-container-low"
+                    className="cursor-pointer rounded-2xl border border-outline-variant/10 bg-surface-container-low py-0 shadow-none ring-0 transition-all hover:-translate-y-0.5 hover:bg-surface-container"
               >
-                <CardContent className="flex gap-4 p-4">
-                  <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl">
+                <CardContent className="flex flex-col gap-4 p-4 sm:flex-row">
+                  <div className="h-32 w-full flex-shrink-0 overflow-hidden rounded-2xl sm:h-24 sm:w-24">
                     <img
                       alt="Shigetsu"
                       className="h-full w-full object-cover"

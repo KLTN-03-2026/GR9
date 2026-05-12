@@ -29,6 +29,7 @@ const formatCurrencyVND = (value) =>
 
 function PlannerSidebar({
   budget,
+  isGenerating = false,
   quantity,
   destination,
   duration,
@@ -67,6 +68,7 @@ function PlannerSidebar({
               <Input
                 type="text"
                 value={destination}
+                disabled={isGenerating}
                 onChange={(e) => onDestinationChange(e.target.value)}
                 className="h-14 rounded-2xl border-outline-variant/20 bg-surface-container-lowest py-4 pl-12 pr-4 font-medium text-on-surface focus-visible:border-primary focus-visible:ring-primary/10"
               />
@@ -84,6 +86,7 @@ function PlannerSidebar({
               <Input
                 type="date"
                 value={formatDateInputValue(startDate)}
+                disabled={isGenerating}
                 onChange={(e) => onStartDateChange(e.target.value)}
                 className="h-14 rounded-2xl border-outline-variant/20 bg-surface-container-lowest pl-12 pr-4 font-medium text-on-surface focus-visible:border-primary focus-visible:ring-primary/10"
               />
@@ -99,6 +102,7 @@ function PlannerSidebar({
                   </Label>
                   <Select
                     value={String(duration)}
+                    disabled={isGenerating}
                     onValueChange={onDurationChange}
                   >
                     <SelectTrigger className="!h-14 w-full rounded-2xl border-outline-variant/20 bg-white px-4 text-base font-semibold text-on-surface">
@@ -125,6 +129,7 @@ function PlannerSidebar({
                       type="number"
                       min="0"
                       value={budget}
+                      disabled={isGenerating}
                       onChange={(e) => onBudgetChange(e.target.value)}
                       placeholder={t("planner.enterBudget")}
                       className="h-14 rounded-2xl border-outline-variant/20 bg-white pl-9 text-base font-semibold text-on-surface"
@@ -149,6 +154,7 @@ function PlannerSidebar({
             <div className="flex flex-wrap gap-2">
               <Textarea
                 value={describe}
+                disabled={isGenerating}
                 onChange={(e) => setDescribe(e.target.value)}
                 className="h-32 rounded-2xl border-outline-variant/20 bg-surface-container-lowest  font-medium text-on-surface focus-visible:border-primary focus-visible:ring-primary/10"
                 placeholder={t("planner.describeTrip")}
@@ -183,6 +189,7 @@ function PlannerSidebar({
                         type="number"
                         min="0"
                         value={quantity.adult}
+                        disabled={isGenerating}
                         onChange={(e) =>
                           onCompanionChange("adult", e.target.value)
                         }
@@ -223,6 +230,7 @@ function PlannerSidebar({
                         type="number"
                         min="0"
                         value={quantity.child}
+                        disabled={isGenerating}
                         onChange={(e) =>
                           onCompanionChange("child", e.target.value)
                         }
@@ -265,6 +273,7 @@ function PlannerSidebar({
                         type="number"
                         min="0"
                         value={quantity.infant}
+                        disabled={isGenerating}
                         onChange={(e) =>
                           onCompanionChange("infant", e.target.value)
                         }
@@ -287,11 +296,14 @@ function PlannerSidebar({
 
           <Button
             onClick={() => handleGenerateTour()}
+            disabled={isGenerating}
             type="button"
             className="h-auto w-full rounded-2xl bg-gradient-to-r from-primary to-primary-container py-5 font-headline text-lg font-bold text-on-primary shadow-lg transition-all hover:-translate-y-1 hover:shadow-primary/20 active:scale-95"
           >
-            <span>{t("planner.generate")}</span>
-            <span className="material-symbols-outlined">auto_awesome</span>
+            <span>{isGenerating ? t("planner.generatingButton") : t("planner.generate")}</span>
+            <span className={`material-symbols-outlined ${isGenerating ? "animate-spin" : ""}`}>
+              {isGenerating ? "progress_activity" : "auto_awesome"}
+            </span>
           </Button>
         </div>
       </div>

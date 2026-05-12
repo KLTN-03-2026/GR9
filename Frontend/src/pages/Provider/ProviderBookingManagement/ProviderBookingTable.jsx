@@ -17,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { getProviderBookings } from "@/services/api/booking";
 import { useSearchParams } from "react-router-dom";
+import usePaginationScroll from "@/hooks/usePaginationScroll";
 
 const statusConfig = {
   PENDING: {
@@ -197,6 +198,8 @@ export default function ProviderBookingTable() {
   useEffect(() => {
     setPage((current) => Math.min(current, totalPages));
   }, [totalPages]);
+
+  usePaginationScroll([page]);
 
   const resetFilters = () => {
     setTourFilter("all");
