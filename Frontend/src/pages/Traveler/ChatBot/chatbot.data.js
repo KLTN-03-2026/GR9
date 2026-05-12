@@ -3,7 +3,7 @@ export const chatbotProps = {
   memoryWindowSize: 16,
   promptHistorySize: 10,
   suggestions: [
-    "Giới thiệu Voyager AI cho tôi",
+    "Giới thiệu SmartTravel cho tôi",
     "Travel_AI có những tính năng gì?",
     "Tôi có thể đặt tour và theo dõi tour như thế nào?",
     "Hãy giới thiệu các tour phù hợp cho gia đình",
@@ -13,7 +13,7 @@ export const chatbotProps = {
       id: "welcome",
       role: "assistant",
       content:
-        "Chào bạn, tôi là Voyager AI. Tôi có thể giới thiệu hệ thống Travel_AI, giải thích cách đặt tour, gợi ý lịch trình và hỗ trợ bạn tìm thông tin trong dữ liệu tour.",
+        "Chào bạn, tôi là SmartTravel AI. Tôi có thể giới thiệu hệ thống Travel_AI, giải thích cách đặt tour, gợi ý lịch trình và hỗ trợ bạn tìm thông tin trong dữ liệu tour.",
       sources: [],
     },
     {
@@ -39,7 +39,7 @@ export const landingChatbotProps = {
       id: "landing-welcome",
       role: "assistant",
       content:
-        "Chào bạn, tôi là Voyager AI. Bạn có **3 lượt hỏi miễn phí** để tìm hiểu nhanh về Travel_AI, tour, booking và các tính năng chính.",
+        "Chào bạn, tôi là SmartTravel AI. Bạn có **3 lượt hỏi miễn phí** để tìm hiểu nhanh về Travel_AI, tour, booking và các tính năng chính.",
       sources: [],
     },
     {

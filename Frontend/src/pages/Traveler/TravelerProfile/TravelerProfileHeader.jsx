@@ -27,7 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 export default function TravelerProfileHeader({ profile, onUpdateProfile }) {
   const fullName = profile?.fullName || "Alex Rivera";
-  const email = profile?.email || "alex.rivera@voyager.ai";
+  const email = profile?.email || "alex.rivera@smarttravel.ai";
   const phone = profile?.phone || "";
   const address = profile?.address || "";
   const gender = profile?.gender || "OTHER";

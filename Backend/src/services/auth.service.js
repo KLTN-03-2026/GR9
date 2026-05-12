@@ -45,7 +45,7 @@ const sendVerificationOtpMail = async (user, otp) => {
     text: `Ma OTP xac thuc tai khoan cua ban la ${otp}. Ma co hieu luc trong ${EMAIL_VERIFY_EXPIRES_MINUTES} phut.`,
     html: `
       <div style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;">
-        <h2 style="margin-bottom: 12px;">Xac thuc tai khoan Voyager AI</h2>
+        <h2 style="margin-bottom: 12px;">Xac thuc tai khoan SmartTravel</h2>
         <p>Xin chao ${user.fullName || "ban"},</p>
         <p>Su dung ma OTP duoi day de xac thuc tai khoan cua ban:</p>
         <div style="margin: 20px 0; font-size: 32px; font-weight: 700; letter-spacing: 10px; color: #0f766e;">
@@ -64,7 +64,7 @@ const sendResetPasswordOtpMail = async (user, otp) => {
     text: `Ma OTP dat lai mat khau cua ban la ${otp}. Ma co hieu luc trong ${RESET_PASSWORD_EXPIRES_MINUTES} phut.`,
     html: `
       <div style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;">
-        <h2 style="margin-bottom: 12px;">Dat lai mat khau Voyager AI</h2>
+        <h2 style="margin-bottom: 12px;">Dat lai mat khau SmartTravel</h2>
         <p>Xin chao ${user.fullName || "ban"},</p>
         <p>Su dung ma OTP duoi day de dat lai mat khau:</p>
         <div style="margin: 20px 0; font-size: 32px; font-weight: 700; letter-spacing: 10px; color: #b45309;">

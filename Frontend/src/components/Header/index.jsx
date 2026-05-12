@@ -17,6 +17,7 @@ import { useI18n } from "@/i18n/I18nProvider";
 import ThemeModeToggle from "@/components/shared/theme-mode-toggle";
 import LanguageToggle from "@/components/shared/language-toggle";
 import { useSidebar } from "@/components/ui/sidebar";
+import BrandLogo from "@/components/shared/brand-logo";
 
 const PAGE_META = {
   "/traveler": {
@@ -404,9 +405,10 @@ const Header = () => {
             <Menu className="h-5 w-5" />
           </Button>
 
-          <h1 className="shrink-0 font-heading text-[1.05rem] font-extrabold tracking-tight text-teal-800">
-            Voyager AI
-          </h1>
+          <BrandLogo
+            className="shrink-0"
+            iconClassName="h-9 w-9"
+          />
 
           <div className="hidden min-w-0 items-center gap-2 text-sm font-medium text-on-surface-variant lg:flex">
             <span>/</span>

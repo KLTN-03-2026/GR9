@@ -25,7 +25,7 @@ const EmergencySupport = () => {
           <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
             <div>
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Logistics Desk</p>
-              <p className="font-bold text-slate-800">help@voyagerai.travel</p>
+              <p className="font-bold text-slate-800">help@smarttravel.ai</p>
             </div>
             <Mail className="w-5 h-5 text-slate-400" />
           </div>

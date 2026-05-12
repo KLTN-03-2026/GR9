@@ -10,7 +10,7 @@ import GuideLoginFooter from "./GuideLoginFooter";
 
 const guideLoginContent = {
   brand: {
-    name: "Voyager AI",
+    name: "SmartTravel",
     icon: "explore",
   },
   heading: "Guide Staff Login",
@@ -82,7 +82,7 @@ const GuideLogin = () => {
       </div>
 
       <div className="relative z-10 w-full max-w-[480px]">
-        <GuideLoginBrand brand={guideLoginContent.brand} />
+        <GuideLoginBrand />
 
         <GuideLoginForm
           content={guideLoginContent}

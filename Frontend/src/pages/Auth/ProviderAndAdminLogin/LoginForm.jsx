@@ -72,7 +72,7 @@ export default function LoginForm({
               type="email"
               value={email || ""}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@voyager.ai"
+              placeholder="name@smarttravel.ai"
               className="h-14 rounded-xl border-transparent bg-surface-container-low pl-12 pr-4 text-on-surface placeholder:text-outline-variant focus-visible:border-primary focus-visible:ring-primary/10"
               disabled={loading}
             />

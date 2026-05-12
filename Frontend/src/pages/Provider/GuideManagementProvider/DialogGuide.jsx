@@ -119,7 +119,7 @@ export const DialogGuide = ({
                   onChange={(e) => setEmail(e.target.value)}
                   className="border-outline-variant/30 bg-surface-container-low text-on-surface focus-visible:ring-primary"
                   type="email"
-                  placeholder="e.g. guide@voyager.vn"
+                  placeholder="e.g. guide@smarttravel.ai"
                   required
                 />
               </div>
