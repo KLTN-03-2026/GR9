@@ -47,7 +47,7 @@ const GuideLoginForm = ({
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                placeholder="guide@voyager.ai"
+                placeholder="guide@smarttravel.ai"
                 className="h-auto rounded-2xl border-0 bg-surface-container-low py-4 pl-12 pr-4 text-on-surface placeholder:text-outline ring-1 ring-outline-variant/20 transition-all duration-200 focus-visible:bg-surface-container-lowest focus-visible:ring-2 focus-visible:ring-primary"
               />
             </div>

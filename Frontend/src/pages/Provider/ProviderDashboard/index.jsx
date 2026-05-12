@@ -267,7 +267,7 @@ const ProviderDashboard = () => {
 
           <div className="relative z-10 flex w-full max-w-xl flex-col items-start">
             <span className="rounded-md bg-white/10 px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-[0.2em] text-teal-100">
-              Voyager Insights
+              SmartTravel Insights
             </span>
 
             <h4 className="mt-5 font-heading text-2xl font-bold leading-tight md:text-[32px]">

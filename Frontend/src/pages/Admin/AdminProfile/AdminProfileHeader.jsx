@@ -8,7 +8,7 @@ import UserProfileEditDialog from "@/components/Profile/UserProfileEditDialog";
 
 export default function AdminProfileHeader({ profile, onUpdateProfile }) {
   const fullName = profile?.fullName || "System Admin";
-  const email = profile?.email || "admin@voyager.ai";
+  const email = profile?.email || "admin@smarttravel.ai";
   const avatarUrl = profile?.avatarUrl || "";
   const avatarFallback = fullName.trim().charAt(0).toUpperCase() || "A";
 

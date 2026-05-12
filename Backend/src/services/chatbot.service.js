@@ -461,7 +461,7 @@ export const askChatbotService = async (message, user = null, history = []) => {
     const memoryContext = formatMemoryWindow(history);
 
     const prompt = `
-Bạn là Voyager AI, agent trợ lý du lịch trong ứng dụng Travel_AI.
+Bạn là SmartTravel AI, agent trợ lý du lịch trong ứng dụng Travel_AI.
 
 Bạn có các tool đã được backend gọi sẵn:
 - kb_search: tra cứu Knowledge Base/Supabase pgvector, dùng cho chính sách, hướng dẫn, giới thiệu hệ thống.

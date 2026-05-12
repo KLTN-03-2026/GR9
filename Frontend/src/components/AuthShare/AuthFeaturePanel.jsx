@@ -5,6 +5,7 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
+import BrandLogo from "@/components/shared/brand-logo";
 
 const showcaseTravelers = [
   {
@@ -24,23 +25,6 @@ const showcaseTravelers = [
   },
 ];
 
-function BrandMark({ light = false }) {
-  return (
-    <div className="flex items-center gap-3">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
-        <span className="material-symbols-outlined text-on-primary">
-          travel_explore
-        </span>
-      </div>
-      <span
-        className={`font-headline text-2xl font-bold tracking-tight ${light ? "text-white drop-shadow-md" : "text-on-surface"}`}
-      >
-        Voyager AI
-      </span>
-    </div>
-  );
-}
-
 export default function AuthFeaturePanel({
   badge = "Traveler Access",
   title,
@@ -58,7 +42,7 @@ export default function AuthFeaturePanel({
       </div>
 
       <div className="absolute left-12 top-12 z-10">
-        <BrandMark light />
+        <BrandLogo light iconClassName="h-11 w-11" />
       </div>
 
       <div className="absolute bottom-12 left-12 right-12 z-10">

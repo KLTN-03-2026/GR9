@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import LoginForm from "./LoginForm";
 import AuthContext from "@/context/authContext";
 import { useLocation } from "react-router-dom";
+import BrandLogo from "@/components/shared/brand-logo";
 
 const showcaseTravelers = [
   {
@@ -30,23 +31,6 @@ const showcaseTravelers = [
     fallback: "KT",
   },
 ];
-
-function BrandMark({ light = false }) {
-  return (
-    <div className="flex items-center gap-3">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
-        <span className="material-symbols-outlined text-on-primary">
-          travel_explore
-        </span>
-      </div>
-      <span
-        className={`font-headline text-2xl font-bold tracking-tight ${light ? "text-white drop-shadow-md" : "text-on-surface"}`}
-      >
-        Voyager AI
-      </span>
-    </div>
-  );
-}
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -91,7 +75,7 @@ export default function LoginPage() {
         </div>
 
         <div className="absolute left-12 top-12 z-10">
-          <BrandMark light />
+          <BrandLogo light iconClassName="h-11 w-11" />
         </div>
 
         <div className="absolute bottom-12 left-12 right-12 z-10">
@@ -152,7 +136,7 @@ export default function LoginPage() {
         <Card className="w-full max-w-md border-none bg-transparent py-0 shadow-none ring-0">
           <CardContent className="space-y-8 p-0">
             <div className="mb-8 flex justify-center lg:hidden">
-              <BrandMark />
+              <BrandLogo iconClassName="h-11 w-11" />
             </div>
 
             <div className="space-y-2 text-left">
@@ -178,7 +162,7 @@ export default function LoginPage() {
             />
 
             <div className="flex flex-col gap-4 border-t border-outline-variant/10 pt-8 text-[10px] font-bold uppercase tracking-[0.24em] text-on-surface-variant/50 sm:flex-row sm:items-center sm:justify-between">
-              <span>&copy; 2024 Voyager AI</span>
+              <span>&copy; 2024 SmartTravel</span>
               <div className="flex flex-wrap items-center gap-4">
                 <Button
                   variant="link"
