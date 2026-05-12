@@ -15,6 +15,7 @@ import {
   uploadProviderPolicy,
 } from "@/services/api/provider";
 import ProviderApprovalCard from "./ProviderApprovalCard";
+import usePaginationScroll from "@/hooks/usePaginationScroll";
 
 const ProviderApprovalPage = () => {
   const [providers, setProviders] = useState([]);
@@ -53,6 +54,8 @@ const ProviderApprovalPage = () => {
   useEffect(() => {
     setPage((current) => Math.min(current, totalPages));
   }, [totalPages]);
+
+  usePaginationScroll([page]);
 
   const loadProviders = async () => {
     setLoading(true);
@@ -135,7 +138,7 @@ const ProviderApprovalPage = () => {
   };
 
   return (
-    <div className="mx-auto max-w-[1600px] space-y-8 pb-12 pt-24">
+    <div className="mx-auto max-w-[1600px] space-y-6 pb-10 pt-6 md:space-y-8 md:pt-24">
       <PageHero
         eyebrow="Provider Verification"
         heading={
@@ -314,7 +317,7 @@ const ProviderApprovalPage = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 <div className="rounded-2xl border border-white/5 bg-white/10 p-4">
                   <FileCheck2 className="mb-3 h-5 w-5 text-teal-100" />
                   <p className="text-[10px] font-bold uppercase opacity-60">

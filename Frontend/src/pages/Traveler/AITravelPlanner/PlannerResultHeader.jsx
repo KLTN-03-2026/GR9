@@ -1,6 +1,7 @@
 import PageHero from "@/components/shared/page-hero";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const plannerHeroImage =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuCNjl0WISrZSDpHMkNOBIB-DUEvoLWVmXyI-Cn8_s49hdbo-wvLeDe3uWP_1lsg4vyS5B3hSU7ckGSjgup1NO_F_lrxIsnRPeSlduSq_Z0-9GpI4oojraQy3FaVTcg54y93kAeVOSVz_mH-r1tA1sJFDnGjg2e7XnH6yhbrwMF-weLN_PGK8PZW4XCS5xXFLXJ13RoM4uQLXod4pteW2hnQp5DwKsGw89o4TVGyKsnAPQTrknmbrdxVHQTA67dwep3GO9wl2V9jd0Xc";
@@ -15,6 +16,8 @@ function PlannerResultHeader({
   onSendToProviders,
   onSaveTrip,
 }) {
+  const { t } = useI18n();
+
   if (!itinerary) {
     return (
       <div className="relative h-full min-h-[calc(100vh-4rem)] overflow-hidden">
@@ -336,18 +339,18 @@ function PlannerResultHeader({
   return (
     <PageHero
       className="mb-12"
-      eyebrow="AI Planner Result"
+      eyebrow={t("planner.resultEyebrow")}
       heading={
         <>
           {itinerary.location}{" "}
           <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
-            Immersion
+            {t("planner.resultAccent")}
           </span>
         </>
       }
       meta={
         <Badge className="border-0 bg-tertiary-container px-3 py-1 text-[10px] font-bold text-on-tertiary-fixed">
-          AI RECOMMENDED
+          {t("planner.aiRecommended")}
         </Badge>
       }
       actions={
@@ -359,7 +362,7 @@ function PlannerResultHeader({
             className="rounded-full bg-white px-6 py-3 text-sm font-bold text-primary shadow-sm"
           >
             <span className="material-symbols-outlined text-sm">history</span>
-            <span>Saved Trips</span>
+            <span>{t("planner.savedTrips")}</span>
           </Button>
           <Button
             type="button"
@@ -374,7 +377,7 @@ function PlannerResultHeader({
               bookmark
             </span>
             <span>
-              {isSavingTrip ? "Saving..." : isTripSaved ? "Saved" : "Save Trip"}
+              {isSavingTrip ? t("planner.saving") : isTripSaved ? t("planner.saved") : t("planner.saveTrip")}
             </span>
           </Button>
           <Button
@@ -386,10 +389,10 @@ function PlannerResultHeader({
             <span className="material-symbols-outlined text-sm">campaign</span>
             <span>
               {isSendingToProviders
-                ? "Sending..."
+                ? t("planner.sending")
                 : isSentToProviders
-                  ? "Sent to Providers"
-                  : "Send to Providers"}
+                  ? t("planner.sentToProviders")
+                  : t("planner.sendToProviders")}
             </span>
           </Button>
         </>

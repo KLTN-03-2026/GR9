@@ -12,33 +12,40 @@ import { createBooking } from "@/services/api/booking";
 import { getReviewsByTour } from "@/services/api/review";
 import { Switch } from "@/components/ui/switch";
 import toast from "react-hot-toast";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const FEATURE_CARDS = [
-    { icon: "temple_buddhist", title: "Old town heritage" },
-    { icon: "light", title: "Lantern workshop" },
-    { icon: "restaurant", title: "Chef-led tasting" },
-    { icon: "camera_alt", title: "Photo stops" },
+    { icon: "temple_buddhist", titleKey: "tourDetail.featureHeritage" },
+    { icon: "light", titleKey: "tourDetail.featureWorkshop" },
+    { icon: "restaurant", titleKey: "tourDetail.featureTasting" },
+    { icon: "camera_alt", titleKey: "tourDetail.featurePhotoStops" },
+];
+
+const REVIEW_TAG_KEYS = [
+    "tourDetail.tagSmooth",
+    "tourDetail.tagGuide",
+    "tourDetail.tagPacing",
 ];
 
 const MEMORY_CARDS = [
     {
         img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDwLBQIZXRDx742QLoG_dba4D1f21uAFp7L8FwjkEGihhEOIj5w5PRb2LHn1iyGq6QHdbdfdi3E70Iv-a0bOpKmvjPlxp2EfiY2cSxYSersnRn8zeb-p0o8W4tGzCoSjIki5bVSqiySFVdfO4XrcXipkZxeJhCBfF3dKE8gdoKOPhfLMpbbM6kxUntNQ7y9lp5CfD8ZE8RvcGcsORLXPSe1sZhoG_r5eLjay-77d5mV_bYsa7P-lpO340ehMKJbVbFRWCdB9xB0qpyy",
-        by: "By Maria S.",
+        by: "Maria S.",
         alt: "Golden Bridge",
     },
     {
         img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCOcqjHijMLIZdVzszftnSS2LbhvfcFlVO0OkDy1fQ0CVJlydfDAace9fTGyCAoa8QXY3qVzoukfVvLJrjohS0oH8gGqAxeRAxELBCbUb30oqhok7lMQHk7YIZeyUgCTqij8f2S17NK0Mje5sLUQsF5CZ6b1E2tDdyPe4R_cxGvCmnW4n9DIG9p8z9Qni9DZ1tDd7vFKR0WMuL3pCVIfGf-CfcbHK35V2libMuk21FVKQIenUjGgQaL1PVs8tLDSyu40pR9Dr9bn9L4",
-        by: "By James L.",
+        by: "James L.",
         alt: "Cable car",
     },
     {
         img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBMVHGMQqvqjPshagiYXLfkg7Dep66GERX8sHF3_8rW3FcEr069XBOr1MViFw4W6FZNtlehK4KWTIV_XFXkX8E2eudvYyeloLkxPNw6XgLWrpyAtIPOkc-vp5sE-ngvmT3UEwMRYqTpboG310j3s6rm9_2XH_qQVlfs2FF6i3NzpE4ZSjxKsQUzhCr5CT3TMhkMH9by2yJGNykSwcW_tV2s--mn1ufTqIKnHsUZhcm6Xz0tcituebybSr_BYH5jId4iakpLGE24oStH",
-        by: "By Yuki T.",
+        by: "Yuki T.",
         alt: "Pagoda",
     },
     {
         img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCAKle9HDMEfUnV8n9M_Tmy0v9AKwK8cuIUXUlYH6qSTh77eMZpVz-w2t7XGzyFJftJN9y8JMxJ8fnLZ4xshzRPXKNEOMa9sbmC3Sr53xTxdw1fRThUt1cFVj2_gszGIsdABC2kQyqOTWDLyDnEAtB-V99ukyvaYXM_cMotpQcOolJIz2DwRG7GExRz2zceZ2zF2_WPL3WamDjqwtlqhRzPan_bJRXAIz_Y_2TOZ4VXYENa9iVTPNzys7EidjsE86vF40GrmiqDcIn6",
-        by: "By Olivia R.",
+        by: "Olivia R.",
         alt: "French village",
     },
 ];
@@ -84,6 +91,7 @@ const getInitialTravelerCounts = (tour) => {
 
 export default function TourDetail() {
     const { tourId } = useParams();
+    const { language, t } = useI18n();
     const [tour, setTour] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -108,10 +116,10 @@ export default function TourDetail() {
                 setTour(res.data.data || null);
             })
             .catch(() => {
-                setError("Failed to load tour details");
+                setError(t("tourDetail.loadError"));
             })
             .finally(() => setLoading(false));
-    }, [tourId]);
+    }, [tourId, t]);
     useEffect(() => {
         if (!tourId) return;
 
@@ -128,7 +136,7 @@ export default function TourDetail() {
     const childPrice = Number(tour?.price?.child) || 0;
     const infantPrice = Number(tour?.price?.infant) || 0;
     const privateMultiplier = Number(tour?.privateMultiplier) || 1.5;
-    const [selectedDate, setSelectedDate] = useState("2026-04-05");
+    const [selectedDate, setSelectedDate] = useState("");
     const [dateDialogOpen, setDateDialogOpen] = useState(false);
     const [hotelPref, setHotelPref] = useState("no-over-night");
     const [transportPref, setTransportPref] = useState("shared-shuttle");
@@ -141,13 +149,13 @@ export default function TourDetail() {
     const bookingDisabledReason = useMemo(() => {
         if (!isLockedPrivate) return "";
         if (tour?.travelerApprovalStatus === "PENDING") {
-            return "Tour này đang chờ bạn xác nhận từ AI Tour History.";
+            return t("tourDetail.pendingApprovalHint");
         }
         if (tour?.travelerApprovalStatus === "REJECTED" || tour?.isActive === false) {
-            return "Tour đề xuất này không còn khả dụng để booking.";
+            return t("tourDetail.unavailableHint");
         }
         return "";
-    }, [isLockedPrivate, tour]);
+    }, [isLockedPrivate, tour, t]);
     const filteredSchedules = useMemo(() => {
         if (!tour?.schedules) return [];
 
@@ -163,6 +171,10 @@ export default function TourDetail() {
     }, [isPrivate]);
     const handleBooking = async () => {
         if (bookingSubmitting) return;
+        if (!selectedScheduleId || !selectedDate) {
+            toast.error(t("tourDetail.chooseDateToast"));
+            return;
+        }
 
         try {
             setBookingSubmitting(true);
@@ -183,14 +195,14 @@ export default function TourDetail() {
             const response = await createBooking(payload);
             const checkoutUrl = response.data.data?.payment?.checkoutUrl;
 
-            toast.success("Booking success. Redirecting to payment...");
+            toast.success(t("tourDetail.bookingSuccess"));
             resetBooking();
 
             if (checkoutUrl) {
                 window.location.href = checkoutUrl;
             }
         } catch (err) {
-            toast.error(err?.response?.data?.message || "Booking failed");
+            toast.error(err?.response?.data?.message || t("tourDetail.bookingFailed"));
         } finally {
             setBookingSubmitting(false);
         }
@@ -232,14 +244,8 @@ export default function TourDetail() {
         setInfants(initialTravelers.infants);
         setIsPrivate(tour?.bookingAccess === "TARGET_TRAVELER_ONLY");
 
-        const firstSchedule = (tour?.bookingAccess === "TARGET_TRAVELER_ONLY"
-            ? tour?.schedules
-            : tour?.schedules?.filter((schedule) => schedule.isPrivate === (tour?.type === "PRIVATE")))?.[0];
-
-        if (firstSchedule) {
-            setSelectedScheduleId(firstSchedule._id);
-            setSelectedDate(formatDateISO(firstSchedule.departureDate));
-        }
+        setSelectedScheduleId(null);
+        setSelectedDate("");
     }, [tour]);
 
     const nights = Math.max((Number(tour?.numberOfDay) || 1) - 1, 0);
@@ -310,13 +316,13 @@ export default function TourDetail() {
                                 setTour(res.data.data || null);
                             })
                             .catch(() => {
-                                setError("Failed to load tour details");
+                                setError(t("tourDetail.loadError"));
                             })
                             .finally(() => setLoading(false));
                     }}
                     className="mt-4"
                 >
-                    Retry
+                    {t("tourDetail.retry")}
                 </Button>
             </div>
         );
@@ -334,12 +340,12 @@ export default function TourDetail() {
      `}
             </style>
 
-            <main className="pt-16 min-h-screen">
-                <section className="relative h-[716px] w-full overflow-hidden">
+            <main className="min-h-screen pt-4 sm:pt-8 md:pt-16">
+                <section className="relative h-[520px] w-full overflow-hidden rounded-3xl sm:h-[640px] md:h-[716px] md:rounded-none">
                     <img src={tour?.images?.[0]?.imageUrl} alt={tour?.name} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 hero-scrim" />
 
-                    <div className="absolute bottom-0 left-0 w-full p-8 md:p-16">
+                    <div className="absolute bottom-0 left-0 w-full p-4 sm:p-8 md:p-16">
                         <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
                             <div className="space-y-2">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-tertiary-container text-on-tertiary-fixed text-xs font-semibold tracking-wide uppercase">
@@ -349,12 +355,12 @@ export default function TourDetail() {
                                     >
                                         auto_awesome
                                     </span>
-                                    AI Recommended
+                                    {t("tourDetail.aiRecommended")}
                                 </div>
-                                <h1 className="text-4xl md:text-6xl font-extrabold text-white font-headline leading-tight tracking-tight">
+                                <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl md:text-6xl">
                                     {tour?.name}
                                 </h1>
-                                <div className="flex flex-wrap items-center gap-4 text-white/90 font-medium">
+                                <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-white/90 sm:gap-4 sm:text-base">
                                     <span className="flex items-center gap-1">
                                         <span className="material-symbols-outlined text-primary-fixed">
                                             location_on
@@ -363,62 +369,61 @@ export default function TourDetail() {
                                     </span>
                                     <span className="flex items-center gap-1">
                                         <span className="material-symbols-outlined text-primary-fixed">schedule</span>
-                                        {tour?.numberOfDay} Days
+                                        {tour?.numberOfDay} {t("common.day")}
                                     </span>
                                     <span className="flex items-center gap-1">
                                         <span className="material-symbols-outlined text-primary-fixed">star</span>
-                                        {averageTourRating || 4.8} ({reviewCount || tour?.reviews || 0} Reviews)
+                                        {averageTourRating || 4.8} ({t("tourDetail.reviewCount", { count: reviewCount || tour?.reviews || 0 })})
                                     </span>
                                 </div>
                             </div>
 
-                            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 text-white border border-white/20">
-                                <p className="text-sm opacity-80 mb-1 font-medium">Starting from</p>
-                                <p className="text-3xl font-bold font-headline">
+                            <div className="rounded-2xl border border-white/20 bg-white/10 p-4 text-white backdrop-blur-md sm:p-6">
+                                <p className="text-sm opacity-80 mb-1 font-medium">{t("tourDetail.startingFrom")}</p>
+                                <p className="text-2xl font-bold sm:text-3xl">
                                     {formatPrice(basePrice)}
-                                    <span className="text-lg font-normal opacity-80">đ/person</span>
+                                    <span className="text-lg font-normal opacity-80">{t("tourDetail.perPerson")}</span>
                                 </p>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <div className="max-w-[1440px] mx-auto px-6 md:px-12 py-12 lg:py-20">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                        <div className="lg:col-span-8 space-y-16">
+                <div className="mx-auto max-w-[1440px] px-4 py-10 sm:px-6 md:px-12 lg:py-20">
+                    <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
+                        <div className="space-y-10 lg:col-span-8 lg:space-y-16">
                             <section className="space-y-6">
-                                <h2 className="text-3xl font-bold font-headline text-on-surface">
-                                    Experience Overview
+                                <h2 className="text-2xl font-bold text-on-surface sm:text-3xl">
+                                    {t("tourDetail.overview")}
                                 </h2>
-                                <p className="text-lg text-on-surface-variant leading-relaxed max-w-3xl">
-                                    Private pickup, old town storytelling and a premium lantern workshop in{" "}
-                                    {tour?.location}.
+                                <p className="max-w-3xl text-base leading-relaxed text-on-surface-variant sm:text-lg">
+                                    {tour?.description || t("tourDetail.overviewFallback", { location: tour?.location || "" })}
                                 </p>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                                <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-4">
                                     {FEATURE_CARDS.map((c) => (
                                         <div
-                                            key={c.title}
-                                            className="p-6 rounded-2xl bg-surface-container-low flex flex-col items-center text-center gap-3"
+                                            key={c.titleKey}
+                                            className="flex flex-col items-center gap-3 rounded-2xl bg-surface-container-low p-4 text-center sm:p-6"
                                         >
                                             <span className="material-symbols-outlined text-primary text-3xl">
                                                 {c.icon}
                                             </span>
-                                            <span className="font-bold text-on-surface text-sm">{c.title}</span>
+                                            <span className="font-bold text-on-surface text-sm">{t(c.titleKey)}</span>
                                         </div>
                                     ))}
                                 </div>
                             </section>
 
                             <section className="space-y-8">
-                                <div className="flex items-center justify-between">
-                                    <h2 className="text-3xl font-bold font-headline text-on-surface">
-                                        Journey Timeline
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <h2 className="text-2xl font-bold text-on-surface sm:text-3xl">
+                                        {t("tourDetail.timeline")}
                                     </h2>
                                     <Link
                                         to="/traveler/tour-list"
                                         className="text-primary font-bold text-sm hover:underline"
                                     >
-                                        Frontend Demo
+                                        {t("tourDetail.backToTours")}
                                     </Link>
                                 </div>
 
@@ -432,16 +437,16 @@ export default function TourDetail() {
 
                                             {/* Title (giữ style cũ) */}
                                             <h3 className="text-xl font-bold font-headline mb-2">
-                                                Day {day.dayNumber}
+                                                {t("tourDetail.day", { day: day.dayNumber })}
                                             </h3>
 
                                             {/* Description */}
                                             <p className="text-on-surface-variant mb-4">
-                                                {day.description || "No description"}
+                                                {day.description || t("tourDetail.noDescription")}
                                             </p>
 
                                             {/* Activities */}
-                                            <div className="grid gap-4 md:grid-cols-2">
+                                            <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                                                 {day.activities?.length > 0 ? (
                                                     day.activities.map((it) => (
                                                         <div
@@ -453,7 +458,7 @@ export default function TourDetail() {
                                                             </p>
 
                                                             <p className="text-sm">
-                                                                {it.serviceId?.name || "No service"}
+                                                                {it.serviceId?.name || t("tourDetail.noService")}
                                                             </p>
 
                                                             <p className="text-xs text-on-surface-variant mt-1">
@@ -463,7 +468,7 @@ export default function TourDetail() {
                                                     ))
                                                 ) : (
                                                     <p className="text-sm text-on-surface-variant italic">
-                                                        No activities
+                                                        {t("tourDetail.noActivities")}
                                                     </p>
                                                 )}
                                             </div>
@@ -472,24 +477,24 @@ export default function TourDetail() {
                                 </div>
                             </section>
 
-                            <section className="p-8 rounded-3xl bg-secondary-container/30 space-y-6">
-                                <h2 className="text-2xl font-bold font-headline text-on-surface">Included Services</h2>
-                                <div className="grid md:grid-cols-2 gap-8">
+                            <section className="space-y-6 rounded-3xl bg-secondary-container/30 p-5 sm:p-8">
+                                <h2 className="text-xl font-bold text-on-surface sm:text-2xl">{t("tourDetail.includedServices")}</h2>
+                                <div className="grid gap-5 md:grid-cols-2 md:gap-8">
                                     <div className="flex gap-4">
                                         <span className="material-symbols-outlined text-primary">check_circle</span>
                                         <div>
-                                            <p className="font-bold text-on-surface">Private transfer</p>
+                                            <p className="font-bold text-on-surface">{t("tourDetail.privateTransfer")}</p>
                                             <p className="text-sm text-on-surface-variant">
-                                                Door-to-door transport from Da Nang hotels.
+                                                {t("tourDetail.privateTransferText")}
                                             </p>
                                         </div>
                                     </div>
                                     <div className="flex gap-4">
                                         <span className="material-symbols-outlined text-primary">check_circle</span>
                                         <div>
-                                            <p className="font-bold text-on-surface">Guide support</p>
+                                            <p className="font-bold text-on-surface">{t("tourDetail.guideSupport")}</p>
                                             <p className="text-sm text-on-surface-variant">
-                                                English-speaking local storyteller throughout the route.
+                                                {t("tourDetail.guideSupportText")}
                                             </p>
                                         </div>
                                     </div>
@@ -498,14 +503,14 @@ export default function TourDetail() {
                         </div>
 
                         <div className="lg:col-span-4">
-                            <div className="sticky top-24 space-y-6">
-                                <div className="bg-surface-container-lowest rounded-3xl p-8 shadow-2xl shadow-on-surface/5 border border-outline-variant/10">
-                                    <h3 className="text-2xl font-bold font-headline mb-6">Book This Experience</h3>
+                            <div className="space-y-6 lg:sticky lg:top-24">
+                                <div className="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest p-5 shadow-2xl shadow-on-surface/5 sm:p-8">
+                                    <h3 className="text-2xl font-bold font-headline mb-6">{t("tourDetail.bookExperience")}</h3>
 
                                     <div className="space-y-6">
                                         <div className="space-y-2">
                                             <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
-                                                Select Date
+                                                {t("tourDetail.departureDate")}
                                             </label>
 
                                             <Dialog open={dateDialogOpen} onOpenChange={setDateDialogOpen}>
@@ -518,8 +523,16 @@ export default function TourDetail() {
                                                             <span className="material-symbols-outlined text-on-surface-variant">
                                                                 calendar_today
                                                             </span>
-                                                            <span className="font-medium">
-                                                                {selectedDate || formatDateISO(Date.now())}
+                                                            <span
+                                                                className={`font-medium ${
+                                                                    selectedDate
+                                                                        ? "text-on-surface"
+                                                                        : "text-on-surface-variant"
+                                                                }`}
+                                                            >
+                                                                {selectedDate
+                                                                    ? formatDateDisplay(selectedDate, language === "vi" ? "vi-VN" : "en-US")
+                                                                    : t("tourDetail.chooseDepartureDate")}
                                                             </span>
                                                         </div>
                                                         <span className="material-symbols-outlined text-on-surface-variant">
@@ -531,7 +544,7 @@ export default function TourDetail() {
                                                     <div className="space-y-3">
                                                         <div className="space-y-2">
                                                             <p className="text-sm font-bold text-on-surface-variant">
-                                                                Pick a date
+                                                                {t("tourDetail.chooseAvailableSchedule")}
                                                             </p>
                                                             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
                                                                 {filteredSchedules.length > 0 ? (
@@ -572,7 +585,7 @@ export default function TourDetail() {
                                                                                         </p>
 
                                                                                         <p className="text-xs text-on-surface-variant">
-                                                                                            Booked: {s.currentBooked} /{" "}
+                                                                                            {t("tourDetail.booked")}: {s.currentBooked} /{" "}
                                                                                             {s.maxSlots || "∞"}
                                                                                         </p>
                                                                                     </div>
@@ -593,14 +606,14 @@ export default function TourDetail() {
                                                                                 </div>
 
                                                                                 <p className="text-xs mt-2 text-on-surface-variant">
-                                                                                    Remaining: {remaining}
+                                                                                    {t("tourDetail.remaining")}: {remaining}
                                                                                 </p>
                                                                             </button>
                                                                         );
                                                                     })
                                                                 ) : (
                                                                     <p className="text-sm text-on-surface-variant">
-                                                                        No schedules available
+                                                                        {t("tourDetail.noSchedules")}
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -612,16 +625,16 @@ export default function TourDetail() {
 
                                         <div className="space-y-3">
                                             <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
-                                                Travelers
+                                                {t("tourDetail.travelers")}
                                             </label>
 
                                             <div className="space-y-3 p-3 rounded-xl border border-outline-variant/30">
                                                 {/* Adults */}
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="font-medium text-sm">Adults</p>
+                                                        <p className="font-medium text-sm">{t("tourDetail.adults")}</p>
                                                         <p className="text-xs text-on-surface-variant">
-                                                            {formatPrice(basePrice)} / person
+                                                            {formatPrice(basePrice)} {t("tourDetail.perPersonShort")}
                                                         </p>
                                                     </div>
                                                     <div className="flex items-center gap-2">
@@ -636,9 +649,9 @@ export default function TourDetail() {
                                                 {/* Children */}
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="font-medium text-sm">Children</p>
+                                                        <p className="font-medium text-sm">{t("tourDetail.children")}</p>
                                                         <p className="text-xs text-on-surface-variant">
-                                                            {formatPrice(childPrice)} / person
+                                                            {formatPrice(childPrice)} {t("tourDetail.perPersonShort")}
                                                         </p>
                                                     </div>
                                                     <div className="flex items-center gap-2">
@@ -653,9 +666,9 @@ export default function TourDetail() {
                                                 {/* Infants */}
                                                 <div className="flex items-center justify-between">
                                                 <div>
-                                                    <p className="font-medium text-sm">Infants</p>
+                                                    <p className="font-medium text-sm">{t("tourDetail.infants")}</p>
                                                     <p className="text-xs text-on-surface-variant">
-                                                        {infantPrice > 0 ? `${formatPrice(infantPrice)} / person` : "Free"}
+                                                        {infantPrice > 0 ? `${formatPrice(infantPrice)} ${t("tourDetail.perPersonShort")}` : t("tourDetail.free")}
                                                     </p>
                                                 </div>
                                                     <div className="flex items-center gap-2">
@@ -671,7 +684,7 @@ export default function TourDetail() {
 
                                         <div className="space-y-3">
                                             <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
-                                                Hotel Preference ({nights} nights)
+                                                {t("tourDetail.hotelPreference", { nights })}
                                             </label>
                                             <div className="space-y-3">
                                                 {hotelOptions.map((opt) => {
@@ -698,7 +711,7 @@ export default function TourDetail() {
                                                                     </p>
                                                                 </div>
                                                                 <span className="text-sm font-bold text-primary whitespace-nowrap">
-                                                                    {formatPrice(opt.adultPrice)}/room/night
+                                                                    {formatPrice(opt.adultPrice)}{t("tourDetail.perRoomNight")}
                                                                 </span>
                                                             </div>
                                                         </button>
@@ -708,9 +721,9 @@ export default function TourDetail() {
                                             {selectedHotel ? (
                                                 <div className="flex items-center justify-between rounded-xl border border-outline-variant/30 p-3">
                                                     <div>
-                                                        <p className="text-sm font-medium">Rooms</p>
+                                                        <p className="text-sm font-medium">{t("tourDetail.rooms")}</p>
                                                         <p className="text-xs text-on-surface-variant">
-                                                            {formatPrice(hotelUnitPrice)} x {nights} nights
+                                                            {formatPrice(hotelUnitPrice)} x {t("tourDetail.nights", { nights })}
                                                         </p>
                                                     </div>
                                                     <div className="flex items-center gap-2">
@@ -734,7 +747,7 @@ export default function TourDetail() {
 
                                         <div className="space-y-3">
                                             <label className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
-                                                Transport Preference
+                                                {t("tourDetail.transportPreference")}
                                             </label>
                                             <div className="space-y-3">
                                                 {transportOptions.map((opt) => {
@@ -761,7 +774,7 @@ export default function TourDetail() {
                                                                     </p>
                                                                 </div>
                                                                 <span className="text-sm font-bold text-primary whitespace-nowrap">
-                                                                    {formatPrice(opt.adultPrice)}/booking
+                                                                    {formatPrice(opt.adultPrice)}{t("tourDetail.perBooking")}
                                                                 </span>
                                                             </div>
                                                         </button>
@@ -772,33 +785,33 @@ export default function TourDetail() {
 
                                         <div className="pt-6 space-y-3 border-t border-outline-variant/20">
                                             <div className="flex justify-between text-on-surface-variant">
-                                                <span>Base price (adults x {adults})</span>
+                                                <span>{t("tourDetail.basePrice", { adults })}</span>
                                                 <span>{formatPrice(basePrice * adults)}</span>
                                             </div>
 
                                             <div className="flex justify-between text-on-surface-variant">
-                                                <span>Children x {children}</span>
+                                                <span>{t("tourDetail.childrenLine", { children })}</span>
                                                 <span>{formatPrice(childPrice * children)}</span>
                                             </div>
 
                                             {infants > 0 || infantPrice > 0 ? (
                                                 <div className="flex justify-between text-on-surface-variant">
-                                                    <span>Infants x {infants}</span>
+                                                    <span>{t("tourDetail.infantsLine", { infants })}</span>
                                                     <span>{formatPrice(infantPrice * infants)}</span>
                                                 </div>
                                             ) : null}
 
                                             <div className="flex justify-between text-on-surface-variant">
-                                                <span>Hotel ({roomCount} room x {nights} nights)</span>
+                                                <span>{t("tourDetail.hotelLine", { rooms: roomCount, nights })}</span>
                                                 <span>{formatPrice(hotelTotal)}</span>
                                             </div>
 
                                             <div className="flex justify-between text-on-surface-variant">
-                                                <span>Transport</span>
+                                                <span>{t("tourDetail.transport")}</span>
                                                 <span>{formatPrice(transportTotal)}</span>
                                             </div>
                                             <div className="flex justify-between items-center pt-2">
-                                                <span className="font-bold text-xl">Total</span>
+                                                <span className="font-bold text-xl">{t("tourDetail.total")}</span>
                                                 <span className="font-bold text-2xl text-primary">
                                                     {formatPrice(total)}
                                                 </span>
@@ -816,15 +829,15 @@ export default function TourDetail() {
                                                 htmlFor="private-switch"
                                                 className={`font-semibold text-base ${isLockedPrivate ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}
                                             >
-                                                Book as{" "}
+                                                {t("tourDetail.bookAs")}{" "}
                                                 <span className={isPrivate ? "text-primary" : "text-slate-500"}>
-                                                    {isPrivate ? "Private" : "Group"}
+                                                    {isPrivate ? t("tourDetail.private") : t("tourDetail.group")}
                                                 </span>{" "}
-                                                Tour
+                                                {t("tourDetail.tour")}
                                             </label>
                                             {isPrivate && (
                                                 <span className="ml-2 text-sm text-primary font-semibold">
-                                                    x{privateMultiplier} price
+                                                    x{privateMultiplier} {t("tourDetail.price")}
                                                 </span>
                                             )}
                                         </div>
@@ -849,16 +862,20 @@ export default function TourDetail() {
                                             onClick={handleBooking}
                                             disabled={!selectedScheduleId || bookingSubmitting || Boolean(bookingDisabledReason)}
                                         >
-                                            {bookingSubmitting ? "Creating payment..." : "Confirm Booking"}
+                                            {!selectedScheduleId
+                                                ? t("tourDetail.chooseDateButton")
+                                                : bookingSubmitting
+                                                  ? t("tourDetail.creatingPayment")
+                                                  : t("tourDetail.confirmBooking")}
                                         </button>
 
                                         <p className="text-center text-xs text-on-surface-variant px-4">
-                                            Your reservation will appear in traveler bookings and unlock the shared
-                                            tracking flow for your group.
+                                            {t("tourDetail.reservationHint")}
+
                                         </p>
                                         <p className="text-center text-xs text-on-surface-variant px-4">
-                                            Hotel and transport selections are sent as service requests first. The
-                                            provider confirms the real availability after booking.
+                                            {t("tourDetail.serviceRequestHint")}
+
                                         </p>
                                     </div>
                                 </div>
@@ -866,7 +883,7 @@ export default function TourDetail() {
                                 <div className="bg-surface-container-low rounded-3xl p-6 flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-full overflow-hidden shrink-0">
                                         <img
-                                            alt={displayedGuide?.fullName || "Guide"}
+                                            alt={displayedGuide?.fullName || t("tourDetail.guide")}
                                             className="w-full h-full object-cover"
                                             src={
                                                 displayedGuide?.avatarUrl ||
@@ -875,10 +892,10 @@ export default function TourDetail() {
                                         />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-xs font-bold text-primary uppercase">Suggested Guide</p>
-                                        <p className="font-bold">{displayedGuide?.fullName || "Guide sẽ được cập nhật"}</p>
+                                        <p className="text-xs font-bold text-primary uppercase">{t("tourDetail.suggestedGuide")}</p>
+                                        <p className="font-bold">{displayedGuide?.fullName || t("tourDetail.guidePending")}</p>
                                         <p className="text-xs text-on-surface-variant">
-                                            {displayedGuide?.specialty || displayedGuide?.email || "Thông tin hướng dẫn viên sẽ hiển thị theo lịch khởi hành"}
+                                            {displayedGuide?.specialty || displayedGuide?.email || t("tourDetail.guideInfoPending")}
                                         </p>
                                     </div>
                                     <button className="p-2 hover:bg-surface-container-highest rounded-full transition-colors">
@@ -892,15 +909,15 @@ export default function TourDetail() {
                     <section className="mt-16 lg:mt-24 space-y-8">
                         <div className="space-y-2">
                             <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">
-                                Traveler Feedback
+                                {t("tourDetail.feedback")}
                             </p>
                             <h2 className="text-3xl md:text-4xl font-extrabold font-headline text-on-surface">
-                                Reviews &amp; Ratings
+                                {t("tourDetail.reviewsRatings")}
                             </h2>
                             <p className="text-on-surface-variant max-w-3xl leading-relaxed">
-                                Social proof sits best after the itinerary and booking panel, so this section adapts the
-                                standalone reviews page into the tour detail flow without changing the rest of the
-                                screen.
+                                {t("tourDetail.reviewIntro")}
+
+
                             </p>
                         </div>
 
@@ -922,41 +939,41 @@ export default function TourDetail() {
                                         ))}
                                     </div>
                                     <p className="text-on-surface-variant font-medium">
-                                        {reviewCount} authentic reviews
+                                        {t("tourDetail.authenticReviews", { count: reviewCount })}
                                     </p>
                                 </div>
 
                                 <div className="space-y-3 mb-8">
                                     <div className="flex items-center gap-3 text-xs font-medium">
-                                        <span className="w-12">5 stars</span>
+                                        <span className="w-12">{t("tourDetail.stars", { count: 5 })}</span>
                                         <div className="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
                                             <div className="bg-primary h-full rounded-full w-[85%]" />
                                         </div>
                                         <span className="w-8 text-right">85%</span>
                                     </div>
                                     <div className="flex items-center gap-3 text-xs font-medium">
-                                        <span className="w-12">4 stars</span>
+                                        <span className="w-12">{t("tourDetail.stars", { count: 4 })}</span>
                                         <div className="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
                                             <div className="bg-primary h-full rounded-full w-[10%] opacity-60" />
                                         </div>
                                         <span className="w-8 text-right">10%</span>
                                     </div>
                                     <div className="flex items-center gap-3 text-xs font-medium">
-                                        <span className="w-12">3 stars</span>
+                                        <span className="w-12">{t("tourDetail.stars", { count: 3 })}</span>
                                         <div className="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
                                             <div className="bg-primary h-full rounded-full w-[3%] opacity-40" />
                                         </div>
                                         <span className="w-8 text-right">3%</span>
                                     </div>
                                     <div className="flex items-center gap-3 text-xs font-medium">
-                                        <span className="w-12">2 stars</span>
+                                        <span className="w-12">{t("tourDetail.stars", { count: 2 })}</span>
                                         <div className="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
                                             <div className="bg-primary h-full rounded-full w-[1%] opacity-20" />
                                         </div>
                                         <span className="w-8 text-right">1%</span>
                                     </div>
                                     <div className="flex items-center gap-3 text-xs font-medium">
-                                        <span className="w-12">1 star</span>
+                                        <span className="w-12">{t("tourDetail.stars", { count: 1 })}</span>
                                         <div className="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
                                             <div className="bg-primary h-full rounded-full w-[1%] opacity-10" />
                                         </div>
@@ -965,12 +982,12 @@ export default function TourDetail() {
                                 </div>
 
                                 <div className="flex flex-wrap gap-2">
-                                    {["Smooth logistics", "Excellent guide", "Great pacing"].map((t) => (
+                                    {REVIEW_TAG_KEYS.map((tagKey) => (
                                         <span
-                                            key={t}
+                                            key={tagKey}
                                             className="px-3 py-1 bg-tertiary-container/10 text-on-tertiary-fixed-variant rounded-full text-xs font-bold"
                                         >
-                                            {t}
+                                            {t(tagKey)}
                                         </span>
                                     ))}
                                 </div>
@@ -979,10 +996,10 @@ export default function TourDetail() {
                             <div className="lg:col-span-8 bg-surface-container-low rounded-2xl p-8 relative overflow-hidden">
                                 <div className="flex justify-between items-center mb-6 gap-4">
                                     <h3 className="text-xl font-headline font-bold text-on-surface">
-                                        Traveler Memories
+                                        {t("tourDetail.travelerMemories")}
                                     </h3>
                                     <button className="text-primary text-sm font-bold flex items-center gap-1 hover:underline transition-all">
-                                        View all 450 photos
+                                        {t("tourDetail.viewAllPhotos")}
                                         <span className="material-symbols-outlined text-sm">arrow_forward</span>
                                     </button>
                                 </div>
@@ -999,7 +1016,9 @@ export default function TourDetail() {
                                                 src={m.img}
                                             />
                                             <div className="absolute bottom-4 left-4 text-white">
-                                                <p className="text-xs font-medium opacity-80">{m.by}</p>
+                                                <p className="text-xs font-medium opacity-80">
+                                                    {t("tourDetail.photoBy", { name: m.by })}
+                                                </p>
                                             </div>
                                         </div>
                                     ))}
@@ -1046,7 +1065,7 @@ export default function TourDetail() {
                                 <div className="space-y-6 mt-8">
                                     {reviews.length === 0 ? (
                                         <div className="bg-surface-container-lowest rounded-2xl p-8 text-center text-on-surface-variant">
-                                            No reviews for this tour yet.
+                                            {t("tourDetail.noReviews")}
                                         </div>
                                     ) : (
                                         reviews.map((r) => (
@@ -1059,7 +1078,7 @@ export default function TourDetail() {
                                                         <div className="flex items-center gap-3 mb-4">
                                                             <div className="h-12 w-12 rounded-full overflow-hidden bg-slate-200">
                                                                 <img
-                                                                    alt={r.reviewerId?.fullName || "Traveler"}
+                                                                    alt={r.reviewerId?.fullName || t("tourDetail.traveler")}
                                                                     className="w-full h-full object-cover"
                                                                     src={
                                                                         r.reviewerId?.avatarUrl ||
@@ -1069,7 +1088,7 @@ export default function TourDetail() {
                                                             </div>
                                                             <div>
                                                                 <h4 className="font-bold text-on-surface text-sm">
-                                                                    {r.reviewerId?.fullName || "Traveler"}
+                                                                    {r.reviewerId?.fullName || t("tourDetail.traveler")}
                                                                 </h4>
                                                                 <div className="flex items-center gap-1 text-[10px] text-teal-600 font-bold uppercase tracking-wider">
                                                                     <span
@@ -1078,15 +1097,15 @@ export default function TourDetail() {
                                                                     >
                                                                         verified
                                                                     </span>
-                                                                    Verified
+                                                                    {t("tourDetail.verified")}
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <p className="text-xs text-on-surface-variant mb-1">
-                                                            Tour rating: {r.ratingTour}/5
+                                                            {t("tourDetail.tourRating")}: {r.ratingTour}/5
                                                         </p>
                                                         <p className="text-xs text-on-surface-variant">
-                                                            Guide rating: {r.ratingGuide}/5
+                                                            {t("tourDetail.guideRating")}: {r.ratingGuide}/5
                                                         </p>
                                                     </div>
 
@@ -1108,7 +1127,7 @@ export default function TourDetail() {
                                                             </div>
                                                             <time className="text-xs text-on-surface-variant">
                                                                 {r.createdAt
-                                                                    ? new Date(r.createdAt).toLocaleDateString("en", {
+                                                                    ? new Date(r.createdAt).toLocaleDateString(language === "vi" ? "vi-VN" : "en-US", {
                                                                           month: "short",
                                                                           day: "2-digit",
                                                                           year: "numeric",
@@ -1121,14 +1140,14 @@ export default function TourDetail() {
                                                             {r.tourId?.name || tour?.name}
                                                         </h3>
                                                         <p className="text-on-surface-variant leading-relaxed mb-4">
-                                                            {r.contentTour || "No tour feedback."}
+                                                            {r.contentTour || t("tourDetail.noTourFeedback")}
                                                         </p>
                                                         <div className="rounded-xl bg-surface-container-low p-4">
                                                             <p className="text-xs font-bold uppercase tracking-wider text-primary">
-                                                                Guide Feedback
+                                                                {t("tourDetail.guideFeedback")}
                                                             </p>
                                                             <p className="mt-2 text-sm text-on-surface-variant">
-                                                                {r.contentGuide || "No guide feedback."}
+                                                                {r.contentGuide || t("tourDetail.noGuideFeedback")}
                                                             </p>
                                                         </div>
                                                     </div>
@@ -1145,3 +1164,4 @@ export default function TourDetail() {
         </div>
     );
 }
+

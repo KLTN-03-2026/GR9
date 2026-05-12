@@ -4,6 +4,10 @@ export const getAdminDashboard = async () => {
   return await api.get("/admin/dashboard");
 };
 
+export const getAdminAnalytics = async () => {
+  return await api.get("/admin/analytics");
+};
+
 export const getAdminUsers = async (params) => {
   return await api.get("/admin/users", { params });
 };

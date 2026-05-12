@@ -21,7 +21,7 @@ export default function PageHero({
   return (
     <section
       className={cn(
-        "app-page-hero relative overflow-hidden rounded-[2rem] bg-[radial-gradient(circle_at_top_left,_rgba(0,104,95,0.16),_transparent_35%),linear-gradient(135deg,_#ffffff,_#eef7f5)] p-6 shadow-[0_20px_50px_rgba(15,23,42,0.06)] ring-1 ring-slate-200/70 md:p-8 dark:shadow-[0_24px_70px_rgba(0,0,0,0.28)] dark:ring-white/10",
+        "app-page-hero relative overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_top_left,_rgba(0,104,95,0.16),_transparent_35%),linear-gradient(135deg,_#ffffff,_#eef7f5)] p-5 shadow-[0_20px_50px_rgba(15,23,42,0.06)] ring-1 ring-slate-200/70 sm:p-6 md:rounded-[2rem] md:p-8 dark:shadow-[0_24px_70px_rgba(0,0,0,0.28)] dark:ring-white/10",
         className,
       )}
     >
@@ -38,7 +38,7 @@ export default function PageHero({
               {eyebrow}
             </div>
           ) : null}
-          <div className="font-headline text-4xl font-extrabold tracking-tight text-on-surface md:text-5xl">
+          <div className="font-headline text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl md:text-5xl">
             {heading}
           </div>
           {description ? (
@@ -49,7 +49,7 @@ export default function PageHero({
           {meta ? <div className="mt-5">{meta}</div> : null}
         </div>
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center xl:justify-end">
+        <div className="flex w-full flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center xl:w-auto xl:justify-end">
           {rightSlot ? rightSlot : null}
           {showProviderCard && !rightSlot ? (
             <div className="flex items-center gap-3 rounded-2xl bg-surface-container-lowest/85 px-4 py-3 shadow-sm ring-1 ring-outline-variant/25 backdrop-blur">

@@ -52,7 +52,7 @@ export const DialogGuide = ({
   return (
     <div>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="border-outline-variant/20 bg-surface-container-lowest sm:max-w-[600px]">
+        <DialogContent className="max-h-[calc(100vh-2rem)] overflow-y-auto border-outline-variant/20 bg-surface-container-lowest sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle className="text-xl font-extrabold text-on-surface">
               {title}
@@ -180,7 +180,7 @@ export const DialogGuide = ({
               <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
                 Upload Avatar
               </label>
-              <div className="flex items-center gap-4 rounded-xl border border-outline-variant/30 bg-surface-container-low p-3">
+              <div className="flex flex-col gap-4 rounded-xl border border-outline-variant/30 bg-surface-container-low p-3 sm:flex-row sm:items-center">
                 <div className="h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest">
                   {avatarPreview ? (
                     <img

@@ -4,12 +4,20 @@ export const getProviderDashboard = async () => {
   return await api.get("/provider/dashboard");
 };
 
+export const getProviderAnalytics = async () => {
+  return await api.get("/provider/analytics");
+};
+
 export const applyProvider = async (data) => {
   return await api.post("/provider/apply", data);
 };
 
 export const getProviderApplications = async () => {
   return await api.get("/provider/applications");
+};
+
+export const getProcessedProviderApplications = async () => {
+  return await api.get("/provider/applications/history");
 };
 
 export const approveProviderApplication = async (id) => {

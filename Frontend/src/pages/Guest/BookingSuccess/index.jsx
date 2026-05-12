@@ -39,7 +39,7 @@ export default function BookingSuccess() {
 
   if (loading) {
     return (
-      <main className="mx-auto w-full max-w-7xl px-6 py-24">
+      <main className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="rounded-3xl bg-white p-8 text-slate-600 shadow-sm">
           Đang xác nhận thanh toán và tải thông tin booking...
         </div>
@@ -49,7 +49,7 @@ export default function BookingSuccess() {
 
   if (!booking) {
     return (
-      <main className="mx-auto w-full max-w-7xl px-6 py-24">
+      <main className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="space-y-4 rounded-3xl bg-white p-8 shadow-sm">
           <h1 className="text-2xl font-black text-slate-950">
             Chưa tìm thấy booking đã thanh toán
@@ -67,7 +67,7 @@ export default function BookingSuccess() {
 
   return (
     <div>
-      <main className="mx-auto grid w-full max-w-7xl gap-8 px-6 pb-16 lg:grid-cols-12">
+      <main className="mx-auto grid w-full max-w-7xl gap-6 px-4 pb-16 sm:px-6 lg:grid-cols-12 lg:gap-8">
         <section className="space-y-8 lg:col-span-7">
           <BookingSuccessConfirmation booking={booking} />
           <BookingSuccessDetailsCard booking={booking} />

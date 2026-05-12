@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -26,20 +26,12 @@ const SORT_LABEL_KEYS = {
     durationShort: "durationShort",
 };
 
-const TOUR_FALLBACK_IMAGES = [
-    "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80",
-];
-
-const getTourImage = (tour, index = 0) =>
+const getTourImage = (tour) =>
     tour?.images?.imageUrl ||
     tour?.images?.[0]?.imageUrl ||
     tour?.coverImage ||
     tour?.image ||
-    TOUR_FALLBACK_IMAGES[index % TOUR_FALLBACK_IMAGES.length];
+    null;
 
 export default function TourList() {
     const { t } = useI18n();
@@ -52,6 +44,8 @@ export default function TourList() {
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const pageTopRef = useRef(null);
+    const skipPageScrollRef = useRef(true);
 
     const [debouncedSearch, setDebouncedSearch] = useState(search);
 
@@ -64,15 +58,18 @@ export default function TourList() {
         const timeout = setTimeout(() => {
             setDebouncedSearch(search);
             setPage(1);
-            setSearchParams((current) => {
-                const next = new URLSearchParams(current);
-                if (search.trim()) {
-                    next.set("search", search.trim());
-                } else {
-                    next.delete("search");
-                }
-                return next;
-            }, { replace: true });
+            setSearchParams(
+                (current) => {
+                    const next = new URLSearchParams(current);
+                    if (search.trim()) {
+                        next.set("search", search.trim());
+                    } else {
+                        next.delete("search");
+                    }
+                    return next;
+                },
+                { replace: true },
+            );
         }, 400);
 
         return () => clearTimeout(timeout);
@@ -102,24 +99,43 @@ export default function TourList() {
 
         fetch();
     }, [page, sortBy, debouncedSearch, t]);
+
+    useEffect(() => {
+        if (skipPageScrollRef.current) {
+            skipPageScrollRef.current = false;
+            return;
+        }
+
+        const frameId = window.requestAnimationFrame(() => {
+            if (pageTopRef.current) {
+                pageTopRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+                return;
+            }
+
+            window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+        });
+
+        return () => window.cancelAnimationFrame(frameId);
+    }, [page, sortBy, debouncedSearch]);
+
     const filteredTours = useMemo(() => tours, [tours]);
-    const paginationPages = useMemo(
-        () => Array.from({ length: totalPages }, (_, index) => index + 1),
-        [totalPages],
-    );
+    const paginationPages = useMemo(() => Array.from({ length: totalPages }, (_, index) => index + 1), [totalPages]);
     const firstItem = totalTours === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
     const lastItem = Math.min(page * PAGE_SIZE, totalTours);
 
     return (
         <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface">
-            <div className="mx-auto w-full max-w-[1600px] px-6 pb-12 pt-24 md:px-10">
+            <div ref={pageTopRef} className="mx-auto w-full max-w-[1600px] scroll-mt-24 px-4 pb-10 pt-6 sm:px-6 md:px-10 md:pt-24">
                 <PageHero
                     className="mb-12"
                     contentClassName="xl:items-center"
                     eyebrow={t("tourList.eyebrow")}
                     heading={
                         <>
-                            {t("tourList.headingA")} <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">{t("tourList.headingB")}</span>
+                            {t("tourList.headingA")}{" "}
+                            <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
+                                {t("tourList.headingB")}
+                            </span>
                         </>
                     }
                     description={t("tourList.description")}
@@ -163,24 +179,31 @@ export default function TourList() {
                     <TourListSkeleton />
                 ) : (
                     <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-                        {filteredTours.map((tour, index) => (
+                        {filteredTours.map((tour) => (
                             <article
                                 key={tour._id}
                                 className="group relative overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10"
                             >
                                 <div className="relative aspect-[4/3] overflow-hidden bg-surface-container-low">
-                                    <img
-                                        alt={tour.name}
-                                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                        src={getTourImage(tour, index)}
-                                    />
+                                    {getTourImage(tour) ? (
+                                        <img
+                                            alt={tour.name}
+                                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                            src={getTourImage(tour)}
+                                        />
+                                    ) : (
+                                        <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary">
+                                            <span className="material-symbols-outlined text-6xl">
+                                                travel_explore
+                                            </span>
+                                        </div>
+                                    )}
 
                                     <div className="absolute left-4 top-4 flex flex-wrap gap-2">
                                         <span className="rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-slate-800 shadow-sm backdrop-blur-md">
-                                            {tour.type || "Tour"}
-                                        </span>
-                                        <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-white shadow-sm">
-                                            {tour.numberOfDay ? `${tour.numberOfDay} ${t("common.day")}` : t("common.flexible")}
+                                            {tour.numberOfDay
+                                                ? `${tour.numberOfDay} ${t("common.day")}`
+                                                : t("common.flexible")}
                                         </span>
                                     </div>
 
@@ -233,8 +256,8 @@ export default function TourList() {
                                         </p>
                                     )}
 
-                                    <div className="grid grid-cols-3 overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low text-on-surface-variant">
-                                        <div className="flex min-h-[72px] flex-col items-center justify-center gap-1 border-r border-outline-variant/15 px-2 text-center">
+                                    <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low text-on-surface-variant sm:grid-cols-3">
+                                        <div className="flex min-h-[64px] flex-col items-center justify-center gap-1 border-b border-outline-variant/15 px-2 text-center sm:min-h-[72px] sm:border-b-0 sm:border-r">
                                             <span className="material-symbols-outlined text-[20px] leading-none text-primary">
                                                 schedule
                                             </span>
@@ -242,7 +265,7 @@ export default function TourList() {
                                                 {tour.numberOfDay || "-"} ngày
                                             </span>
                                         </div>
-                                        <div className="flex min-h-[72px] flex-col items-center justify-center gap-1 border-r border-outline-variant/15 px-2 text-center">
+                                        <div className="flex min-h-[64px] flex-col items-center justify-center gap-1 border-b border-outline-variant/15 px-2 text-center sm:min-h-[72px] sm:border-b-0 sm:border-r">
                                             <span className="material-symbols-outlined text-[20px] leading-none text-primary">
                                                 groups
                                             </span>
@@ -250,7 +273,7 @@ export default function TourList() {
                                                 {tour.travelerCount || 0} khách
                                             </span>
                                         </div>
-                                        <div className="flex min-h-[72px] flex-col items-center justify-center gap-1 px-2 text-center">
+                                        <div className="flex min-h-[64px] flex-col items-center justify-center gap-1 px-2 text-center sm:min-h-[72px]">
                                             <span className="material-symbols-outlined text-[20px] leading-none text-primary">
                                                 confirmation_number
                                             </span>
@@ -273,12 +296,10 @@ export default function TourList() {
                 )}
 
                 {!loading && (
-                    <article className="mt-8 flex flex-col gap-6 overflow-hidden rounded-xl bg-primary-container p-8 text-on-primary-container shadow-lg md:flex-row md:items-center md:justify-between">
+                    <article className="mt-8 flex flex-col gap-6 overflow-hidden rounded-xl bg-primary-container p-5 text-on-primary-container shadow-lg sm:p-8 md:flex-row md:items-center md:justify-between">
                         <div>
                             <span className="material-symbols-outlined mb-4 text-5xl">auto_awesome</span>
-                            <h3 className="mb-3 text-2xl font-extrabold leading-tight">
-                                {t("tourList.customTitle")}
-                            </h3>
+                            <h3 className="mb-3 text-2xl font-extrabold leading-tight">{t("tourList.customTitle")}</h3>
                             <p className="max-w-2xl text-sm leading-relaxed text-on-primary-container/80">
                                 {t("tourList.customDescription")}
                             </p>

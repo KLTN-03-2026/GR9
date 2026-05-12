@@ -11,6 +11,7 @@ import {
 import { ChevronLeft, ChevronRight, KeyRound, MailCheck, PencilLine, Trash2 } from "lucide-react";
 import React from "react";
 import { useI18n } from "@/i18n/I18nProvider";
+import usePaginationScroll from "@/hooks/usePaginationScroll";
 
 const TableGuide = ({
   guides,
@@ -50,6 +51,9 @@ const TableGuide = ({
   React.useEffect(() => {
     setPage((current) => Math.min(current, totalPages));
   }, [totalPages]);
+
+  usePaginationScroll([page]);
+
   return (
     <div>
       

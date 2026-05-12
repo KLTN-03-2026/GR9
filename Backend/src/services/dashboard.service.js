@@ -5,6 +5,7 @@ import Service from "../models/service.model.js";
 import Tour from "../models/tour.model.js";
 import TourSchedule from "../models/tourSchedule.model.js";
 import User from "../models/user.model.js";
+import Image from "../models/image.model.js";
 import { throwError } from "../utils/throwError.js";
 
 const formatMoney = (value) => {
@@ -53,6 +54,28 @@ const buildRecentMonths = (count = 6) => {
   });
 };
 
+const normalizeLocation = (value) => {
+  const text = String(value || "").trim();
+  if (!text) return "Unknown";
+  const parts = text.split(",").map((item) => item.trim()).filter(Boolean);
+  return parts[parts.length - 1] || text;
+};
+
+const getMonthLabel = (key) => {
+  const [, month] = String(key).split("-");
+  return `T${Number(month) || 1}`;
+};
+
+const buildRecentMonthBuckets = (count = 7) =>
+  buildRecentMonths(count).map((item) => ({
+    ...item,
+    label: getMonthLabel(item.key),
+    users: 0,
+    providers: 0,
+    bookings: 0,
+    revenue: 0,
+  }));
+
 export const getTravelerDashboard = async (travelerId) => {
   try {
     const allRequests = await AiTourRequest.find({ travelerId }).select(
@@ -68,9 +91,25 @@ export const getTravelerDashboard = async (travelerId) => {
       travelerId,
       status: { $nin: ["CANCELLED", "REFUNDED"] },
     })
-      .populate("tourId", "location numberOfDay")
+      .populate("tourId", "name location description numberOfDay price type")
       .populate("tourScheduleId", "departureDate")
       .select("tourId tourScheduleId startDate bookingDate payment status totalAmount isPrivate");
+
+    const bookingTourIds = bookings.map((booking) => booking.tourId?._id).filter(Boolean);
+    const bookingTourImages = await Image.find({
+      entityType: "TOUR",
+      entityId: { $in: bookingTourIds },
+    })
+      .sort({ createdAt: 1 })
+      .select("entityId imageUrl cloudinaryUrl");
+
+    const bookingTourImageMap = new Map();
+    bookingTourImages.forEach((image) => {
+      const key = String(image.entityId);
+      if (!bookingTourImageMap.has(key)) {
+        bookingTourImageMap.set(key, image.cloudinaryUrl || image.imageUrl);
+      }
+    });
 
     const trips = requests.map((item) => {
       const startDay = toIsoDate(item.startDay) || toIsoDate(item.createdAt);
@@ -114,14 +153,16 @@ export const getTravelerDashboard = async (travelerId) => {
       }
     });
 
-    bookings.forEach((booking) => {
+    const bookingTrips = bookings.map((booking) => {
       const location = booking.tourId?.location;
       const start = new Date(
         booking.isPrivate
           ? booking.startDate
           : booking.tourScheduleId?.departureDate || booking.startDate || booking.bookingDate,
       );
-      if (Number.isNaN(start.getTime())) return;
+      const displayStart = Number.isNaN(start.getTime()) ? booking.bookingDate : start;
+      const numberOfDay = Number(booking.tourId?.numberOfDay) || 1;
+      const end = addDays(displayStart, numberOfDay - 1);
 
       if (
         start > now &&
@@ -138,6 +179,21 @@ export const getTravelerDashboard = async (travelerId) => {
           visitedLocations.add(location.trim().toLowerCase());
         }
       }
+
+      return {
+        id: String(booking._id),
+        bookingId: String(booking._id),
+        tourId: booking.tourId?._id ? String(booking.tourId._id) : null,
+        location: booking.tourId?.name || location || "Unknown destination",
+        numberOfDay,
+        startDay: toIsoDate(displayStart),
+        endDay: toIsoDate(end),
+        status: booking.status === "COMPLETED" ? "completed" : getTripStatus(displayStart),
+        image: booking.tourId?._id
+          ? bookingTourImageMap.get(String(booking.tourId._id)) || null
+          : null,
+        estimatedPrice: formatMoney(booking.totalAmount || 0),
+      };
     });
 
     const paidAmount = bookings.reduce((total, booking) => {
@@ -160,6 +216,21 @@ export const getTravelerDashboard = async (travelerId) => {
       .limit(6)
       .select("name location description price type numberOfDay");
 
+    const recommendedTourImages = await Image.find({
+      entityType: "TOUR",
+      entityId: { $in: recommendedToursRaw.map((tour) => tour._id) },
+    })
+      .sort({ createdAt: 1 })
+      .select("entityId imageUrl cloudinaryUrl");
+
+    const recommendedTourImageMap = new Map();
+    recommendedTourImages.forEach((image) => {
+      const key = String(image.entityId);
+      if (!recommendedTourImageMap.has(key)) {
+        recommendedTourImageMap.set(key, image.cloudinaryUrl || image.imageUrl);
+      }
+    });
+
     const recommendedTours = recommendedToursRaw.map((tour) => ({
       id: String(tour._id),
       title: tour.name || "Unnamed tour",
@@ -168,10 +239,17 @@ export const getTravelerDashboard = async (travelerId) => {
       duration: `${Number(tour.numberOfDay) || 1} Days`,
       type: tour.type || "GROUP",
       price: formatMoney(tour.price?.adult || 0),
+      image: recommendedTourImageMap.get(String(tour._id)) || null,
     }));
 
-    const upcomingTrips = trips.filter((t) => t.status === "upcoming");
-    const ongoingTrips = trips.filter((t) => t.status === "ongoing");
+    const combinedTrips = [...bookingTrips, ...trips].sort((a, b) => {
+      const aDate = new Date(a.startDay || 0).getTime();
+      const bDate = new Date(b.startDay || 0).getTime();
+      return aDate - bDate;
+    });
+
+    const upcomingTrips = combinedTrips.filter((t) => t.status === "upcoming");
+    const ongoingTrips = combinedTrips.filter((t) => t.status === "ongoing");
 
     return {
       quickStats: {
@@ -547,6 +625,271 @@ export const getAdminDashboard = async () => {
       err.message || "Cannot get admin dashboard",
       err.status || 500,
       err.errorCode || "GET_ADMIN_DASHBOARD_ERROR",
+    );
+  }
+};
+
+export const getAdminAnalytics = async () => {
+  try {
+    const [users, bookings, tours, pendingProviders, requests] = await Promise.all([
+      User.find({})
+        .select("fullName email role accountStatus isActive createdAt")
+        .sort({ createdAt: -1 })
+        .lean(),
+      Booking.find({})
+        .populate("travelerId", "fullName email")
+        .populate("tourId", "name location")
+        .sort({ createdAt: -1 })
+        .lean(),
+      Tour.find({}).select("name location providerId isActive createdAt").lean(),
+      User.find({ role: "PROVIDER", isActive: false })
+        .select("fullName email createdAt")
+        .sort({ createdAt: -1 })
+        .limit(8)
+        .lean(),
+      AiTourRequest.find({ status: { $in: ["PUBLISHED", "PROPOSED"] } })
+        .populate("travelerId", "fullName email")
+        .sort({ createdAt: -1 })
+        .limit(8)
+        .lean(),
+    ]);
+
+    const paidBookings = bookings.filter((booking) => booking.payment === "PAID");
+    const revenueTotal = paidBookings.reduce(
+      (total, booking) => total + (Number(booking.totalAmount) || 0),
+      0,
+    );
+    const activeProviders = users.filter((user) => user.role === "PROVIDER" && user.isActive).length;
+    const verifiedProviderPercent = activeProviders
+      ? Math.round((activeProviders / Math.max(users.filter((user) => user.role === "PROVIDER").length, 1)) * 100)
+      : 0;
+
+    const monthBuckets = new Map(
+      buildRecentMonthBuckets(7).map((item) => [item.key, item]),
+    );
+
+    users.forEach((user) => {
+      const key = getMonthKey(user.createdAt);
+      if (!key || !monthBuckets.has(key)) return;
+      const bucket = monthBuckets.get(key);
+      if (user.role === "PROVIDER") bucket.providers += 1;
+      if (user.role === "TRAVELER") bucket.users += 1;
+    });
+
+    bookings.forEach((booking) => {
+      const key = getMonthKey(booking.bookingDate || booking.createdAt);
+      if (!key || !monthBuckets.has(key)) return;
+      const bucket = monthBuckets.get(key);
+      bucket.bookings += 1;
+      if (booking.payment === "PAID") {
+        bucket.revenue += Number(booking.totalAmount) || 0;
+      }
+    });
+
+    const locationMap = new Map();
+    bookings.forEach((booking) => {
+      const label = normalizeLocation(booking.tourId?.location);
+      const current = locationMap.get(label) || { label, bookings: 0, revenue: 0 };
+      current.bookings += 1;
+      if (booking.payment === "PAID") current.revenue += Number(booking.totalAmount) || 0;
+      locationMap.set(label, current);
+    });
+    const totalLocationBookings = [...locationMap.values()].reduce(
+      (sum, item) => sum + item.bookings,
+      0,
+    );
+
+    const pendingBookings = bookings.filter((booking) => booking.payment !== "PAID").length;
+    const cancelledBookings = bookings.filter((booking) => booking.status === "CANCELLED").length;
+    const completedBookings = bookings.filter((booking) => booking.status === "COMPLETED").length;
+
+    return {
+      summary: {
+        totalRevenue: revenueTotal,
+        totalUsers: users.length,
+        totalBookings: bookings.length,
+        activeProviders,
+        verifiedProviderPercent,
+        pendingProviders: pendingProviders.length,
+        systemUptimePercent: 99.98,
+      },
+      growth: [...monthBuckets.values()],
+      regions: [...locationMap.values()]
+        .sort((a, b) => b.bookings - a.bookings)
+        .slice(0, 5)
+        .map((item) => ({
+          ...item,
+          percent: totalLocationBookings
+            ? Math.round((item.bookings / totalLocationBookings) * 100)
+            : 0,
+        })),
+      moderationQueue: pendingProviders.map((provider) => ({
+        id: String(provider._id),
+        title: provider.fullName || "Provider",
+        description: `${provider.email || "No email"} - chờ duyệt từ ${toIsoDate(provider.createdAt) || "hôm nay"}`,
+        status: "PENDING",
+      })),
+      alerts: [
+        {
+          id: "pending-bookings",
+          title: "Booking chưa thanh toán",
+          description: `${pendingBookings} booking đang chờ thanh toán hoặc xử lý.`,
+          level: pendingBookings ? "warning" : "success",
+        },
+        {
+          id: "cancelled-bookings",
+          title: "Booking đã hủy",
+          description: `${cancelledBookings} booking bị hủy trong hệ thống.`,
+          level: cancelledBookings ? "danger" : "success",
+        },
+        {
+          id: "ai-requests",
+          title: "Yêu cầu tour AI đang mở",
+          description: `${requests.length} yêu cầu tour AI cần provider phản hồi.`,
+          level: requests.length ? "warning" : "success",
+        },
+      ],
+      complianceRows: [
+        { id: "users", metric: "Người dùng hệ thống", value: users.length, status: "Đang theo dõi" },
+        { id: "tours", metric: "Tour đang quản lý", value: tours.length, status: "Đồng bộ" },
+        { id: "completed", metric: "Tour hoàn tất", value: completedBookings, status: "Đã ghi nhận" },
+      ],
+    };
+  } catch (err) {
+    throwError(
+      err.message || "Cannot get admin analytics",
+      err.status || 500,
+      err.errorCode || "GET_ADMIN_ANALYTICS_ERROR",
+    );
+  }
+};
+
+export const getProviderAnalytics = async (providerId) => {
+  try {
+    const tours = await Tour.find({ providerId })
+      .select("name location type isActive createdAt")
+      .lean();
+    const tourIds = tours.map((tour) => tour._id);
+
+    const [bookings, reviews, guides, services] = await Promise.all([
+      Booking.find({ tourId: { $in: tourIds } })
+        .populate("tourId", "name location type numberOfDay")
+        .populate("travelerId", "fullName email")
+        .sort({ createdAt: -1 })
+        .lean(),
+      Review.find({ tourId: { $in: tourIds } })
+        .populate("tourId", "name location")
+        .populate("reviewerId", "fullName")
+        .sort({ createdAt: -1 })
+        .lean(),
+      User.find({ supervisorId: providerId, role: "GUIDE" }).select("_id isActive").lean(),
+      Service.find({ providerId }).select("_id type status").lean(),
+    ]);
+
+    const paidBookings = bookings.filter((booking) => booking.payment === "PAID");
+    const completedBookings = bookings.filter((booking) => booking.status === "COMPLETED");
+    const revenueTotal = paidBookings.reduce(
+      (total, booking) => total + (Number(booking.totalAmount) || 0),
+      0,
+    );
+    const averageRating = reviews.length
+      ? Number(
+          (
+            reviews.reduce((total, review) => total + (Number(review.ratingTour) || 0), 0) /
+            reviews.length
+          ).toFixed(1),
+        )
+      : 0;
+    const completionRate = bookings.length
+      ? Math.round((completedBookings.length / bookings.length) * 100)
+      : 0;
+
+    const monthBuckets = new Map(
+      buildRecentMonthBuckets(7).map((item) => [item.key, item]),
+    );
+    paidBookings.forEach((booking) => {
+      const key = getMonthKey(booking.paidAt || booking.bookingDate || booking.createdAt);
+      if (!key || !monthBuckets.has(key)) return;
+      const bucket = monthBuckets.get(key);
+      bucket.revenue += Number(booking.totalAmount) || 0;
+      bucket.bookings += 1;
+    });
+
+    const typeMap = new Map();
+    bookings.forEach((booking) => {
+      const label = booking.tourId?.type || "OTHER";
+      const current = typeMap.get(label) || { label, bookings: 0 };
+      current.bookings += 1;
+      typeMap.set(label, current);
+    });
+    const totalTypeBookings = [...typeMap.values()].reduce((sum, item) => sum + item.bookings, 0);
+
+    const reviewsByTour = new Map();
+    reviews.forEach((review) => {
+      const key = String(review.tourId?._id || review.tourId);
+      const current = reviewsByTour.get(key) || { total: 0, count: 0 };
+      current.total += Number(review.ratingTour) || 0;
+      current.count += 1;
+      reviewsByTour.set(key, current);
+    });
+
+    const bookingsByTour = new Map();
+    bookings.forEach((booking) => {
+      const key = String(booking.tourId?._id || booking.tourId || "");
+      const current = bookingsByTour.get(key) || [];
+      current.push(booking);
+      bookingsByTour.set(key, current);
+    });
+
+    const topTours = tours
+      .map((tour) => {
+        const tourBookings = bookingsByTour.get(String(tour._id)) || [];
+        const tourPaidBookings = tourBookings.filter((booking) => booking.payment === "PAID");
+        const reviewStat = reviewsByTour.get(String(tour._id)) || { total: 0, count: 0 };
+        return {
+          id: String(tour._id),
+          tour: tour.name || "Unnamed tour",
+          bookings: tourBookings.length,
+          revenue: tourPaidBookings.reduce(
+            (total, booking) => total + (Number(booking.totalAmount) || 0),
+            0,
+          ),
+          rating: reviewStat.count ? Number((reviewStat.total / reviewStat.count).toFixed(1)) : 0,
+        };
+      })
+      .sort((a, b) => b.revenue - a.revenue || b.bookings - a.bookings)
+      .slice(0, 5);
+
+    return {
+      summary: {
+        revenueTotal,
+        activeBookings: bookings.filter((booking) => !["CANCELLED", "REFUNDED", "COMPLETED"].includes(booking.status)).length,
+        averageRating,
+        completionRate,
+        totalTours: tours.length,
+        guidesCount: guides.length,
+        servicesCount: services.length,
+      },
+      revenueTrend: [...monthBuckets.values()],
+      bookingMix: [...typeMap.values()].map((item) => ({
+        label: item.label,
+        bookings: item.bookings,
+        percent: totalTypeBookings ? Math.round((item.bookings / totalTypeBookings) * 100) : 0,
+      })),
+      topTours,
+      recentReviews: reviews.slice(0, 5).map((review) => ({
+        id: String(review._id),
+        title: `${review.reviewerId?.fullName || "Traveler"} - ${review.ratingTour || 0} sao`,
+        description: review.contentTour || "Traveler đã để lại đánh giá cho tour.",
+        tourName: review.tourId?.name || "Tour",
+        rating: Number(review.ratingTour) || 0,
+      })),
+    };
+  } catch (err) {
+    throwError(
+      err.message || "Cannot get provider analytics",
+      err.status || 500,
+      err.errorCode || "GET_PROVIDER_ANALYTICS_ERROR",
     );
   }
 };

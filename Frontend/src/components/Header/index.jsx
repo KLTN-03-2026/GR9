@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { Bell, ChevronDown, LogOut, Search, Sparkles, UserRound } from "lucide-react";
+import { Bell, ChevronDown, LogOut, Menu, Search, Sparkles, UserRound } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import { getProviderAiNotifications } from "@/services/api/ai";
 import { useI18n } from "@/i18n/I18nProvider";
 import ThemeModeToggle from "@/components/shared/theme-mode-toggle";
 import LanguageToggle from "@/components/shared/language-toggle";
+import { useSidebar } from "@/components/ui/sidebar";
 
 const PAGE_META = {
   "/traveler": {
@@ -176,6 +177,14 @@ const ROUTE_TITLES = [
     title: "Bookings Management",
   },
   {
+    test: (p) => p.startsWith("/provider/reviews"),
+    title: "Provider Reviews",
+  },
+  {
+    test: (p) => p.startsWith("/provider/analytics"),
+    title: "Provider Analytics",
+  },
+  {
     test: (p) => p.startsWith("/provider/ai-tour-requests"),
     title: "AI Tour Request",
   },
@@ -213,6 +222,7 @@ const ROUTE_TITLES = [
   },
   { test: (p) => p.startsWith("/admin/profile"), title: "Admin Profile" },
   { test: (p) => p.startsWith("/admin/users"), title: "User Management" },
+  { test: (p) => p.startsWith("/admin/analytics"), title: "Admin Analytics" },
   {
     test: (p) => p.startsWith("/admin/provider-approval"),
     title: "Provider Approval",
@@ -234,10 +244,12 @@ const ROUTE_TITLE_KEYS = {
   "Service Management": "serviceManagement",
   "Guide Management Provider": "guideManagementProvider",
   "Bookings Management": "bookingsManagement",
+  "Provider Reviews": "providerReviews",
   "AI Tour Request": "aiTourRequest",
   "Hotels Management": "hotelsManagement",
   "Provider Profile": "providerProfile",
   "Provider Dashboard": "providerDashboard",
+  "Provider Analytics": "providerAnalytics",
   "Traveler Profile": "travelerProfile",
   "Tour List": "tourList",
   "Tour Detail": "tourDetail",
@@ -250,6 +262,7 @@ const ROUTE_TITLE_KEYS = {
   "User Management": "userManagement",
   "Provider Approval": "providerApproval",
   "Admin Dashboard": "adminDashboard",
+  "Admin Analytics": "adminAnalytics",
 };
 
 function resolveBreadcrumbTitle(pathname, fallbackTitle) {
@@ -287,6 +300,7 @@ const Header = () => {
   const navigate = useNavigate();
   const { user, logOutContext } = useContext(AuthContext);
   const { t } = useI18n();
+  const { state: sidebarState, isMobile, toggleSidebar } = useSidebar();
   const [globalSearch, setGlobalSearch] = useState("");
   const [aiNotifications, setAiNotifications] = useState([]);
   const currentRole =
@@ -367,9 +381,29 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b border-outline-variant/20 bg-surface-container-lowest/92 px-7 shadow-sm backdrop-blur-md md:left-64">
-      <div className="mx-auto flex h-full max-w-[1920px] items-center justify-between gap-6">
-        <div className="flex min-w-0 items-center gap-3">
+    <header
+      className="fixed left-0 right-0 top-0 z-50 h-16 border-b border-outline-variant/20 bg-surface-container-lowest/92 px-3 shadow-sm backdrop-blur-md transition-[left] duration-200 ease-linear sm:px-5 md:px-7"
+      style={{
+        left: isMobile
+          ? 0
+          : sidebarState === "collapsed"
+            ? "var(--sidebar-width-icon)"
+            : "var(--sidebar-width)",
+      }}
+    >
+      <div className="mx-auto flex h-full max-w-[1920px] items-center justify-between gap-2 sm:gap-3 md:gap-6">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="h-10 w-10 shrink-0 rounded-xl border border-outline-variant/20 bg-surface-container-low text-on-surface-variant hover:bg-primary/10 hover:text-primary md:hidden"
+            aria-label="Mở menu"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+
           <h1 className="shrink-0 font-heading text-[1.05rem] font-extrabold tracking-tight text-teal-800">
             Voyager AI
           </h1>
@@ -388,7 +422,7 @@ const Header = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 md:gap-3">
           {showGlobalSearch ? (
             <form className="relative hidden md:block" onSubmit={handleGlobalSearch}>
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />

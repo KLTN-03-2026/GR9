@@ -22,7 +22,7 @@ const DialogDeleteGuide = ({
   return (
     <div>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="border-outline-variant/20 bg-surface-container-lowest sm:max-w-[600px]">
+        <DialogContent className="max-h-[calc(100vh-2rem)] overflow-y-auto border-outline-variant/20 bg-surface-container-lowest sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle className="text-xl font-extrabold text-on-surface">
               {title}

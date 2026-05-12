@@ -304,7 +304,7 @@ const GuideManagementProvider = () => {
   const initialLoading = loading && guides.length === 0;
 
   return (
-    <div className="space-y-8 text-slate-900 font-sans">
+    <div className="space-y-6 font-sans text-slate-900 sm:space-y-8">
       <PageHero
         eyebrow={t("provider.guides.eyebrow")}
         heading={
@@ -317,7 +317,7 @@ const GuideManagementProvider = () => {
         }
         description={t("provider.guides.description")}
         actions={
-          <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center md:w-auto">
             <div className="relative w-full md:w-[260px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
@@ -329,7 +329,7 @@ const GuideManagementProvider = () => {
             </div>
             <Button
               onClick={() => handleOpen()}
-              className="gap-2 bg-teal-600 hover:bg-teal-700 text-white shadow-md p-5"
+              className="w-full gap-2 bg-teal-600 p-5 text-white shadow-md hover:bg-teal-700 sm:w-auto"
             >
               <Plus className="size-4" />
               {t("provider.guides.add")}
@@ -340,7 +340,7 @@ const GuideManagementProvider = () => {
       {initialLoading ? (
         <StatsSkeleton count={4} />
       ) : (
-        <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 md:gap-6">
         {cards.map((c) => (
           <div
             key={c.label}

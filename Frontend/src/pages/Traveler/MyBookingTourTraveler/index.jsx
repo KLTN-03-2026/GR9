@@ -49,7 +49,7 @@ export default function MyBookingTourTraveler() {
 
     return (
         <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface">
-            <div className="mx-auto w-full px-6 pb-12 pt-24 md:px-10">
+            <div className="mx-auto w-full px-4 pb-10 pt-6 sm:px-6 md:px-10 md:pt-24">
                 <BookingHeader />
                 <BookingStatsSection />
                 <BookingTableSection bookings={bookings} loading={loading} error={error} />

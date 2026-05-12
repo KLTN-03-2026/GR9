@@ -242,6 +242,12 @@ button {
     * {
         @apply border-border outline-ring/50;
     }
+    html,
+    body,
+    #root {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
     body {
         @apply bg-background text-foreground;
     }
@@ -262,6 +268,13 @@ button {
         transition-property: none !important;
         transition-duration: 0ms !important;
         animation-duration: 0ms !important;
+    }
+
+    .theme-changing .theme-mode-toggle,
+    .theme-changing .theme-mode-toggle * {
+        transition-property: transform, color, background-color, box-shadow, opacity !important;
+        transition-duration: 300ms !important;
+        transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
     }
 
     .bg-primary {

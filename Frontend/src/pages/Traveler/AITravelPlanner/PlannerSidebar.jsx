@@ -29,6 +29,7 @@ const formatCurrencyVND = (value) =>
 
 function PlannerSidebar({
   budget,
+  isGenerating = false,
   quantity,
   destination,
   duration,
@@ -44,10 +45,10 @@ function PlannerSidebar({
 }) {
   const { t } = useI18n();
   return (
-    <section className="scrollbar-hide h-full w-full overflow-y-auto bg-surface-container-low p-8 md:w-[400px] xl:w-[450px]">
+    <section className="scrollbar-hide h-full w-full overflow-y-auto bg-surface-container-low p-4 sm:p-6 md:w-[400px] md:p-8 xl:w-[450px]">
       <div className="mx-auto max-w-md">
         <header className="mb-10">
-          <h1 className="mb-2 font-headline text-3xl font-extrabold tracking-tight text-on-surface">
+          <h1 className="mb-2 font-headline text-2xl font-extrabold tracking-tight text-on-surface sm:text-3xl">
             {t("planner.title")}
           </h1>
           <p className="text-sm text-on-surface-variant">
@@ -67,6 +68,7 @@ function PlannerSidebar({
               <Input
                 type="text"
                 value={destination}
+                disabled={isGenerating}
                 onChange={(e) => onDestinationChange(e.target.value)}
                 className="h-14 rounded-2xl border-outline-variant/20 bg-surface-container-lowest py-4 pl-12 pr-4 font-medium text-on-surface focus-visible:border-primary focus-visible:ring-primary/10"
               />
@@ -84,6 +86,7 @@ function PlannerSidebar({
               <Input
                 type="date"
                 value={formatDateInputValue(startDate)}
+                disabled={isGenerating}
                 onChange={(e) => onStartDateChange(e.target.value)}
                 className="h-14 rounded-2xl border-outline-variant/20 bg-surface-container-lowest pl-12 pr-4 font-medium text-on-surface focus-visible:border-primary focus-visible:ring-primary/10"
               />
@@ -92,13 +95,14 @@ function PlannerSidebar({
 
           <Card className="overflow-hidden rounded-3xl border border-outline-variant/20 bg-white py-0 shadow-none">
             <CardContent className="space-y-4 p-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="px-1 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
                     {t("planner.duration")}
                   </Label>
                   <Select
                     value={String(duration)}
+                    disabled={isGenerating}
                     onValueChange={onDurationChange}
                   >
                     <SelectTrigger className="!h-14 w-full rounded-2xl border-outline-variant/20 bg-white px-4 text-base font-semibold text-on-surface">
@@ -125,6 +129,7 @@ function PlannerSidebar({
                       type="number"
                       min="0"
                       value={budget}
+                      disabled={isGenerating}
                       onChange={(e) => onBudgetChange(e.target.value)}
                       placeholder={t("planner.enterBudget")}
                       className="h-14 rounded-2xl border-outline-variant/20 bg-white pl-9 text-base font-semibold text-on-surface"
@@ -133,7 +138,7 @@ function PlannerSidebar({
                 </div>
               </div>
 
-              <div className="flex items-center justify-between rounded-2xl bg-slate-100 px-4 py-3 text-[11px] text-on-surface-variant">
+              <div className="flex flex-col gap-1 rounded-2xl bg-slate-100 px-4 py-3 text-[11px] text-on-surface-variant sm:flex-row sm:items-center sm:justify-between">
                 <span>{t("planner.suggestedRange")}</span>
                 <span className="font-bold text-on-surface">
                   {formatCurrencyVND(2000000)} - {formatCurrencyVND(6000000)}
@@ -149,6 +154,7 @@ function PlannerSidebar({
             <div className="flex flex-wrap gap-2">
               <Textarea
                 value={describe}
+                disabled={isGenerating}
                 onChange={(e) => setDescribe(e.target.value)}
                 className="h-32 rounded-2xl border-outline-variant/20 bg-surface-container-lowest  font-medium text-on-surface focus-visible:border-primary focus-visible:ring-primary/10"
                 placeholder={t("planner.describeTrip")}
@@ -183,6 +189,7 @@ function PlannerSidebar({
                         type="number"
                         min="0"
                         value={quantity.adult}
+                        disabled={isGenerating}
                         onChange={(e) =>
                           onCompanionChange("adult", e.target.value)
                         }
@@ -223,6 +230,7 @@ function PlannerSidebar({
                         type="number"
                         min="0"
                         value={quantity.child}
+                        disabled={isGenerating}
                         onChange={(e) =>
                           onCompanionChange("child", e.target.value)
                         }
@@ -265,6 +273,7 @@ function PlannerSidebar({
                         type="number"
                         min="0"
                         value={quantity.infant}
+                        disabled={isGenerating}
                         onChange={(e) =>
                           onCompanionChange("infant", e.target.value)
                         }
@@ -287,11 +296,14 @@ function PlannerSidebar({
 
           <Button
             onClick={() => handleGenerateTour()}
+            disabled={isGenerating}
             type="button"
             className="h-auto w-full rounded-2xl bg-gradient-to-r from-primary to-primary-container py-5 font-headline text-lg font-bold text-on-primary shadow-lg transition-all hover:-translate-y-1 hover:shadow-primary/20 active:scale-95"
           >
-            <span>{t("planner.generate")}</span>
-            <span className="material-symbols-outlined">auto_awesome</span>
+            <span>{isGenerating ? t("planner.generatingButton") : t("planner.generate")}</span>
+            <span className={`material-symbols-outlined ${isGenerating ? "animate-spin" : ""}`}>
+              {isGenerating ? "progress_activity" : "auto_awesome"}
+            </span>
           </Button>
         </div>
       </div>
