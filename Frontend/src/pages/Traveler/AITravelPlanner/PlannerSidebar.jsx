@@ -45,10 +45,10 @@ function PlannerSidebar({
 }) {
   const { t } = useI18n();
   return (
-    <section className="scrollbar-hide h-full w-full overflow-y-auto bg-surface-container-low p-8 md:w-[400px] xl:w-[450px]">
+    <section className="scrollbar-hide h-full w-full overflow-y-auto bg-surface-container-low p-4 sm:p-6 md:w-[400px] md:p-8 xl:w-[450px]">
       <div className="mx-auto max-w-md">
         <header className="mb-10">
-          <h1 className="mb-2 font-headline text-3xl font-extrabold tracking-tight text-on-surface">
+          <h1 className="mb-2 font-headline text-2xl font-extrabold tracking-tight text-on-surface sm:text-3xl">
             {t("planner.title")}
           </h1>
           <p className="text-sm text-on-surface-variant">
@@ -95,7 +95,7 @@ function PlannerSidebar({
 
           <Card className="overflow-hidden rounded-3xl border border-outline-variant/20 bg-white py-0 shadow-none">
             <CardContent className="space-y-4 p-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="px-1 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
                     {t("planner.duration")}
@@ -138,7 +138,7 @@ function PlannerSidebar({
                 </div>
               </div>
 
-              <div className="flex items-center justify-between rounded-2xl bg-slate-100 px-4 py-3 text-[11px] text-on-surface-variant">
+              <div className="flex flex-col gap-1 rounded-2xl bg-slate-100 px-4 py-3 text-[11px] text-on-surface-variant sm:flex-row sm:items-center sm:justify-between">
                 <span>{t("planner.suggestedRange")}</span>
                 <span className="font-bold text-on-surface">
                   {formatCurrencyVND(2000000)} - {formatCurrencyVND(6000000)}

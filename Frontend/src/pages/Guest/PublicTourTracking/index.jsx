@@ -31,7 +31,7 @@ const PublicTourTracking = () => {
 
   if (loading) {
     return (
-      <main className="mx-auto min-h-screen max-w-7xl px-6 py-24">
+      <main className="mx-auto min-h-screen max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
         <TrackingPageSkeleton />
       </main>
     );
@@ -39,7 +39,7 @@ const PublicTourTracking = () => {
 
   if (!tracking) {
     return (
-      <main className="mx-auto min-h-screen max-w-7xl px-6 py-24">
+      <main className="mx-auto min-h-screen max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="space-y-4 rounded-3xl bg-white p-8 shadow-sm">
           <h1 className="text-2xl font-black text-slate-950">
             Tracking link không hợp lệ
@@ -57,7 +57,7 @@ const PublicTourTracking = () => {
 
   return (
     <div className="bg-slate-50 min-h-screen pb-24 md:pb-12">
-      <main className="pt-24 px-4 md:px-8 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 pt-16 md:px-8 md:pt-24 lg:grid-cols-12 lg:gap-8">
         
         <div className="lg:col-span-8 flex flex-col gap-8">
           <TourHeroCard tracking={tracking} />

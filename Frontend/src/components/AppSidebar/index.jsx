@@ -182,6 +182,11 @@ export function AppSidebar() {
               <Link
                 key={item.name}
                 to={fullPath}
+                onClick={() => {
+                  if (isMobile) {
+                    toggleSidebar();
+                  }
+                }}
                 title={isCollapsed ? t(`sidebar.items.${item.labelKey}`) : undefined}
                 className={`group relative flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${
                   isActive

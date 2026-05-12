@@ -156,7 +156,7 @@ export default function AITourHistory() {
 
   return (
     <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface">
-      <div className="mx-auto w-full px-6 pb-12 pt-24 md:px-10">
+      <div className="mx-auto w-full px-4 pb-10 pt-6 sm:px-6 md:px-10 md:pt-24">
       <PageHero
         className="mb-8"
         eyebrow="Traveler Archive"
@@ -195,7 +195,7 @@ export default function AITourHistory() {
       ) : history.length === 0 ? (
         <EmptyHistoryState />
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
+        <div className="grid gap-6 xl:grid-cols-[420px_1fr]">
           <TourHistoryList
             history={history}
             selectedTourId={selectedTour?._id}

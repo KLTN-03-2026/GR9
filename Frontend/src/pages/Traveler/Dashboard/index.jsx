@@ -86,7 +86,7 @@ const TravelerDashboard = () => {
 
   return (
     <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface font-body text-on-surface">
-      <div className="mx-auto w-full max-w-[1600px] px-6 pb-12 pt-24 md:px-10">
+      <div className="mx-auto w-full max-w-[1600px] px-4 pb-10 pt-6 sm:px-6 md:px-10 md:pt-24">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           <div className="space-y-12 lg:col-span-8">
             <PageHero
@@ -117,7 +117,7 @@ const TravelerDashboard = () => {
                 </Button>
               }
               rightSlot={
-                <div className="group relative h-[240px] w-full overflow-hidden rounded-[1.75rem] bg-slate-900 shadow-[0_20px_50px_rgba(25,28,30,0.18)] ring-4 ring-surface-container-lowest/70 md:w-[320px]">
+                <div className="group relative h-[220px] w-full overflow-hidden rounded-[1.75rem] bg-slate-900 shadow-[0_20px_50px_rgba(25,28,30,0.18)] ring-4 ring-surface-container-lowest/70 sm:h-[240px] md:w-[320px]">
                   <img
                     alt="Paradise beach"
                     className="absolute inset-0 h-full w-full object-cover opacity-80 transition-transform duration-700 group-hover:scale-110"
@@ -137,7 +137,7 @@ const TravelerDashboard = () => {
             />
 
             <section>
-              <div className="mb-6 flex items-center justify-between">
+              <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="font-headline text-2xl font-bold text-on-surface">
                   {t("travelerDashboard.upcomingTrips")}
                 </h2>
@@ -208,7 +208,7 @@ const TravelerDashboard = () => {
             </section>
 
             <section>
-              <div className="mb-6 flex items-center justify-between">
+              <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="font-headline text-2xl font-bold text-on-surface">
                     {t("travelerDashboard.recommended")}
@@ -266,7 +266,7 @@ const TravelerDashboard = () => {
           </div>
 
           <div className="space-y-8 lg:col-span-4">
-            <section className="rounded-3xl border border-outline-variant/15 bg-surface-container-lowest p-8 shadow-sm">
+            <section className="rounded-3xl border border-outline-variant/15 bg-surface-container-lowest p-5 shadow-sm sm:p-8">
               <h3 className="mb-6 text-xl font-extrabold text-on-surface">
                 {t("travelerDashboard.quickActions")}
               </h3>
@@ -356,7 +356,7 @@ const TravelerDashboard = () => {
               </div>
             </section>
 
-            <section className="rounded-[2rem] bg-gradient-to-br from-[#0f766e] via-[#0d9488] to-[#f97316] p-10 text-white shadow-xl shadow-primary/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl dark:from-surface-container-high dark:via-surface-container-low dark:to-[#123b37]">
+            <section className="rounded-3xl bg-gradient-to-br from-[#0f766e] via-[#0d9488] to-[#f97316] p-6 text-white shadow-xl shadow-primary/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:p-10 dark:from-surface-container-high dark:via-surface-container-low dark:to-[#123b37]">
               <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
                 <span className="material-symbols-outlined text-3xl text-white">
                   magic_button

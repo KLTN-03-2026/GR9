@@ -34,8 +34,8 @@ const HeaderGuest = () => {
   const bookingSuccessPath = `/guest/booking-success-and-tracking-link${trackingQuery}`;
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b border-outline-variant/20 bg-surface-container-lowest/92 px-6 shadow-sm backdrop-blur-xl">
-      <div className="mx-auto flex h-full max-w-[1400px] items-center justify-between gap-6">
+    <header className="fixed left-0 right-0 top-0 z-50 h-16 border-b border-outline-variant/20 bg-surface-container-lowest/92 px-3 shadow-sm backdrop-blur-xl sm:px-5 md:px-6">
+      <div className="mx-auto flex h-full max-w-[1400px] items-center justify-between gap-3 md:gap-6">
         {/* Logo */}
        
 
@@ -76,7 +76,9 @@ const HeaderGuest = () => {
         </div>
 
         {/* Mobile Avatar */}
-        <div className="md:hidden">
+        <div className="flex items-center gap-1.5 md:hidden">
+          <ThemeModeToggle className="scale-90" />
+          <LanguageToggle className="scale-90" />
           <Avatar className="h-9 w-9 border border-outline-variant/30 bg-surface-container-low">
             <AvatarFallback className="text-xs font-bold text-teal-800">
               P

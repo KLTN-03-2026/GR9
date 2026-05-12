@@ -238,7 +238,7 @@ const AssignedToursList = () => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1600px] pb-12 pt-24 text-on-surface">
+    <div className="mx-auto w-full max-w-[1600px] pb-10 pt-6 text-on-surface md:pt-24">
       <PageHero
         eyebrow="Assignment Board"
         heading={
@@ -263,7 +263,7 @@ const AssignedToursList = () => {
             </div>
             <Button
               onClick={() => setProposeOpen(true)}
-              className="rounded-2xl bg-gradient-to-br from-primary to-primary-container px-6 py-3 font-bold text-on-primary shadow-lg shadow-primary/15"
+              className="w-full rounded-2xl bg-gradient-to-br from-primary to-primary-container px-6 py-3 font-bold text-on-primary shadow-lg shadow-primary/15 sm:w-auto"
             >
               <Plus className="size-4" />
               Propose New Tour
@@ -273,7 +273,7 @@ const AssignedToursList = () => {
       />
 
       <section className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-center">
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+        <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
           {SEGMENTS.map((s) => (
             <Button
               key={s.id}
@@ -282,8 +282,8 @@ const AssignedToursList = () => {
               variant={segment === s.id ? "default" : "outline"}
               className={
                 segment === s.id
-                  ? "rounded-full px-5 py-2.5 shadow-md"
-                  : "rounded-full border-outline-variant/20 bg-surface-container-lowest px-5 py-2.5 font-medium text-on-surface-variant hover:bg-surface-container"
+                  ? "shrink-0 rounded-full px-5 py-2.5 shadow-md"
+                  : "shrink-0 rounded-full border-outline-variant/20 bg-surface-container-lowest px-5 py-2.5 font-medium text-on-surface-variant hover:bg-surface-container"
               }
               onClick={() => setSegment(s.id)}
             >

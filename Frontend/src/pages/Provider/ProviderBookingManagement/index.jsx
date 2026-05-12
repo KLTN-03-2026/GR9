@@ -3,7 +3,7 @@ import PageHero from "@/components/shared/page-hero";
 
 export default function ProviderBookingManagement() {
   return (
-    <div className="space-y-8 text-on-surface">
+    <div className="space-y-6 text-on-surface sm:space-y-8">
       <PageHero
         eyebrow="Reservation Control"
         heading={

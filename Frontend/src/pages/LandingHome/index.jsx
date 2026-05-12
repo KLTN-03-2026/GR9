@@ -239,12 +239,12 @@ export default function LandingHome() {
       <ChatBotWidget {...landingChatbotProps} />
 
       <header className="fixed inset-x-0 top-0 z-50 border-b border-outline-variant/30 bg-white/82 shadow-[0_10px_32px_rgba(15,23,42,0.06)] backdrop-blur-2xl">
-        <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-3 px-5 py-4">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:h-18 sm:gap-3 sm:px-5 sm:py-4">
           <Link to="/" className="flex shrink-0 items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
               <MapPinned className="h-5 w-5" />
             </span>
-            <span className="font-heading text-lg font-extrabold tracking-[0.12em] text-on-surface">
+            <span className="font-heading text-base font-extrabold tracking-[0.08em] text-on-surface sm:text-lg sm:tracking-[0.12em]">
               Travel_AI
             </span>
           </Link>
@@ -337,9 +337,9 @@ export default function LandingHome() {
             ) : null}
           </form>
 
-          <div className="flex shrink-0 items-center gap-2">
-            <ThemeModeToggle />
-            <LanguageToggle />
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <ThemeModeToggle className="scale-90 sm:scale-100" />
+            <LanguageToggle className="scale-90 sm:scale-100" />
             <Link
               to="/login"
               className="hidden rounded-full border border-outline-variant/40 bg-white px-4 py-2 text-sm font-bold text-on-surface hover:bg-surface-container-low sm:inline-flex"
@@ -348,7 +348,7 @@ export default function LandingHome() {
             </Link>
             <Link
               to="/signup"
-              className="rounded-full bg-primary px-4 py-2 text-sm font-extrabold text-primary-foreground shadow-lg shadow-primary/15 hover:bg-primary-container"
+              className="rounded-full bg-primary px-3 py-2 text-xs font-extrabold text-primary-foreground shadow-lg shadow-primary/15 hover:bg-primary-container sm:px-4 sm:text-sm"
             >
               {t("common.start")}
             </Link>
@@ -357,7 +357,7 @@ export default function LandingHome() {
       </header>
 
       <main>
-        <section className="relative min-h-[740px] overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#f7f9fb_58%,#eef7f5_100%)] pt-24 dark:bg-[linear-gradient(180deg,#111718_0%,#101416_58%,#0b1112_100%)]">
+        <section className="relative min-h-[640px] overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#f7f9fb_58%,#eef7f5_100%)] pt-20 dark:bg-[linear-gradient(180deg,#111718_0%,#101416_58%,#0b1112_100%)] sm:min-h-[740px] sm:pt-24">
           <img
             src={heroImage}
             alt="Vietnam travel bay"
@@ -368,7 +368,7 @@ export default function LandingHome() {
           <div className="absolute inset-0 hidden bg-[radial-gradient(circle_at_72%_42%,rgba(107,216,203,0.16),transparent_34%)] dark:block" />
           <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#f7f9fb] to-transparent dark:from-[#101416]" />
 
-          <div className="relative mx-auto grid max-w-7xl gap-10 px-5 pb-20 pt-24 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
+          <div className="relative mx-auto grid max-w-7xl gap-10 px-4 pb-16 pt-16 sm:px-5 sm:pb-20 sm:pt-24 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
             <motion.div
               variants={container}
               initial="hidden"
@@ -384,11 +384,11 @@ export default function LandingHome() {
               </motion.span>
               <motion.h1
                 variants={fadeUp}
-                className="mt-7 font-heading text-5xl font-extrabold leading-[0.98] tracking-tight text-on-surface dark:text-white md:text-7xl"
+                className="mt-7 font-heading text-4xl font-extrabold leading-[1.02] tracking-tight text-on-surface dark:text-white sm:text-5xl md:text-7xl"
               >
                 {t("landing.heroTitle")}
               </motion.h1>
-              <motion.p variants={fadeUp} className="mt-6 max-w-2xl text-lg leading-8 text-on-surface-variant dark:text-slate-300">
+              <motion.p variants={fadeUp} className="mt-6 max-w-2xl text-base leading-7 text-on-surface-variant dark:text-slate-300 sm:text-lg sm:leading-8">
                 {t("landing.heroDescription")}
               </motion.p>
               <motion.div variants={fadeUp} className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -410,7 +410,7 @@ export default function LandingHome() {
           </div>
         </section>
 
-        <section className="bg-surface px-5 py-20">
+        <section className="bg-surface px-4 py-14 sm:px-5 sm:py-20">
           <div className="mx-auto max-w-7xl">
             <motion.div
               variants={container}
@@ -423,7 +423,7 @@ export default function LandingHome() {
                 <motion.p variants={fadeUp} className="text-xs font-extrabold uppercase tracking-[0.25em] text-primary">
                   {t("landing.tours.eyebrow")}
                 </motion.p>
-                <motion.h2 variants={fadeUp} className="mt-4 text-4xl font-extrabold tracking-tight text-on-surface md:text-5xl">
+                <motion.h2 variants={fadeUp} className="mt-4 text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl md:text-5xl">
                   {t("landing.tours.heading")}
                 </motion.h2>
                 <motion.p variants={fadeUp} className="mt-4 text-base leading-7 text-on-surface-variant">
@@ -504,7 +504,7 @@ export default function LandingHome() {
           </div>
         </section>
 
-        <section id="features" className="scroll-mt-24 bg-surface px-5 py-20">
+        <section id="features" className="scroll-mt-24 bg-surface px-4 py-14 sm:px-5 sm:py-20">
           <div className="mx-auto max-w-7xl">
             <motion.div
               variants={container}
@@ -516,7 +516,7 @@ export default function LandingHome() {
               <motion.p variants={fadeUp} className="text-xs font-extrabold uppercase tracking-[0.25em] text-primary">
                 {t("landing.ecosystem")}
               </motion.p>
-              <motion.h2 variants={fadeUp} className="mt-4 text-4xl font-extrabold tracking-tight text-on-surface md:text-5xl">
+              <motion.h2 variants={fadeUp} className="mt-4 text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl md:text-5xl">
                 {t("landing.featureHeading")}
               </motion.h2>
             </motion.div>
@@ -548,13 +548,13 @@ export default function LandingHome() {
           </div>
         </section>
 
-        <section id="workflow" className="scroll-mt-24 bg-surface-container-low px-5 py-20">
+        <section id="workflow" className="scroll-mt-24 bg-surface-container-low px-4 py-14 sm:px-5 sm:py-20">
           <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.8fr_1.2fr]">
             <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={container}>
               <motion.p variants={fadeUp} className="text-xs font-extrabold uppercase tracking-[0.25em] text-primary">
                 {t("landing.navWorkflow")}
               </motion.p>
-              <motion.h2 variants={fadeUp} className="mt-4 text-4xl font-extrabold tracking-tight text-on-surface">
+              <motion.h2 variants={fadeUp} className="mt-4 text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl">
                 {t("landing.workflowHeading")}
               </motion.h2>
               <motion.p variants={fadeUp} className="mt-4 text-on-surface-variant">
@@ -590,7 +590,7 @@ export default function LandingHome() {
           </div>
         </section>
 
-        <section className="overflow-hidden bg-surface px-5 py-20">
+        <section className="overflow-hidden bg-surface px-4 py-14 sm:px-5 sm:py-20">
           <div className="mx-auto max-w-7xl">
             <motion.div
               initial="hidden"
@@ -603,14 +603,14 @@ export default function LandingHome() {
                 <p className="text-xs font-extrabold uppercase tracking-[0.25em] text-primary">
                   {t("landing.reviews.eyebrow")}
                 </p>
-                <h2 className="mt-4 text-4xl font-extrabold tracking-tight text-on-surface md:text-5xl">
+                <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl md:text-5xl">
                   {t("landing.reviews.heading")}
                 </h2>
                 <p className="mt-4 max-w-xl text-base leading-7 text-on-surface-variant">
                   {t("landing.reviews.description")}
                 </p>
 
-                <div className="mt-8 grid max-w-xl grid-cols-3 gap-3">
+                <div className="mt-8 grid max-w-xl grid-cols-1 gap-3 sm:grid-cols-3">
                   {[
                     ["4.8/5", t("landing.reviews.ratingLabel")],
                     ["1.2k+", t("landing.reviews.bookingLabel")],
@@ -662,7 +662,7 @@ export default function LandingHome() {
           </div>
         </section>
 
-        <section className="bg-surface px-5 pb-24 pt-10">
+        <section className="bg-surface px-4 pb-20 pt-8 sm:px-5 sm:pb-24 sm:pt-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
             whileInView={{ opacity: 1, scale: 1 }}

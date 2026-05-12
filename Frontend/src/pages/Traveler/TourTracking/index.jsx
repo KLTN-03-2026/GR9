@@ -26,7 +26,7 @@ export default function TourTracking() {
 
   return (
     <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface">
-      <div className="mx-auto w-full max-w-[1600px] space-y-8 px-6 pb-12 pt-24 md:px-10">
+      <div className="mx-auto w-full max-w-[1600px] space-y-8 px-4 pb-10 pt-6 sm:px-6 md:px-10 md:pt-24">
         <TourTrackingHeader tracking={tracking} />
 
         {loading ? (

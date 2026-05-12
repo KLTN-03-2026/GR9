@@ -173,7 +173,7 @@ export default function ProviderReviewManagement() {
 
   return (
     <main className="min-h-screen bg-surface text-on-surface">
-      <div className="mx-auto w-full space-y-8">
+      <div className="mx-auto w-full space-y-6 sm:space-y-8">
         <PageHero
           eyebrow="PROVIDER REVIEWS"
           heading={
@@ -189,7 +189,7 @@ export default function ProviderReviewManagement() {
             <Button
               onClick={loadReviews}
               disabled={loading}
-              className="rounded-full bg-primary px-6 py-5 font-bold text-primary-foreground hover:bg-primary-container hover:text-on-primary-container"
+              className="w-full rounded-full bg-primary px-6 py-5 font-bold text-primary-foreground hover:bg-primary-container hover:text-on-primary-container sm:w-auto"
             >
               <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
               Làm mới
@@ -198,14 +198,14 @@ export default function ProviderReviewManagement() {
         />
 
         {loading ? (
-          <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
               <Skeleton key={index} className="h-32 rounded-3xl" />
             ))}
           </section>
         ) : (
           <>
-            <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
               <ReviewSummaryCard
                 label="Tổng review"
                 value={summary.total}

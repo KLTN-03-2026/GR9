@@ -83,7 +83,7 @@ const ProviderDashboard = () => {
   }, [dashboard]);
 
   return (
-    <div className="space-y-8 text-on-surface">
+    <div className="space-y-6 text-on-surface sm:space-y-8">
       <PageHero
         eyebrow="Performance Overview"
         heading={
@@ -96,7 +96,7 @@ const ProviderDashboard = () => {
         }
         description="Welcome back, Skyline. Here is what's happening today across bookings, revenue, and tour performance."
         actions={
-          <div className="flex items-center space-x-4">
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
             <div className="relative">
               <span className="absolute right-0 top-0 h-2 w-2 rounded-full border-2 border-white bg-error" />
               <Link
@@ -109,7 +109,7 @@ const ProviderDashboard = () => {
 
             <Link
               to="/provider/manage-tours"
-              className="flex items-center space-x-2 rounded-xl bg-gradient-to-br from-primary to-primary-container px-6 py-2.5 font-heading font-semibold text-on-primary shadow-sm transition-all hover:opacity-90 active:scale-95"
+              className="flex w-full items-center justify-center space-x-2 rounded-xl bg-gradient-to-br from-primary to-primary-container px-6 py-2.5 font-heading font-semibold text-on-primary shadow-sm transition-all hover:opacity-90 active:scale-95 sm:w-auto"
             >
               <span className="material-symbols-outlined text-[20px]">add</span>
               <span>New Tour</span>
@@ -118,7 +118,7 @@ const ProviderDashboard = () => {
         }
       />
 
-      <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
         {stats.map((stat) => (
           <div
             key={stat.label}
@@ -146,8 +146,8 @@ const ProviderDashboard = () => {
       </section>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="relative overflow-hidden rounded-3xl bg-surface-container-lowest p-8 lg:col-span-2">
-          <div className="mb-8 flex items-center justify-between">
+        <div className="relative overflow-hidden rounded-3xl bg-surface-container-lowest p-5 sm:p-8 lg:col-span-2">
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h4 className="font-heading text-lg font-bold">
                 Revenue Analysis
@@ -197,7 +197,7 @@ const ProviderDashboard = () => {
           </div>
         </div>
 
-        <div className="rounded-3xl bg-surface-container-lowest p-8">
+        <div className="rounded-3xl bg-surface-container-lowest p-5 sm:p-8">
           <div className="mb-6 flex items-center justify-between">
             <h4 className="font-heading text-lg font-bold">Recent Activity</h4>
             <Link to="/provider/bookings-management" className="font-heading text-xs font-bold text-primary hover:underline">
@@ -248,7 +248,7 @@ const ProviderDashboard = () => {
         </div>
       </div>
       <section className="w-full">
-        <div className="relative flex min-h-[250px] flex-col overflow-hidden rounded-[2rem] bg-[#125d4f] p-8 text-white shadow-sm md:p-12">
+        <div className="relative flex min-h-[250px] flex-col overflow-hidden rounded-3xl bg-[#125d4f] p-6 text-white shadow-sm sm:p-8 md:rounded-[2rem] md:p-12">
           <div className="pointer-events-none absolute right-[-5%] top-1/2 z-0 h-[250px] w-[250px] -translate-y-1/2 rounded-full border-[24px] border-white/5 md:right-[5%] md:h-[320px] md:w-[320px] md:border-[32px]"></div>
           <div className="pointer-events-none absolute right-[-20%] top-1/2 z-0 h-[400px] w-[400px] -translate-y-1/2 rounded-full border-[24px] border-white/5 md:right-[-5%] md:h-[500px] md:w-[500px] md:border-[32px]"></div>
           <div className="pointer-events-none absolute right-[-35%] top-1/2 z-0 h-[550px] w-[550px] -translate-y-1/2 rounded-full border-[24px] border-white/5 md:right-[-15%] md:h-[680px] md:w-[680px] md:border-[32px]"></div>

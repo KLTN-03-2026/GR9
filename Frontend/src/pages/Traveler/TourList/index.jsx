@@ -125,7 +125,7 @@ export default function TourList() {
 
     return (
         <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface">
-            <div ref={pageTopRef} className="mx-auto w-full max-w-[1600px] scroll-mt-24 px-6 pb-12 pt-24 md:px-10">
+            <div ref={pageTopRef} className="mx-auto w-full max-w-[1600px] scroll-mt-24 px-4 pb-10 pt-6 sm:px-6 md:px-10 md:pt-24">
                 <PageHero
                     className="mb-12"
                     contentClassName="xl:items-center"
@@ -256,8 +256,8 @@ export default function TourList() {
                                         </p>
                                     )}
 
-                                    <div className="grid grid-cols-3 overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low text-on-surface-variant">
-                                        <div className="flex min-h-[72px] flex-col items-center justify-center gap-1 border-r border-outline-variant/15 px-2 text-center">
+                                    <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low text-on-surface-variant sm:grid-cols-3">
+                                        <div className="flex min-h-[64px] flex-col items-center justify-center gap-1 border-b border-outline-variant/15 px-2 text-center sm:min-h-[72px] sm:border-b-0 sm:border-r">
                                             <span className="material-symbols-outlined text-[20px] leading-none text-primary">
                                                 schedule
                                             </span>
@@ -265,7 +265,7 @@ export default function TourList() {
                                                 {tour.numberOfDay || "-"} ngày
                                             </span>
                                         </div>
-                                        <div className="flex min-h-[72px] flex-col items-center justify-center gap-1 border-r border-outline-variant/15 px-2 text-center">
+                                        <div className="flex min-h-[64px] flex-col items-center justify-center gap-1 border-b border-outline-variant/15 px-2 text-center sm:min-h-[72px] sm:border-b-0 sm:border-r">
                                             <span className="material-symbols-outlined text-[20px] leading-none text-primary">
                                                 groups
                                             </span>
@@ -273,7 +273,7 @@ export default function TourList() {
                                                 {tour.travelerCount || 0} khách
                                             </span>
                                         </div>
-                                        <div className="flex min-h-[72px] flex-col items-center justify-center gap-1 px-2 text-center">
+                                        <div className="flex min-h-[64px] flex-col items-center justify-center gap-1 px-2 text-center sm:min-h-[72px]">
                                             <span className="material-symbols-outlined text-[20px] leading-none text-primary">
                                                 confirmation_number
                                             </span>
@@ -296,7 +296,7 @@ export default function TourList() {
                 )}
 
                 {!loading && (
-                    <article className="mt-8 flex flex-col gap-6 overflow-hidden rounded-xl bg-primary-container p-8 text-on-primary-container shadow-lg md:flex-row md:items-center md:justify-between">
+                    <article className="mt-8 flex flex-col gap-6 overflow-hidden rounded-xl bg-primary-container p-5 text-on-primary-container shadow-lg sm:p-8 md:flex-row md:items-center md:justify-between">
                         <div>
                             <span className="material-symbols-outlined mb-4 text-5xl">auto_awesome</span>
                             <h3 className="mb-3 text-2xl font-extrabold leading-tight">{t("tourList.customTitle")}</h3>
