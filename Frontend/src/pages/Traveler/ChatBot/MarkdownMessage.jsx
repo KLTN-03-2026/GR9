@@ -25,7 +25,9 @@ const renderInlineMarkdown = (text, isUser) => {
           key={`${token}-${match.index}`}
           className={cn(
             "rounded-md px-1.5 py-0.5 text-[0.82em] font-semibold",
-            isUser ? "bg-white/15 text-white" : "bg-slate-100 text-teal-700",
+            isUser
+              ? "bg-white/15 text-white"
+              : "bg-slate-100 text-teal-700 dark:bg-white/10 dark:text-primary",
           )}
         >
           {token.slice(1, -1)}
@@ -41,7 +43,7 @@ const renderInlineMarkdown = (text, isUser) => {
           rel="noreferrer"
           className={cn(
             "font-semibold underline underline-offset-2",
-            isUser ? "text-white" : "text-teal-700",
+            isUser ? "text-white" : "text-teal-700 dark:text-primary",
           )}
         >
           {linkMatch?.[1] || token}
@@ -102,7 +104,9 @@ export default function MarkdownMessage({ content, isUser }) {
         key={`code-${blocks.length}`}
         className={cn(
           "my-2 overflow-x-auto rounded-xl p-3 text-xs leading-5",
-          isUser ? "bg-white/15 text-white" : "bg-slate-950 text-slate-100",
+          isUser
+            ? "bg-white/15 text-white"
+            : "bg-slate-950 text-slate-100 dark:bg-black/35 dark:text-on-surface",
         )}
       >
         <code>{codeLines.join("\n")}</code>
