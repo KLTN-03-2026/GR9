@@ -15,6 +15,7 @@ import {
   uploadProviderPolicy,
 } from "@/services/api/provider";
 import ProviderApprovalCard from "./ProviderApprovalCard";
+import usePaginationScroll from "@/hooks/usePaginationScroll";
 
 const ProviderApprovalPage = () => {
   const [providers, setProviders] = useState([]);
@@ -53,6 +54,8 @@ const ProviderApprovalPage = () => {
   useEffect(() => {
     setPage((current) => Math.min(current, totalPages));
   }, [totalPages]);
+
+  usePaginationScroll([page]);
 
   const loadProviders = async () => {
     setLoading(true);

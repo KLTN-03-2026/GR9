@@ -10,6 +10,7 @@ import {
     TableHead,
     TableCell,
 } from "@/components/ui/table";
+import usePaginationScroll from "@/hooks/usePaginationScroll";
 
 const statusColor = {
     PENDING: "bg-yellow-100 text-yellow-800",
@@ -49,6 +50,8 @@ export default function ScheduleTable({ schedules, onEdit, onDelete }) {
     useEffect(() => {
         setPage((current) => Math.min(current, totalPages));
     }, [totalPages]);
+
+    usePaginationScroll([page]);
 
     return (
         <div className="overflow-hidden rounded-2xl border border-outline-variant/20 bg-surface-container-lowest shadow-sm">

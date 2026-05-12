@@ -19,6 +19,7 @@ import { Slider } from "@/components/ui/slider";
 import { formatPrice } from "@/utils/formatPrice";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useI18n } from "@/i18n/I18nProvider";
+import usePaginationScroll from "@/hooks/usePaginationScroll";
 
 const bookingStatusConfig = {
     NO_BOOKING: {
@@ -136,6 +137,8 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
     useEffect(() => {
         setPage((current) => Math.min(current, totalPages));
     }, [totalPages]);
+
+    usePaginationScroll([page]);
 
     return (
         <Card className="overflow-hidden rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_20px_50px_rgba(15,23,42,0.05)]">

@@ -52,6 +52,7 @@ import GuideProfile from "./pages/Guide/GuideProfile";
 import AdminProfile from "./pages/Admin/AdminProfile";
 import TourSchedulePage from "./pages/Provider/TourSchedule";
 import NotFound from "./pages/NotFound";
+import ScrollToTop from "./components/ScrollToTop";
 function AppRoutes() {
     return (
         <Routes>
@@ -142,6 +143,7 @@ function AppRoutes() {
 function App() {
     return (
         <BrowserRouter>
+            <ScrollToTop />
             <Toaster toastOptions={{ duration: 4000 }} />
             <AuthContextProvider>
                 <AppRoutes />

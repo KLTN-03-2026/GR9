@@ -17,6 +17,7 @@ import toast from "react-hot-toast";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import usePaginationScroll from "@/hooks/usePaginationScroll";
 
 export default function BookingTableSection({ bookings, loading, error }) {
   const navigate = useNavigate();
@@ -50,6 +51,8 @@ export default function BookingTableSection({ bookings, loading, error }) {
   useEffect(() => {
     setPage((current) => Math.min(current, totalPages));
   }, [totalPages]);
+
+  usePaginationScroll([page]);
 
   const formatBookingDate = (value) => {
     if (!value) return "-";

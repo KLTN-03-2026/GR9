@@ -16,6 +16,7 @@ import { getProviderAiNotifications } from "@/services/api/ai";
 import { useI18n } from "@/i18n/I18nProvider";
 import ThemeModeToggle from "@/components/shared/theme-mode-toggle";
 import LanguageToggle from "@/components/shared/language-toggle";
+import { useSidebar } from "@/components/ui/sidebar";
 
 const PAGE_META = {
   "/traveler": {
@@ -299,6 +300,7 @@ const Header = () => {
   const navigate = useNavigate();
   const { user, logOutContext } = useContext(AuthContext);
   const { t } = useI18n();
+  const { state: sidebarState, isMobile } = useSidebar();
   const [globalSearch, setGlobalSearch] = useState("");
   const [aiNotifications, setAiNotifications] = useState([]);
   const currentRole =
@@ -379,7 +381,16 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 h-16 border-b border-outline-variant/20 bg-surface-container-lowest/92 px-7 shadow-sm backdrop-blur-md md:left-64">
+    <header
+      className="fixed left-0 right-0 top-0 z-50 h-16 border-b border-outline-variant/20 bg-surface-container-lowest/92 px-7 shadow-sm backdrop-blur-md transition-[left] duration-200 ease-linear"
+      style={{
+        left: isMobile
+          ? 0
+          : sidebarState === "collapsed"
+            ? "var(--sidebar-width-icon)"
+            : "var(--sidebar-width)",
+      }}
+    >
       <div className="mx-auto flex h-full max-w-[1920px] items-center justify-between gap-6">
         <div className="flex min-w-0 items-center gap-3">
           <h1 className="shrink-0 font-heading text-[1.05rem] font-extrabold tracking-tight text-teal-800">
