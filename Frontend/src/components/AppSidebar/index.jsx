@@ -125,6 +125,14 @@ const getRoleFromPath = (pathname) => {
   return "provider";
 };
 
+const isPathActive = (pathname, fullPath, isIndexRoute) => {
+  if (isIndexRoute) {
+    return pathname === fullPath;
+  }
+
+  return pathname === fullPath || pathname.startsWith(`${fullPath}/`);
+};
+
 export function AppSidebar() {
   const location = useLocation();
   const { t } = useI18n();
@@ -186,9 +194,7 @@ export function AppSidebar() {
           {menuItems.map((item) => {
             const Icon = item.icon;
             const fullPath = `${basePath}${item.href}`;
-            const isActive = item.href
-              ? location.pathname.startsWith(fullPath)
-              : location.pathname === basePath;
+            const isActive = isPathActive(location.pathname, fullPath, !item.href);
 
             return (
               <Link
