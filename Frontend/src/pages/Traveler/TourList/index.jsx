@@ -12,7 +12,6 @@ import { localizeTourDescription } from "@/utils/localizedTourContent";
 
 const PAGE_SIZE = 6;
 const MAX_PAGINATION_PAGES = 9;
-const MAX_VISIBLE_TOURS = PAGE_SIZE * MAX_PAGINATION_PAGES;
 const SORT_OPTIONS = [
     { value: "popular" },
     { value: "topRated" },
@@ -91,12 +90,9 @@ export default function TourList() {
 
                 const payload = res.data.data;
                 const total = payload.total || 0;
-                const nextTotalPages = Math.min(
-                    Math.max(Math.ceil(total / PAGE_SIZE), 1),
-                    MAX_PAGINATION_PAGES,
-                );
+                const nextTotalPages = payload.totalPages || Math.max(Math.ceil(total / PAGE_SIZE), 1);
                 setTours(payload.docs || payload || []);
-                setTotalTours(Math.min(total, MAX_VISIBLE_TOURS));
+                setTotalTours(total);
                 setTotalPages(nextTotalPages);
                 setPage((current) => Math.min(current, nextTotalPages));
             } catch {
@@ -128,7 +124,34 @@ export default function TourList() {
     }, [page, sortBy, debouncedSearch]);
 
     const filteredTours = useMemo(() => tours, [tours]);
-    const paginationPages = useMemo(() => Array.from({ length: totalPages }, (_, index) => index + 1), [totalPages]);
+    const paginationPages = useMemo(() => {
+        if (totalPages <= MAX_PAGINATION_PAGES + 1) {
+            return Array.from({ length: totalPages }, (_, index) => index + 1);
+        }
+
+        if (page < MAX_PAGINATION_PAGES) {
+            return [
+                ...Array.from({ length: MAX_PAGINATION_PAGES }, (_, index) => index + 1),
+                "next-ellipsis",
+                totalPages,
+            ];
+        }
+
+        const middleStart = Math.max(2, page - 3);
+        const middleEnd = Math.min(totalPages - 1, page + 3);
+        const middlePages = Array.from(
+            { length: middleEnd - middleStart + 1 },
+            (_, index) => middleStart + index,
+        );
+
+        return [
+            1,
+            ...(middleStart > 2 ? ["previous-ellipsis"] : []),
+            ...middlePages,
+            ...(middleEnd < totalPages - 1 ? ["next-ellipsis"] : []),
+            totalPages,
+        ];
+    }, [page, totalPages]);
     const firstItem = totalTours === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
     const lastItem = Math.min(page * PAGE_SIZE, totalTours);
 
@@ -351,20 +374,29 @@ export default function TourList() {
                             {t("common.previous")}
                         </Button>
 
-                        {paginationPages.map((pageNumber) => (
-                            <button
-                                key={pageNumber}
-                                className={`h-10 w-10 flex items-center justify-center rounded-lg font-bold ${
-                                    page === pageNumber
-                                        ? "bg-primary text-on-primary"
-                                        : "hover:bg-surface-container text-on-surface font-semibold"
-                                }`}
-                                type="button"
-                                onClick={() => setPage(pageNumber)}
-                            >
-                                {pageNumber}
-                            </button>
-                        ))}
+                        {paginationPages.map((pageItem) =>
+                            typeof pageItem === "number" ? (
+                                <button
+                                    key={pageItem}
+                                    className={`h-10 w-10 flex items-center justify-center rounded-lg font-bold ${
+                                        page === pageItem
+                                            ? "bg-primary text-on-primary"
+                                            : "hover:bg-surface-container text-on-surface font-semibold"
+                                    }`}
+                                    type="button"
+                                    onClick={() => setPage(pageItem)}
+                                >
+                                    {pageItem}
+                                </button>
+                            ) : (
+                                <span
+                                    key={pageItem}
+                                    className="flex h-10 min-w-8 items-center justify-center px-1 text-sm font-bold text-on-surface-variant"
+                                >
+                                    ...
+                                </span>
+                            ),
+                        )}
 
                         <Button
                             type="button"
