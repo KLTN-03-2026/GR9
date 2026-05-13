@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Filter, MapPin, MoreVertical, Pencil, Search } from "lucide-react";
+import { Filter, MapPin, MoreVertical, Pencil, Search } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import PaginationBar from "@/components/shared/pagination-bar";
 import { useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { formatPrice } from "@/utils/formatPrice";
@@ -55,8 +56,6 @@ const getBookingStatusBadge = (status) =>
     };
 
 const PAGE_SIZE = 6;
-const MAX_PAGINATION_PAGES = 9;
-const MAX_VISIBLE_TOURS = PAGE_SIZE * MAX_PAGINATION_PAGES;
 
 export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
     const { t } = useI18n();
@@ -105,37 +104,14 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
 
             return dateB - dateA;
         });
-    const cappedTours = useMemo(
-        () => filteredTours.slice(0, MAX_VISIBLE_TOURS),
-        [filteredTours],
-    );
-    const totalPages = Math.min(
-        Math.max(Math.ceil(cappedTours.length / PAGE_SIZE), 1),
-        MAX_PAGINATION_PAGES,
-    );
+    const totalPages = Math.max(Math.ceil(filteredTours.length / PAGE_SIZE), 1);
     const currentPage = Math.min(page, totalPages);
     const visibleTours = useMemo(
-        () => cappedTours.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
-        [cappedTours, currentPage],
+        () => filteredTours.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+        [filteredTours, currentPage],
     );
-    const visiblePageButtons = useMemo(() => {
-        const maxButtons = 5;
-        if (totalPages <= maxButtons) {
-            return Array.from({ length: totalPages }, (_, index) => index + 1);
-        }
-
-        let start = Math.max(1, currentPage - Math.floor(maxButtons / 2));
-        let end = start + maxButtons - 1;
-
-        if (end > totalPages) {
-            end = totalPages;
-            start = Math.max(1, totalPages - maxButtons + 1);
-        }
-
-        return Array.from({ length: end - start + 1 }, (_, index) => start + index);
-    }, [currentPage, totalPages]);
-    const firstRow = cappedTours.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
-    const lastRow = Math.min(currentPage * PAGE_SIZE, cappedTours.length);
+    const firstRow = filteredTours.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
+    const lastRow = Math.min(currentPage * PAGE_SIZE, filteredTours.length);
 
     usePaginationScroll([currentPage]);
 
@@ -355,46 +331,19 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                     </Table>
                 </div>
 
-                <div className="flex flex-col gap-3 rounded-[1.5rem] bg-surface-container-low px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="text-sm text-on-surface-variant">
-                        {t("provider.tours.showing", {
-                            first: firstRow,
-                            last: lastRow,
-                            total: cappedTours.length,
-                        })}
-                    </p>
-
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            className="rounded-xl bg-surface-container-lowest text-on-surface-variant"
-                            disabled={currentPage <= 1}
-                            onClick={() => setPage((current) => Math.max(Math.min(current, totalPages) - 1, 1))}
-                        >
-                            <ChevronLeft className="size-4" />
-                        </Button>
-                        {visiblePageButtons.map((pageNumber) => (
-                            <Button
-                                key={pageNumber}
-                                variant={currentPage === pageNumber ? "default" : "outline"}
-                                className={currentPage === pageNumber ? "rounded-xl bg-primary px-4 text-primary-foreground" : "rounded-xl bg-surface-container-lowest px-4"}
-                                onClick={() => setPage(pageNumber)}
-                            >
-                                {pageNumber}
-                            </Button>
-                        ))}
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            className="rounded-xl bg-surface-container-lowest text-on-surface-variant"
-                            disabled={currentPage >= totalPages}
-                            onClick={() => setPage((current) => Math.min(Math.min(current, totalPages) + 1, totalPages))}
-                        >
-                            <ChevronRight className="size-4" />
-                        </Button>
-                    </div>
-                </div>
+                <PaginationBar
+                    page={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setPage}
+                    previousLabel={t("common.previous")}
+                    nextLabel={t("common.next")}
+                    summary={t("provider.tours.showing", {
+                        first: firstRow,
+                        last: lastRow,
+                        total: filteredTours.length,
+                    })}
+                    className="rounded-[1.5rem] bg-surface-container-low"
+                />
             </CardContent>
         </Card>
     );

@@ -17,14 +17,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import PaginationBar from "@/components/shared/pagination-bar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   MoreVertical, 
   LockOpen, 
   Ban, 
   RotateCcw, 
-  ChevronLeft, 
-  ChevronRight,
   AlertCircle 
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -190,34 +189,15 @@ const UserDataGrid = ({
         </TableBody>
       </Table>
       
-      <div className="px-6 py-4 bg-slate-50/30 flex items-center justify-between border-t border-slate-100">
-        <span className="text-sm text-slate-500 font-medium">
-          {t("admin.users.showing", { start, end, total })}
-        </span>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 rounded-lg border-slate-200 disabled:opacity-50"
-            disabled={page <= 1}
-            onClick={() => onPageChange(page - 1)}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button className="h-8 w-8 rounded-lg bg-teal-900 text-white text-xs font-bold shadow-sm hover:bg-teal-800">
-            {page}
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8 rounded-lg border-slate-200 hover:bg-slate-200"
-            disabled={page >= totalPages}
-            onClick={() => onPageChange(page + 1)}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+      <PaginationBar
+        page={page}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+        previousLabel={t("common.previous")}
+        nextLabel={t("common.next")}
+        summary={t("admin.users.showing", { start, end, total })}
+        className="rounded-none border-x-0 border-b-0 border-t border-slate-100 bg-slate-50/30 px-6"
+      />
       </CardContent>
     </Card>
   );

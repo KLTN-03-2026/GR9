@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import PaginationBar from "@/components/shared/pagination-bar";
+import { Pencil, Trash2, CalendarDays } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
     Table,
@@ -28,22 +29,6 @@ export default function ScheduleTable({ schedules, onEdit, onDelete }) {
         () => safeSchedules.slice((page - 1) * pageSize, page * pageSize),
         [safeSchedules, page],
     );
-    const visiblePageButtons = useMemo(() => {
-        const maxButtons = 5;
-        if (totalPages <= maxButtons) {
-            return Array.from({ length: totalPages }, (_, index) => index + 1);
-        }
-
-        let start = Math.max(1, page - Math.floor(maxButtons / 2));
-        let end = start + maxButtons - 1;
-
-        if (end > totalPages) {
-            end = totalPages;
-            start = Math.max(1, totalPages - maxButtons + 1);
-        }
-
-        return Array.from({ length: end - start + 1 }, (_, index) => start + index);
-    }, [page, totalPages]);
     const firstRow = safeSchedules.length === 0 ? 0 : (page - 1) * pageSize + 1;
     const lastRow = Math.min(page * pageSize, safeSchedules.length);
 
@@ -214,50 +199,13 @@ export default function ScheduleTable({ schedules, onEdit, onDelete }) {
                 </Table>
             </div>
             {safeSchedules.length > pageSize ? (
-                <div className="flex flex-col gap-3 border-t border-outline-variant/20 bg-surface-container-low px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="text-sm text-on-surface-variant">
-                        Showing <span className="font-bold text-on-surface">{firstRow} - {lastRow}</span> of{" "}
-                        <span className="font-bold text-on-surface">{safeSchedules.length}</span> schedules
-                    </p>
-
-                    <div className="flex items-center gap-2">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            disabled={page <= 1}
-                            onClick={() => setPage((current) => Math.max(1, current - 1))}
-                            className="rounded-xl bg-surface-container-lowest"
-                        >
-                            <ChevronLeft className="size-4" />
-                        </Button>
-                        {visiblePageButtons.map((pageNumber) => (
-                            <Button
-                                key={pageNumber}
-                                type="button"
-                                variant={pageNumber === page ? "default" : "outline"}
-                                onClick={() => setPage(pageNumber)}
-                                className={
-                                    pageNumber === page
-                                        ? "rounded-xl bg-primary px-4 text-primary-foreground"
-                                        : "rounded-xl bg-surface-container-lowest px-4"
-                                }
-                            >
-                                {pageNumber}
-                            </Button>
-                        ))}
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            disabled={page >= totalPages}
-                            onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
-                            className="rounded-xl bg-surface-container-lowest"
-                        >
-                            <ChevronRight className="size-4" />
-                        </Button>
-                    </div>
-                </div>
+                <PaginationBar
+                    page={page}
+                    totalPages={totalPages}
+                    onPageChange={setPage}
+                    summary={`Showing ${firstRow} - ${lastRow} of ${safeSchedules.length} schedules`}
+                    className="rounded-none border-x-0 border-b-0 border-t border-outline-variant/20 bg-surface-container-low"
+                />
             ) : null}
         </div>
     );

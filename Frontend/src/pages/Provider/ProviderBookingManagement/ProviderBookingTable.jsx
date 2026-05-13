@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { BusFront, CalendarDays, ChevronLeft, ChevronRight, Hotel, Search, Users } from "lucide-react";
+import { BusFront, CalendarDays, Hotel, Search, Users } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import PaginationBar from "@/components/shared/pagination-bar";
 import {
   Table,
   TableBody,
@@ -191,22 +192,6 @@ export default function ProviderBookingTable() {
     () => filteredBookings.slice((page - 1) * pageSize, page * pageSize),
     [filteredBookings, page],
   );
-  const visiblePageButtons = useMemo(() => {
-    const maxButtons = 5;
-    if (totalPages <= maxButtons) {
-      return Array.from({ length: totalPages }, (_, index) => index + 1);
-    }
-
-    let start = Math.max(1, page - Math.floor(maxButtons / 2));
-    let end = start + maxButtons - 1;
-
-    if (end > totalPages) {
-      end = totalPages;
-      start = Math.max(1, totalPages - maxButtons + 1);
-    }
-
-    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
-  }, [page, totalPages]);
   const firstRow = filteredBookings.length === 0 ? 0 : (page - 1) * pageSize + 1;
   const lastRow = Math.min(page * pageSize, filteredBookings.length);
 
@@ -428,53 +413,19 @@ export default function ProviderBookingTable() {
           </Table>
         </div>
         {!loading && filteredBookings.length > pageSize ? (
-          <div className="flex flex-col gap-3 rounded-[1.5rem] bg-surface-container-low px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-on-surface-variant">
-              {t("provider.bookings.showing", {
-                first: firstRow,
-                last: lastRow,
-                total: filteredBookings.length,
-              })}
-            </p>
-
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                disabled={page <= 1}
-                onClick={() => setPage((current) => Math.max(1, current - 1))}
-                className="rounded-xl bg-surface-container-lowest"
-              >
-                <ChevronLeft className="size-4" />
-              </Button>
-              {visiblePageButtons.map((pageNumber) => (
-                <Button
-                  key={pageNumber}
-                  type="button"
-                  variant={pageNumber === page ? "default" : "outline"}
-                  onClick={() => setPage(pageNumber)}
-                  className={
-                    pageNumber === page
-                      ? "rounded-xl bg-primary px-4 text-primary-foreground"
-                      : "rounded-xl bg-surface-container-lowest px-4"
-                  }
-                >
-                  {pageNumber}
-                </Button>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                disabled={page >= totalPages}
-                onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
-                className="rounded-xl bg-surface-container-lowest"
-              >
-                <ChevronRight className="size-4" />
-              </Button>
-            </div>
-          </div>
+          <PaginationBar
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            previousLabel={t("common.previous")}
+            nextLabel={t("common.next")}
+            summary={t("provider.bookings.showing", {
+              first: firstRow,
+              last: lastRow,
+              total: filteredBookings.length,
+            })}
+            className="rounded-[1.5rem] bg-surface-container-low"
+          />
         ) : null}
       </CardContent>
     </Card>

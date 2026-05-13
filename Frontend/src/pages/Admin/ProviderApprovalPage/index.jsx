@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { ChevronLeft, ChevronRight, Cloud, FileCheck2, FileUp, ShieldCheck } from "lucide-react";
+import { Cloud, FileCheck2, FileUp, ShieldCheck } from "lucide-react";
 
 import PageHero from "@/components/shared/page-hero";
+import PaginationBar from "@/components/shared/pagination-bar";
 import { ApprovalSkeleton } from "@/components/shared/page-skeletons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -32,22 +33,6 @@ const ProviderApprovalPage = () => {
     () => providers.slice((page - 1) * pageSize, page * pageSize),
     [providers, page],
   );
-  const visiblePageButtons = useMemo(() => {
-    const maxButtons = 5;
-    if (totalPages <= maxButtons) {
-      return Array.from({ length: totalPages }, (_, index) => index + 1);
-    }
-
-    let start = Math.max(1, page - Math.floor(maxButtons / 2));
-    let end = start + maxButtons - 1;
-
-    if (end > totalPages) {
-      end = totalPages;
-      start = Math.max(1, totalPages - maxButtons + 1);
-    }
-
-    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
-  }, [page, totalPages]);
   const firstRow = providers.length === 0 ? 0 : (page - 1) * pageSize + 1;
   const lastRow = Math.min(page * pageSize, providers.length);
 
@@ -192,50 +177,13 @@ const ProviderApprovalPage = () => {
               ))}
 
               {providers.length > pageSize ? (
-                <div className="flex flex-col gap-3 rounded-3xl border border-outline-variant/20 bg-surface-container-low px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm text-on-surface-variant">
-                    Showing <span className="font-bold text-on-surface">{firstRow} - {lastRow}</span> of{" "}
-                    <span className="font-bold text-on-surface">{providers.length}</span> applications
-                  </p>
-
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      disabled={page <= 1}
-                      onClick={() => setPage((current) => Math.max(1, current - 1))}
-                      className="rounded-xl bg-surface-container-lowest"
-                    >
-                      <ChevronLeft className="size-4" />
-                    </Button>
-                    {visiblePageButtons.map((pageNumber) => (
-                      <Button
-                        key={pageNumber}
-                        type="button"
-                        variant={pageNumber === page ? "default" : "outline"}
-                        onClick={() => setPage(pageNumber)}
-                        className={
-                          pageNumber === page
-                            ? "rounded-xl bg-primary px-4 text-primary-foreground"
-                            : "rounded-xl bg-surface-container-lowest px-4"
-                        }
-                      >
-                        {pageNumber}
-                      </Button>
-                    ))}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      disabled={page >= totalPages}
-                      onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
-                      className="rounded-xl bg-surface-container-lowest"
-                    >
-                      <ChevronRight className="size-4" />
-                    </Button>
-                  </div>
-                </div>
+                <PaginationBar
+                  page={page}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                  summary={`Showing ${firstRow} - ${lastRow} of ${providers.length} applications`}
+                  className="bg-surface-container-low"
+                />
               ) : null}
             </>
           )}

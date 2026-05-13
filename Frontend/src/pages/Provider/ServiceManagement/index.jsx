@@ -9,6 +9,7 @@ import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import PageHero from "@/components/shared/page-hero";
+import PaginationBar from "@/components/shared/pagination-bar";
 import { CardGridSkeleton } from "@/components/shared/page-skeletons";
 import { useSearchParams } from "react-router-dom";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -148,22 +149,6 @@ const ServiceManagement = () => {
     currentPage * itemsPerPage,
   );
 
-  const visiblePageButtons = useMemo(() => {
-    const maxButtons = 5;
-    if (totalPages <= maxButtons) {
-      return Array.from({ length: totalPages }, (_, index) => index + 1);
-    }
-
-    let start = Math.max(1, currentPage - Math.floor(maxButtons / 2));
-    let end = start + maxButtons - 1;
-    if (end > totalPages) {
-      end = totalPages;
-      start = totalPages - maxButtons + 1;
-    }
-
-    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
-  }, [totalPages, currentPage]);
-
   usePaginationScroll([currentPage]);
 
   return (
@@ -255,52 +240,18 @@ const ServiceManagement = () => {
           )}
         </div>
         {totalPages > 1 && (
-          <div className="flex flex-col gap-3 rounded-3xl border border-outline-variant/15 bg-surface-container-lowest p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-sm text-on-surface-variant">
-              {t("provider.services.showing", {
-                first: (currentPage - 1) * itemsPerPage + 1,
-                last: Math.min(currentPage * itemsPerPage, filteredServices.length),
-                total: filteredServices.length,
-              })}
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={currentPage === 1}
-                className="bg-primary text-primary-foreground hover:bg-primary-container hover:text-on-primary-container disabled:bg-surface-container-high disabled:text-on-surface-variant"
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              >
-                {t("common.previous")}
-              </Button>
-              {visiblePageButtons.map((page) => (
-                <Button
-                  key={page}
-                  variant="outline"
-                  size="sm"
-                  className={
-                    page === currentPage
-                      ? "bg-primary text-primary-foreground hover:bg-primary-container hover:text-on-primary-container"
-                      : "bg-surface-container-lowest text-on-surface hover:bg-primary/10 hover:text-primary"
-                  }
-                  onClick={() => setCurrentPage(page)}
-                >
-                  {page}
-                </Button>
-              ))}
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={currentPage === totalPages}
-                className="bg-primary text-primary-foreground hover:bg-primary-container hover:text-on-primary-container disabled:bg-surface-container-high disabled:text-on-surface-variant"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                }
-              >
-                {t("common.next")}
-              </Button>
-            </div>
-          </div>
+          <PaginationBar
+            page={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            previousLabel={t("common.previous")}
+            nextLabel={t("common.next")}
+            summary={t("provider.services.showing", {
+              first: (currentPage - 1) * itemsPerPage + 1,
+              last: Math.min(currentPage * itemsPerPage, filteredServices.length),
+              total: filteredServices.length,
+            })}
+          />
         )}
       </div>
     </main>
