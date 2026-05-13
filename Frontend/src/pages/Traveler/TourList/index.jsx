@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import PageHero from "@/components/shared/page-hero";
+import PaginationBar from "@/components/shared/pagination-bar";
 import { getAllTours } from "@/services/api/guest";
 import { formatPrice } from "@/utils/formatPrice";
 import TourListSkeleton from "./TourListSkeleton";
@@ -11,7 +12,6 @@ import { useI18n } from "@/i18n/I18nProvider";
 import { localizeTourDescription } from "@/utils/localizedTourContent";
 
 const PAGE_SIZE = 6;
-const MAX_PAGINATION_PAGES = 9;
 const SORT_OPTIONS = [
     { value: "popular" },
     { value: "topRated" },
@@ -124,34 +124,6 @@ export default function TourList() {
     }, [page, sortBy, debouncedSearch]);
 
     const filteredTours = useMemo(() => tours, [tours]);
-    const paginationPages = useMemo(() => {
-        if (totalPages <= MAX_PAGINATION_PAGES + 1) {
-            return Array.from({ length: totalPages }, (_, index) => index + 1);
-        }
-
-        if (page < MAX_PAGINATION_PAGES) {
-            return [
-                ...Array.from({ length: MAX_PAGINATION_PAGES }, (_, index) => index + 1),
-                "next-ellipsis",
-                totalPages,
-            ];
-        }
-
-        const middleStart = Math.max(2, page - 3);
-        const middleEnd = Math.min(totalPages - 1, page + 3);
-        const middlePages = Array.from(
-            { length: middleEnd - middleStart + 1 },
-            (_, index) => middleStart + index,
-        );
-
-        return [
-            1,
-            ...(middleStart > 2 ? ["previous-ellipsis"] : []),
-            ...middlePages,
-            ...(middleEnd < totalPages - 1 ? ["next-ellipsis"] : []),
-            totalPages,
-        ];
-    }, [page, totalPages]);
     const firstItem = totalTours === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
     const lastItem = Math.min(page * PAGE_SIZE, totalTours);
 
@@ -357,58 +329,15 @@ export default function TourList() {
                     </article>
                 )}
 
-                {/* Pagination */}
-                <div className="mt-12 flex flex-col items-center gap-6">
-                    <p className="text-sm font-semibold text-on-surface-variant">
-                        {t("tourList.showing", { first: firstItem, last: lastItem, total: totalTours })}
-                    </p>
-
-                    <div className="flex items-center gap-2">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="h-10 rounded-lg px-4 font-bold"
-                            onClick={() => setPage((current) => Math.max(current - 1, 1))}
-                            disabled={page <= 1}
-                        >
-                            {t("common.previous")}
-                        </Button>
-
-                        {paginationPages.map((pageItem) =>
-                            typeof pageItem === "number" ? (
-                                <button
-                                    key={pageItem}
-                                    className={`h-10 w-10 flex items-center justify-center rounded-lg font-bold ${
-                                        page === pageItem
-                                            ? "bg-primary text-on-primary"
-                                            : "hover:bg-surface-container text-on-surface font-semibold"
-                                    }`}
-                                    type="button"
-                                    onClick={() => setPage(pageItem)}
-                                >
-                                    {pageItem}
-                                </button>
-                            ) : (
-                                <span
-                                    key={pageItem}
-                                    className="flex h-10 min-w-8 items-center justify-center px-1 text-sm font-bold text-on-surface-variant"
-                                >
-                                    ...
-                                </span>
-                            ),
-                        )}
-
-                        <Button
-                            type="button"
-                            variant="outline"
-                            className="h-10 rounded-lg px-4 font-bold"
-                            onClick={() => setPage((current) => Math.min(current + 1, totalPages))}
-                            disabled={page >= totalPages}
-                        >
-                            {t("common.next")}
-                        </Button>
-                    </div>
-                </div>
+                <PaginationBar
+                    page={page}
+                    totalPages={totalPages}
+                    onPageChange={setPage}
+                    previousLabel={t("common.previous")}
+                    nextLabel={t("common.next")}
+                    summary={t("tourList.showing", { first: firstItem, last: lastItem, total: totalTours })}
+                    className="mt-12"
+                />
             </div>
         </main>
     );

@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { ChevronLeft, ChevronRight, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
+import PaginationBar from "@/components/shared/pagination-bar";
 import {
   createReview,
   deleteReview,
@@ -49,23 +50,6 @@ export default function ReviewPage() {
     () => myReviews.slice((reviewPage - 1) * reviewPageSize, reviewPage * reviewPageSize),
     [myReviews, reviewPage],
   );
-  const reviewPageButtons = useMemo(() => {
-    const maxButtons = 5;
-    if (reviewTotalPages <= maxButtons) {
-      return Array.from({ length: reviewTotalPages }, (_, index) => index + 1);
-    }
-
-    let start = Math.max(1, reviewPage - Math.floor(maxButtons / 2));
-    let end = start + maxButtons - 1;
-
-    if (end > reviewTotalPages) {
-      end = reviewTotalPages;
-      start = Math.max(1, reviewTotalPages - maxButtons + 1);
-    }
-
-    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
-  }, [reviewPage, reviewTotalPages]);
-
   const loadMyReviews = async () => {
     try {
       const response = await getMyReviews();
@@ -289,43 +273,15 @@ export default function ReviewPage() {
                     </article>
                   ))}
                   {myReviews.length > reviewPageSize ? (
-                    <div className="flex flex-wrap items-center justify-end gap-2 pt-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        disabled={reviewPage <= 1}
-                        onClick={() => setReviewPage((current) => Math.max(1, current - 1))}
-                        className="h-9 w-9 rounded-xl bg-surface-container-lowest"
-                      >
-                        <ChevronLeft className="size-4" />
-                      </Button>
-                      {reviewPageButtons.map((pageNumber) => (
-                        <Button
-                          key={pageNumber}
-                          type="button"
-                          variant={pageNumber === reviewPage ? "default" : "outline"}
-                          onClick={() => setReviewPage(pageNumber)}
-                          className={
-                            pageNumber === reviewPage
-                              ? "h-9 rounded-xl bg-primary px-3 text-primary-foreground"
-                              : "h-9 rounded-xl bg-surface-container-lowest px-3"
-                          }
-                        >
-                          {pageNumber}
-                        </Button>
-                      ))}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        disabled={reviewPage >= reviewTotalPages}
-                        onClick={() => setReviewPage((current) => Math.min(reviewTotalPages, current + 1))}
-                        className="h-9 w-9 rounded-xl bg-surface-container-lowest"
-                      >
-                        <ChevronRight className="size-4" />
-                      </Button>
-                    </div>
+                    <PaginationBar
+                      page={reviewPage}
+                      totalPages={reviewTotalPages}
+                      onPageChange={setReviewPage}
+                      previousLabel="Previous"
+                      nextLabel="Next"
+                      summary={`Showing ${(reviewPage - 1) * reviewPageSize + 1} - ${Math.min(reviewPage * reviewPageSize, myReviews.length)} of ${myReviews.length} reviews`}
+                      className="mt-2"
+                    />
                   ) : null}
                 </div>
               )}
