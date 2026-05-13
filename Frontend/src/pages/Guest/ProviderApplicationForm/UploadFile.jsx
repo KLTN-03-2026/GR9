@@ -1,8 +1,10 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FileText, UploadCloud, X } from "lucide-react";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const UploadFile = ({ file, onFileChange }) => {
+  const { t } = useI18n();
   const [fileName, setFileName] = useState(file?.name || "");
   const inputRef = useRef(null);
 
@@ -35,10 +37,10 @@ const UploadFile = ({ file, onFileChange }) => {
           </div>
           <div>
             <p className="text-base font-bold text-slate-900">
-              Giấy phép kinh doanh hoặc giấy tờ xác minh
+              {t("providerApplication.uploadTitle")}
             </p>
             <p className="mt-1 text-sm text-slate-500">
-              {fileName || "Tải lên PDF hoặc hình ảnh. Dung lượng tối đa 10MB."}
+              {fileName || t("providerApplication.uploadHint")}
             </p>
           </div>
         </div>
@@ -52,7 +54,7 @@ const UploadFile = ({ file, onFileChange }) => {
               onClick={clearFile}
             >
               <X className="mr-2 h-4 w-4" />
-              Xoá
+              {t("providerApplication.removeFile")}
             </Button>
           ) : null}
           <Button
@@ -61,7 +63,7 @@ const UploadFile = ({ file, onFileChange }) => {
             className="rounded-xl"
             onClick={() => inputRef.current?.click()}
           >
-            {fileName ? "Đổi tệp" : "Chọn tệp"}
+            {fileName ? t("providerApplication.changeFile") : t("providerApplication.chooseFile")}
           </Button>
         </div>
       </div>

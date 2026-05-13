@@ -14,80 +14,91 @@ const formatVnd = (value) =>
 const maxOf = (items, key) =>
   Math.max(...items.map((item) => Number(item[key]) || 0), 1);
 
-const typeLabels = {
-  GROUP: "Tour ghép",
-  PRIVATE: "Tour riêng",
-  OTHER: "Khác",
-};
-
-export const providerAnalyticsStatic = {
+export const getProviderAnalyticsStatic = (t) => ({
   hero: {
-    eyebrow: "PROVIDER ANALYTICS",
-    titleA: "Hiệu suất",
-    titleB: "kinh doanh tour",
-    description:
-      "Dữ liệu thật từ booking, tour, review, guide và dịch vụ của provider.",
+    eyebrow: t("providerAnalyticsPage.heroEyebrow"),
+    titleA: t("providerAnalyticsPage.heroTitleA"),
+    titleB: t("providerAnalyticsPage.heroTitleB"),
+    description: t("providerAnalyticsPage.heroDescription"),
   },
   quickActions: [
-    { icon: ChartNoAxesColumnIncreasing, title: "Xem tăng trưởng", description: "Theo dõi biến động booking và doanh thu theo tháng." },
-    { icon: Compass, title: "Tối ưu tour", description: "Tập trung nâng cấp tour có tỷ lệ chuyển đổi cao." },
-    { icon: MessageSquareText, title: "Phản hồi review", description: "Ưu tiên các đánh giá mới để cải thiện chất lượng dịch vụ." },
+    {
+      icon: ChartNoAxesColumnIncreasing,
+      title: t("providerAnalyticsPage.viewGrowth"),
+      description: t("providerAnalyticsPage.viewGrowthDescription"),
+    },
+    {
+      icon: Compass,
+      title: t("providerAnalyticsPage.optimizeTours"),
+      description: t("providerAnalyticsPage.optimizeToursDescription"),
+    },
+    {
+      icon: MessageSquareText,
+      title: t("providerAnalyticsPage.respondReviews"),
+      description: t("providerAnalyticsPage.respondReviewsDescription"),
+    },
   ],
-};
+});
 
-export const buildProviderAnalyticsView = (analytics) => {
+export const buildProviderAnalyticsView = (analytics, t) => {
   const trend = analytics?.revenueTrend || [];
   const maxRevenue = maxOf(trend, "revenue");
+  const providerAnalyticsStatic = getProviderAnalyticsStatic(t);
+  const typeLabels = {
+    GROUP: t("providerAnalyticsPage.typeGroup"),
+    PRIVATE: t("providerAnalyticsPage.typePrivate"),
+    OTHER: t("providerAnalyticsPage.typeOther"),
+  };
 
   return {
     ...providerAnalyticsStatic,
     stats: [
       {
         icon: CircleDollarSign,
-        label: "Tổng doanh thu",
+        label: t("providerAnalyticsPage.totalRevenue"),
         value: formatVnd(analytics?.summary?.revenueTotal),
-        trend: `${analytics?.summary?.totalTours || 0} tour đang quản lý`,
+        trend: t("providerAnalyticsPage.managedTours", { count: analytics?.summary?.totalTours || 0 }),
         tone: "primary",
       },
       {
         icon: CalendarCheck,
-        label: "Booking đang hoạt động",
+        label: t("providerAnalyticsPage.activeBookings"),
         value: Number(analytics?.summary?.activeBookings || 0).toLocaleString("vi-VN"),
-        trend: `${analytics?.summary?.guidesCount || 0} guide trong đội ngũ`,
+        trend: t("providerAnalyticsPage.guidesInTeam", { count: analytics?.summary?.guidesCount || 0 }),
         tone: "success",
       },
       {
         icon: Star,
-        label: "Đánh giá trung bình",
+        label: t("providerAnalyticsPage.averageRating"),
         value: `${analytics?.summary?.averageRating || 0} / 5`,
-        trend: "Dựa trên review tour thật",
+        trend: t("providerAnalyticsPage.realReviewBased"),
         tone: "warning",
       },
       {
         icon: UsersRound,
-        label: "Tỉ lệ hoàn tất tour",
+        label: t("providerAnalyticsPage.completionRate"),
         value: `${analytics?.summary?.completionRate || 0}%`,
-        trend: `${analytics?.summary?.servicesCount || 0} dịch vụ đang có`,
+        trend: t("providerAnalyticsPage.activeServices", { count: analytics?.summary?.servicesCount || 0 }),
         tone: "success",
       },
     ],
     revenueChart: {
-      title: "Xu hướng doanh thu",
-      description: "Doanh thu thanh toán thật theo tháng.",
+      title: t("providerAnalyticsPage.revenueTrend"),
+      description: t("providerAnalyticsPage.revenueTrendDescription"),
       tabs: [
-        { value: "monthly", label: "Theo tháng" },
-        { value: "bookings", label: "Booking" },
+        { value: "monthly", label: t("providerAnalyticsPage.monthly") },
+        { value: "bookings", label: t("providerAnalyticsPage.booking") },
       ],
       bars: trend.map((item) => ({
         label: item.label,
         primary: Math.max(4, Math.round(((Number(item.revenue) || 0) / maxRevenue) * 100)),
         primaryLabel: formatVnd(item.revenue),
       })),
-      legend: [{ label: "Doanh thu", className: "bg-primary" }],
+      legend: [{ label: t("providerAnalyticsPage.revenue"), className: "bg-primary" }],
     },
     bookingMix: {
-      title: "Cơ cấu booking",
-      description: "Phân bổ booking thật theo loại tour.",
+      title: t("providerAnalyticsPage.bookingMix"),
+      description: t("providerAnalyticsPage.bookingMixDescription"),
       items: (analytics?.bookingMix || []).map((item) => ({
         label: typeLabels[item.label] || item.label,
         value: `${item.percent}%`,
@@ -95,12 +106,12 @@ export const buildProviderAnalyticsView = (analytics) => {
       })),
     },
     topTours: {
-      title: "Tour hiệu suất cao",
+      title: t("providerAnalyticsPage.topTours"),
       columns: [
-        { key: "tour", label: "Tour" },
-        { key: "bookings", label: "Booking" },
-        { key: "revenue", label: "Doanh thu" },
-        { key: "rating", label: "Đánh giá" },
+        { key: "tour", label: t("providerAnalyticsPage.tour") },
+        { key: "bookings", label: t("providerAnalyticsPage.booking") },
+        { key: "revenue", label: t("providerAnalyticsPage.revenue") },
+        { key: "rating", label: t("providerAnalyticsPage.rating") },
       ],
       rows: (analytics?.topTours || []).map((item) => ({
         id: item.id,
@@ -111,9 +122,9 @@ export const buildProviderAnalyticsView = (analytics) => {
       })),
     },
     reviews: {
-      title: "Đánh giá gần đây",
-      description: "Review thật từ traveler trên các tour của provider.",
-      actionLabel: "Quản lý review",
+      title: t("providerAnalyticsPage.recentReviews"),
+      description: t("providerAnalyticsPage.recentReviewsDescription"),
+      actionLabel: t("providerAnalyticsPage.manageReviews"),
       items: (analytics?.recentReviews || []).map((item) => ({
         title: item.title,
         description: item.description,

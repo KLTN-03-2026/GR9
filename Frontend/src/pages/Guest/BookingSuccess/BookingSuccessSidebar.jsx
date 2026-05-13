@@ -2,13 +2,15 @@ import { Download, Lightbulb, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function BookingSuccessSidebar({ booking }) {
+  const { t } = useI18n();
   return (
     <aside className="space-y-6 lg:sticky lg:top-28 lg:col-span-5">
       <div className="relative overflow-hidden rounded-[28px] shadow-[0_28px_90px_rgba(15,23,42,0.18)]">
         <img
-          alt={booking?.tour?.name || "Tour booking"}
+          alt={booking?.tour?.name || t("bookingSuccessPage.heroFallbackAlt")}
           className="aspect-[4/5] w-full object-cover"
           src={
             booking?.tour?.imageUrl ||
@@ -20,15 +22,15 @@ export default function BookingSuccessSidebar({ booking }) {
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm">
             <Sparkles className="size-4 text-emerald-300" />
             <span className="text-xs font-bold uppercase tracking-[0.25em] text-emerald-100">
-              SmartTravel Exclusive
+              {t("bookingSuccessPage.heroBadge")}
             </span>
           </div>
           <div>
             <h3 className="text-3xl font-black tracking-tight">
-              {booking?.tour?.name || "Tour booking"}
+              {booking?.tour?.name || t("bookingSuccessPage.heroFallbackTitle")}
             </h3>
             <p className="mt-2 text-sm font-medium text-white/80">
-              {booking?.tour?.location || "Vietnam"} • {booking?.tour?.numberOfDay || 1} Days
+              {booking?.tour?.location || t("bookingSuccessPage.heroFallbackLocation")} • {t("bookingSuccessPage.daysLabel", { days: booking?.tour?.numberOfDay || 1 })}
             </p>
           </div>
         </div>
@@ -40,7 +42,7 @@ export default function BookingSuccessSidebar({ booking }) {
           className="h-14 rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
         >
           <Download className="size-4" />
-          Download Receipt (PDF)
+          {t("bookingSuccessPage.downloadReceipt")}
         </Button>
       </div>
 
@@ -49,13 +51,11 @@ export default function BookingSuccessSidebar({ booking }) {
           <div className="mb-3 flex items-center gap-2 text-orange-700">
             <Lightbulb className="size-5" />
             <span className="text-xs font-bold uppercase tracking-[0.2em]">
-              SmartTravel Tip
+              {t("bookingSuccessPage.tipBadge")}
             </span>
           </div>
           <p className="leading-7 text-orange-950/80">
-            The weather forecast for your destination suggests light rain on day
-            2. Don&apos;t worry, your itinerary has been automatically adjusted
-            with a luxury spa afternoon.
+            {t("bookingSuccessPage.tipDescription")}
           </p>
         </CardContent>
       </Card>

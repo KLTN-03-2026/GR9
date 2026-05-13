@@ -13,7 +13,7 @@ export const chatbotProps = {
       id: "welcome",
       role: "assistant",
       content:
-        "Chào bạn, tôi là SmartTravel AI. Tôi có thể giới thiệu hệ thống Travel_AI, giải thích cách đặt tour, gợi ý lịch trình và hỗ trợ bạn tìm thông tin trong dữ liệu tour.",
+        "Chào bạn, tôi là SmartTravel AI. Tôi có thể giới thiệu hệ thống Travel_AI, giải thích cách đặt tour, gợi ý lịch trình và hỗ trợ bạn tìm tour phù hợp trong hệ thống.",
       sources: [],
     },
     {

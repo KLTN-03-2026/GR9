@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getProviderReviews } from "@/services/api/review";
+import { useI18n } from "@/i18n/I18nProvider";
 import { RefreshCw, Star } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
@@ -40,19 +41,19 @@ function ReviewSummaryCard({ label, value, helper }) {
   );
 }
 
-const formatDate = (value) => {
+const formatDate = (value, locale) => {
   if (!value) return "-";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "-";
-  return new Intl.DateTimeFormat("vi-VN").format(date);
+  return new Intl.DateTimeFormat(locale).format(date);
 };
 
-function ProviderReviewTable({ reviews }) {
+function ProviderReviewTable({ reviews, t, locale }) {
   return (
     <Card className="overflow-hidden rounded-3xl border-outline-variant/20 bg-surface-container-lowest shadow-sm">
       <CardHeader>
         <CardTitle className="font-headline text-xl text-on-surface">
-          Danh sách review
+          {t("provider.reviews.listTitle")}
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
@@ -60,19 +61,19 @@ function ProviderReviewTable({ reviews }) {
           <TableHeader>
             <TableRow className="bg-surface-container-low hover:bg-surface-container-low">
               <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                Traveler
+                {t("provider.reviews.traveler")}
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                Tour
+                {t("provider.reviews.tour")}
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                Rating
+                {t("provider.reviews.rating")}
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                Nội dung
+                {t("provider.reviews.content")}
               </TableHead>
               <TableHead className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
-                Ngày
+                {t("provider.reviews.date")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -86,7 +87,7 @@ function ProviderReviewTable({ reviews }) {
                         {review.reviewerId?.fullName || "Traveler"}
                       </p>
                       <p className="text-xs text-on-surface-variant">
-                        {review.reviewerId?.email || "Không có email"}
+                        {review.reviewerId?.email || t("provider.reviews.noEmail")}
                       </p>
                     </div>
                   </TableCell>
@@ -95,36 +96,36 @@ function ProviderReviewTable({ reviews }) {
                       {review.tourId?.name || "Tour"}
                     </p>
                     <p className="text-xs text-on-surface-variant">
-                      {review.tourId?.location || "Chưa có địa điểm"}
+                      {review.tourId?.location || t("provider.reviews.noLocation")}
                     </p>
                   </TableCell>
                   <TableCell className="px-6 py-4">
                     <div className="flex flex-col gap-2">
                       <RatingPill value={review.ratingTour} />
                       <span className="text-xs text-on-surface-variant">
-                        Guide: {Number(review.ratingGuide || 0).toFixed(1)}
+                        {t("provider.reviews.guide")}: {Number(review.ratingGuide || 0).toFixed(1)}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell className="max-w-md px-6 py-4">
                     <p className="line-clamp-2 text-sm text-on-surface">
-                      {review.contentTour || "Traveler chưa ghi nhận xét cho tour."}
+                      {review.contentTour || t("provider.reviews.noTourComment")}
                     </p>
                     {review.contentGuide ? (
                       <p className="mt-1 line-clamp-1 text-xs text-on-surface-variant">
-                        Guide: {review.contentGuide}
+                        {t("provider.reviews.guide")}: {review.contentGuide}
                       </p>
                     ) : null}
                   </TableCell>
                   <TableCell className="px-6 py-4 text-sm font-semibold text-on-surface-variant">
-                    {formatDate(review.createdAt)}
+                    {formatDate(review.createdAt, locale)}
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell colSpan={5} className="py-12 text-center text-on-surface-variant">
-                  Chưa có review nào cho các tour của provider.
+                  {t("provider.reviews.empty")}
                 </TableCell>
               </TableRow>
             )}
@@ -136,8 +137,10 @@ function ProviderReviewTable({ reviews }) {
 }
 
 export default function ProviderReviewManagement() {
+  const { language, t } = useI18n();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const locale = language === "vi" ? "vi-VN" : "en-US";
 
   const loadReviews = useCallback(async () => {
     try {
@@ -145,11 +148,11 @@ export default function ProviderReviewManagement() {
       const response = await getProviderReviews();
       setReviews(response?.data?.data || []);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Không thể tải review provider");
+      toast.error(error?.response?.data?.message || t("provider.reviews.loadError"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadReviews();
@@ -175,16 +178,16 @@ export default function ProviderReviewManagement() {
     <main className="min-h-screen bg-surface text-on-surface">
       <div className="mx-auto w-full space-y-6 sm:space-y-8">
         <PageHero
-          eyebrow="PROVIDER REVIEWS"
+          eyebrow={t("provider.reviews.heroEyebrow")}
           heading={
             <>
-              Quản lý{" "}
+              {t("provider.reviews.titleA")}{" "}
               <span className="rounded-xl bg-primary/8 px-2 py-1 italic text-primary">
-                review
+                {t("provider.reviews.titleB")}
               </span>
             </>
           }
-          description="Theo dõi đánh giá thật của traveler cho tour và guide thuộc provider của bạn."
+          description={t("provider.reviews.description")}
           actions={
             <Button
               onClick={loadReviews}
@@ -192,7 +195,7 @@ export default function ProviderReviewManagement() {
               className="w-full rounded-full bg-primary px-6 py-5 font-bold text-primary-foreground hover:bg-primary-container hover:text-on-primary-container sm:w-auto"
             >
               <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
-              Làm mới
+              {t("provider.reviews.refresh")}
             </Button>
           }
         />
@@ -207,23 +210,23 @@ export default function ProviderReviewManagement() {
           <>
             <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
               <ReviewSummaryCard
-                label="Tổng review"
+                label={t("provider.reviews.totalReviews")}
                 value={summary.total}
-                helper="Tất cả review thuộc tour của provider"
+                helper={t("provider.reviews.totalReviewsHelper")}
               />
               <ReviewSummaryCard
-                label="Rating tour"
+                label={t("provider.reviews.tourRating")}
                 value={summary.averageTour}
-                helper="Điểm trung bình cho trải nghiệm tour"
+                helper={t("provider.reviews.tourRatingHelper")}
               />
               <ReviewSummaryCard
-                label="Rating guide"
+                label={t("provider.reviews.guideRating")}
                 value={summary.averageGuide}
-                helper="Điểm trung bình cho hướng dẫn viên"
+                helper={t("provider.reviews.guideRatingHelper")}
               />
             </section>
 
-            <ProviderReviewTable reviews={reviews} />
+            <ProviderReviewTable reviews={reviews} t={t} locale={locale} />
           </>
         )}
       </div>

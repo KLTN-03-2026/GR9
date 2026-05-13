@@ -1,8 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, Clock } from "lucide-react";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const ActivityTimeline = ({ tracking }) => {
+  const { t } = useI18n();
   const activities = tracking?.today?.activities || [];
 
   return (
@@ -10,7 +12,7 @@ const ActivityTimeline = ({ tracking }) => {
       <CardContent className="p-8">
         <h3 className="text-lg font-extrabold mb-8 flex items-center gap-2 text-slate-900">
           <Clock className="w-5 h-5 text-teal-600" />
-          Today's Activities
+          {t("publicTrackingPage.todayActivities")}
         </h3>
         
         <div className="space-y-10 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
@@ -24,7 +26,7 @@ const ActivityTimeline = ({ tracking }) => {
               
               <div className={item.state === 'pending' ? 'opacity-50' : ''}>
                 <Badge variant={item.state === 'completed' ? 'default' : 'secondary'} className="uppercase text-[9px] font-bold px-2 mb-1.5">
-                  {item.state}
+                  {t(`publicTrackingPage.status.${item.state}`)}
                 </Badge>
                 <h4 className="font-bold text-slate-900">{item.name}</h4>
                 <p className="text-xs font-bold text-slate-500 mt-0.5">{item.time}</p>
@@ -36,7 +38,7 @@ const ActivityTimeline = ({ tracking }) => {
               </div>
             </div>
           )) : (
-            <p className="text-sm text-slate-500">No activities are available.</p>
+            <p className="text-sm text-slate-500">{t("publicTrackingPage.noActivities")}</p>
           )}
         </div>
       </CardContent>

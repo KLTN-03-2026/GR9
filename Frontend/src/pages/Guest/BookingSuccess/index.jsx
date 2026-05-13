@@ -6,8 +6,10 @@ import BookingSuccessConfirmation from "./BookingSuccessConfirmation";
 import BookingSuccessDetailsCard from "./BookingSuccessDetailsCard";
 import BookingSuccessTrackingCard from "./BookingSuccessTrackingCard";
 import BookingSuccessSidebar from "./BookingSuccessSidebar";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export default function BookingSuccess() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [booking, setBooking] = useState(null);
@@ -35,7 +37,7 @@ export default function BookingSuccess() {
       } catch (error) {
         toast.error(
           error?.response?.data?.message ||
-            "Không thể tải thông tin booking sau thanh toán",
+            t("bookingSuccessPage.loadError"),
         );
       } finally {
         setLoading(false);
@@ -43,13 +45,13 @@ export default function BookingSuccess() {
     };
 
     loadBookingSuccess();
-  }, [navigate, orderCode, trackingCode]);
+  }, [navigate, orderCode, trackingCode, t]);
 
   if (loading) {
     return (
       <main className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="rounded-3xl bg-white p-8 text-slate-600 shadow-sm">
-          Đang xác nhận thanh toán và tải thông tin booking...
+          {t("bookingSuccessPage.loading")}
         </div>
       </main>
     );
@@ -60,16 +62,16 @@ export default function BookingSuccess() {
       <main className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="space-y-4 rounded-3xl bg-white p-8 shadow-sm">
           <h1 className="text-2xl font-black text-slate-950">
-            Chưa tìm thấy booking đã thanh toán
+            {t("bookingSuccessPage.notFoundTitle")}
           </h1>
           <p className="text-slate-600">
-            Vui lòng kiểm tra lại lịch sử đặt tour của bạn hoặc thử thanh toán lại.
+            {t("bookingSuccessPage.notFoundDescription")}
           </p>
           <Link
             className="font-bold text-emerald-700"
             to="/traveler/my-booking-traveler"
           >
-            Về My Booking
+            {t("bookingSuccessPage.backToMyBooking")}
           </Link>
         </div>
       </main>

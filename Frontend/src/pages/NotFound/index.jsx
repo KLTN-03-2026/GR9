@@ -1,8 +1,8 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Compass, Home, SearchX } from "lucide-react";
-import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n/I18nProvider";
 
 const getHomePath = (pathname) => {
   if (pathname.startsWith("/traveler")) return "/traveler";
@@ -17,6 +17,7 @@ export default function NotFound() {
   const location = useLocation();
   const navigate = useNavigate();
   const homePath = getHomePath(location.pathname);
+  const { t } = useI18n();
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-surface px-5 py-20 text-on-surface">
@@ -34,19 +35,18 @@ export default function NotFound() {
         </div>
 
         <p className="relative mt-8 text-sm font-black uppercase tracking-[0.22em] text-primary">
-          404 - Page not found
+          {t("notFound.eyebrow")}
         </p>
         <h1 className="relative mt-4 text-4xl font-black tracking-normal md:text-6xl">
-          Trang này không tồn tại
+          {t("notFound.title")}
         </h1>
         <p className="relative mx-auto mt-5 max-w-xl text-base leading-7 text-on-surface-variant">
-          Đường dẫn bạn vừa mở không khớp với trang nào trong Travel_AI. Có thể
-          trang đã được đổi tên, bị xoá hoặc bạn nhập sai URL.
+          {t("notFound.description")}
         </p>
 
         <div className="relative mt-6 rounded-2xl bg-surface-container-low px-4 py-3 text-left">
           <p className="truncate text-sm font-semibold text-on-surface-variant">
-            URL: <span className="font-bold text-on-surface">{location.pathname}</span>
+            {t("notFound.urlLabel")}: <span className="font-bold text-on-surface">{location.pathname}</span>
           </p>
         </div>
 
@@ -58,7 +58,7 @@ export default function NotFound() {
             className="h-12 rounded-full px-6 font-bold"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Quay lại
+            {t("notFound.back")}
           </Button>
 
           <Button
@@ -67,7 +67,7 @@ export default function NotFound() {
           >
             <Link to={homePath}>
               <Home className="mr-2 h-4 w-4" />
-              Về trang chính
+              {t("notFound.home")}
             </Link>
           </Button>
 
@@ -78,7 +78,7 @@ export default function NotFound() {
           >
             <Link to="/traveler/tour-list">
               <Compass className="mr-2 h-4 w-4" />
-              Xem tour
+              {t("notFound.browseTours")}
             </Link>
           </Button>
         </div>

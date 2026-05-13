@@ -1,6 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,6 +11,7 @@
     "seed:service": "node src/scripts/seed-service.js",
     "seed:users": "node src/scripts/seed-users.js",
     "seed:demo": "node src/scripts/seed-demo-data.js",
+    "seed:bulk": "node src/scripts/seed-bulk-data.js",
     "migrate:lead-guide-field": "node src/scripts/migrate-lead-guide-field.js"
   },
   "keywords": [],

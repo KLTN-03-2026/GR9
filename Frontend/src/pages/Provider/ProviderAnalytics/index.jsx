@@ -10,18 +10,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getProviderAnalytics } from "@/services/api/provider";
-import { buildProviderAnalyticsView, providerAnalyticsStatic } from "./providerAnalytics.data";
+import { buildProviderAnalyticsView, getProviderAnalyticsStatic } from "./providerAnalytics.data";
 import { RefreshCw } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { createElement, useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { useI18n } from "@/i18n/I18nProvider";
 
-function QuickActionCard({ icon: Icon, title, description }) {
+function QuickActionCard({ icon, title, description }) {
   return (
     <Card className="rounded-3xl border-outline-variant/20 bg-surface-container-lowest shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10">
       <CardContent className="flex items-start gap-4 p-5">
         <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-          <Icon className="size-5" />
+          {icon ? createElement(icon, { className: "size-5" }) : null}
         </div>
         <div>
           <p className="font-bold text-on-surface">{title}</p>
@@ -33,10 +34,11 @@ function QuickActionCard({ icon: Icon, title, description }) {
 }
 
 export default function ProviderAnalytics() {
+  const { t } = useI18n();
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const data = useMemo(() => buildProviderAnalyticsView(analytics), [analytics]);
+  const data = useMemo(() => buildProviderAnalyticsView(analytics, t), [analytics, t]);
 
   const loadAnalytics = useCallback(async () => {
     try {
@@ -44,17 +46,17 @@ export default function ProviderAnalytics() {
       const response = await getProviderAnalytics();
       setAnalytics(response?.data?.data || null);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Không thể tải analytics provider");
+      toast.error(error?.response?.data?.message || t("providerAnalyticsPage.loadError"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadAnalytics();
   }, [loadAnalytics]);
 
-  const hero = analytics ? data.hero : providerAnalyticsStatic.hero;
+  const hero = analytics ? data.hero : getProviderAnalyticsStatic(t).hero;
 
   return (
     <main className="min-h-screen bg-surface text-on-surface">
@@ -77,7 +79,7 @@ export default function ProviderAnalytics() {
               className="w-full rounded-full bg-primary px-6 py-5 font-bold text-primary-foreground hover:bg-primary-container hover:text-on-primary-container disabled:opacity-70 sm:w-auto"
             >
               <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
-              Làm mới dữ liệu
+              {t("providerAnalyticsPage.refresh")}
             </Button>
           }
           showProviderCard

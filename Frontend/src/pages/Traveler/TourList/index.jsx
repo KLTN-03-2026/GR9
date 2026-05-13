@@ -8,14 +8,17 @@ import { getAllTours } from "@/services/api/guest";
 import { formatPrice } from "@/utils/formatPrice";
 import TourListSkeleton from "./TourListSkeleton";
 import { useI18n } from "@/i18n/I18nProvider";
+import { localizeTourDescription } from "@/utils/localizedTourContent";
 
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 6;
+const MAX_PAGINATION_PAGES = 9;
+const MAX_VISIBLE_TOURS = PAGE_SIZE * MAX_PAGINATION_PAGES;
 const SORT_OPTIONS = [
-    { value: "popular", label: "Phổ biến" },
-    { value: "topRated", label: "Đánh giá cao" },
-    { value: "mostBooked", label: "Nhiều người đặt" },
-    { value: "priceLow", label: "Giá tốt nhất" },
-    { value: "durationShort", label: "Ngắn ngày" },
+    { value: "popular" },
+    { value: "topRated" },
+    { value: "mostBooked" },
+    { value: "priceLow" },
+    { value: "durationShort" },
 ];
 
 const SORT_LABEL_KEYS = {
@@ -34,7 +37,7 @@ const getTourImage = (tour) =>
     null;
 
 export default function TourList() {
-    const { t } = useI18n();
+    const { language, t } = useI18n();
     const [searchParams, setSearchParams] = useSearchParams();
     const [search, setSearch] = useState("");
     const [sortBy, setSortBy] = useState("popular");
@@ -87,9 +90,15 @@ export default function TourList() {
                 });
 
                 const payload = res.data.data;
+                const total = payload.total || 0;
+                const nextTotalPages = Math.min(
+                    Math.max(Math.ceil(total / PAGE_SIZE), 1),
+                    MAX_PAGINATION_PAGES,
+                );
                 setTours(payload.docs || payload || []);
-                setTotalTours(payload.total || 0);
-                setTotalPages(payload.totalPages || 1);
+                setTotalTours(Math.min(total, MAX_VISIBLE_TOURS));
+                setTotalPages(nextTotalPages);
+                setPage((current) => Math.min(current, nextTotalPages));
             } catch {
                 setError(t("tourList.loadError"));
             } finally {
@@ -145,7 +154,7 @@ export default function TourList() {
                                 <Input
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="Search tours..."
+                                    placeholder={t("tourList.searchPlaceholder")}
                                     className="h-11 rounded-full border-outline-variant/20 bg-white/95 text-slate-900 placeholder:text-slate-500"
                                 />
                             </div>
@@ -159,7 +168,7 @@ export default function TourList() {
                                     }}
                                 >
                                     <SelectTrigger className="h-11 w-full rounded-full border-outline-variant/20 bg-white/95 px-4 text-slate-900 shadow-sm sm:w-[220px]">
-                                        <SelectValue placeholder="Sắp xếp tour" />
+                                        <SelectValue placeholder={t("tourList.sortPlaceholder")} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {SORT_OPTIONS.map((option) => (
@@ -182,7 +191,7 @@ export default function TourList() {
                         {filteredTours.map((tour) => (
                             <article
                                 key={tour._id}
-                                className="group relative overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10"
+                                className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-lowest shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10"
                             >
                                 <div className="relative aspect-[4/3] overflow-hidden bg-surface-container-low">
                                     {getTourImage(tour) ? (
@@ -218,43 +227,55 @@ export default function TourList() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-5 p-5">
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div>
+                                <div className="flex flex-1 flex-col gap-5 p-5">
+                                    <div className="flex min-h-[88px] items-start justify-between gap-4">
+                                        <div className="min-w-0 flex-1">
                                             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                                                Từ
+                                                {t("common.from")}
                                             </p>
-                                            <span className="text-2xl font-extrabold text-primary">
-                                                {Number(tour?.price?.adult) > 0
-                                                    ? `${formatPrice(tour?.price?.adult)}đ`
-                                                    : t("common.contact")}
-                                            </span>
-                                            <span className="text-xs font-medium text-slate-500"> / người lớn</span>
+                                            <div className="mt-1 flex flex-wrap items-end gap-x-2 gap-y-1">
+                                                <span className="text-2xl font-extrabold leading-none text-primary">
+                                                    {Number(tour?.price?.adult) > 0
+                                                        ? `${formatPrice(tour?.price?.adult)}đ`
+                                                        : t("common.contact")}
+                                                </span>
+                                                <span className="text-xs font-medium text-slate-500">{t("common.perAdult")}</span>
+                                            </div>
                                         </div>
 
-                                        <div className="rounded-2xl bg-amber-50 px-3 py-2 text-right dark:bg-amber-400/10">
-                                            <div className="flex items-center justify-end gap-1">
-                                                <span
-                                                    className="material-symbols-outlined text-sm text-amber-500"
-                                                    style={{ fontVariationSettings: '"FILL" 1' }}
-                                                >
-                                                    star
+                                        <div className="flex min-h-[70px] min-w-[104px] flex-col justify-center rounded-2xl border border-amber-200/60 bg-gradient-to-br from-amber-50 via-white to-amber-50/60 px-3 py-2 shadow-sm dark:border-primary/15 dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-900 dark:to-slate-800/90 dark:shadow-none">
+                                            <div className="flex items-center gap-2">
+                                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-400/15 text-amber-500 dark:bg-primary/14 dark:text-primary">
+                                                    <span
+                                                        className="material-symbols-outlined text-[15px]"
+                                                        style={{ fontVariationSettings: '"FILL" 1' }}
+                                                    >
+                                                        star
+                                                    </span>
                                                 </span>
-                                                <span className="text-sm font-extrabold text-slate-900">
-                                                    {Number(tour.averageRating) > 0 ? tour.averageRating : "Mới"}
-                                                </span>
+                                                <div className="min-w-0">
+                                                    <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                                                        {t("common.reviewsLabel")}
+                                                    </p>
+                                                    <div className="mt-0.5 flex items-baseline gap-1">
+                                                        <span className="text-base font-extrabold leading-none text-slate-900 dark:text-slate-100">
+                                                            {Number(tour.averageRating) > 0 ? tour.averageRating : t("common.new")}
+                                                        </span>
+                                                        {Number(tour.averageRating) > 0 ? (
+                                                            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">/5</span>
+                                                        ) : null}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <p className="mt-0.5 text-[11px] font-semibold text-slate-500">
-                                                {tour.reviewCount || 0} đánh giá
+                                            <p className="mt-1.5 text-[10px] font-medium leading-4 text-slate-500 dark:text-slate-400">
+                                                {t("tourList.reviews", { count: tour.reviewCount || 0 })}
                                             </p>
                                         </div>
                                     </div>
 
-                                    {tour.description && (
-                                        <p className="line-clamp-2 min-h-[48px] text-sm leading-6 text-on-surface-variant">
-                                            {tour.description}
-                                        </p>
-                                    )}
+                                    <p className="line-clamp-3 min-h-[78px] text-sm leading-6 text-on-surface-variant">
+                                        {localizeTourDescription(tour.description, language, tour) || t("tourList.noDescription")}
+                                    </p>
 
                                     <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container-low text-on-surface-variant sm:grid-cols-3">
                                         <div className="flex min-h-[64px] flex-col items-center justify-center gap-1 border-b border-outline-variant/15 px-2 text-center sm:min-h-[72px] sm:border-b-0 sm:border-r">
@@ -262,7 +283,7 @@ export default function TourList() {
                                                 schedule
                                             </span>
                                             <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-slate-900">
-                                                {tour.numberOfDay || "-"} ngày
+                                                {tour.numberOfDay || "-"} {t("common.day")}
                                             </span>
                                         </div>
                                         <div className="flex min-h-[64px] flex-col items-center justify-center gap-1 border-b border-outline-variant/15 px-2 text-center sm:min-h-[72px] sm:border-b-0 sm:border-r">
@@ -270,7 +291,7 @@ export default function TourList() {
                                                 groups
                                             </span>
                                             <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-slate-900">
-                                                {tour.travelerCount || 0} khách
+                                                {tour.travelerCount || 0} {t("common.guest")}
                                             </span>
                                         </div>
                                         <div className="flex min-h-[64px] flex-col items-center justify-center gap-1 px-2 text-center sm:min-h-[72px]">
@@ -278,14 +299,14 @@ export default function TourList() {
                                                 confirmation_number
                                             </span>
                                             <span className="block h-4 whitespace-nowrap text-xs font-bold leading-4 text-slate-900">
-                                                {tour.bookingCount || 0} lượt
+                                                {tour.bookingCount || 0} {t("common.bookingTurn")}
                                             </span>
                                         </div>
                                     </div>
 
                                     <Button
                                         asChild
-                                        className="h-11 w-full rounded-xl bg-primary font-bold text-white shadow-sm transition-all hover:bg-primary/90 hover:shadow-md active:scale-95"
+                                        className="mt-auto h-11 w-full rounded-xl bg-primary font-bold text-white shadow-sm transition-all hover:bg-primary/90 hover:shadow-md active:scale-95"
                                     >
                                         <Link to={`/traveler/tour-detail/${tour._id}`}>{t("common.viewDetails")}</Link>
                                     </Button>
