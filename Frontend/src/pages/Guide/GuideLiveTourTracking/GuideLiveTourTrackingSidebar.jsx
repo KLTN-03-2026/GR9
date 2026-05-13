@@ -110,28 +110,30 @@ export default function GuideLiveTourTrackingSidebar({
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="space-y-3 p-4">
+        <CardContent className="p-4">
           {tours?.length ? (
-            tours.map((tour) => (
-              <Button
-                key={tour.bookingId}
-                type="button"
-                variant="ghost"
-                onClick={() => onSelectTour(tour.bookingId)}
-                className={`h-auto w-full justify-start rounded-xl border px-4 py-3 text-left ${
-                  tour.bookingId === tracking?.bookingId
-                    ? "border-primary/20 bg-primary/8 text-primary"
-                    : "border-outline-variant/10 bg-surface-container-low text-on-surface"
-                }`}
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold">{tour.tourName}</p>
-                  <p className="mt-1 text-xs font-semibold text-on-surface-variant">
-                    {tour.travelerName} · {tour.groupTotal} {t("guidePages.liveTracking.guests")} · {tour.startDay}
-                  </p>
-                </div>
-              </Button>
-            ))
+            <div className="space-y-3 md:max-h-[320px] md:overflow-y-auto md:pr-1">
+              {tours.map((tour) => (
+                <Button
+                  key={tour.bookingId}
+                  type="button"
+                  variant="ghost"
+                  onClick={() => onSelectTour(tour.bookingId)}
+                  className={`h-auto w-full justify-start rounded-xl border px-4 py-3 text-left ${
+                    tour.bookingId === tracking?.bookingId
+                      ? "border-primary/20 bg-primary/8 text-primary"
+                      : "border-outline-variant/10 bg-surface-container-low text-on-surface"
+                  }`}
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold">{tour.tourName}</p>
+                    <p className="mt-1 text-xs font-semibold text-on-surface-variant">
+                      {tour.travelerName} · {tour.groupTotal} {t("guidePages.liveTracking.guests")} · {tour.startDay}
+                    </p>
+                  </div>
+                </Button>
+              ))}
+            </div>
           ) : (
             <p className="text-sm text-on-surface-variant">{t("guidePages.liveTracking.noActiveAssignedTours")}</p>
           )}
