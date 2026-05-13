@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { formatPrice } from "@/utils/formatPrice";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -54,6 +54,10 @@ const getBookingStatusBadge = (status) =>
         className: "bg-slate-100 text-slate-700",
     };
 
+const PAGE_SIZE = 6;
+const MAX_PAGINATION_PAGES = 9;
+const MAX_VISIBLE_TOURS = PAGE_SIZE * MAX_PAGINATION_PAGES;
+
 export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
     const { t } = useI18n();
     const navigate = useNavigate();
@@ -63,15 +67,10 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
     const [sort, setSort] = useState("latest");
     const [priceRange, setPriceRange] = useState([10000, 100000000]);
     const [page, setPage] = useState(1);
-    const pageSize = 5;
-
-    useEffect(() => {
-        const urlSearch = searchParams.get("search") || "";
-        setSearch((current) => (current === urlSearch ? current : urlSearch));
-    }, [searchParams]);
 
     const handleSearchChange = (value) => {
         setSearch(value);
+        setPage(1);
         setSearchParams((current) => {
             const next = new URLSearchParams(current);
             if (value.trim()) {
@@ -106,10 +105,18 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
 
             return dateB - dateA;
         });
-    const totalPages = Math.max(Math.ceil(filteredTours.length / pageSize), 1);
+    const cappedTours = useMemo(
+        () => filteredTours.slice(0, MAX_VISIBLE_TOURS),
+        [filteredTours],
+    );
+    const totalPages = Math.min(
+        Math.max(Math.ceil(cappedTours.length / PAGE_SIZE), 1),
+        MAX_PAGINATION_PAGES,
+    );
+    const currentPage = Math.min(page, totalPages);
     const visibleTours = useMemo(
-        () => filteredTours.slice((page - 1) * pageSize, page * pageSize),
-        [filteredTours, page],
+        () => cappedTours.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+        [cappedTours, currentPage],
     );
     const visiblePageButtons = useMemo(() => {
         const maxButtons = 5;
@@ -117,7 +124,7 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
             return Array.from({ length: totalPages }, (_, index) => index + 1);
         }
 
-        let start = Math.max(1, page - Math.floor(maxButtons / 2));
+        let start = Math.max(1, currentPage - Math.floor(maxButtons / 2));
         let end = start + maxButtons - 1;
 
         if (end > totalPages) {
@@ -126,25 +133,24 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
         }
 
         return Array.from({ length: end - start + 1 }, (_, index) => start + index);
-    }, [page, totalPages]);
-    const firstRow = filteredTours.length === 0 ? 0 : (page - 1) * pageSize + 1;
-    const lastRow = Math.min(page * pageSize, filteredTours.length);
+    }, [currentPage, totalPages]);
+    const firstRow = cappedTours.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
+    const lastRow = Math.min(currentPage * PAGE_SIZE, cappedTours.length);
 
-    useEffect(() => {
-        setPage(1);
-    }, [search, status, sort, priceRange]);
-
-    useEffect(() => {
-        setPage((current) => Math.min(current, totalPages));
-    }, [totalPages]);
-
-    usePaginationScroll([page]);
+    usePaginationScroll([currentPage]);
 
     return (
         <Card className="overflow-hidden rounded-[2rem] border-none bg-surface-container-lowest py-0 shadow-[0_20px_50px_rgba(15,23,42,0.05)]">
             <CardContent className="space-y-6 p-5 md:p-6">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                    <Tabs value={status} onValueChange={setStatus} className="w-full xl:w-auto">
+                    <Tabs
+                        value={status}
+                        onValueChange={(value) => {
+                            setStatus(value);
+                            setPage(1);
+                        }}
+                        className="w-full xl:w-auto"
+                    >
                         <TabsList className="h-auto w-full flex-wrap justify-start gap-2 rounded-2xl bg-surface-container-low p-1.5 xl:w-auto">
                             <TabsTrigger
                                 value="all"
@@ -192,7 +198,10 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                                 max={100000000}
                                 step={50000}
                                 value={priceRange}
-                                onValueChange={setPriceRange}
+                                onValueChange={(value) => {
+                                    setPriceRange(value);
+                                    setPage(1);
+                                }}
                             />
 
                             <div className="flex justify-between text-xs text-on-surface-variant">
@@ -201,7 +210,13 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                             </div>
                         </div>
 
-                        <Select value={sort} onValueChange={setSort}>
+                        <Select
+                            value={sort}
+                            onValueChange={(value) => {
+                                setSort(value);
+                                setPage(1);
+                            }}
+                        >
                             <SelectTrigger className="h-11 min-w-[150px] rounded-xl border-outline-variant/30 bg-surface-container-lowest px-4">
                                 <SelectValue placeholder={t("provider.tours.sortLatest")} />
                             </SelectTrigger>
@@ -345,7 +360,7 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                         {t("provider.tours.showing", {
                             first: firstRow,
                             last: lastRow,
-                            total: filteredTours.length,
+                            total: cappedTours.length,
                         })}
                     </p>
 
@@ -354,16 +369,16 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                             variant="outline"
                             size="icon"
                             className="rounded-xl bg-surface-container-lowest text-on-surface-variant"
-                            disabled={page <= 1}
-                            onClick={() => setPage((current) => Math.max(current - 1, 1))}
+                            disabled={currentPage <= 1}
+                            onClick={() => setPage((current) => Math.max(Math.min(current, totalPages) - 1, 1))}
                         >
                             <ChevronLeft className="size-4" />
                         </Button>
                         {visiblePageButtons.map((pageNumber) => (
                             <Button
                                 key={pageNumber}
-                                variant={page === pageNumber ? "default" : "outline"}
-                                className={page === pageNumber ? "rounded-xl bg-primary px-4 text-primary-foreground" : "rounded-xl bg-surface-container-lowest px-4"}
+                                variant={currentPage === pageNumber ? "default" : "outline"}
+                                className={currentPage === pageNumber ? "rounded-xl bg-primary px-4 text-primary-foreground" : "rounded-xl bg-surface-container-lowest px-4"}
                                 onClick={() => setPage(pageNumber)}
                             >
                                 {pageNumber}
@@ -373,8 +388,8 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                             variant="outline"
                             size="icon"
                             className="rounded-xl bg-surface-container-lowest text-on-surface-variant"
-                            disabled={page >= totalPages}
-                            onClick={() => setPage((current) => Math.min(current + 1, totalPages))}
+                            disabled={currentPage >= totalPages}
+                            onClick={() => setPage((current) => Math.min(Math.min(current, totalPages) + 1, totalPages))}
                         >
                             <ChevronRight className="size-4" />
                         </Button>

@@ -16,40 +16,57 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { getProviderBookings } from "@/services/api/booking";
+import { useI18n } from "@/i18n/I18nProvider";
 import { useSearchParams } from "react-router-dom";
 import usePaginationScroll from "@/hooks/usePaginationScroll";
 
 const statusConfig = {
   PENDING: {
-    label: "Pending payment",
+    labelKey: "provider.bookings.statuses.pendingPayment",
     className: "bg-amber-100 text-amber-700",
   },
   CONFIRMED: {
-    label: "Confirmed",
+    labelKey: "provider.bookings.statuses.confirmed",
     className: "bg-emerald-100 text-emerald-700",
   },
   COMPLETED: {
-    label: "Completed",
+    labelKey: "provider.bookings.statuses.completed",
     className: "bg-blue-100 text-blue-700",
   },
   CANCELLED: {
-    label: "Cancelled",
+    labelKey: "provider.bookings.statuses.cancelled",
     className: "bg-red-100 text-red-700",
   },
   REFUNDED: {
-    label: "Refunded",
+    labelKey: "provider.bookings.statuses.refunded",
     className: "bg-slate-200 text-slate-700",
   },
 };
 
-const getDisplayStatus = (booking) => {
-  if (booking.status === "CANCELLED") return statusConfig.CANCELLED;
-  if (booking.status === "REFUNDED") return statusConfig.REFUNDED;
-  if (booking.status === "COMPLETED") return statusConfig.COMPLETED;
-  if (booking.payment !== "PAID") return statusConfig.PENDING;
-  if (booking.status === "CONFIRMED") return statusConfig.CONFIRMED;
-  return statusConfig[booking.status] || {
-    label: booking.status || "Unknown",
+const getDisplayStatus = (booking, t) => {
+  const statusKey =
+    booking.status === "CANCELLED"
+      ? "CANCELLED"
+      : booking.status === "REFUNDED"
+        ? "REFUNDED"
+        : booking.status === "COMPLETED"
+          ? "COMPLETED"
+          : booking.payment !== "PAID"
+            ? "PENDING"
+            : booking.status === "CONFIRMED"
+              ? "CONFIRMED"
+              : booking.status;
+  const config = statusConfig[statusKey];
+
+  return config
+    ? {
+        key: statusKey,
+        label: t(config.labelKey),
+        className: config.className,
+      }
+    : {
+    key: booking.status || "UNKNOWN",
+    label: booking.status || t("provider.bookings.statuses.unknown"),
     className: "bg-slate-100 text-slate-700",
   };
 };
@@ -62,21 +79,22 @@ const initialsOf = (name = "") =>
     .map((part) => part[0]?.toUpperCase())
     .join("") || "TR";
 
-const formatDate = (value) => {
+const formatDate = (value, locale) => {
   if (!value) return "-";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "-";
-  return date.toLocaleDateString("vi-VN");
+  return date.toLocaleDateString(locale);
 };
 
-const formatTime = (value) => {
+const formatTime = (value, locale) => {
   if (!value) return "";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+  return date.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
 };
 
 export default function ProviderBookingTable() {
+  const { language, t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -86,6 +104,7 @@ export default function ProviderBookingTable() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
   const pageSize = 8;
+  const locale = language === "vi" ? "vi-VN" : "en-US";
 
   useEffect(() => {
     const loadBookings = async () => {
@@ -95,14 +114,14 @@ export default function ProviderBookingTable() {
         setBookings(res?.data?.data || []);
       } catch (error) {
         console.error("Load provider bookings error:", error);
-        toast.error(error?.response?.data?.message || "Không thể tải danh sách booking.");
+        toast.error(error?.response?.data?.message || t("provider.bookings.loadError"));
       } finally {
         setLoading(false);
       }
     };
 
     loadBookings();
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     const urlSearch = searchParams.get("search") || "";
@@ -147,7 +166,7 @@ export default function ProviderBookingTable() {
         (bookingDate &&
           !Number.isNaN(bookingDate.getTime()) &&
           bookingDate.toISOString().slice(0, 10) === dateFilter);
-      const displayStatus = getDisplayStatus(booking).label.toLowerCase();
+      const displayStatus = getDisplayStatus(booking, t).key.toLowerCase();
       const matchesStatus =
         statusFilter === "all" ||
         displayStatus.includes(statusFilter) ||
@@ -155,7 +174,7 @@ export default function ProviderBookingTable() {
 
       return matchesSearch && matchesTour && matchesDate && matchesStatus;
     });
-  }, [bookings, keyword, tourFilter, dateFilter, statusFilter]);
+  }, [bookings, keyword, tourFilter, dateFilter, statusFilter, t]);
 
   const tourOptions = useMemo(() => {
     const map = new Map();
@@ -214,14 +233,14 @@ export default function ProviderBookingTable() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle className="font-heading text-lg font-bold">
-              Incoming Bookings
+              {t("provider.bookings.incomingBookings")}
             </CardTitle>
             <p className="text-sm text-on-surface-variant">
-              Booking status is read directly from each booking record.
+              {t("provider.bookings.statusHint")}
             </p>
           </div>
           <span className="inline-flex w-fit rounded-full border border-border px-3 py-1 text-xs font-bold text-foreground">
-            {filteredBookings.length} rows
+            {t("provider.bookings.rows", { count: filteredBookings.length })}
           </span>
         </div>
 
@@ -231,7 +250,7 @@ export default function ProviderBookingTable() {
             <Input
               value={keyword}
               onChange={(event) => handleKeywordChange(event.target.value)}
-              placeholder="Search tours, travelers, status..."
+              placeholder={t("provider.bookings.searchPlaceholder")}
               className="h-11 border-outline-variant/30 bg-surface-container-low pl-10"
             />
           </div>
@@ -241,7 +260,7 @@ export default function ProviderBookingTable() {
             onChange={(event) => setTourFilter(event.target.value)}
             className="h-11 rounded-xl border border-outline-variant/30 bg-surface-container-low px-3 text-sm text-on-surface outline-none"
           >
-            <option value="all">All tours</option>
+            <option value="all">{t("provider.bookings.allTours")}</option>
             {tourOptions.map((tour) => (
               <option key={tour.id} value={tour.id}>
                 {tour.name}
@@ -261,12 +280,12 @@ export default function ProviderBookingTable() {
             onChange={(event) => setStatusFilter(event.target.value)}
             className="h-11 rounded-xl border border-outline-variant/30 bg-surface-container-low px-3 text-sm text-on-surface outline-none"
           >
-            <option value="all">All statuses</option>
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-            <option value="refunded">Refunded</option>
+            <option value="all">{t("provider.bookings.allStatuses")}</option>
+            <option value="pending">{t("provider.bookings.statuses.pending")}</option>
+            <option value="confirmed">{t("provider.bookings.statuses.confirmed")}</option>
+            <option value="completed">{t("provider.bookings.statuses.completed")}</option>
+            <option value="cancelled">{t("provider.bookings.statuses.cancelled")}</option>
+            <option value="refunded">{t("provider.bookings.statuses.refunded")}</option>
           </select>
 
           <button
@@ -274,7 +293,7 @@ export default function ProviderBookingTable() {
             onClick={resetFilters}
             className="h-11 rounded-xl border border-outline-variant/30 bg-surface-container-lowest px-4 text-sm font-bold text-on-surface-variant hover:bg-surface-container-low"
           >
-            Reset
+            {t("provider.bookings.reset")}
           </button>
         </div>
 
@@ -283,16 +302,16 @@ export default function ProviderBookingTable() {
             <TableHeader className="bg-surface-container-low">
               <TableRow className="hover:bg-surface-container-low">
                 <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                  Customer
+                  {t("provider.bookings.customer")}
                 </TableHead>
                 <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                  Tour Details
+                  {t("provider.bookings.tourDetails")}
                 </TableHead>
                 <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                  Date
+                  {t("provider.bookings.date")}
                 </TableHead>
                 <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
-                  Status
+                  {t("provider.bookings.status")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -326,7 +345,7 @@ export default function ProviderBookingTable() {
                 ))
               ) : filteredBookings.length ? (
                 visibleBookings.map((booking) => {
-                  const status = getDisplayStatus(booking);
+                  const status = getDisplayStatus(booking, t);
                   return (
                     <TableRow key={booking.id} className="group">
                       <TableCell className="px-6 py-5">
@@ -354,20 +373,20 @@ export default function ProviderBookingTable() {
 
                       <TableCell className="px-6 py-5">
                         <p className="font-heading text-base font-bold text-on-surface transition-colors group-hover:text-primary">
-                          {booking.tour?.name || "Unnamed tour"}
+                          {booking.tour?.name || t("provider.bookings.unnamedTour")}
                         </p>
                         <div className="mt-2 space-y-1 text-xs text-on-surface-variant">
                           <p className="flex items-center gap-1.5">
                             <Users className="size-3.5" />
-                            {booking.totalTravelers || 0} travelers
+                            {t("provider.bookings.travelers", { count: booking.totalTravelers || 0 })}
                           </p>
                           <p className="flex items-center gap-1.5">
                             <Hotel className="size-3.5" />
-                            {booking.guide?.name || "Guide not assigned"}
+                            {booking.guide?.name || t("provider.bookings.guideNotAssigned")}
                           </p>
                           <p className="flex items-center gap-1.5">
                             <BusFront className="size-3.5" />
-                            {booking.tour?.location || "Unknown location"}
+                            {booking.tour?.location || t("provider.bookings.unknownLocation")}
                           </p>
                         </div>
                       </TableCell>
@@ -375,10 +394,13 @@ export default function ProviderBookingTable() {
                       <TableCell className="px-6 py-5">
                         <p className="flex items-center gap-2 font-semibold text-on-surface">
                           <CalendarDays className="size-4 text-primary" />
-                          {formatDate(booking.startDate)}
+                          {formatDate(booking.startDate, locale)}
                         </p>
                         <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.18em] text-on-surface-variant">
-                          Booked {formatDate(booking.bookingDate)} {formatTime(booking.bookingDate)}
+                          {t("provider.bookings.bookedAt", {
+                            date: formatDate(booking.bookingDate, locale),
+                            time: formatTime(booking.bookingDate, locale),
+                          })}
                         </p>
                       </TableCell>
 
@@ -389,7 +411,7 @@ export default function ProviderBookingTable() {
                           {status.label}
                         </span>
                         <p className="mt-2 text-xs text-on-surface-variant">
-                          Payment: {booking.payment}
+                          {t("provider.bookings.payment")}: {booking.payment}
                         </p>
                       </TableCell>
                     </TableRow>
@@ -398,7 +420,7 @@ export default function ProviderBookingTable() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={4} className="px-6 py-12 text-center text-sm text-on-surface-variant">
-                    No bookings found
+                    {t("provider.bookings.empty")}
                   </TableCell>
                 </TableRow>
               )}
@@ -408,8 +430,11 @@ export default function ProviderBookingTable() {
         {!loading && filteredBookings.length > pageSize ? (
           <div className="flex flex-col gap-3 rounded-[1.5rem] bg-surface-container-low px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-on-surface-variant">
-              Showing <span className="font-bold text-on-surface">{firstRow} - {lastRow}</span> of{" "}
-              <span className="font-bold text-on-surface">{filteredBookings.length}</span> bookings
+              {t("provider.bookings.showing", {
+                first: firstRow,
+                last: lastRow,
+                total: filteredBookings.length,
+              })}
             </p>
 
             <div className="flex items-center gap-2">
