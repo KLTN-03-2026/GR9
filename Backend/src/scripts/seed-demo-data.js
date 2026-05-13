@@ -1582,8 +1582,127 @@ const richTourSeeds = detailedDestinationSeeds.map((destination) => ({
   itineraries: destination.itineraries,
 }));
 
+const tourExpansionCities = [
+  "Da Nang",
+  "Hoi An",
+  "Ha Noi",
+  "Sa Pa",
+  "Ha Long",
+  "Hue",
+  "Nha Trang",
+  "Da Lat",
+  "Ho Chi Minh City",
+  "Ben Tre",
+  "Phu Quoc",
+  "Ninh Binh",
+  "Ha Giang",
+  "Quy Nhon",
+  "Quang Binh",
+  "Vung Tau",
+  "Can Tho",
+  "Mui Ne",
+  "Con Dao",
+];
+
+const tourExpansionThemes = [
+  {
+    suffix: "Local Comfort Break",
+    numberOfDay: 2,
+    type: "GROUP",
+    adultPrice: 690000,
+    childRatio: 0.7,
+    description:
+      "Lich trinh gon nhe voi dua don noi thanh, bua an dia phuong, diem tham quan noi bat va thoi gian tu do.",
+  },
+  {
+    suffix: "Slow Travel Highlights",
+    numberOfDay: 3,
+    type: "PRIVATE",
+    adultPrice: 1180000,
+    childRatio: 0.72,
+    description:
+      "Tour rieng nhip do cham voi bua sang, bua trua, photo walk, diem check-in noi bat va dich vu xe rieng.",
+  },
+];
+
+const getCityServiceNames = (city) => ({
+  breakfast: `${city} Breakfast Set`,
+  lunch: `${city} Local Lunch`,
+  dinner: `${city} Dinner Experience`,
+  transfer: `${city} Private City Transfer`,
+  ticket: `${city} Highlight Ticket`,
+  photoWalk: `${city} Afternoon Photo Walk`,
+});
+
+const buildExpandedItineraries = (city, numberOfDay) => {
+  const services = getCityServiceNames(city);
+  const days = [
+    {
+      dayNumber: 1,
+      description: `Den ${city}, nhan xe rieng, an trua dia phuong va tham quan diem noi bat.`,
+      activities: [
+        { time: "09:00", serviceName: services.transfer },
+        { time: "12:00", serviceName: services.lunch },
+        { time: "15:00", serviceName: services.ticket },
+        { time: "18:30", serviceName: services.dinner },
+      ],
+    },
+    {
+      dayNumber: 2,
+      description: `Thuong thuc bua sang, dao bo chup anh va ket thuc lich trinh tai ${city}.`,
+      activities: [
+        { time: "07:30", serviceName: services.breakfast },
+        { time: "09:30", serviceName: services.photoWalk },
+        { time: "13:30", serviceName: services.transfer },
+      ],
+    },
+  ];
+
+  if (numberOfDay >= 3) {
+    days.splice(1, 0, {
+      dayNumber: 2,
+      description: `Mot ngay thong tha o ${city} voi bua sang, diem tham quan va bua toi dac trung.`,
+      activities: [
+        { time: "07:30", serviceName: services.breakfast },
+        { time: "10:00", serviceName: services.ticket },
+        { time: "12:30", serviceName: services.lunch },
+        { time: "18:30", serviceName: services.dinner },
+      ],
+    });
+
+    days[2] = {
+      ...days[2],
+      dayNumber: 3,
+    };
+  }
+
+  return days;
+};
+
+const expandedTourSeeds = tourExpansionCities.flatMap((city, cityIndex) =>
+  tourExpansionThemes.map((theme, themeIndex) => {
+    const services = getCityServiceNames(city);
+    const adult = theme.adultPrice + cityIndex * 35000 + themeIndex * 120000;
+
+    return {
+      name: `${city} ${theme.suffix}`,
+      location: city,
+      description: `${theme.description} Diem den chinh: ${city}.`,
+      numberOfDay: theme.numberOfDay,
+      type: theme.type,
+      price: {
+        adult,
+        child: Math.round(adult * theme.childRatio),
+        infant: 0,
+      },
+      serviceNames: Object.values(services),
+      itineraries: buildExpandedItineraries(city, theme.numberOfDay),
+    };
+  }),
+);
+
 const allServiceSeeds = [...serviceSeeds, ...generatedServiceSeeds, ...cityExtraServices];
-const allTourSeeds = [...tourSeeds, ...richTourSeeds];
+const allTourSeeds = [...tourSeeds, ...richTourSeeds, ...expandedTourSeeds];
 
 const enrichTourWithOperationalServices = (tourData) => {
   const cityServices = cityExtraServices.filter((service) =>
@@ -1876,4 +1995,3 @@ const seedDemoData = async () => {
 };
 
 seedDemoData();
-
