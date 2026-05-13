@@ -1,45 +1,102 @@
+<div align="center">
+
 # Travel_AI
 
-Travel_AI là hệ thống lập kế hoạch du lịch thông minh tích hợp đặt tour, quản lý dịch vụ, thanh toán, theo dõi hành trình và trợ lý AI. Dự án được xây dựng theo kiến trúc tách riêng Frontend và Backend, phù hợp cho các vai trò Traveler, Provider, Guide và Admin.
+### Hệ thống lập kế hoạch du lịch thông minh tích hợp đặt tour, thanh toán, tracking và AI Assistant
 
-## Tính năng chính
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=111)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=fff)
+![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=node.js&logoColor=fff)
+![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?style=for-the-badge&logo=mongodb&logoColor=fff)
+![Tailwind](https://img.shields.io/badge/TailwindCSS-4-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=fff)
+![Gemini](https://img.shields.io/badge/Gemini-AI-8E75FF?style=for-the-badge&logo=google&logoColor=fff)
 
-- Traveler xem danh sách tour, lọc/sắp xếp tour, xem chi tiết tour và đặt tour.
-- Thanh toán booking qua PayOS và theo dõi trạng thái booking.
-- Live tracking tour và tạo tracking link để chia sẻ cho người thân.
-- Đánh giá tour và hướng dẫn viên sau khi hoàn tất chuyến đi.
-- AI Travel Planner tạo lịch trình du lịch theo điểm đến, ngân sách, thời gian và số lượng khách.
-- Voyager/SmartTravel AI chatbot hỗ trợ hỏi đáp về tour, booking, thanh toán, chính sách và Knowledge Base.
-- Provider quản lý tour, lịch khởi hành, dịch vụ, guide, booking, review và analytics.
-- Admin quản lý user, duyệt provider, quản lý analytics và hồ sơ hệ thống.
-- Guide xem tour được phân công, cập nhật tracking và quản lý hồ sơ.
-- Hỗ trợ dark/light mode và chuyển đổi ngôn ngữ VI/EN cho giao diện.
+</div>
+
+---
+
+## Tổng quan
+
+**Travel_AI** là nền tảng du lịch thông minh giúp kết nối **Traveler**, **Provider**, **Guide** và **Admin** trong cùng một hệ thống. Dự án hỗ trợ người dùng tìm tour, đặt tour, thanh toán, theo dõi hành trình, đánh giá dịch vụ và sử dụng AI để tạo lịch trình hoặc hỏi đáp thông tin du lịch.
+
+Hệ thống được xây dựng theo mô hình tách riêng:
+
+- **Frontend**: React, Vite, Tailwind CSS, Shadcn/Radix UI.
+- **Backend**: Node.js, Express, MongoDB, JWT, Cloudinary, PayOS, Gemini, Supabase pgvector.
+
+---
+
+## Mục lục
+
+- [Tính năng nổi bật](#tính-năng-nổi-bật)
+- [Công nghệ sử dụng](#công-nghệ-sử-dụng)
+- [Cấu trúc thư mục](#cấu-trúc-thư-mục)
+- [Yêu cầu môi trường](#yêu-cầu-môi-trường)
+- [Cài đặt nhanh](#cài-đặt-nhanh)
+- [Cấu hình môi trường](#cấu-hình-môi-trường)
+- [Cấu hình Knowledge Base](#cấu-hình-knowledge-base)
+- [Seed dữ liệu](#seed-dữ-liệu)
+- [Route chính](#route-chính)
+- [API Backend](#api-backend)
+- [Build production](#build-production)
+- [Ghi chú bảo mật](#ghi-chú-bảo-mật)
+
+---
+
+## Tính năng nổi bật
+
+| Nhóm người dùng | Chức năng |
+| --- | --- |
+| **Guest** | Xem landing page, đăng ký tài khoản, gửi đơn đăng ký provider, xem tracking public |
+| **Traveler** | Xem tour, đặt tour, thanh toán PayOS, quản lý booking, tạo tracking link, đánh giá tour/guide |
+| **Provider** | Quản lý tour, lịch khởi hành, service, guide, booking, review và analytics |
+| **Guide** | Xem tour được phân công, cập nhật live tracking, quản lý hồ sơ |
+| **Admin** | Quản lý người dùng, duyệt provider, xem analytics, quản lý hồ sơ hệ thống |
+| **AI Assistant** | Chatbot hỏi đáp KB/database, gợi ý tour, trả lời booking/tour/policy theo dữ liệu thật |
+
+Các điểm đáng chú ý:
+
+- AI Travel Planner tạo lịch trình theo điểm đến, ngân sách, ngày đi và số lượng khách.
+- Chatbot dùng Gemini, MongoDB và Supabase pgvector Knowledge Base.
+- Tour card trong chatbot có ảnh, giá, rating và link vào trang chi tiết tour.
+- Hỗ trợ **dark/light mode** và chuyển đổi giao diện **VI/EN**.
+- Upload ảnh/tài liệu qua Cloudinary.
+- Thanh toán booking qua PayOS.
+- Tracking link giúp người thân theo dõi tiến trình tour.
+
+---
 
 ## Công nghệ sử dụng
 
 ### Frontend
 
-- React 19
-- Vite
-- Tailwind CSS 4
-- Shadcn/Radix UI
-- Framer Motion
-- React Router DOM
-- Axios
-- Lucide React
-- Firebase client config
+| Công nghệ | Vai trò |
+| --- | --- |
+| React 19 | Xây dựng UI |
+| Vite | Dev server và build tool |
+| Tailwind CSS 4 | Styling |
+| Shadcn/Radix UI | Component UI |
+| Framer Motion | Animation |
+| React Router DOM | Routing |
+| Axios | Gọi API |
+| Firebase Client | Cấu hình auth/client nếu cần |
+| Mapbox/Google Maps | Bản đồ và địa điểm |
 
 ### Backend
 
-- Node.js
-- Express
-- MongoDB/Mongoose
-- JWT authentication
-- Cloudinary upload ảnh/tài liệu
-- PayOS payment
-- Gemini API cho AI Planner, chatbot và embedding
-- Supabase + pgvector cho Knowledge Base
-- Nodemailer gửi email
+| Công nghệ | Vai trò |
+| --- | --- |
+| Node.js + Express | REST API |
+| MongoDB + Mongoose | Database chính |
+| JWT | Xác thực và phân quyền |
+| Cloudinary | Lưu ảnh/tài liệu |
+| PayOS | Tạo link thanh toán |
+| Gemini API | AI Planner, chatbot, embedding |
+| Supabase + pgvector | Knowledge Base vector search |
+| Nodemailer | Gửi email |
+| Multer | Upload file |
+
+---
 
 ## Cấu trúc thư mục
 
@@ -72,36 +129,71 @@ Travel_AI/
 +-- README.md
 ```
 
+---
+
 ## Yêu cầu môi trường
 
-- Node.js 20 trở lên. Dự án đang chạy được với Node.js 22.
+- Node.js 20 trở lên. Dự án đang chạy tốt với Node.js 22.
 - MongoDB Atlas hoặc MongoDB local.
 - Tài khoản Cloudinary.
 - Tài khoản PayOS.
 - Gemini API key.
-- Supabase project đã bật extension `vector` nếu dùng chatbot KB.
+- Supabase project nếu dùng Knowledge Base chatbot.
+- SMTP account nếu dùng chức năng gửi email.
 
-## Cài đặt
+---
 
-Clone hoặc mở project, sau đó cài dependency cho từng phần:
+## Cài đặt nhanh
+
+### 1. Cài Backend
 
 ```bash
 cd Backend
 npm install
 ```
 
+### 2. Cài Frontend
+
 ```bash
 cd Frontend
 npm install
 ```
 
+### 3. Chạy Backend
+
+```bash
+cd Backend
+npm run dev
+```
+
+Backend mặc định chạy tại:
+
+```text
+http://localhost:3000
+```
+
+### 4. Chạy Frontend
+
+```bash
+cd Frontend
+npm run dev
+```
+
+Frontend mặc định chạy tại:
+
+```text
+http://localhost:5173
+```
+
+---
+
 ## Cấu hình môi trường
 
-Tạo file `.env` trong `Backend/` và `Frontend/`. Không commit file `.env` thật lên Git.
+Tạo file `.env` trong `Backend/` và `Frontend/`.
+
+> Không commit `.env` thật lên Git.
 
 ### Backend `.env`
-
-Ví dụ các biến chính:
 
 ```env
 PORT=3000
@@ -142,7 +234,11 @@ MAIL_FROM=Travel_AI
 MAP_API_KEY=your_map_api_key
 ```
 
-Nếu dùng Firebase Admin ở backend, bổ sung các biến `GOOGLE_*` tương ứng trong `Backend/src/config/firebase.js`.
+Nếu dùng Firebase Admin ở backend, bổ sung các biến `GOOGLE_*` theo file:
+
+```text
+Backend/src/config/firebase.js
+```
 
 ### Frontend `.env`
 
@@ -159,7 +255,11 @@ VITE_FIREBASE_APP_ID=your_app_id
 VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
 ```
 
-## Cấu hình Knowledge Base Supabase
+---
+
+## Cấu hình Knowledge Base
+
+Chatbot sử dụng Supabase + pgvector để tìm kiếm Knowledge Base.
 
 Trong Supabase SQL Editor, chạy file:
 
@@ -174,39 +274,13 @@ File này tạo:
 - HNSW index cho embedding
 - Function `match_kb_documents`
 
-Sau đó có thể thêm dữ liệu KB thông qua API/backend hoặc insert trực tiếp tùy luồng triển khai.
+Sau khi tạo bảng, có thể thêm dữ liệu KB trực tiếp bằng SQL hoặc thông qua API/backend tùy luồng triển khai.
 
-## Chạy dự án ở môi trường dev
+---
 
-Chạy Backend:
+## Seed dữ liệu
 
-```bash
-cd Backend
-npm run dev
-```
-
-Backend mặc định chạy tại:
-
-```text
-http://localhost:3000
-```
-
-Chạy Frontend:
-
-```bash
-cd Frontend
-npm run dev
-```
-
-Frontend mặc định chạy tại:
-
-```text
-http://localhost:5173
-```
-
-## Seed dữ liệu demo
-
-Trong thư mục `Backend`, có thể chạy các script:
+Chạy trong thư mục `Backend`:
 
 ```bash
 npm run seed:users
@@ -215,87 +289,79 @@ npm run seed:demo
 npm run seed:bulk
 ```
 
-Ý nghĩa:
+| Script | Mục đích |
+| --- | --- |
+| `seed:users` | Tạo user demo theo role |
+| `seed:service` | Tạo service demo |
+| `seed:demo` | Tạo tour, booking, review demo |
+| `seed:bulk` | Tạo nhiều tour/service để demo dữ liệu lớn |
 
-- `seed:users`: tạo user demo theo các vai trò.
-- `seed:service`: tạo dịch vụ demo.
-- `seed:demo`: tạo dữ liệu tour/booking/review demo.
-- `seed:bulk`: tạo nhiều dữ liệu hơn để demo danh sách tour/service.
-
-Nếu dữ liệu tour cũ dùng field guide sai, chạy migration:
+Nếu dữ liệu cũ dùng sai field guide, chạy:
 
 ```bash
 npm run migrate:lead-guide-field
 ```
 
-## Build production
+---
 
-Frontend:
-
-```bash
-cd Frontend
-npm run build
-```
-
-Preview frontend build:
-
-```bash
-npm run preview
-```
-
-Backend production:
-
-```bash
-cd Backend
-npm start
-```
-
-## Các route chính
+## Route chính
 
 ### Public/Guest
 
-- `/` - Landing page
-- `/login` - Đăng nhập traveler
-- `/signup` - Đăng ký
-- `/apply-provider` - Đăng ký provider
-- `/guest/booking-success-and-tracking-link` - Trang sau booking/thanh toán
+| Route | Mô tả |
+| --- | --- |
+| `/` | Landing page |
+| `/login` | Đăng nhập traveler |
+| `/signup` | Đăng ký |
+| `/apply-provider` | Đăng ký provider |
+| `/guest/booking-success-and-tracking-link` | Trang sau booking/thanh toán |
 
 ### Traveler
 
-- `/traveler` - Dashboard traveler
-- `/traveler/tour-list` - Danh sách tour
-- `/traveler/tour-detail/:tourId` - Chi tiết tour
-- `/traveler/my-booking-traveler` - Booking của tôi
-- `/traveler/tour-tracking` - Live tracking
-- `/traveler/traveler-tracking-link-management` - Quản lý tracking link
-- `/traveler/ai-travel-planner` - AI Travel Planner
-- `/traveler/ai-tour-history` - Lịch sử AI Planner
-- `/traveler/review` - Đánh giá tour/guide
+| Route | Mô tả |
+| --- | --- |
+| `/traveler` | Dashboard traveler |
+| `/traveler/tour-list` | Danh sách tour |
+| `/traveler/tour-detail/:tourId` | Chi tiết tour |
+| `/traveler/my-booking-traveler` | Booking của tôi |
+| `/traveler/tour-tracking` | Live tracking |
+| `/traveler/traveler-tracking-link-management` | Quản lý tracking link |
+| `/traveler/ai-travel-planner` | AI Travel Planner |
+| `/traveler/ai-tour-history` | Lịch sử AI Planner |
+| `/traveler/review` | Đánh giá tour/guide |
 
 ### Provider
 
-- `/provider` - Dashboard provider
-- `/provider/manage-tours` - Quản lý tour
-- `/provider/service-management` - Quản lý dịch vụ
-- `/provider/guide-management` - Quản lý guide
-- `/provider/bookings-management` - Quản lý booking
-- `/provider/analytics` - Analytics provider
-- `/provider/reviews` - Quản lý review
+| Route | Mô tả |
+| --- | --- |
+| `/provider` | Dashboard provider |
+| `/provider/manage-tours` | Quản lý tour |
+| `/provider/service-management` | Quản lý dịch vụ |
+| `/provider/guide-management` | Quản lý guide |
+| `/provider/bookings-management` | Quản lý booking |
+| `/provider/analytics` | Analytics provider |
+| `/provider/reviews` | Quản lý review |
 
 ### Admin
 
-- `/admin` - Dashboard admin
-- `/admin/users` - Quản lý người dùng
-- `/admin/provider-approval` - Duyệt provider
-- `/admin/provider-approval-history` - Lịch sử duyệt provider
-- `/admin/analytics` - Analytics admin
+| Route | Mô tả |
+| --- | --- |
+| `/admin` | Dashboard admin |
+| `/admin/users` | Quản lý người dùng |
+| `/admin/provider-approval` | Duyệt provider |
+| `/admin/provider-approval-history` | Lịch sử duyệt provider |
+| `/admin/analytics` | Analytics admin |
 
 ### Guide
 
-- `/guide` - Dashboard guide
-- `/guide/assigned-tours` - Tour được phân công
-- `/guide/live-tour-tracking` - Cập nhật tracking tour
-- `/guide/profile` - Hồ sơ guide
+| Route | Mô tả |
+| --- | --- |
+| `/guide` | Dashboard guide |
+| `/guide/assigned-tours` | Tour được phân công |
+| `/guide/live-tour-tracking` | Cập nhật tracking tour |
+| `/guide/profile` | Hồ sơ guide |
+
+---
 
 ## API Backend
 
@@ -320,13 +386,31 @@ Backend mount các route chính dưới prefix `/api`:
 /api/chatbot
 ```
 
-## Ghi chú vận hành
+---
 
-- PayOS yêu cầu `PAYOS_CLIENT_ID`, `PAYOS_API_KEY`, `PAYOS_CHECKSUM_KEY`. Thiếu các biến này backend có thể crash khi import PayOS.
-- Gemini quota có thể hết ở free tier. Khi hết quota, chatbot có fallback trả lời bằng dữ liệu có sẵn từ hệ thống.
-- Supabase service role key chỉ dùng ở backend, không đưa lên frontend.
-- Cloudinary dùng cho ảnh tour/service/user và tài liệu provider.
-- Không commit `.env`, API key, service role key hoặc private key.
+## Build production
+
+### Frontend
+
+```bash
+cd Frontend
+npm run build
+```
+
+Preview bản build:
+
+```bash
+npm run preview
+```
+
+### Backend
+
+```bash
+cd Backend
+npm start
+```
+
+---
 
 ## Kiểm tra nhanh
 
@@ -337,16 +421,33 @@ cd Frontend
 npm run build
 ```
 
-Kiểm tra syntax một file backend:
+Kiểm tra syntax backend:
 
 ```bash
+cd Backend
 node --check src/services/chatbot.service.js
 ```
 
-## Thành viên/đồ án
+---
 
-Dự án phục vụ khóa luận tốt nghiệp với đề tài:
+## Ghi chú bảo mật
+
+- Không commit `.env`, API key, secret key hoặc private key.
+- `SUPABASE_SERVICE_ROLE_KEY` chỉ được dùng ở Backend.
+- PayOS cần đủ `PAYOS_CLIENT_ID`, `PAYOS_API_KEY`, `PAYOS_CHECKSUM_KEY`.
+- Cloudinary key chỉ nên đặt trong Backend.
+- Gemini free tier có giới hạn quota. Khi hết quota, chatbot có fallback trả lời bằng dữ liệu có sẵn.
+
+---
+
+## Đề tài
 
 ```text
 Xây dựng hệ thống lập kế hoạch du lịch thông minh tích hợp đặt dịch vụ dựa trên công nghệ AI
 ```
+
+<div align="center">
+
+**Travel_AI** - Smart travel planning, booking and tracking platform.
+
+</div>
