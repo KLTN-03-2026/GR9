@@ -69,17 +69,17 @@ const ProviderApplicationForm = () => {
   };
 
   const validateForm = () => {
-    if (form.fullName.trim().length < 3) return "Tên pháp nhân hoặc người đại diện phải có ít nhất 3 ký tự.";
-    if (!form.email.trim()) return "Vui lòng nhập email liên hệ.";
-    if (!EMAIL_PATTERN.test(form.email.trim())) return "Email liên hệ không hợp lệ.";
-    if (!form.phone.trim()) return "Vui lòng nhập số điện thoại.";
-    if (!PHONE_PATTERN.test(form.phone.trim())) return "Số điện thoại không hợp lệ. Vui lòng dùng số Việt Nam, ví dụ 0901234567 hoặc +84901234567.";
-    if (form.address.trim().length < 6) return "Địa chỉ cần rõ hơn để admin xác minh hồ sơ.";
-    if (!providerPolicy?._id) return "Hiện chưa có chính sách đối tác để xác nhận.";
-    if (!acceptedPolicy) return "Vui lòng đọc và xác nhận chính sách đối tác trước khi gửi.";
-    if (!documentFile) return "Vui lòng tải lên giấy tờ xác minh.";
-    if (documentFile.type !== "application/pdf") return "Tài liệu xác minh phải là file PDF.";
-    if (documentFile.size > MAX_DOCUMENT_SIZE) return "File PDF không được vượt quá 10MB.";
+    if (form.fullName.trim().length < 3) return t("providerApplication.validationName");
+    if (!form.email.trim()) return t("providerApplication.validationEmailRequired");
+    if (!EMAIL_PATTERN.test(form.email.trim())) return t("providerApplication.validationEmailInvalid");
+    if (!form.phone.trim()) return t("providerApplication.validationPhoneRequired");
+    if (!PHONE_PATTERN.test(form.phone.trim())) return t("providerApplication.validationPhoneInvalid");
+    if (form.address.trim().length < 6) return t("providerApplication.validationAddress");
+    if (!providerPolicy?._id) return t("providerApplication.validationPolicyMissing");
+    if (!acceptedPolicy) return t("providerApplication.validationPolicyRequired");
+    if (!documentFile) return t("providerApplication.validationDocumentRequired");
+    if (documentFile.type !== "application/pdf") return t("providerApplication.validationDocumentType");
+    if (documentFile.size > MAX_DOCUMENT_SIZE) return t("providerApplication.validationDocumentSize");
     return "";
   };
 
@@ -100,10 +100,10 @@ const ProviderApplicationForm = () => {
       formData.append("providerDocument", documentFile);
 
       await applyProvider(formData);
-      toast.success("Hồ sơ đã được gửi. Vui lòng chờ admin xét duyệt.");
+      toast.success(t("providerApplication.submitSuccess"));
       setSubmitted(true);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Không thể gửi hồ sơ đối tác.");
+      toast.error(error?.response?.data?.message || t("providerApplication.submitError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -126,15 +126,13 @@ const ProviderApplicationForm = () => {
         <header className="mb-10 grid gap-6 lg:grid-cols-[1fr_360px] lg:items-end">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.22em] text-primary">
-              Provider application
+              {t("providerApplication.eyebrow")}
             </p>
             <h1 className="mt-4 text-4xl font-black tracking-normal md:text-5xl">
-              Đăng ký trở thành đối tác Travel_AI
+              {t("providerApplication.title")}
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-on-surface-variant">
-              Gửi thông tin doanh nghiệp hoặc người đại diện. Admin sẽ kiểm tra
-              hồ sơ, xem tài liệu bạn tải lên Cloudinary và phê duyệt tài khoản
-              provider nếu hợp lệ.
+              {t("providerApplication.description")}
             </p>
           </div>
 
@@ -142,10 +140,9 @@ const ProviderApplicationForm = () => {
             <div className="flex gap-3">
               <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-primary" />
               <div>
-                <p className="font-bold">Sau khi được duyệt</p>
+                <p className="font-bold">{t("providerApplication.approvedTitle")}</p>
                 <p className="mt-1 text-sm leading-6 text-on-surface-variant">
-                  Hệ thống sẽ tạo tài khoản provider và gửi mật khẩu đăng nhập
-                  qua email bạn đã đăng ký.
+                  {t("providerApplication.approvedDescription")}
                 </p>
               </div>
             </div>
@@ -154,10 +151,10 @@ const ProviderApplicationForm = () => {
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           <div className="space-y-8 lg:col-span-8">
-            <InfomationCard title="Thông tin cơ bản" icon={Building2}>
+            <InfomationCard title={t("providerApplication.basicInfo")} icon={Building2}>
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Tên pháp nhân / người đại diện</Label>
+                  <Label htmlFor="fullName">{t("providerApplication.legalName")}</Label>
                   <Input
                     id="fullName"
                     value={form.fullName}
@@ -168,7 +165,7 @@ const ProviderApplicationForm = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email liên hệ</Label>
+                  <Label htmlFor="email">{t("providerApplication.email")}</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <Input
@@ -183,7 +180,7 @@ const ProviderApplicationForm = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Số điện thoại</Label>
+                  <Label htmlFor="phone">{t("providerApplication.phone")}</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <Input
@@ -198,7 +195,7 @@ const ProviderApplicationForm = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="gender">Giới tính người đại diện</Label>
+                  <Label htmlFor="gender">{t("providerApplication.representativeGender")}</Label>
                   <Select
                     value={form.gender}
                     onValueChange={(value) =>
@@ -206,21 +203,21 @@ const ProviderApplicationForm = () => {
                     }
                   >
                     <SelectTrigger className="h-12 border-none bg-slate-50">
-                      <SelectValue placeholder="Chọn giới tính" />
+                      <SelectValue placeholder={t("providerApplication.chooseGender")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="MALE">Nam</SelectItem>
-                      <SelectItem value="FEMALE">Nữ</SelectItem>
-                      <SelectItem value="OTHER">Khác</SelectItem>
+                      <SelectItem value="MALE">{t("providerApplication.male")}</SelectItem>
+                      <SelectItem value="FEMALE">{t("providerApplication.female")}</SelectItem>
+                      <SelectItem value="OTHER">{t("providerApplication.other")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
             </InfomationCard>
 
-            <InfomationCard title="Địa chỉ hoạt động" icon={Briefcase}>
+            <InfomationCard title={t("providerApplication.addressSection")} icon={Briefcase}>
               <div className="space-y-2">
-                <Label htmlFor="address">Địa chỉ trụ sở</Label>
+                <Label htmlFor="address">{t("providerApplication.address")}</Label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3.5 h-5 w-5 text-slate-400" />
                   <Input
@@ -228,13 +225,13 @@ const ProviderApplicationForm = () => {
                     value={form.address}
                     onChange={handleChange("address")}
                     className="h-12 border-none bg-slate-50 pl-10"
-                    placeholder="128 Bạch Đằng, Hải Châu, Đà Nẵng"
+                    placeholder={t("providerApplication.addressPlaceholder")}
                   />
                 </div>
               </div>
             </InfomationCard>
 
-            <InfomationCard title="Tài liệu xác minh" icon={UploadCloud}>
+            <InfomationCard title={t("providerApplication.documentSection")} icon={UploadCloud}>
               <div className="mb-5 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
                 <div className="border-b border-slate-100 bg-slate-50 px-5 py-4">
                   <div className="flex items-center gap-3">
@@ -243,10 +240,10 @@ const ProviderApplicationForm = () => {
                     </div>
                     <div>
                       <p className="text-sm font-black uppercase tracking-[0.16em] text-teal-700">
-                        Chính sách đối tác
+                        {t("providerApplication.policyTitle")}
                       </p>
                       <p className="mt-1 text-sm text-slate-500">
-                        Đọc chính sách hiện hành trước khi gửi hồ sơ xét duyệt.
+                        {t("providerApplication.policyDescription")}
                       </p>
                     </div>
                   </div>
@@ -258,7 +255,7 @@ const ProviderApplicationForm = () => {
                       <div className="min-w-0">
                         <p className="truncate font-bold text-slate-900">{providerPolicy.title}</p>
                         <p className="mt-1 text-xs font-semibold text-slate-500">
-                          File PDF chính sách áp dụng cho hồ sơ provider mới.
+                          {t("providerApplication.policyFileNote")}
                         </p>
                       </div>
                       <a
@@ -268,7 +265,7 @@ const ProviderApplicationForm = () => {
                         className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-teal-600 px-4 text-sm font-bold text-white shadow-sm hover:bg-teal-700"
                       >
                         <ExternalLink className="mr-2 h-4 w-4" />
-                        Mở chính sách
+                        {t("providerApplication.openPolicy")}
                       </a>
                     </div>
 
@@ -279,14 +276,14 @@ const ProviderApplicationForm = () => {
                         className="mt-0.5"
                       />
                       <span className="leading-6">
-                        Tôi xác nhận đã đọc và đồng ý với chính sách đăng ký đối tác hiện hành của Travel_AI.
+                        {t("providerApplication.acceptPolicy")}
                       </span>
                     </label>
                   </div>
                 ) : (
                   <div className="p-5">
                     <p className="rounded-2xl bg-amber-50 p-4 text-sm font-semibold text-amber-700">
-                      Admin chưa upload chính sách đối tác. Vui lòng quay lại sau.
+                      {t("providerApplication.noPolicy")}
                     </p>
                   </div>
                 )}
@@ -299,11 +296,11 @@ const ProviderApplicationForm = () => {
             <div className="sticky top-8 space-y-6">
               <div className="relative overflow-hidden rounded-3xl bg-slate-950 p-6 text-white shadow-[0_22px_55px_rgba(15,23,42,0.20)]">
                 <div className="relative z-10">
-                  <h3 className="text-xl font-bold">Kiểm tra trước khi gửi</h3>
+                  <h3 className="text-xl font-bold">{t("providerApplication.checklistTitle")}</h3>
                   <div className="mt-5 space-y-3 text-sm text-slate-200">
-                    <p>1. Email phải là email bạn muốn nhận tài khoản provider.</p>
-                    <p>2. Tài liệu nên là giấy phép kinh doanh hoặc giấy tờ xác minh liên quan.</p>
-                    <p>3. File được tải lên Cloudinary để admin có thể xem và tải về.</p>
+                    <p>{t("providerApplication.checklistEmail")}</p>
+                    <p>{t("providerApplication.checklistDocument")}</p>
+                    <p>{t("providerApplication.checklistCloudinary")}</p>
                   </div>
                 </div>
                 <div className="absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-primary/25 blur-3xl" />
@@ -314,7 +311,7 @@ const ProviderApplicationForm = () => {
                 disabled={isSubmitting}
                 className="h-14 w-full rounded-2xl bg-primary text-base font-bold text-on-primary shadow-xl shadow-primary/20 hover:bg-teal-700"
               >
-                {isSubmitting ? "Đang gửi hồ sơ..." : "Gửi hồ sơ xét duyệt"}
+                {isSubmitting ? t("providerApplication.submitting") : t("providerApplication.submit")}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
