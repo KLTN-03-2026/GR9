@@ -33,36 +33,44 @@ const ProcessedProvidersList = ({ data = [], loading = false }) => {
       {data.map((item) => (
         <Card
           key={item.id}
-          className="rounded-3xl border-outline-variant/20 bg-surface-container-low shadow-sm"
+          className="rounded-[28px] border-outline-variant/20 bg-surface-container-lowest shadow-sm transition-colors hover:bg-surface-container-low"
         >
-          <CardHeader className="pb-0">
-            <CardTitle className="text-base font-semibold text-on-surface">
-              {item.name}
-            </CardTitle>
-            {item.email && (
-              <p className="text-sm text-on-surface-variant">{item.email}</p>
-            )}
-          </CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-3 sm:items-center">
-            <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-on-surface-variant">
-                Reviewer
-              </p>
-              <p className="text-sm text-on-surface">{item.reviewer}</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-on-surface-variant">
-                Date
-              </p>
-              <p className="text-sm text-on-surface">{formatDate(item.date)}</p>
-            </div>
-            <div className="flex items-center gap-2">
+          <CardHeader className="pb-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <CardTitle className="truncate text-lg font-semibold text-on-surface">
+                  {item.name}
+                </CardTitle>
+                {item.email && (
+                  <p className="mt-1 truncate text-sm text-on-surface-variant">{item.email}</p>
+                )}
+              </div>
               <Badge
                 variant={item.status === "approved" ? "default" : "destructive"}
-                className="text-[11px] font-bold uppercase tracking-[0.18em]"
+                className="w-fit rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em]"
               >
-                {item.status}
+                {item.status === "approved" ? "Approved" : "Rejected"}
               </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="grid gap-4 border-t border-outline-variant/10 pt-4 sm:grid-cols-3 sm:items-center">
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-on-surface-variant">
+                Người duyệt
+              </p>
+              <p className="mt-1 text-sm font-medium text-on-surface">{item.reviewer}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-on-surface-variant">
+                Ngày xử lý
+              </p>
+              <p className="mt-1 text-sm font-medium text-on-surface">{formatDate(item.date)}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-on-surface-variant">
+                Mã hồ sơ
+              </p>
+              <p className="mt-1 font-mono text-sm text-on-surface">{item.id}</p>
             </div>
           </CardContent>
         </Card>
