@@ -21,38 +21,43 @@ export default function PageHero({
   return (
     <section
       className={cn(
-        "app-page-hero relative overflow-hidden rounded-3xl bg-[radial-gradient(circle_at_top_left,_rgba(0,104,95,0.16),_transparent_35%),linear-gradient(135deg,_#ffffff,_#eef7f5)] p-5 shadow-[0_20px_50px_rgba(15,23,42,0.06)] ring-1 ring-slate-200/70 sm:p-6 md:rounded-[2rem] md:p-8 dark:shadow-[0_24px_70px_rgba(0,0,0,0.28)] dark:ring-white/10",
+        "app-page-hero relative overflow-hidden rounded-[2rem] border border-[#e8ded0] bg-[radial-gradient(circle_at_top_left,rgba(246,210,165,0.42),transparent_32%),radial-gradient(circle_at_right,rgba(11,140,135,0.12),transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.94),rgba(251,247,240,0.98))] p-6 shadow-[0_24px_70px_rgba(38,33,28,0.08)] sm:p-7 md:p-8",
         className,
       )}
     >
-      <div className="absolute right-0 top-0 h-44 w-44 rounded-full bg-primary/15 blur-3xl" />
+      <div className="absolute -right-10 top-0 h-44 w-44 rounded-full bg-white/55 blur-3xl" />
+
       <div
         className={cn(
           "relative flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between",
           contentClassName,
         )}
       >
-        <div className="max-w-2xl">
+        <div className="max-w-3xl">
           {eyebrow ? (
-            <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.3em] text-primary">
+            <div className="mb-3 text-[11px] font-black uppercase tracking-[0.3em] text-[#9f7d52]">
               {eyebrow}
             </div>
           ) : null}
-          <div className="font-headline text-3xl font-extrabold tracking-tight text-on-surface sm:text-4xl md:text-5xl">
+
+          <div className="[font-family:Iowan_Old_Style,Palatino_Linotype,Book_Antiqua,Georgia,serif] text-[2.3rem] leading-[0.96] tracking-[-0.04em] text-[#1f2d2f] sm:text-[2.75rem] md:text-[3.55rem]">
             {heading}
           </div>
+
           {description ? (
-            <p className="mt-3 max-w-xl text-sm leading-6 text-on-surface-variant md:text-base">
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-[#666a65] md:text-base">
               {description}
             </p>
           ) : null}
+
           {meta ? <div className="mt-5">{meta}</div> : null}
         </div>
 
         <div className="flex w-full flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center xl:w-auto xl:justify-end">
           {rightSlot ? rightSlot : null}
+
           {showProviderCard && !rightSlot ? (
-            <div className="flex items-center gap-3 rounded-2xl bg-surface-container-lowest/85 px-4 py-3 shadow-sm ring-1 ring-outline-variant/25 backdrop-blur">
+            <div className="flex items-center gap-3 rounded-[22px] border border-[#e6dacb] bg-white/72 px-4 py-3 shadow-sm backdrop-blur">
               <Avatar className="h-10 w-10">
                 <AvatarImage src={providerAvatar} alt={providerName} />
                 <AvatarFallback>
@@ -63,16 +68,18 @@ export default function PageHero({
                     .join("")}
                 </AvatarFallback>
               </Avatar>
+
               <div>
-                <p className="text-sm font-bold text-on-surface">
+                <p className="text-sm font-bold text-[#243437]">
                   {providerName}
                 </p>
-                <p className="text-xs font-medium text-on-surface-variant">
+                <p className="text-xs font-medium text-[#6f7069]">
                   {providerLabel}
                 </p>
               </div>
             </div>
           ) : null}
+
           {actions ? actions : null}
         </div>
       </div>

@@ -1,9 +1,73 @@
-import { useContext, useState } from "react";
-
-import { Card, CardContent } from "@/components/ui/card";
-import AuthContext from "@/context/authContext";
-import LoginForm from "./LoginForm";
+import { useContext, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
+
+import AuthCardShell from "@/components/AuthShare/AuthCardShell";
+import hoiAnLanternRain from "@/assets/redesign/hoi-an-lantern-rain-v2.png";
+import hueImperialDusk from "@/assets/redesign/hue-imperial-dusk.png";
+import AuthContext from "@/context/authContext";
+import { useI18n } from "@/i18n/I18nProvider";
+
+import LoginForm from "./LoginForm";
+
+const buildPortalCopy = (language, role) => {
+  const isAdmin = role === "ADMIN";
+
+  if (language === "vi") {
+    return {
+      shellTitle: isAdmin
+        ? "\u0110\u0103ng nh\u1eadp qu\u1ea3n tr\u1ecb vi\u00ean"
+        : "\u0110\u0103ng nh\u1eadp \u0111\u1ed1i t\u00e1c",
+      shellDescription: isAdmin
+        ? "Theo d\u00f5i ph\u00ea duy\u1ec7t, ng\u01b0\u1eddi d\u00f9ng v\u00e0 ch\u1ea5t l\u01b0\u1ee3ng v\u1eadn h\u00e0nh trong m\u1ed9t kh\u00f4ng gian g\u1ecdn g\u00e0ng."
+        : "Qu\u1ea3n l\u00fd tour, \u0111\u1eb7t ch\u1ed7 v\u00e0 hi\u1ec7u su\u1ea5t b\u00e1n h\u00e0ng trong m\u1ed9t dashboard tinh g\u1ecdn h\u01a1n.",
+      emailLabel: isAdmin ? "Email qu\u1ea3n tr\u1ecb" : "Email doanh nghi\u1ec7p",
+      passwordLabel: "M\u1eadt kh\u1ea9u",
+      forgotPassword: "Qu\u00ean m\u1eadt kh\u1ea9u?",
+      submitLabel: isAdmin
+        ? "V\u00e0o trung t\u00e2m \u0111i\u1ec1u h\u00e0nh"
+        : "V\u00e0o dashboard \u0111\u1ed1i t\u00e1c",
+      loadingLabel: "\u0110ang \u0111\u0103ng nh\u1eadp...",
+      notice: {
+        title: isAdmin
+          ? "Quy\u1ec1n truy c\u1eadp n\u1ed9i b\u1ed9"
+          : "Kh\u00f4ng gian d\u00e0nh cho \u0111\u1ed1i t\u00e1c",
+        description: isAdmin
+          ? "T\u00e0i kho\u1ea3n n\u00e0y d\u00e0nh cho \u0111i\u1ec1u ph\u1ed1i v\u1eadn h\u00e0nh, ph\u00ea duy\u1ec7t nh\u00e0 cung c\u1ea5p v\u00e0 theo d\u00f5i to\u00e0n h\u1ec7 th\u1ed1ng."
+          : "D\u00f9ng t\u00e0i kho\u1ea3n c\u00f4ng ty \u0111\u1ec3 qu\u1ea3n l\u00fd tour, l\u1ecbch tr\u00ecnh v\u00e0 booking c\u1ee7a kh\u00e1ch h\u00e0ng.",
+      },
+      validation: {
+        emailRequired: "Vui l\u00f2ng nh\u1eadp email.",
+        emailInvalid: "Email kh\u00f4ng h\u1ee3p l\u1ec7.",
+        passwordRequired: "Vui l\u00f2ng nh\u1eadp m\u1eadt kh\u1ea9u.",
+        passwordShort: "M\u1eadt kh\u1ea9u c\u1ea7n \u00edt nh\u1ea5t 6 k\u00fd t\u1ef1.",
+      },
+    };
+  }
+
+  return {
+    shellTitle: isAdmin ? "Admin access" : "Partner login",
+    shellDescription: isAdmin
+      ? "Monitor approvals, users, and operating quality from one cleaner control surface."
+      : "Manage tours, bookings, and sales performance from a more focused workspace.",
+    emailLabel: isAdmin ? "Admin email" : "Business email",
+    passwordLabel: "Password",
+    forgotPassword: "Forgot password?",
+    submitLabel: isAdmin ? "Open control center" : "Open partner dashboard",
+    loadingLabel: "Signing in...",
+    notice: {
+      title: isAdmin ? "Internal access" : "Partner workspace",
+      description: isAdmin
+        ? "This login is reserved for internal operators who review providers, manage users, and oversee platform quality."
+        : "Use your company credentials to manage tours, schedules, and customer bookings.",
+    },
+    validation: {
+      emailRequired: "Please enter your email.",
+      emailInvalid: "Please enter a valid email.",
+      passwordRequired: "Please enter your password.",
+      passwordShort: "Password must be at least 6 characters.",
+    },
+  };
+};
 
 export default function ProviderAndAdminLogin() {
   const [email, setEmail] = useState("");
@@ -12,9 +76,14 @@ export default function ProviderAndAdminLogin() {
   const [loading, setLoading] = useState(false);
   const { loginUser } = useContext(AuthContext);
   const location = useLocation();
+  const { language } = useI18n();
+
+  const role = location.pathname === "/admin-login" ? "ADMIN" : "PROVIDER";
+  const copy = useMemo(() => buildPortalCopy(language, role), [language, role]);
+  const visual = role === "ADMIN" ? hueImperialDusk : hoiAnLanternRain;
+
   const handleSignIn = async (trimmedEmail, trimmedPassword) => {
     try {
-      const role = location.pathname === "/admin-login" ? "ADMIN" : "PROVIDER";
       setLoading(true);
       await loginUser(trimmedEmail, trimmedPassword, role);
     } catch (error) {
@@ -25,70 +94,22 @@ export default function ProviderAndAdminLogin() {
   };
 
   return (
-    <div>
-      <main className="relative flex flex-grow items-center justify-center overflow-hidden px-4 py-12 min-h-screen">
-        <div className="absolute right-[-5%] top-[-10%] h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
-        <div className="absolute bottom-[-10%] left-[-5%] h-80 w-80 rounded-full bg-secondary-container/20 blur-3xl" />
-
-        <Card className="w-full max-w-5xl overflow-hidden rounded-xl border-none bg-surface-container-lowest py-0 shadow-[0px_20px_40px_rgba(25,28,30,0.06)] md:flex md:flex-row">
-          <div className="relative hidden overflow-hidden bg-primary p-12 md:flex md:w-1/2 md:flex-col md:justify-between">
-            <div
-              className="absolute inset-0 opacity-20"
-              style={{
-                backgroundImage:
-                  'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBNKtgvvBIAUDrDTbgKg3Tt2sGnYPUbWKwSUA8OIAOsA4Hr9PNXEbGhd1QB4neKwE1cOaSIwh0vwLiuvU5lZPb7oidDTBg6YeUw4tltB5w9YgInnbt7Ji2DjcGKrqgtdXA70meLIvGOth0WnEHQDgdyWrJaM3J2fsdAJprXwZSlrL8sSOB-ffmsLP1AHh9FR_wGWgwoxC6Rc8BwQZYNaW_2LpYGVsG5lJhR37B74sL7SpPueCUqWmteY86IsJ3FRmB6wyqrk5n4--Mi")',
-                backgroundSize: "cover",
-                backgroundPosition: "center center",
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary-container/80" />
-
-            <div className="relative z-10">
-              <Card className="mb-8 inline-flex border border-white/20 bg-white/10 py-0 backdrop-blur-md shadow-none">
-                <CardContent className="px-3 py-1">
-                  <span className="text-xs font-semibold uppercase tracking-widest text-white">
-                    Partner Portal
-                  </span>
-                </CardContent>
-              </Card>
-
-              <h1 className="mb-4 font-headline text-4xl font-extrabold leading-tight tracking-tight text-white">
-                Manage world-class <br />
-                travel experiences.
-              </h1>
-              <p className="max-w-md text-lg leading-relaxed text-white/80">
-                Access your professional dashboard to coordinate itineraries,
-                manage bookings, and leverage AI-driven insights for your
-                clients.
-              </p>
-            </div>
-
-            <div className="relative z-10 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10">
-                <span className="material-symbols-outlined text-sm text-white">
-                  shield_person
-                </span>
-              </div>
-              <span className="text-sm font-medium uppercase tracking-wider text-white/60">
-                Enterprise Grade Security
-              </span>
-            </div>
-          </div>
-
-          <CardContent className="w-full p-8 md:w-1/2 md:p-16">
-            <LoginForm
-              email={email}
-              password={password}
-              setEmail={setEmail}
-              setPassword={setPassword}
-              showPassword={showPassword}
-              setShowPassword={setShowPassword}
-              loading={loading}
-              onSubmit={handleSignIn}
-            />
-          </CardContent>
-        </Card>
-      </main>
-    </div>
+    <AuthCardShell
+      title={copy.shellTitle}
+      description={copy.shellDescription}
+      image={visual}
+    >
+      <LoginForm
+        email={email}
+        password={password}
+        setEmail={setEmail}
+        setPassword={setPassword}
+        showPassword={showPassword}
+        setShowPassword={setShowPassword}
+        loading={loading}
+        onSubmit={handleSignIn}
+        copy={copy}
+      />
+    </AuthCardShell>
   );
 }

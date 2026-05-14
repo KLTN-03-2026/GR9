@@ -1,8 +1,9 @@
-import { CalendarDays, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { CalendarDays, Clock } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import PaginationBar from "@/components/shared/pagination-bar";
+import { useI18n } from "@/i18n/I18nProvider";
 import usePaginationScroll from "@/hooks/usePaginationScroll";
 
 export default function TourHistoryList({
@@ -12,6 +13,7 @@ export default function TourHistoryList({
   formatDate,
   getTotal,
 }) {
+  const { t } = useI18n();
   const pageSize = 6;
   const [page, setPage] = useState(1);
   const safeHistory = history || [];
@@ -20,23 +22,6 @@ export default function TourHistoryList({
     () => safeHistory.slice((page - 1) * pageSize, page * pageSize),
     [safeHistory, page],
   );
-  const visiblePageButtons = useMemo(() => {
-    const maxButtons = 5;
-    if (totalPages <= maxButtons) {
-      return Array.from({ length: totalPages }, (_, index) => index + 1);
-    }
-
-    let start = Math.max(1, page - Math.floor(maxButtons / 2));
-    let end = start + maxButtons - 1;
-
-    if (end > totalPages) {
-      end = totalPages;
-      start = Math.max(1, totalPages - maxButtons + 1);
-    }
-
-    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
-  }, [page, totalPages]);
-
   useEffect(() => {
     setPage((current) => Math.min(current, totalPages));
   }, [totalPages]);
@@ -95,43 +80,14 @@ export default function TourHistoryList({
         );
       })}
       {safeHistory.length > pageSize ? (
-        <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-low p-3">
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            disabled={page <= 1}
-            onClick={() => setPage((current) => Math.max(1, current - 1))}
-            className="h-9 w-9 rounded-xl bg-surface-container-lowest"
-          >
-            <ChevronLeft className="size-4" />
-          </Button>
-          {visiblePageButtons.map((pageNumber) => (
-            <Button
-              key={pageNumber}
-              type="button"
-              variant={pageNumber === page ? "default" : "outline"}
-              onClick={() => setPage(pageNumber)}
-              className={
-                pageNumber === page
-                  ? "h-9 rounded-xl bg-primary px-3 text-primary-foreground"
-                  : "h-9 rounded-xl bg-surface-container-lowest px-3"
-              }
-            >
-              {pageNumber}
-            </Button>
-          ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            disabled={page >= totalPages}
-            onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
-            className="h-9 w-9 rounded-xl bg-surface-container-lowest"
-          >
-            <ChevronRight className="size-4" />
-          </Button>
-        </div>
+        <PaginationBar
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          previousLabel={t("common.previous")}
+          nextLabel={t("common.next")}
+          className="justify-center rounded-2xl bg-surface-container-low"
+        />
       ) : null}
     </aside>
   );

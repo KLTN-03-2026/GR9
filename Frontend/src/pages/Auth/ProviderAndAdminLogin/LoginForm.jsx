@@ -1,9 +1,26 @@
+import { Link } from "react-router-dom";
+import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
+
+function FieldShell({ icon: Icon, action, children }) {
+  return (
+    <div className="relative">
+      <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/48">
+        <Icon className="size-4" />
+      </div>
+      {children}
+      {action ? (
+        <div className="absolute inset-y-0 right-3 flex items-center">
+          {action}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 export default function LoginForm({
   email,
@@ -14,30 +31,31 @@ export default function LoginForm({
   setShowPassword,
   loading,
   onSubmit,
+  copy,
 }) {
-  const handleSubmit = () => {
+  const handleSubmit = (event) => {
+    event?.preventDefault();
 
-    // Validate email and password
     const trimmedEmail = email?.trim() || "";
     const trimmedPassword = password?.trim() || "";
 
     if (!trimmedEmail) {
-      toast.error("Email is required");
+      toast.error(copy.validation.emailRequired);
       return;
     }
 
     if (!trimmedEmail.includes("@")) {
-      toast.error("Please enter a valid email");
+      toast.error(copy.validation.emailInvalid);
       return;
     }
 
     if (!trimmedPassword) {
-      toast.error("Password is required");
+      toast.error(copy.validation.passwordRequired);
       return;
     }
 
     if (trimmedPassword.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error(copy.validation.passwordShort);
       return;
     }
 
@@ -45,111 +63,75 @@ export default function LoginForm({
   };
 
   return (
-    <div>
-      <div className="mb-10">
-        <h2 className="mb-2 font-headline text-3xl font-bold text-on-surface">
-          Welcome Back
-        </h2>
-        <p className="text-on-surface-variant">
-          Enter your credentials to access your portal.
-        </p>
-      </div>
+    <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+      <div className="flex flex-col gap-5">
+        <FieldShell icon={Mail}>
+          <Input
+            id="portal-email"
+            type="email"
+            value={email || ""}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder={copy.emailLabel}
+            className="h-13 rounded-[18px] border-white/16 bg-white/[0.03] pl-12 pr-4 text-[0.98rem] text-white placeholder:text-[#a4b0b1] focus-visible:border-[#d8b98f] focus-visible:ring-[#d8b98f]/15"
+            disabled={loading}
+          />
+        </FieldShell>
 
-      <div  className="space-y-6">
-        <div className="space-y-2">
-          <Label
-            htmlFor="email"
-            className="ml-1 block text-xs font-semibold uppercase tracking-wider text-on-surface-variant"
-          >
-            Work Email
-          </Label>
-          <div className="group relative">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant transition-colors group-focus-within:text-primary">
-              mail
-            </span>
-            <Input
-              id="email"
-              type="email"
-              value={email || ""}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@smarttravel.ai"
-              className="h-14 rounded-xl border-transparent bg-surface-container-low pl-12 pr-4 text-on-surface placeholder:text-outline-variant focus-visible:border-primary focus-visible:ring-primary/10"
-              disabled={loading}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="ml-1 flex items-center justify-between">
-            <Label
-              htmlFor="password"
-              className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant"
-            >
-              Password
-            </Label>
-            <Button
-              type="button"
-              variant="link"
-              className="h-auto p-0 text-xs font-medium text-primary hover:underline"
-            >
-              Forgot?
-            </Button>
-          </div>
-
-          <div className="group relative">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant transition-colors group-focus-within:text-primary">
-              lock
-            </span>
-            <Input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              value={password || ""}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="h-14 rounded-xl border-transparent bg-surface-container-low pl-12 pr-14 text-on-surface placeholder:text-outline-variant focus-visible:border-primary focus-visible:ring-primary/10"
-              disabled={loading}
-            />
+        <FieldShell
+          icon={LockKeyhole}
+          action={
             <Button
               type="button"
               variant="ghost"
               size="icon-sm"
-              onMouseDown={(event) => event.preventDefault()}
               onClick={() => setShowPassword((value) => !value)}
               disabled={loading}
-              aria-label={showPassword ? "Hide password" : "Show password"}
-              className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full text-on-surface-variant hover:bg-transparent hover:text-primary"
+              className="rounded-full text-white/52 hover:bg-transparent hover:text-[#dec19a]"
             >
-              <span className="material-symbols-outlined text-lg">
-                {showPassword ? "visibility_off" : "visibility"}
-              </span>
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </Button>
-          </div>
-        </div>
-
-        <Button
-          type="button"
-          onClick={handleSubmit}
-          disabled={loading}
-          className="h-14 w-full rounded-xl bg-gradient-to-r from-primary to-primary-container px-6 font-bold text-white shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 active:scale-[0.98] disabled:opacity-50"
+          }
         >
-          <span>{loading ? "Signing In..." : "Sign In"}</span>
-          <span className="material-symbols-outlined text-sm">
-            arrow_forward
-          </span>
-        </Button>
+          <Input
+            id="portal-password"
+            type={showPassword ? "text" : "password"}
+            value={password || ""}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder={copy.passwordLabel}
+            className="h-13 rounded-[18px] border-white/16 bg-white/[0.03] pl-12 pr-13 text-[0.98rem] text-white placeholder:text-[#a4b0b1] focus-visible:border-[#d8b98f] focus-visible:ring-[#d8b98f]/15"
+            disabled={loading}
+          />
+        </FieldShell>
       </div>
 
-      <Card className="mt-8 rounded-xl border border-secondary-container/50 bg-secondary-container/30 py-0 shadow-none">
-        <CardContent className="flex items-start gap-3 p-4">
-          <span className="material-symbols-outlined mt-0.5 text-xl text-on-secondary-container">
-            info
+      <div className="-mt-1 flex justify-end">
+        <Link
+          to="/forgot-password"
+          className="text-sm font-semibold text-[#dfc198] transition hover:text-white"
+        >
+          {copy.forgotPassword}
+        </Link>
+      </div>
+
+      <Button
+        type="submit"
+        disabled={loading}
+        className="h-13 rounded-[18px] bg-[#0b8c87] text-[1rem] font-semibold text-white shadow-[0_18px_36px_rgba(11,140,135,0.18)] transition hover:bg-[#09726e]"
+      >
+        {loading ? (
+          <span className="inline-flex items-center gap-2">
+            <Spinner className="size-4 animate-spin" />
+            {copy.loadingLabel}
           </span>
-          <CardDescription className="text-sm leading-snug text-on-secondary-container">
-            Contact system administrator for access issues. Your activity is
-            monitored for security purposes.
-          </CardDescription>
-        </CardContent>
-      </Card>
-    </div>
+        ) : (
+          copy.submitLabel
+        )}
+      </Button>
+
+      <div className="mt-2 rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-4 text-sm leading-6 text-white/70">
+        <strong className="mb-1 block text-white">{copy.notice.title}</strong>
+        {copy.notice.description}
+      </div>
+    </form>
   );
 }
