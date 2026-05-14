@@ -65,6 +65,26 @@ function BrandIcon({ className }) {
   );
 }
 
+function EditorialBrandIcon({ className }) {
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      aria-hidden="true"
+      className={cn("h-10 w-10 shrink-0", className)}
+      fill="none"
+    >
+      <circle cx="32" cy="32" r="24" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M32 13.5 44 25.5 32 50.5 20 25.5 32 13.5Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path d="M20 25.5h24M32 13.5v37" stroke="currentColor" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
 export default function BrandLogo({
   className,
   iconClassName,
@@ -72,9 +92,51 @@ export default function BrandLogo({
   showText = true,
   showTagline = false,
   stacked = false,
+  subLabel,
+  variant = "default",
 }) {
   const primaryText = light ? "text-white" : "text-on-surface";
   const secondaryText = light ? "text-white/80" : "text-on-surface-variant";
+  const editorialPrimary = light ? "text-[#f4e8d5]" : "text-[#173234]";
+  const editorialSecondary = light ? "text-[#c8b89e]" : "text-[#6f7f81]";
+
+  if (variant === "editorial") {
+    return (
+      <div
+        className={cn(
+          "flex items-center gap-3",
+          stacked && "flex-col gap-2 text-center",
+          className,
+          editorialPrimary,
+        )}
+      >
+        <EditorialBrandIcon className={iconClassName} />
+
+        {showText ? (
+          <div className={cn("min-w-0", stacked && "flex flex-col items-center")}>
+            <p
+              className={cn(
+                "[font-family:Iowan_Old_Style,Palatino_Linotype,Book_Antiqua,Georgia,serif] text-[1.5rem] font-semibold uppercase leading-none tracking-[0.22em]",
+                editorialPrimary,
+              )}
+            >
+              SmartTravel
+            </p>
+            {showTagline ? (
+              <p
+                className={cn(
+                  "mt-1 text-[0.58rem] font-semibold uppercase tracking-[0.42em]",
+                  editorialSecondary,
+                )}
+              >
+                {subLabel || "Explore More - Live Better"}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <div
