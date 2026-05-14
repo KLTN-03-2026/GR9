@@ -1,6 +1,6 @@
 <div align="center">
 
-# Travel_AI
+# Smart Travel
 
 ### Hệ thống lập kế hoạch du lịch thông minh tích hợp đặt tour, thanh toán, tracking và AI Assistant
 
@@ -17,7 +17,7 @@
 
 ## Tổng quan
 
-**Travel_AI** là nền tảng du lịch thông minh giúp kết nối **Traveler**, **Provider**, **Guide** và **Admin** trong cùng một hệ thống. Dự án hỗ trợ người dùng tìm tour, đặt tour, thanh toán, theo dõi hành trình, đánh giá dịch vụ và sử dụng AI để tạo lịch trình hoặc hỏi đáp thông tin du lịch.
+**Smart Travel** là nền tảng du lịch thông minh giúp kết nối **Traveler**, **Provider**, **Guide** và **Admin** trong cùng một hệ thống. Dự án hỗ trợ người dùng tìm tour, đặt tour, thanh toán, theo dõi hành trình, đánh giá dịch vụ và sử dụng AI để tạo lịch trình hoặc hỏi đáp thông tin du lịch.
 
 Hệ thống được xây dựng theo mô hình tách riêng:
 
@@ -101,7 +101,7 @@ Các điểm đáng chú ý:
 ## Cấu trúc thư mục
 
 ```text
-Travel_AI/
+Smart Travel/
 +-- Backend/
 |   +-- src/
 |   |   +-- config/
@@ -229,7 +229,7 @@ SMTP_PORT=587
 SMTP_SECURE=false
 SMTP_USER=your_email@gmail.com
 SMTP_PASS=your_app_password
-MAIL_FROM=Travel_AI
+MAIL_FROM=Smart Travel
 
 MAP_API_KEY=your_map_api_key
 ```
@@ -448,6 +448,6 @@ Xây dựng hệ thống lập kế hoạch du lịch thông minh tích hợp đ
 
 <div align="center">
 
-**Travel_AI** - Smart travel planning, booking and tracking platform.
+**Smart Travel** - Smart travel planning, booking and tracking platform.
 
 </div>
