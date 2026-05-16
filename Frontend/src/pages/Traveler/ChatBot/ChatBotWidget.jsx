@@ -94,6 +94,7 @@ const getChatbotErrorMessage = (error) => {
   if (
     status === 503 ||
     errorCode === "GEMINI_HIGH_DEMAND" ||
+    errorCode === "AI_HIGH_DEMAND" ||
     rawMessage.includes('"code":503') ||
     rawMessage.includes("UNAVAILABLE") ||
     rawMessage.includes("high demand") ||
@@ -102,7 +103,7 @@ const getChatbotErrorMessage = (error) => {
     return CHATBOT_BUSY_MESSAGE;
   }
 
-  if (errorCode === "GEMINI_QUOTA_EXCEEDED") {
+  if (errorCode === "GEMINI_QUOTA_EXCEEDED" || errorCode === "AI_QUOTA_EXCEEDED") {
     return "SmartTravel AI đang có nhiều yêu cầu cùng lúc nên mình sẽ ưu tiên trả lời bằng dữ liệu có sẵn trong hệ thống. Bạn vui lòng thử lại sau ít phút nếu cần phân tích chi tiết hơn.";
   }
 
@@ -195,6 +196,8 @@ export default function ChatBotWidget({
   );
   const scrollRef = useRef(null);
   const latestAssistantRef = useRef(null);
+  const lastMessageIdRef = useRef(null);
+  const pendingAssistantScrollRef = useRef(false);
 
   const scrollToBottom = (behavior = "smooth") => {
     window.requestAnimationFrame(() => {
@@ -227,14 +230,28 @@ export default function ChatBotWidget({
     if (!open || minimized) return;
 
     const lastMessage = messages[messages.length - 1];
+    if (!lastMessage || lastMessageIdRef.current === lastMessage.id) return;
 
-    if (lastMessage?.role === "assistant" && !loading) {
-      scrollToLatestAssistant();
+    lastMessageIdRef.current = lastMessage.id;
+
+    if (lastMessage.role === "assistant") {
+      pendingAssistantScrollRef.current = true;
+      if (!loading) {
+        pendingAssistantScrollRef.current = false;
+        scrollToLatestAssistant();
+      }
       return;
     }
 
     scrollToBottom();
   }, [messages, loading, open, minimized]);
+
+  useEffect(() => {
+    if (!open || minimized || loading || !pendingAssistantScrollRef.current) return;
+
+    pendingAssistantScrollRef.current = false;
+    scrollToLatestAssistant();
+  }, [loading, open, minimized]);
 
   const clearMemory = () => {
     window.localStorage.removeItem(memoryKey);
@@ -279,7 +296,6 @@ export default function ChatBotWidget({
           sources: [],
         },
       ]);
-      scrollToBottom();
       return;
     }
 
@@ -440,6 +456,7 @@ export default function ChatBotWidget({
                     }
                     className={cn(
                       "flex items-end gap-2 [animation:messageIn_180ms_ease-out]",
+                      !isUser && "scroll-mt-4",
                       isUser ? "justify-end" : "justify-start",
                     )}
                   >
