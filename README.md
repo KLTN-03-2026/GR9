@@ -229,7 +229,7 @@ SMTP_PORT=587
 SMTP_SECURE=false
 SMTP_USER=your_email@gmail.com
 SMTP_PASS=your_app_password
-MAIL_FROM=Smart Travel
+MAIL_FROM=Smart_Travel
 
 MAP_API_KEY=your_map_api_key
 ```
