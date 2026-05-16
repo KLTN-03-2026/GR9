@@ -395,12 +395,19 @@ export const getToursByProvider = async (providerId) => {
         const toursWithImages = tours.map((tour) => {
             const tourImages = images.filter((img) => img.entityId.toString() === tour._id.toString());
             const tourBookings = bookingsByTour.get(String(tour._id)) || [];
+            const paidBookings = tourBookings.filter((booking) => booking.payment === "PAID");
+            const revenue = paidBookings.reduce(
+                (total, booking) => total + (Number(booking.totalAmount) || 0),
+                0,
+            );
 
             return {
                 ...tour.toObject(),
                 images: tourImages,
                 bookingStatus: getBookingStatusSummary(tourBookings),
                 bookingCount: tourBookings.length,
+                paidBookingCount: paidBookings.length,
+                revenue,
             };
         });
         return toursWithImages;
