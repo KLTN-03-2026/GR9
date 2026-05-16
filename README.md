@@ -448,6 +448,6 @@ Xây dựng hệ thống lập kế hoạch du lịch thông minh tích hợp đ
 
 <div align="center">
 
-**Smart_Travel** - Smart travel planning, booking and tracking platform.
+**Smart Travel** - Smart travel planning, booking and tracking platform.
 
 </div>
