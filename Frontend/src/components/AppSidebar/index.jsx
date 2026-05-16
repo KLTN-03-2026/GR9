@@ -23,6 +23,7 @@ import {
   History,
   PanelLeftClose,
   PanelLeftOpen,
+  BookOpenText,
 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 import BrandLogo from "@/components/shared/brand-logo";
@@ -52,6 +53,7 @@ const MENU = {
     { name: "Dashboard", labelKey: "dashboard", href: "", icon: ChartNoAxesColumn },
     { name: "Analytics", labelKey: "analytics", href: "/analytics", icon: ChartNoAxesColumn },
     { name: "Users", labelKey: "users", href: "/users", icon: UserCog },
+    { name: "Knowledge Base", labelKey: "knowledgeBase", href: "/knowledge-base", icon: BookOpenText },
     { name: "Provider Approval", labelKey: "providerApproval", href: "/provider-approval", icon: BadgeCheck },
     {
       name: "Approval History",

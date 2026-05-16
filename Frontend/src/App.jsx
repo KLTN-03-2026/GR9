@@ -18,6 +18,7 @@ import ProviderApprovalPage from "./pages/Admin/ProviderApprovalPage";
 import ProviderApprovalHistory from "./pages/Admin/ProviderApprovalHistory";
 import UserManagementPage from "./pages/Admin/UserManagementPage";
 import AdminAnalytics from "./pages/Admin/AdminAnalytics";
+import KnowledgeBasePage from "./pages/Admin/KnowledgeBasePage";
 
 import ProviderDashboard from "./pages/Provider/ProviderDashboard";
 import ManageTours from "./pages/Provider/ManageTours";
@@ -98,6 +99,7 @@ function AppRoutes() {
                     <Route path="provider-approval-history" element={<ProviderApprovalHistory />} />
                     <Route path="users" element={<UserManagementPage />} />
                     <Route path="analytics" element={<AdminAnalytics />} />
+                    <Route path="knowledge-base" element={<KnowledgeBasePage />} />
                     <Route path="*" element={<NotFound />} />
                 </Route>
             </Route>

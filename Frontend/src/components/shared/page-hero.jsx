@@ -21,11 +21,11 @@ export default function PageHero({
   return (
     <section
       className={cn(
-        "app-page-hero relative overflow-hidden rounded-[2rem] border border-[#e8ded0] bg-[radial-gradient(circle_at_top_left,rgba(246,210,165,0.42),transparent_32%),radial-gradient(circle_at_right,rgba(11,140,135,0.12),transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.94),rgba(251,247,240,0.98))] p-6 shadow-[0_24px_70px_rgba(38,33,28,0.08)] sm:p-7 md:p-8",
+        "app-page-hero relative overflow-hidden rounded-[2rem] border border-[#e8ded0] bg-[radial-gradient(circle_at_top_left,rgba(246,210,165,0.42),transparent_32%),radial-gradient(circle_at_right,rgba(11,140,135,0.12),transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.94),rgba(251,247,240,0.98))] p-6 shadow-[0_24px_70px_rgba(38,33,28,0.08)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,rgba(20,184,166,0.18),transparent_34%),radial-gradient(circle_at_right,rgba(45,212,191,0.10),transparent_28%),linear-gradient(135deg,rgba(17,24,25,0.96),rgba(13,18,19,0.98))] dark:shadow-[0_24px_70px_rgba(0,0,0,0.28)] sm:p-7 md:p-8",
         className,
       )}
     >
-      <div className="absolute -right-10 top-0 h-44 w-44 rounded-full bg-white/55 blur-3xl" />
+      <div className="absolute -right-10 top-0 h-44 w-44 rounded-full bg-white/55 blur-3xl dark:bg-teal-300/10" />
 
       <div
         className={cn(
@@ -35,17 +35,17 @@ export default function PageHero({
       >
         <div className="max-w-3xl">
           {eyebrow ? (
-            <div className="mb-3 text-[11px] font-black uppercase tracking-[0.3em] text-[#9f7d52]">
+            <div className="mb-3 text-[11px] font-black uppercase tracking-[0.3em] text-[#9f7d52] dark:text-teal-300">
               {eyebrow}
             </div>
           ) : null}
 
-          <div className="[font-family:Iowan_Old_Style,Palatino_Linotype,Book_Antiqua,Georgia,serif] text-[2.3rem] leading-[0.96] tracking-[-0.04em] text-[#1f2d2f] sm:text-[2.75rem] md:text-[3.55rem]">
+          <div className="[font-family:Iowan_Old_Style,Palatino_Linotype,Book_Antiqua,Georgia,serif] text-[2.3rem] leading-[0.96] tracking-[-0.04em] text-[#1f2d2f] dark:text-white sm:text-[2.75rem] md:text-[3.55rem]">
             {heading}
           </div>
 
           {description ? (
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-[#666a65] md:text-base">
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-[#666a65] dark:text-slate-300 md:text-base">
               {description}
             </p>
           ) : null}
@@ -57,7 +57,7 @@ export default function PageHero({
           {rightSlot ? rightSlot : null}
 
           {showProviderCard && !rightSlot ? (
-            <div className="flex items-center gap-3 rounded-[22px] border border-[#e6dacb] bg-white/72 px-4 py-3 shadow-sm backdrop-blur">
+            <div className="flex items-center gap-3 rounded-[22px] border border-[#e6dacb] bg-white/72 px-4 py-3 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/[0.06]">
               <Avatar className="h-10 w-10">
                 <AvatarImage src={providerAvatar} alt={providerName} />
                 <AvatarFallback>
@@ -70,10 +70,10 @@ export default function PageHero({
               </Avatar>
 
               <div>
-                <p className="text-sm font-bold text-[#243437]">
+                <p className="text-sm font-bold text-[#243437] dark:text-white">
                   {providerName}
                 </p>
-                <p className="text-xs font-medium text-[#6f7069]">
+                <p className="text-xs font-medium text-[#6f7069] dark:text-slate-400">
                   {providerLabel}
                 </p>
               </div>

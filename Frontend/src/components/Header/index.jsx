@@ -224,6 +224,7 @@ const ROUTE_TITLES = [
   { test: (p) => p.startsWith("/admin/profile"), title: "Admin Profile" },
   { test: (p) => p.startsWith("/admin/users"), title: "User Management" },
   { test: (p) => p.startsWith("/admin/analytics"), title: "Admin Analytics" },
+  { test: (p) => p.startsWith("/admin/knowledge-base"), title: "Knowledge Base" },
   {
     test: (p) => p.startsWith("/admin/provider-approval"),
     title: "Provider Approval",
@@ -264,6 +265,7 @@ const ROUTE_TITLE_KEYS = {
   "Provider Approval": "providerApproval",
   "Admin Dashboard": "adminDashboard",
   "Admin Analytics": "adminAnalytics",
+  "Knowledge Base": "knowledgeBase",
 };
 
 function resolveBreadcrumbTitle(pathname, fallbackTitle) {
