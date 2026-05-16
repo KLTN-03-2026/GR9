@@ -1,15 +1,11 @@
 import dotenv from "dotenv";
-import { GoogleGenAI } from "@google/genai";
 import AiTourRequest from "../models/aiTourRequest.model.js";
 import Service from "../models/service.model.js";
 import Tour from "../models/tour.model.js";
 import { throwError } from "../utils/throwError.js";
+import { generateBeeknoeeText } from "./beeknoee.service.js";
 
 dotenv.config();
-
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-});
 
 const AI_REQUEST_PUBLISH_WINDOW_MS = 24 * 60 * 60 * 1000;
 const AI_REQUEST_CLAIM_WINDOW_MS = 10 * 60 * 1000;
@@ -705,12 +701,9 @@ export const generateItinerary = async (data) => {
       }
     `;
 
-    const result = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
+    return await generateBeeknoeeText(prompt, {
+      temperature: 0.25,
     });
-
-    return result.text;
   } catch (error) {
     throwError(
       error.message || "Không thể tạo lịch trình bằng AI",
