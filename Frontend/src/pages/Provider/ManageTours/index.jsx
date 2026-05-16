@@ -328,7 +328,7 @@ export default function ManageTours() {
                     </div>
                 </div>
             </section>
-            <ManageToursStats />
+            <ManageToursStats tours={tours} />
             {loadingTours ? (
                 <ManageToursTableSkeleton />
             ) : (

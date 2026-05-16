@@ -4,8 +4,13 @@ import { Progress } from "@/components/ui/progress";
 import { formatCurrencyVND } from "@/utils/formatPrice";
 import { useI18n } from "@/i18n/I18nProvider";
 
-export default function ManageToursStats() {
+export default function ManageToursStats({ tours = [] }) {
   const { t } = useI18n();
+  const totalRevenue = tours.reduce((total, tour) => total + (Number(tour.revenue) || 0), 0);
+  const activeTours = tours.filter((tour) => tour.isActive !== false).length;
+  const totalBookings = tours.reduce((total, tour) => total + (Number(tour.bookingCount) || 0), 0);
+  const paidBookings = tours.reduce((total, tour) => total + (Number(tour.paidBookingCount) || 0), 0);
+  const bookingRate = totalBookings ? Math.round((paidBookings / totalBookings) * 100) : 0;
 
   return (
     <section className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_1fr_1fr_1.15fr]">
@@ -17,11 +22,13 @@ export default function ManageToursStats() {
           <div className="mt-4 space-y-2">
             <div className="flex items-center gap-2">
               <span className="font-headline text-3xl font-extrabold text-on-surface">
-                {formatCurrencyVND(42850000)}
+                {formatCurrencyVND(totalRevenue)}
               </span>
               <TrendingUp className="size-4 text-emerald-600" />
             </div>
-            <p className="text-xs font-medium text-emerald-600">+12.4%</p>
+            <p className="text-xs font-medium text-emerald-600">
+              {t("provider.tours.stats.paidBookings", { count: paidBookings })}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -34,7 +41,7 @@ export default function ManageToursStats() {
           <div className="mt-4 space-y-2">
             <div className="flex items-center gap-2">
               <span className="font-headline text-3xl font-extrabold text-on-surface">
-                18
+                {activeTours}
               </span>
             </div>
             <p className="text-xs font-medium text-on-surface-variant">
@@ -52,13 +59,13 @@ export default function ManageToursStats() {
           <div className="mt-4 space-y-2">
             <div className="flex items-center gap-2">
               <span className="font-headline text-3xl font-extrabold text-on-surface">
-                84%
+                {bookingRate}%
               </span>
             </div>
             <p className="text-xs font-medium text-on-surface-variant">
               {t("provider.tours.stats.strongConversion")}
             </p>
-            <Progress value={84} className="mt-3 h-1.5 bg-slate-200" />
+            <Progress value={bookingRate} className="mt-3 h-1.5 bg-slate-200" />
           </div>
         </CardContent>
       </Card>

@@ -17,7 +17,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PaginationBar from "@/components/shared/pagination-bar";
 import { useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
-import { formatPrice } from "@/utils/formatPrice";
+import { formatCurrencyVND, formatPrice } from "@/utils/formatPrice";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useI18n } from "@/i18n/I18nProvider";
 import usePaginationScroll from "@/hooks/usePaginationScroll";
@@ -218,6 +218,9 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                                 <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
                                     {t("provider.tours.bookingStatus")}
                                 </TableHead>
+                                <TableHead className="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
+                                    {t("provider.tours.revenue")}
+                                </TableHead>
                                 <TableHead className="px-6 py-4 text-right text-[11px] font-bold uppercase tracking-[0.24em] text-on-surface-variant">
                                     {t("provider.tours.actions")}
                                 </TableHead>
@@ -280,6 +283,14 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                                             </p>
                                         </TableCell>
                                         <TableCell className="px-6 py-5">
+                                            <p className="font-headline text-base font-extrabold text-on-surface">
+                                                {formatCurrencyVND(tour.revenue || 0)}
+                                            </p>
+                                            <p className="mt-1 text-xs text-on-surface-variant">
+                                                {t("provider.tours.paidBookings", { count: tour.paidBookingCount || 0 })}
+                                            </p>
+                                        </TableCell>
+                                        <TableCell className="px-6 py-5">
                                             <div className="flex justify-end gap-2">
                                                 <Button
                                                     variant="ghost"
@@ -322,7 +333,7 @@ export default function ManageToursTable({ tours, handleDelete, handleEdit }) {
                                 })
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="py-10 text-center text-on-surface-variant">
+                                    <TableCell colSpan={5} className="py-10 text-center text-on-surface-variant">
                                         {t("provider.tours.noTours")}
                                     </TableCell>
                                 </TableRow>
