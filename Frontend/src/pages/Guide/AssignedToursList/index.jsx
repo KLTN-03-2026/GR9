@@ -47,8 +47,10 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import PageHero from "@/components/shared/page-hero";
+import PaginationBar from "@/components/shared/pagination-bar";
 import { CardGridSkeleton } from "@/components/shared/page-skeletons";
 import { getGuideAssignedTours } from "@/services/api/guide";
+import usePaginationScroll from "@/hooks/usePaginationScroll";
 import { useI18n } from "@/i18n/I18nProvider";
 
 const SEGMENTS = [
@@ -58,6 +60,8 @@ const SEGMENTS = [
   { id: "ongoing", labelKey: "ongoing" },
   { id: "completed", labelKey: "completed" },
 ];
+
+const PAGE_SIZE = 6;
 
 function parseIso(d) {
   const x = new Date(`${d}T12:00:00`);
@@ -123,6 +127,7 @@ const AssignedToursList = () => {
   const [submitting, setSubmitting] = useState(false);
   const [assignedTours, setAssignedTours] = useState([]);
   const [loadingTours, setLoadingTours] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     getGuideAssignedTours()
@@ -189,30 +194,54 @@ const AssignedToursList = () => {
     assignedTours,
   ]);
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginatedTours = useMemo(
+    () => filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [filtered, currentPage],
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [segment, search, filterRegion, sortBy, showOngoing, showScheduled, showCompleted]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages));
+  }, [totalPages]);
+
+  usePaginationScroll([currentPage]);
+
   const activeFleetCount = useMemo(
     () => assignedTours.filter((t) => t.status === "ongoing").length,
     [assignedTours],
   );
 
   const heroTour = useMemo(() => {
-    const ongoing = filtered.find((t) => t.status === "ongoing");
+    const ongoing = paginatedTours.find((t) => t.status === "ongoing");
     if (ongoing) return ongoing;
-    const preferred = filtered.find((t) => t.listRole === "hero");
-    return preferred ?? filtered[0] ?? null;
-  }, [filtered]);
+    const preferred = paginatedTours.find((t) => t.listRole === "hero");
+    return preferred ?? paginatedTours[0] ?? null;
+  }, [paginatedTours]);
 
   const sidebarTours = useMemo(
     () =>
-      filtered.filter(
-        (t) => heroTour && t.id !== heroTour.id && t.listRole === "sidebar",
-      ),
-    [filtered, heroTour],
+      paginatedTours
+        .filter((t) => heroTour && t.id !== heroTour.id)
+        .slice(0, 2),
+    [paginatedTours, heroTour],
   );
 
   const laterTours = useMemo(
-    () => filtered.filter((t) => t.listRole === "later"),
-    [filtered],
+    () => {
+      const sidebarIds = new Set(sidebarTours.map((tour) => tour.id));
+      return paginatedTours.filter(
+        (tour) => heroTour && tour.id !== heroTour.id && !sidebarIds.has(tour.id),
+      );
+    },
+    [paginatedTours, heroTour, sidebarTours],
   );
+
+  const firstVisibleTour = filtered.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
+  const lastVisibleTour = Math.min(currentPage * PAGE_SIZE, filtered.length);
 
   const resetFilters = () => {
     setFilterRegion("all");
@@ -647,6 +676,22 @@ const AssignedToursList = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {!loadingTours && filtered.length > 0 && (
+        <PaginationBar
+          page={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          previousLabel={t("common.previous")}
+          nextLabel={t("common.next")}
+          summary={t("guidePages.assignedTours.showing", {
+            first: firstVisibleTour,
+            last: lastVisibleTour,
+            total: filtered.length,
+          })}
+          className="mt-8"
+        />
       )}
 
       <Dialog open={proposeOpen} onOpenChange={setProposeOpen}>
