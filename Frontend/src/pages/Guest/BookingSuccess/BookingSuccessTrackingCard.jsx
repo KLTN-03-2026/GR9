@@ -28,17 +28,17 @@ export default function BookingSuccessTrackingCard({ booking }) {
   };
 
   return (
-    <Card className="border-0 bg-slate-50/90 py-0 shadow-[0_18px_50px_rgba(15,23,42,0.06)] ring-1 ring-slate-200/70">
-      <CardContent className="space-y-6 p-8">
+    <Card className="overflow-hidden rounded-[30px] border border-[#e8ded0] bg-white/92 py-0 shadow-[0_24px_70px_rgba(38,33,28,0.08)]">
+      <CardContent className="space-y-6 p-6 sm:p-8">
         <div className="flex items-start gap-4">
-          <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-700 to-teal-500 text-white shadow-lg shadow-emerald-200/70">
+          <div className="flex size-14 shrink-0 items-center justify-center rounded-[18px] bg-[#0b8c87] text-white shadow-[0_16px_32px_rgba(11,140,135,0.18)]">
             <Users className="size-6" />
           </div>
-          <div className="space-y-1">
-            <h2 className="text-2xl font-black tracking-tight text-slate-950">
+          <div className="space-y-1.5">
+            <h2 className="[font-family:Iowan_Old_Style,Palatino_Linotype,Book_Antiqua,Georgia,serif] text-[2rem] leading-tight tracking-[-0.03em] text-[#243437]">
               {t("bookingSuccessPage.sharedTrackingTitle")}
             </h2>
-            <p className="leading-7 text-slate-600">
+            <p className="leading-7 text-[#666a65]">
               {t("bookingSuccessPage.sharedTrackingDescription")}
             </p>
           </div>
@@ -50,23 +50,23 @@ export default function BookingSuccessTrackingCard({ booking }) {
               <Input
                 readOnly
                 value={publicTrackingUrl}
-                className="h-14 rounded-2xl border-slate-200 bg-white px-4 pr-12 font-mono text-sm text-slate-700 shadow-sm focus-visible:border-emerald-500 focus-visible:ring-emerald-100"
+                className="h-14 rounded-[20px] border border-[#e6dac9] bg-[#fcfaf6] px-4 pr-12 font-mono text-sm text-[#556063] shadow-none focus-visible:border-[#0b8c87] focus-visible:ring-[#0b8c87]/10"
               />
-              <LinkIcon className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+              <LinkIcon className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-[#8b857c]" />
             </div>
 
             <Button
               type="button"
               onClick={copyTrackingLink}
-              className="h-14 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-500 px-8 text-white shadow-lg shadow-emerald-200 transition hover:opacity-95"
+              className="h-14 rounded-full bg-[#0b8c87] px-8 text-white shadow-[0_16px_32px_rgba(11,140,135,0.18)] hover:bg-[#09726e]"
             >
               <Copy className="size-4" />
               {t("bookingSuccessPage.copyLink")}
             </Button>
           </div>
 
-          <div className="flex flex-col items-center gap-8 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/70 md:flex-row">
-            <div className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200">
+          <div className="flex flex-col items-center gap-8 rounded-[26px] border border-[#ece2d6] bg-[#fbf8f2] p-6 md:flex-row">
+            <div className="rounded-[20px] bg-white p-4 ring-1 ring-[#ebe0d2]">
               {qrCodeUrl ? (
                 <img
                   alt={t("bookingSuccessPage.qrAlt")}
@@ -74,19 +74,25 @@ export default function BookingSuccessTrackingCard({ booking }) {
                   src={qrCodeUrl}
                 />
               ) : (
-                <div className="flex h-40 w-40 items-center justify-center rounded-lg bg-slate-100 text-center text-xs font-semibold text-slate-500">
+                <div className="flex h-40 w-40 items-center justify-center rounded-lg bg-[#f2eee7] text-center text-xs font-semibold text-[#75726c]">
                   {t("bookingSuccessPage.qrUnavailable")}
                 </div>
               )}
             </div>
 
             <div className="space-y-2 text-center md:text-left">
-              <p className="text-lg font-bold text-slate-900">{t("bookingSuccessPage.scanToShare")}</p>
-              <p className="max-w-md leading-7 text-slate-600">
+              <p className="text-lg font-bold text-[#243437]">
+                {t("bookingSuccessPage.scanToShare")}
+              </p>
+              <p className="max-w-md leading-7 text-[#666a65]">
                 {t("bookingSuccessPage.scanDescription")}
               </p>
               {publicTrackingUrl ? (
-                <Button asChild variant="link" className="h-auto px-0 font-bold text-emerald-700">
+                <Button
+                  asChild
+                  variant="link"
+                  className="h-auto px-0 font-bold text-[#0b8c87]"
+                >
                   <Link to={`/guest?trackingCode=${encodeURIComponent(trackingCode)}`}>
                     {t("bookingSuccessPage.openPublicTracking")}
                   </Link>

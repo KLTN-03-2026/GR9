@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
+import WebSocket from "ws";
 
 dotenv.config();
 
@@ -19,6 +20,9 @@ const supabase =
         auth: {
           persistSession: false,
           autoRefreshToken: false,
+        },
+        realtime: {
+          transport: WebSocket,
         },
       })
     : null;

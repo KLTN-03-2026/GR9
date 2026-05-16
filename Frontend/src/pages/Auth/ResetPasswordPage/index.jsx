@@ -1,11 +1,37 @@
 import { useContext, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import {
+  ArrowRight,
+  Check,
+  Eye,
+  EyeOff,
+  LockKeyhole,
+  Mail,
+} from "lucide-react";
+
 import AuthContext from "@/context/authContext";
-import AuthFeaturePanel from "../../../components/AuthShare/AuthFeaturePanel";
+import heroImage from "@/assets/redesign/sapa-mist-terraces-v2.png";
 import AuthCardShell from "../../../components/AuthShare/AuthCardShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useI18n } from "@/i18n/I18nProvider";
+import { buildAuthCopy } from "@/pages/Auth/auth-copy";
+
+function FieldShell({ icon: Icon, action, children }) {
+  return (
+    <div className="relative">
+      <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/42">
+        <Icon className="size-4" />
+      </div>
+      {children}
+      {action ? (
+        <div className="absolute inset-y-0 right-3 flex items-center">
+          {action}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -16,6 +42,17 @@ export default function ResetPasswordPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { resetPasswordWithOtp } = useContext(AuthContext);
+  const { language } = useI18n();
+  const copy = buildAuthCopy(language).resetPage;
+  const passwordChecks = copy.passwordChecks.map((label, index) => ({
+    label,
+    pass:
+      index === 0
+        ? password.length >= 8
+        : index === 1
+          ? /[A-Z]/.test(password) && /[a-z]/.test(password)
+          : /[\d\W_]/.test(password),
+  }));
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -35,92 +72,122 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-stretch">
-      <AuthFeaturePanel
-        badge="Fresh Credentials"
-        title="Create a password that is ready for your next trip."
-        description="Your reset OTP is already confirmed. Set a new password and head back into your travel dashboard."
-      />
-
-      <AuthCardShell
-        title="Set New Password"
-        description="Choose a new password for your account."
-        footer={
-          <p className="text-center text-sm font-medium text-on-surface-variant">
-            Need a new OTP?
-            <Button
-              asChild
-              variant="link"
-              className="ml-1 h-auto p-0 font-bold text-primary underline-offset-4 hover:underline"
-            >
-              <Link to="/forgot-password">Request another one</Link>
-            </Button>
-          </p>
-        }
-      >
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label className="ml-1 text-xs font-bold uppercase tracking-[0.22em] text-on-surface-variant">
-                Email Address
-              </Label>
+    <AuthCardShell
+      title={copy.shellTitle}
+      description={copy.shellDescription}
+      image={heroImage}
+      visualBadge={copy.journeyLabel}
+      visualTitle={copy.journeyTitle}
+      visualMeta={copy.journeyDates}
+      footer={
+        <p className="text-center text-sm">
+          {copy.footerText}
+          <Link
+            to="/forgot-password"
+            className="ml-1 font-semibold text-[#d9b782] transition hover:text-white"
+          >
+            {copy.footerLink}
+          </Link>
+        </p>
+      }
+    >
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-2 sm:col-span-2">
+            <label className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/50">
+              {copy.emailLabel}
+            </label>
+            <FieldShell icon={Mail}>
               <Input
                 value={email}
+                readOnly
                 disabled
-                className="h-14 rounded-xl border-outline-variant/20 bg-surface-container-lowest px-4 text-on-surface"
+                className="h-11 rounded-[15px] rounded-tr-[8px] border-white/10 bg-white/[0.02] pl-11 pr-4 text-sm text-white/54"
               />
-            </div>
+            </FieldShell>
+          </div>
 
-            <div className="space-y-1.5">
-              <Label className="ml-1 text-xs font-bold uppercase tracking-[0.22em] text-on-surface-variant">
-                New Password
-              </Label>
-              <div className="relative">
-                <Input
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  className="h-14 rounded-xl border-outline-variant/20 bg-surface-container-lowest px-4 pr-14 text-on-surface placeholder:text-on-surface-variant focus-visible:border-primary focus-visible:ring-primary/10"
-                />
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/50">
+              {copy.passwordLabel}
+            </label>
+            <FieldShell
+              icon={LockKeyhole}
+              action={
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon-sm"
                   onClick={() => setShowPassword((value) => !value)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full text-on-surface-variant hover:bg-transparent hover:text-primary"
+                  className="rounded-full text-white/44 hover:bg-transparent hover:text-[#d9b782]"
                 >
-                  <span className="material-symbols-outlined text-lg">
-                    {showPassword ? "visibility_off" : "visibility"}
-                  </span>
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </Button>
-              </div>
-            </div>
+              }
+            >
+              <Input
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                type={showPassword ? "text" : "password"}
+                placeholder={copy.passwordPlaceholder}
+                className="h-11 rounded-[15px] rounded-tr-[8px] border-white/12 bg-white/[0.04] pl-11 pr-13 text-sm text-white placeholder:text-white/32 focus-visible:border-[#d9b782] focus-visible:ring-[#d9b782]/12"
+              />
+            </FieldShell>
+          </div>
 
-            <div className="space-y-1.5">
-              <Label className="ml-1 text-xs font-bold uppercase tracking-[0.22em] text-on-surface-variant">
-                Confirm Password
-              </Label>
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/50">
+              {copy.confirmPasswordLabel}
+            </label>
+            <FieldShell
+              icon={LockKeyhole}
+              action={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => setShowPassword((value) => !value)}
+                  className="rounded-full text-white/44 hover:bg-transparent hover:text-[#d9b782]"
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </Button>
+              }
+            >
               <Input
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
                 type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                className="h-14 rounded-xl border-outline-variant/20 bg-surface-container-lowest px-4 text-on-surface placeholder:text-on-surface-variant focus-visible:border-primary focus-visible:ring-primary/10"
+                placeholder={copy.confirmPasswordPlaceholder}
+                className="h-11 rounded-[15px] rounded-tr-[8px] border-white/12 bg-white/[0.04] pl-11 pr-13 text-sm text-white placeholder:text-white/32 focus-visible:border-[#d9b782] focus-visible:ring-[#d9b782]/12"
               />
-            </div>
+            </FieldShell>
           </div>
+        </div>
 
-          <Button
-            type="submit"
-            disabled={loading || !email || !otp}
-            size="lg"
-            className="h-14 w-full rounded-xl bg-gradient-to-br from-primary to-primary-container text-lg font-bold text-on-primary shadow-[0_18px_35px_rgba(25,28,30,0.08)] transition-transform hover:scale-[1.01] active:scale-[0.98]"
-          >
-            {loading ? "Updating Password..." : "Reset Password"}
-          </Button>
-        </form>
-      </AuthCardShell>
-    </main>
+        <div className="grid gap-2 rounded-[18px] border border-white/10 bg-white/[0.03] p-3 text-sm text-white/62 sm:grid-cols-3">
+          {passwordChecks.map((item) => (
+            <div key={item.label} className="flex items-center gap-2.5">
+              <div
+                className={`flex size-5 items-center justify-center rounded-full ${
+                  item.pass ? "bg-[#0d8a84] text-white" : "bg-white/10 text-white/40"
+                }`}
+              >
+                <Check className="size-3.5" />
+              </div>
+              <span>{item.label}</span>
+            </div>
+          ))}
+        </div>
+
+        <Button
+          type="submit"
+          disabled={loading || !email || !otp || !password || !confirmPassword}
+          className="h-11 rounded-[16px] bg-[#0d8a84] text-sm font-semibold text-white shadow-[0_18px_36px_rgba(13,138,132,0.18)] transition hover:-translate-y-0.5 hover:bg-[#0a6d69]"
+        >
+          {loading ? copy.submitLoading : copy.submitIdle}
+          {!loading ? <ArrowRight className="ml-2 size-4" /> : null}
+        </Button>
+      </form>
+    </AuthCardShell>
   );
 }
