@@ -166,7 +166,7 @@ const UserManagementPage = () => {
       />
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-6">
-        <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
+        <Card className="rounded-3xl border-slate-200 bg-white shadow-sm overflow-hidden dark:border-white/10 dark:bg-surface-container-low">
           <CardContent className="flex h-full flex-col justify-between p-5 sm:p-8">
             <div className="flex items-center gap-3 mb-4 text-teal-600">
               <TrendingUp className="h-5 w-5" />
@@ -175,15 +175,15 @@ const UserManagementPage = () => {
               </p>
             </div>
             <div>
-              <h2 className="text-3xl font-extrabold text-slate-900">Live</h2>
-              <p className="mt-1 text-xs font-medium text-slate-500">
+              <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">Live</h2>
+              <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
                 Loaded from admin user records
               </p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
+        <Card className="rounded-3xl border-slate-200 bg-white shadow-sm overflow-hidden dark:border-white/10 dark:bg-surface-container-low">
           <CardContent className="flex h-full flex-col justify-between p-5 sm:p-8">
             <div className="flex items-center gap-3 mb-4 text-orange-600">
               <ShieldAlert className="h-5 w-5" />
@@ -192,10 +192,10 @@ const UserManagementPage = () => {
               </p>
             </div>
             <div>
-              <h2 className="text-3xl font-extrabold text-slate-900">
+              <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">
                 {pagination.total}
               </h2>
-              <p className="mt-1 text-xs font-medium text-slate-500">
+              <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
                 Total matching users
               </p>
             </div>

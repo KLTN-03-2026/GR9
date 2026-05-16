@@ -17,6 +17,9 @@ import {
 
 dotenv.config();
 
+const SECURITY_REFUSAL_MESSAGE =
+  "Mình không thể hỗ trợ các yêu cầu liên quan đến thông tin bảo mật, cấu hình nội bộ, API key, database schema, source code, endpoint CRUD nội bộ hoặc cách bypass quyền truy cập của Travel_AI. Nếu bạn cần sử dụng hệ thống, mình có thể hướng dẫn các thao tác hợp lệ như đặt tour, xem booking, thanh toán, theo dõi tour hoặc chính sách hủy/hoàn tiền.";
+
 const buildAnswerPrompt = ({
   message,
   effectiveMessage,
@@ -70,6 +73,16 @@ export const askChatbotService = async (message, user = null, history = []) => {
       memory: memoryContext,
       hasUser: Boolean(user),
     });
+
+    if (toolPlan.blocked) {
+      return {
+        answer: SECURITY_REFUSAL_MESSAGE,
+        tools: [],
+        sources: [],
+        blocked: true,
+        blockReason: toolPlan.blockReason || "security_sensitive",
+      };
+    }
 
     const tools = toolPlan.tools;
     const effectiveMessage = toolPlan.tourQuery
