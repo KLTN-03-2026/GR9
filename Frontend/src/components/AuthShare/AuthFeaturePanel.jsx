@@ -1,100 +1,125 @@
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarGroup,
-  AvatarImage,
-} from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
-import BrandLogo from "@/components/shared/brand-logo";
+  ArrowUpRight,
+  CalendarRange,
+  MapPinned,
+  ShieldCheck,
+  Star,
+} from "lucide-react";
 
-const showcaseTravelers = [
-  {
-    src: "https://lh3.googleusercontent.com/aida-public/AB6AXuD-pK7TwjZdOALP_sr6Up2N28Ups_7DOjaYdeLQAj7nnIivD8gAT0wRyagFljtYvf4OCCh2zQKydtZHe_n1FpiWv0SRe7Kw3xMrZKoR1x_XJvZQceJwzHnOC3PjYmz0WiScpvxhaF1dEsfM-vuRmu-PhCCqFnRw8fmHzAZV_fdbjOVlv81NXVEV25IY4VD764_DiUWd7DfcxGIK5oGI9YnRarFQM-k5e7LN1BepxC4Eo53aCIJ-4avuze9pZeMsK-6despIBUEXIAZA",
-    alt: "Traveler portrait one",
-    fallback: "AL",
-  },
-  {
-    src: "https://lh3.googleusercontent.com/aida-public/AB6AXuCHI9g5rtInLy6WXRHpsVmcbPzNOpTSOU7njCJ6bO9q3iECnoA_B0ChI2qlSgalpsXK_i3krsJr1J56eVwQ_7Ysqtj7vvsM7gtYcM1mexte0udQFrBoOp-15qBt5XJE6748frh9pORbaalcmXAUA4TD9LKnYSZWvkWL1gu1IC8AoVF-31FCD7gFSsWO_FXW_wwlE2nQB9P8dBPanIPv4YsOWZvRf519m1RHr4craUcpUUAWrGexOJSH8jczsDb94Vr_a4oOUOs1wvr8",
-    alt: "Traveler portrait two",
-    fallback: "MN",
-  },
-  {
-    src: "https://lh3.googleusercontent.com/aida-public/AB6AXuDWM8PpUfhwnbNNn_9RW7DtMzAvdiLmrXZdBmiPVo-DnuJCy-sXCO6hV1nz8FibtV7myXaqicxpxQwX9dwwGoCZ3mDA6Sn-g0jyP8CeeaT1Wua-FRxI4sgTMleDtOFiTrPksXfUxW_iKEpPKG7AfY40wEJg_8zF4_XuBUatF6LItrSd6p19jwH2Vgm8pwQDO7C4mAnTlGeAhZ950GwAm9p3r2n0a4aq_3WgF8CNfyual0SQP7FNoelzQG5sZa-ganR77LenTvvHcB5W",
-    alt: "Traveler portrait three",
-    fallback: "KT",
-  },
-];
+import authBayVertical from "@/assets/redesign/auth-bay-vertical.png";
+import BrandLogo from "@/components/shared/brand-logo";
+import { useI18n } from "@/i18n/I18nProvider";
+import { buildAuthCopy } from "@/pages/Auth/auth-copy";
 
 export default function AuthFeaturePanel({
-  badge = "Traveler Access",
+  badge,
   title,
   description,
+  image = authBayVertical,
+  journeyLabel,
+  journeyTitle,
+  journeyDates,
+  stats = [],
+  quote,
+  quoteAuthor,
 }) {
+  const { language } = useI18n();
+  const copy = buildAuthCopy(language).featurePanel;
+
   return (
-    <section className="relative hidden overflow-hidden bg-surface-container-highest lg:flex lg:w-1/2">
-      <div className="absolute inset-0 z-0">
-        <img
-          alt="Dragon Bridge Da Nang"
-          className="h-full w-full object-cover"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtBTbHBUUC4tiwFPAbIKve74KQOUMhNuErKG59YP2iZ78DvuYKyXqthjEqOokhmWLwDMkMU1E8wUSQ3JEul8A1qBScZiu3yMiJBEc196-7PdDH_CtKM0X4A24cyBweoml0Ybk0sQ824QYDrDkqUcl8I_5x-NWdc0sjtef46tZnSts_1D2o0avr1CtpDpiOldeRQ6W2-tbXJXvsZXy5GKow0Nq8SpdlpFnU0RS1lkreyOg3zacyX4ismJVD4522aQCCN9CFNeTWiFv9"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/10 via-slate-950/15 to-slate-950/45" />
-      </div>
+    <section className="relative hidden min-h-screen overflow-hidden lg:block">
+      <img
+        src={image}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover object-center"
+      />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,16,14,0.12)_0%,rgba(18,16,14,0.26)_36%,rgba(18,16,14,0.68)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,241,220,0.18),transparent_36%),radial-gradient(circle_at_bottom_left,rgba(12,92,90,0.18),transparent_32%)]" />
 
-      <div className="absolute left-12 top-12 z-10">
-        <BrandLogo light iconClassName="h-11 w-11" />
-      </div>
+      <div className="relative z-10 flex min-h-screen flex-col justify-between p-8 xl:p-11">
+        <div className="flex items-start justify-between gap-4">
+          <BrandLogo light className="gap-3" iconClassName="size-10" showTagline />
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <span className="rounded-full border border-white/18 bg-white/10 px-3.5 py-1.5 text-[10px] uppercase tracking-[0.24em] text-white/78 backdrop-blur-xl">
+              {badge}
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-black/10 px-3.5 py-1.5 text-[10px] uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl">
+              <ShieldCheck className="size-3.5" />
+              {copy.protectedAccess}
+            </span>
+          </div>
+        </div>
 
-      <div className="absolute bottom-12 left-12 right-12 z-10">
-        <Card className="rounded-[2rem] border-none bg-surface/70 py-0 shadow-[0_25px_60px_rgba(15,23,42,0.22)] ring-0 backdrop-blur-xl">
-          <CardContent className="space-y-6 p-8">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex rounded-full bg-tertiary-container px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-on-tertiary-fixed">
-                {badge}
-              </span>
+        <div className="max-w-[430px]">
+          <h2 className="max-w-[390px] [font-family:Iowan_Old_Style,Palatino_Linotype,Book_Antiqua,Georgia,serif] text-[3rem] leading-[0.96] tracking-[-0.045em] text-white xl:text-[3.45rem]">
+            {title}
+          </h2>
+          <p className="mt-4 max-w-[360px] text-[0.95rem] leading-7 text-white/74">
+            {description}
+          </p>
 
-              <div className="flex gap-1">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <span
-                    key={index}
-                    className="material-symbols-outlined text-sm text-primary"
-                    style={{ fontVariationSettings: '"FILL" 1' }}
-                  >
-                    star
-                  </span>
-                ))}
+          <div className="mt-8 grid gap-3 xl:grid-cols-[1.05fr_0.95fr]">
+            <div className="rounded-[26px] border border-white/14 bg-white/10 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.18)] backdrop-blur-2xl">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/58">
+                    {journeyLabel}
+                  </p>
+                  <h3 className="mt-2.5 text-[1.45rem] leading-tight [font-family:Iowan_Old_Style,Palatino_Linotype,Book_Antiqua,Georgia,serif] text-white">
+                    {journeyTitle}
+                  </h3>
+                </div>
+                <ArrowUpRight className="size-4.5 text-white/82" />
+              </div>
+
+              <div className="mt-4 flex items-center gap-3 rounded-[18px] bg-black/10 px-3.5 py-2.5 text-sm text-white/82">
+                <CalendarRange className="size-4 text-white/74" />
+                <span>{journeyDates}</span>
+              </div>
+
+              <div className="mt-3 flex items-center gap-3 rounded-[18px] bg-black/10 px-3.5 py-2.5 text-sm text-white/76">
+                <MapPinned className="size-4 text-white/74" />
+                {copy.refinedBy}
               </div>
             </div>
 
-            <div className="space-y-2">
-              <h2 className="font-headline text-3xl font-extrabold leading-tight text-on-surface">
-                {title}
-              </h2>
-              <p className="max-w-md text-base leading-relaxed text-on-surface-variant">
-                {description}
-              </p>
+            <div className="grid gap-3">
+              {stats.map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-[22px] border border-white/12 bg-black/10 px-4 py-3.5 backdrop-blur-xl"
+                >
+                  <p className="text-[1.5rem] leading-none [font-family:Iowan_Old_Style,Palatino_Linotype,Book_Antiqua,Georgia,serif] text-white">
+                    {item.value}
+                  </p>
+                  <p className="mt-1.5 text-[10px] uppercase tracking-[0.16em] text-white/56">
+                    {item.label}
+                  </p>
+                </div>
+              ))}
             </div>
+          </div>
+        </div>
 
-            <div className="flex items-center gap-4">
-              <AvatarGroup className="-space-x-3">
-                {showcaseTravelers.map((traveler) => (
-                  <Avatar
-                    key={traveler.src}
-                    size="lg"
-                    className="ring-2 ring-surface-container-lowest after:border-transparent"
-                  >
-                    <AvatarImage src={traveler.src} alt={traveler.alt} />
-                    <AvatarFallback>{traveler.fallback}</AvatarFallback>
-                  </Avatar>
-                ))}
-              </AvatarGroup>
-
-              <span className="text-xs font-semibold text-on-surface-variant">
-                +12.4k explorers booked recently
+        <div className="max-w-[440px]">
+          <div className="rounded-[26px] border border-white/14 bg-white/10 p-5 backdrop-blur-2xl">
+            <div className="flex items-center gap-1 text-[#f5d591]">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <Star key={index} className="size-4 fill-current" />
+              ))}
+            </div>
+            <p className="mt-3.5 text-[0.95rem] leading-7 text-white/84">
+              "{quote}"
+            </p>
+            <div className="mt-4 flex items-center justify-between gap-4 border-t border-white/12 pt-3.5 text-sm text-white/64">
+              <span>{quoteAuthor}</span>
+              <span className="inline-flex items-center gap-2">
+                <MapPinned className="size-4" />
+                {copy.verifiedTraveler}
               </span>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </section>
   );

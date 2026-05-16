@@ -1,10 +1,10 @@
 import { BadgeCheck, CalendarDays } from "lucide-react";
 
+import UserProfileEditDialog from "@/components/Profile/UserProfileEditDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import UserProfileEditDialog from "@/components/Profile/UserProfileEditDialog";
 import { useI18n } from "@/i18n/I18nProvider";
 
 const guide = {
@@ -33,46 +33,53 @@ export default function GuideProfileHero({ profile, onUpdateProfile }) {
   };
 
   return (
-    <Card className="border-outline-variant/20 bg-white shadow-sm">
-      <CardContent className="grid gap-6 p-6 md:grid-cols-[auto_1fr_auto] md:items-center">
+    <Card className="overflow-hidden rounded-[2rem] border border-[#e8ded0] bg-[radial-gradient(circle_at_top_left,rgba(246,210,165,0.28),transparent_30%),linear-gradient(135deg,rgba(255,255,255,0.94),rgba(251,247,240,0.98))] py-0 shadow-[0_24px_70px_rgba(38,33,28,0.08)]">
+      <CardContent className="grid gap-6 p-6 md:grid-cols-[auto_1fr_auto] md:items-center md:p-8">
         <div className="relative">
-          <Avatar className="h-28 w-28 rounded-2xl">
+          <Avatar className="h-28 w-28 rounded-[1.5rem] ring-4 ring-white/80">
             <AvatarImage src={displayGuide.avatarUrl} alt={displayGuide.fullName} />
             <AvatarFallback>{displayGuide.avatarFallback}</AvatarFallback>
           </Avatar>
-          <Badge className="absolute -bottom-2 -right-2 gap-1 bg-teal-700 text-white">
+          <Badge className="absolute -bottom-2 -right-2 gap-1 rounded-full bg-[#0b8c87] text-white">
             <BadgeCheck className="h-3.5 w-3.5" />
             {t("guidePages.profile.verified")}
           </Badge>
         </div>
 
         <div>
-          <h1 className="font-heading text-3xl font-extrabold tracking-tight text-slate-950">
+          <h1 className="[font-family:Iowan_Old_Style,Palatino_Linotype,Book_Antiqua,Georgia,serif] text-[2.2rem] leading-[0.98] tracking-[-0.04em] text-[#1f2d2f] md:text-[3.2rem]">
             {displayGuide.fullName}
           </h1>
-          <p className="mt-1 font-semibold text-teal-700">
-            {displayGuide.title} - {displayGuide.location}
+          <p className="mt-2 font-semibold text-[#0b8c87]">
+            {displayGuide.title} · {displayGuide.location}
           </p>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-[#666a65]">
             {displayGuide.bio}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {displayGuide.specialties.map((specialty) => (
-              <Badge key={specialty} variant="secondary">
+              <Badge
+                key={specialty}
+                variant="secondary"
+                className="rounded-full bg-white/76 px-3 py-1 text-[#485557]"
+              >
                 {specialty}
               </Badge>
             ))}
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 md:justify-end">
           <UserProfileEditDialog
             profile={profile}
             onUpdateProfile={onUpdateProfile}
             title={t("guidePages.profile.editTitle")}
             description={t("guidePages.profile.editDescription")}
           />
-          <Button variant="outline">
+          <Button
+            variant="outline"
+            className="rounded-full border-[#d8cab6] bg-white px-4 text-[#324347] hover:bg-[#f8f4ec]"
+          >
             <CalendarDays className="h-4 w-4" />
             {t("guidePages.profile.scheduleInterview")}
           </Button>

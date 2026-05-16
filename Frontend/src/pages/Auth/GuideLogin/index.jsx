@@ -1,61 +1,61 @@
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
+import AuthCardShell from "@/components/AuthShare/AuthCardShell";
+import sapaMistTerraces from "@/assets/redesign/sapa-mist-terraces-v2.png";
 import AuthContext from "@/context/authContext";
+import { useI18n } from "@/i18n/I18nProvider";
 
-import GuideLoginActiveGuides from "./GuideLoginActiveGuides";
-import GuideLoginBrand from "./GuideLoginBrand";
 import GuideLoginForm from "./GuideLoginForm";
-import GuideLoginFooter from "./GuideLoginFooter";
 
-const guideLoginContent = {
-  brand: {
-    name: "SmartTravel",
-    icon: "explore",
-  },
-  heading: "Guide Staff Login",
-  description: "Access your assigned tours and live tour updates",
-  notice: {
-    title: "Notice",
-    description:
-      "Guide accounts are managed by your company. Please contact your administrator if you cannot access your credentials.",
-  },
-  background: {
-    src: "https://lh3.googleusercontent.com/aida-public/AB6AXuDelbvdu4j3xysr66byczau-nSmiazQJ3JWP49jyv28wd46EZOGXpHFEcgRtpzTwlHBhUBhFgY1itPHabG5yOriDJVawoWACMCflok6JzClcpU0k8BTb81DHE6Alh6pcwJvVwt7mP3AojSPE2X-gvRN_wUUSyHREVsa-K4y1rQAHM3o3gTJwllIbA-Za583tXGtt032pANESl7Q44wc3SG93hVYsVEqm0ZXG12RLjpR8efZgvWVqhehtoXibMM2JcL8PE9cHsCmWJrh",
-    alt: "Dreamy tropical coastline with turquoise water and morning light",
-  },
-  footerLinks: ["Terms of Service", "Privacy Policy", "Help Center"],
-};
+const buildGuideCopy = (language) =>
+  language === "vi"
+    ? {
+        title: "\u0110\u0103ng nh\u1eadp h\u01b0\u1edbng d\u1eabn vi\u00ean",
+        description:
+          "Truy c\u1eadp tour \u0111\u01b0\u1ee3c ph\u00e2n c\u00f4ng v\u00e0 c\u1eadp nh\u1eadt h\u00e0nh tr\u00ecnh tr\u1ef1c ti\u1ebfp.",
+        emailLabel: "Email c\u00f4ng vi\u1ec7c",
+        passwordLabel: "M\u1eadt kh\u1ea9u",
+        forgotPassword: "Qu\u00ean m\u1eadt kh\u1ea9u?",
+        submitLabel: "V\u00e0o b\u1ea3ng \u0111i\u1ec1u khi\u1ec3n",
+        loadingLabel: "\u0110ang \u0111\u0103ng nh\u1eadp...",
+        notice: {
+          title: "L\u01b0u \u00fd",
+          description:
+            "T\u00e0i kho\u1ea3n h\u01b0\u1edbng d\u1eabn vi\u00ean do c\u00f4ng ty qu\u1ea3n l\u00fd. N\u1ebfu kh\u00f4ng \u0111\u0103ng nh\u1eadp \u0111\u01b0\u1ee3c, h\u00e3y li\u00ean h\u1ec7 qu\u1ea3n tr\u1ecb vi\u00ean c\u1ee7a b\u1ea1n.",
+        },
+      }
+    : {
+        title: "Guide staff login",
+        description: "Access assigned tours and live itinerary updates.",
+        emailLabel: "Work email",
+        passwordLabel: "Password",
+        forgotPassword: "Forgot password?",
+        submitLabel: "Open dashboard",
+        loadingLabel: "Signing in...",
+        notice: {
+          title: "Notice",
+          description:
+            "Guide accounts are managed by your company. Please contact your administrator if you cannot access your credentials.",
+        },
+      };
 
-const activeGuideAvatars = [
-  {
-    src: "https://lh3.googleusercontent.com/aida-public/AB6AXuC9wu05GWOuObCfupulDQgYOf4E1mtgcre1o5lcmm4X2cuIVO1i7W7j56mFXciXzSDAyzGa2Gv7lZ8RLojUT7EU1g6igKQr2VYjuR90yGwR7vjUVxgaNk_Z7QVOqZCiQZsgXYmlENbfMYvjeKRDAukI4A0DvLErfcY0-MH1X_uzsgaQzjlD2fjpR0vgwdw7fp5HHcab_kuDWFq6Z4om3IF8aoQ1qc08-2cCjXB7XwEkrv1NFDjsF26TQj_Ui7NIjnB15Zz_DTY9TPOl",
-    alt: "Professional portrait of a male tour guide smiling outdoors",
-    fallback: "TG",
-  },
-  {
-    src: "https://lh3.googleusercontent.com/aida-public/AB6AXuDQv1LhvoGUdPLTEyvTgR8TalZFxj5yYXydfeXa4ACCCP0oMDVdf441B2hOSNqwdoiqZcu3fJHn0ng5dPhSxJ0zLHi7qlurtg9U0HW0Ha2ZbDd_pcQvmzichLvhzhjBkLoeNK-tVWyxSKCbikAYtasC4TlgytCoGrrvySfr-UVp5gCo7cREiGrMdCUz6nUJ5HP9gfNl82v2n9lDhDN_xDvk5GENqwTafnLIkj_zlFElSGPUxy_wwmfB713iVuaNHzrkrq0P2zbMDWzV",
-    alt: "Close-up portrait of a woman with a friendly expression",
-    fallback: "JW",
-  },
-  {
-    src: "https://lh3.googleusercontent.com/aida-public/AB6AXuDKhMm0Pl35bAvsvFATdd7hNUvHcU7iRP-1hjHPkVAp9z5yIOqDGPCg-Ha6Ym-_zWNhDci2XjmAYTQcQazbES0V4ZBRLh0yL8FMoRx5-o0F-hWwziNUQMLLchiw-8UttE0WfTfnaI00h_zKtab1MOdbU81H6KrMkJewg1RVdWp__vOT-UNbylQ2UaVyebMf9ZMtUQyg_vuD835q4NFfwdeiEv83FwTVFfRAAsDhCEMyHuY5xoKJc78BQv6taSq9F2gAu-nxl5nowebo",
-    alt: "Middle-aged man wearing sunglasses with a coastal background",
-    fallback: "MC",
-  },
-];
-
-const GuideLogin = () => {
+export default function GuideLogin() {
   const { loginUser } = useContext(AuthContext);
+  const { language } = useI18n();
+  const copy = useMemo(() => buildGuideCopy(language), [language]);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      toast.error("Please enter email and password.");
+      toast.error(
+        language === "vi"
+          ? "Vui l\u00f2ng nh\u1eadp email v\u00e0 m\u1eadt kh\u1ea9u."
+          : "Please enter email and password.",
+      );
       return;
     }
 
@@ -70,38 +70,22 @@ const GuideLogin = () => {
   };
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-surface p-4">
-      <div className="absolute inset-0 z-0">
-        <div className="absolute left-[-5%] top-[-10%] h-[40%] w-[40%] rounded-full bg-primary/5 blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-5%] h-[40%] w-[40%] rounded-full bg-secondary/5 blur-[120px]" />
-        <img
-          alt={guideLoginContent.background.alt}
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-10 mix-blend-overlay"
-          src={guideLoginContent.background.src}
-        />
-      </div>
-
-      <div className="relative z-10 w-full max-w-[480px]">
-        <GuideLoginBrand />
-
-        <GuideLoginForm
-          content={guideLoginContent}
-          loading={loading}
-          showPassword={showPassword}
-          onLogin={handleLogin}
-          onTogglePassword={() => setShowPassword((value) => !value)}
-          email={email}
-          setEmail={setEmail}
-          password={password}
-          setPassword={setPassword}
-        />
-
-        <GuideLoginFooter links={guideLoginContent.footerLinks} />
-      </div>
-
-      <GuideLoginActiveGuides avatars={activeGuideAvatars} />
-    </main>
+    <AuthCardShell
+      title={copy.title}
+      description={copy.description}
+      image={sapaMistTerraces}
+    >
+      <GuideLoginForm
+        content={copy}
+        loading={loading}
+        showPassword={showPassword}
+        onLogin={handleLogin}
+        onTogglePassword={() => setShowPassword((value) => !value)}
+        email={email}
+        setEmail={setEmail}
+        password={password}
+        setPassword={setPassword}
+      />
+    </AuthCardShell>
   );
-};
-
-export default GuideLogin;
+}
