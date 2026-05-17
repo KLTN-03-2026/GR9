@@ -27,8 +27,7 @@ export const googleLoginController = async (req, res) => {
     const { idToken } = req.body;
     const user = await googleLogin(idToken);
     res.cookie("refreshToken", user.refreshToken, COOKIE_OPTIONS);
-    const { refreshToken, ...safeUser } = user;
-    return success(res, "User logged in successfully", safeUser, 201);
+    return success(res, "User logged in successfully", user, 201);
   } catch (err) {
     return error(res, err.message, err.status, err.errorCode);
   }
@@ -39,8 +38,7 @@ export const loginUserController = async (req, res) => {
     const { email, password, role } = req.body;
     const user = await loginUser(email, password, role);
     res.cookie("refreshToken", user.refreshToken, COOKIE_OPTIONS);
-    const { refreshToken, ...safeUser } = user;
-    return success(res, "User logged in successfully", safeUser, 201);
+    return success(res, "User logged in successfully", user, 201);
   } catch (err) {
     return error(res, err.message, err.status, err.errorCode);
   }
@@ -75,8 +73,7 @@ export const verifyEmailOtpController = async (req, res) => {
     const { email, otp } = req.body;
     const result = await verifyEmailOtp(email, otp);
     res.cookie("refreshToken", result.refreshToken, COOKIE_OPTIONS);
-    const { refreshToken, ...safeUser } = result;
-    return success(res, "Email verified successfully", safeUser, 200);
+    return success(res, "Email verified successfully", result, 200);
   } catch (err) {
     return error(res, err.message, err.status, err.errorCode);
   }
@@ -123,11 +120,13 @@ export const resetPasswordController = async (req, res) => {
 
 export const refreshTokenController = async (req, res) => {
   try {
-    const refreshTokenFromCookie = req.cookies.refreshToken;
-    const token = await refreshTokenProcess(refreshTokenFromCookie);
+    const refreshTokenFromRequest =
+      req.body?.refreshToken ||
+      req.header("x-refresh-token") ||
+      req.cookies.refreshToken;
+    const token = await refreshTokenProcess(refreshTokenFromRequest);
     res.cookie("refreshToken", token.refreshToken, COOKIE_OPTIONS);
-    const { refreshToken, ...safeToken } = token;
-    return success(res, "User logged in successfully", safeToken, 201);
+    return success(res, "User logged in successfully", token, 201);
   } catch (err) {
     return error(res, err.message, err.status, err.errorCode);
   }

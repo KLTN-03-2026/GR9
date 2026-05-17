@@ -18,6 +18,31 @@ import { auth, googleProvider } from "@/firebase";
 import toast from "react-hot-toast";
 
 const AuthContext = createContext();
+const AUTH_STORAGE_KEY = "user";
+
+const readStoredUserSession = () => {
+  try {
+    return (
+      JSON.parse(sessionStorage.getItem(AUTH_STORAGE_KEY)) ||
+      JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY)) ||
+      null
+    );
+  } catch {
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    return null;
+  }
+};
+
+const writeStoredUserSession = (payload) => {
+  sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(payload));
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+};
+
+const clearStoredUserSession = () => {
+  sessionStorage.removeItem(AUTH_STORAGE_KEY);
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+};
 
 const getLoginErrorMessage = (error) => {
   const errorCode = error?.response?.data?.errorCode;
@@ -34,14 +59,12 @@ const getLoginErrorMessage = (error) => {
 };
 
 export const AuthContextProvider = ({ children }) => {
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user")) || null,
-  );
+  const [user, setUser] = useState(readStoredUserSession);
   const navigate = useNavigate();
 
   const persistUserSession = (payload) => {
     setUser(payload);
-    localStorage.setItem("user", JSON.stringify(payload));
+    writeStoredUserSession(payload);
   };
 
   const syncUserProfile = (profile) => {
@@ -59,7 +82,7 @@ export const AuthContextProvider = ({ children }) => {
         },
       };
 
-      localStorage.setItem("user", JSON.stringify(nextUser));
+      writeStoredUserSession(nextUser);
       return nextUser;
     });
   };
@@ -161,7 +184,7 @@ export const AuthContextProvider = ({ children }) => {
       const response = await firstJoinPassword(payload);
       toast.success(response?.data?.message || "Mật khẩu đã được cập nhật.");
 
-      const storedSession = JSON.parse(localStorage.getItem("user") || "null");
+      const storedSession = readStoredUserSession();
       const currentSession = storedSession || user;
       const nextRole = currentSession?.user?.role;
       const nextSession = {
@@ -256,7 +279,7 @@ export const AuthContextProvider = ({ children }) => {
   const logOutContext = async () => {
     try {
       await logOut();
-      localStorage.removeItem("user");
+      clearStoredUserSession();
       setUser(null);
       toast.success("User logged out successfully");
       navigate("/");
