@@ -155,7 +155,7 @@ export const getTourService = async (tourId) => {
     try {
         const tour = await Tour.findById(tourId)
             .populate("providerId", "name email")
-            .populate("sourceAiTourRequestId", "quantity")
+            .populate("sourceAiTourRequestId", "quantity budget origin")
             .populate({
                 path: "itineraries.activities.serviceId",
                 select: "name price",

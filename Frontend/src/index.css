@@ -466,6 +466,37 @@ button {
     .dark [class*="ring-teal"] {
         border-color: color-mix(in srgb, var(--primary) 35%, transparent) !important;
     }
+
+    .dark .guest-light-page {
+        background-color: #f6f1e7 !important;
+        color: #213033 !important;
+    }
+
+    .dark .guest-light-page .bg-white,
+    .dark .guest-light-page [class*="bg-white/"] {
+        background-color: rgb(255 255 255 / 0.92) !important;
+    }
+
+    .dark .guest-light-page [class*="bg-[#fcfaf6]"],
+    .dark .guest-light-page [class*="bg-[#fcfaf5]"],
+    .dark .guest-light-page [class*="bg-[#fbf8f2]"],
+    .dark .guest-light-page [class*="bg-[#fbf7f0]"],
+    .dark .guest-light-page [class*="bg-[#f7f1e6"] {
+        background-color: inherit;
+    }
+
+    .dark .guest-light-page [data-slot="card"] {
+        background-color: rgb(255 255 255 / 0.92) !important;
+        color: #213033 !important;
+    }
+
+    .dark .guest-light-page input,
+    .dark .guest-light-page textarea,
+    .dark .guest-light-page button[role="combobox"] {
+        background-color: #fcfaf6 !important;
+        color: #213033 !important;
+        border-color: #e6dac9 !important;
+    }
 }
 
 html {

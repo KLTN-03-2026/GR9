@@ -7,6 +7,7 @@ import {
   getProviderAiTourNotifications,
   getProviderAiTourRequestById,
   publishAiTourRequest,
+  cancelPublishedAiTourRequest,
   saveAiTourRequest,
   updateTravelerAiProposalDecision,
 } from "../services/ai.service.js";
@@ -64,8 +65,17 @@ export const publishAiTourRequestController = async (req, res) => {
 
 export const getProviderAiTourNotificationsController = async (req, res) => {
   try {
-    const requests = await getProviderAiTourNotifications();
+    const requests = await getProviderAiTourNotifications(req.user._id);
     return success(res, "Get provider AI notifications successfully", requests, 200);
+  } catch (err) {
+    return error(res, err.message, err.status, err.errorCode);
+  }
+};
+
+export const cancelPublishedAiTourRequestController = async (req, res) => {
+  try {
+    const request = await cancelPublishedAiTourRequest(req.params.id, req.user._id);
+    return success(res, "AI tour request withdrawn from providers", request, 200);
   } catch (err) {
     return error(res, err.message, err.status, err.errorCode);
   }

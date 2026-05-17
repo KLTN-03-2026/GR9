@@ -44,6 +44,7 @@ export default function GuideLiveTourTrackingTimeline({
   const { t } = useI18n();
   const activities = tracking?.allActivities || tracking?.today?.activities || [];
   const totalGuests = tracking?.group?.total || 0;
+  const isTourCompleted = tracking?.status === "completed";
 
   return (
     <div className="flex-1 space-y-8">
@@ -61,9 +62,15 @@ export default function GuideLiveTourTrackingTimeline({
           </p>
         </div>
 
-        <span className="inline-flex items-center gap-2 rounded-full bg-tertiary-container/10 px-3 py-1 text-xs font-bold text-tertiary">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-tertiary" />
-          {t("guidePages.liveTracking.liveUpdating")}
+        <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold ${
+          isTourCompleted
+            ? "bg-surface-container-high text-on-surface-variant"
+            : "bg-tertiary-container/10 text-tertiary"
+        }`}>
+          <span className={`h-2 w-2 rounded-full ${
+            isTourCompleted ? "bg-on-surface-variant" : "animate-pulse bg-tertiary"
+          }`} />
+          {isTourCompleted ? "Tour đã kết thúc" : t("guidePages.liveTracking.liveUpdating")}
         </span>
       </div>
 

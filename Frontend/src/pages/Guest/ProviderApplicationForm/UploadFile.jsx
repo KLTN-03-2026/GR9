@@ -22,7 +22,7 @@ const UploadFile = ({ file, onFileChange }) => {
   };
 
   return (
-    <div className="rounded-[24px] border border-dashed border-[#dccfbc] bg-[#fcfaf5] p-5 transition hover:border-[#0b8c87]/40 hover:bg-[#f7f5ef] sm:p-6">
+    <div className="rounded-[24px] border border-dashed !border-[#dccfbc] !bg-[#fcfaf5] p-5 transition hover:!border-[#0b8c87]/40 hover:!bg-[#f7f5ef] sm:p-6">
       <input
         ref={inputRef}
         type="file"
@@ -33,7 +33,7 @@ const UploadFile = ({ file, onFileChange }) => {
 
       <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[#0b8c87]/10 text-[#0b8c87]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] !bg-[#0b8c87]/10 !text-[#0b8c87]">
             {fileName ? (
               <FileText className="h-5 w-5" />
             ) : (
@@ -42,10 +42,10 @@ const UploadFile = ({ file, onFileChange }) => {
           </div>
 
           <div>
-            <p className="text-base font-bold text-[#243437]">
+            <p className="text-base font-bold !text-[#243437]">
               {t("providerApplication.uploadTitle")}
             </p>
-            <p className="mt-1 text-sm leading-6 text-[#72726c]">
+            <p className="mt-1 text-sm leading-6 !text-[#72726c]">
               {fileName || t("providerApplication.uploadHint")}
             </p>
           </div>
@@ -56,7 +56,7 @@ const UploadFile = ({ file, onFileChange }) => {
             <Button
               type="button"
               variant="outline"
-              className="rounded-full border-[#d8c8b4] bg-white px-4 text-[#3a4a4d] hover:bg-[#f6f3ed]"
+              className="rounded-full !border-[#d8c8b4] !bg-white px-4 !text-[#3a4a4d] hover:!bg-[#f6f3ed]"
               onClick={clearFile}
             >
               <X className="mr-2 h-4 w-4" />
@@ -67,7 +67,7 @@ const UploadFile = ({ file, onFileChange }) => {
           <Button
             type="button"
             variant="secondary"
-            className="rounded-full bg-[#0b8c87] px-5 text-white hover:bg-[#09726e]"
+            className="rounded-full !bg-[#0b8c87] px-5 !text-white hover:!bg-[#09726e]"
             onClick={() => inputRef.current?.click()}
           >
             {fileName

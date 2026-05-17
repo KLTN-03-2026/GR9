@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,23 +41,43 @@ const statusOptions = [
   { value: "BLOCKED", label: "Blocked" },
 ];
 
-const DialogCreateService = ({ open, setOpen, onCreated }) => {
-  const [serviceData, setServiceData] = useState({
-    name: "",
-    type: "HOTEL",
-    address: "",
-    lat: "",
-    long: "",
-    description: "",
-    aliases: "",
-    status: "ACTIVE",
-    priceAdult: "",
-    priceChild: "",
-    priceInfant: "",
-  });
+const getInitialServiceState = (initialValues = {}) => ({
+  name: initialValues.name || "",
+  type: initialValues.type || "HOTEL",
+  address: initialValues.address || "",
+  lat: initialValues.lat ?? "",
+  long: initialValues.long ?? "",
+  description: initialValues.description || "",
+  aliases: initialValues.aliases || "",
+  status: initialValues.status || "ACTIVE",
+  priceAdult: initialValues.priceAdult ?? "",
+  priceChild: initialValues.priceChild ?? "",
+  priceInfant: initialValues.priceInfant ?? "",
+});
+
+const DialogCreateService = ({
+  open,
+  setOpen,
+  onCreated,
+  initialValues,
+  title = "Tạo dịch vụ mới",
+  description = "Nhập thông tin dịch vụ để lưu lại.",
+  submitLabel = "Lưu dịch vụ",
+  submittingLabel = "Đang lưu...",
+  successMessage = "Tạo dịch vụ thành công.",
+}) => {
+  const initialState = useMemo(() => getInitialServiceState(initialValues), [initialValues]);
+  const [serviceData, setServiceData] = useState(initialState);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    setServiceData(initialState);
+    setImageFile(null);
+    setImagePreview(null);
+  }, [initialState, open]);
 
   const handleChange = (key, value) => {
     setServiceData((prev) => ({ ...prev, [key]: value }));
@@ -148,32 +168,21 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
       };
 
       const serviceRes = await createService(payload);
-      const newServiceId = serviceRes.data.data._id;
+      const createdService = serviceRes?.data?.data;
+      const newServiceId = createdService?._id;
 
       // Upload image if provided
-      if (imageFile) {
+      if (imageFile && newServiceId) {
         const formData = new FormData();
         formData.append("images", imageFile);
         await uploadServiceImage(newServiceId, formData);
       }
 
-      toast.success("Tạo dịch vụ thành công.");
+      toast.success(successMessage);
       setOpen(false);
-      setServiceData({
-        name: "",
-        type: "HOTEL",
-        address: "",
-        lat: "",
-        long: "",
-        description: "",
-        aliases: "",
-        status: "ACTIVE",
-        priceAdult: "",
-        priceChild: "",
-        priceInfant: "",
-      });
+      setServiceData(getInitialServiceState());
       removeImage();
-      onCreated?.();
+      onCreated?.(createdService);
     } catch (err) {
       toast.error(err?.response?.data?.message || "Không thể tạo dịch vụ.");
     } finally {
@@ -186,11 +195,9 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
       <DialogContent className="flex max-h-[calc(100vh-2rem)] flex-col overflow-hidden rounded-2xl sm:max-w-2xl">
         <DialogHeader className="shrink-0 pr-8">
           <DialogTitle className="text-lg font-semibold">
-            Tạo dịch vụ mới
+            {title}
           </DialogTitle>
-          <DialogDescription>
-            Nhập thông tin dịch vụ để lưu lại.
-          </DialogDescription>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 gap-4 overflow-y-auto py-2 pr-1 sm:grid-cols-2">
@@ -356,7 +363,7 @@ const DialogCreateService = ({ open, setOpen, onCreated }) => {
             className="bg-primary text-primary-foreground hover:bg-primary-container hover:text-on-primary-container"
             disabled={loading}
           >
-            {loading ? "Đang lưu..." : "Lưu dịch vụ"}
+            {loading ? submittingLabel : submitLabel}
           </Button>
         </DialogFooter>
       </DialogContent>
