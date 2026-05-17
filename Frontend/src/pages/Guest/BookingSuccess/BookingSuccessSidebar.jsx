@@ -9,7 +9,7 @@ export default function BookingSuccessSidebar({ booking }) {
 
   return (
     <aside className="space-y-6 lg:sticky lg:top-28 lg:col-span-5">
-      <div className="relative overflow-hidden rounded-[30px] border border-[#e6dccd] shadow-[0_28px_90px_rgba(38,33,28,0.18)]">
+      <div className="relative overflow-hidden rounded-[30px] border border-[#e6dccd] shadow-[0_28px_90px_rgba(38,33,28,0.18)] dark:border-white/12 dark:shadow-none">
         <img
           alt={booking?.tour?.name || t("bookingSuccessPage.heroFallbackAlt")}
           className="aspect-[4/5] w-full object-cover"
@@ -43,22 +43,22 @@ export default function BookingSuccessSidebar({ booking }) {
       <div className="grid gap-4">
         <Button
           variant="ghost"
-          className="h-14 rounded-full border border-[#d8cab6] bg-white text-[#0b8c87] hover:bg-[#f8f4ec]"
+          className="h-14 rounded-full border border-[#d8cab6] bg-white text-[#0b8c87] hover:bg-[#f8f4ec] dark:border-white/12 dark:bg-surface-container-lowest dark:text-primary dark:hover:bg-surface-container"
         >
           <Download className="size-4" />
           {t("bookingSuccessPage.downloadReceipt")}
         </Button>
       </div>
 
-      <Card className="overflow-hidden rounded-[28px] border border-[#ecd9b9] bg-[linear-gradient(135deg,#fff6e7_0%,#f9f0df_100%)] py-0 shadow-[0_18px_50px_rgba(196,148,72,0.12)]">
+      <Card className="overflow-hidden rounded-[28px] border border-[#ecd9b9] bg-[linear-gradient(135deg,#fff6e7_0%,#f9f0df_100%)] py-0 shadow-[0_18px_50px_rgba(196,148,72,0.12)] dark:border-amber-300/20 dark:bg-[linear-gradient(135deg,rgba(245,158,11,0.16)_0%,rgba(245,158,11,0.08)_100%)] dark:shadow-none">
         <CardContent className="p-6">
-          <div className="mb-3 flex items-center gap-2 text-[#a1701b]">
+          <div className="mb-3 flex items-center gap-2 text-[#a1701b] dark:text-amber-200">
             <Lightbulb className="size-5" />
             <span className="text-xs font-bold uppercase tracking-[0.2em]">
               {t("bookingSuccessPage.tipBadge")}
             </span>
           </div>
-          <p className="leading-7 text-[#6d4d19]">
+          <p className="leading-7 text-[#6d4d19] dark:text-amber-100/80">
             {t("bookingSuccessPage.tipDescription")}
           </p>
         </CardContent>

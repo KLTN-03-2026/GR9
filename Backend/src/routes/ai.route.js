@@ -9,6 +9,7 @@ import {
   getProviderAiTourNotificationsController,
   getProviderAiTourRequestDetailController,
   publishAiTourRequestController,
+  cancelPublishedAiTourRequestController,
   saveAiTourRequestController,
   updateTravelerAiProposalDecisionController,
 } from "../controllers/ai.controller.js";
@@ -44,6 +45,7 @@ router.use(protect, authorize("TRAVELER"));
 router.get("/history", getAiTourRequestHistoryController);
 router.get("/history/:id", getAiTourRequestDetailController);
 router.post("/history/:id/publish", publishAiTourRequestController);
+router.post("/history/:id/cancel-publish", cancelPublishedAiTourRequestController);
 router.patch("/history/:id/decision", updateTravelerAiProposalDecisionController);
 router.post("/history", saveAiTourRequestController);
 router.post("/", generateItineraryController);

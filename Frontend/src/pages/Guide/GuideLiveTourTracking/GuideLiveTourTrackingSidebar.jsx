@@ -73,6 +73,13 @@ export default function GuideLiveTourTrackingSidebar({
   const mapSrc = mapQuery
     ? `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&z=15&output=embed`
     : "";
+  const statusLabel = {
+    ongoing: "Đang diễn ra",
+    upcoming: "Sắp tới",
+    completed: "Đã kết thúc",
+    cancelled: "Đã hủy",
+    refunded: "Đã hoàn tiền",
+  };
 
   return (
     <div className="w-full space-y-6 md:w-[400px]">
@@ -126,7 +133,18 @@ export default function GuideLiveTourTrackingSidebar({
                   }`}
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-bold">{tour.tourName}</p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="truncate text-sm font-bold">{tour.tourName}</p>
+                      <span
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-black uppercase ${
+                          tour.status === "completed"
+                            ? "bg-surface-container-high text-on-surface-variant"
+                            : "bg-primary-fixed text-on-primary-fixed"
+                        }`}
+                      >
+                        {statusLabel[tour.status] || tour.status}
+                      </span>
+                    </div>
                     <p className="mt-1 text-xs font-semibold text-on-surface-variant">
                       {tour.travelerName} · {tour.groupTotal} {t("guidePages.liveTracking.guests")} · {tour.startDay}
                     </p>

@@ -19,33 +19,33 @@ export default function BookingSuccessDetailsCard({ booking }) {
   const { language, t } = useI18n();
 
   return (
-    <Card className="overflow-hidden rounded-[30px] border border-[#e8ded0] bg-white/92 py-0 shadow-[0_24px_70px_rgba(38,33,28,0.08)]">
+    <Card className="overflow-hidden rounded-[30px] border border-[#e8ded0] bg-white/[0.92] py-0 shadow-[0_24px_70px_rgba(38,33,28,0.08)] dark:border-white/12 dark:bg-surface-container-lowest dark:shadow-none">
       <CardContent className="space-y-6 p-6 sm:p-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.24em] text-[#8b857c]">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.24em] text-[#8b857c] dark:text-on-surface-variant">
               {t("bookingSuccessPage.reservationId")}
             </p>
-            <p className="text-2xl font-black tracking-tight text-[#233236]">
+            <p className="text-2xl font-black tracking-tight text-[#233236] dark:text-on-surface">
               {booking?.bookingCode || "-"}
             </p>
           </div>
 
-          <span className="inline-flex w-fit items-center rounded-full bg-[#f6eee1] px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-[#9f7d52]">
+          <span className="inline-flex w-fit items-center rounded-full bg-[#f6eee1] px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-[#9f7d52] dark:bg-primary/12 dark:text-primary">
             {booking?.status || "CONFIRMED"}
           </span>
         </div>
 
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <div className="flex size-12 items-center justify-center rounded-[18px] bg-[#0b8c87]/10 text-[#0b8c87]">
+            <div className="flex size-12 items-center justify-center rounded-[18px] bg-[#0b8c87]/10 text-[#0b8c87] dark:bg-primary/12 dark:text-primary">
               <CalendarDays className="size-5" />
             </div>
             <div>
-              <p className="text-sm text-[#7a7d78]">
+              <p className="text-sm text-[#7a7d78] dark:text-on-surface-variant">
                 {t("bookingSuccessPage.dateTime")}
               </p>
-              <p className="font-semibold text-[#243437]">
+              <p className="font-semibold text-[#243437] dark:text-on-surface">
                 {formatDate(
                   booking?.startDate,
                   language,
@@ -57,27 +57,27 @@ export default function BookingSuccessDetailsCard({ booking }) {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex size-12 items-center justify-center rounded-[18px] bg-[#0b8c87]/10 text-[#0b8c87]">
+            <div className="flex size-12 items-center justify-center rounded-[18px] bg-[#0b8c87]/10 text-[#0b8c87] dark:bg-primary/12 dark:text-primary">
               <MapPin className="size-5" />
             </div>
             <div>
-              <p className="text-sm text-[#7a7d78]">
+              <p className="text-sm text-[#7a7d78] dark:text-on-surface-variant">
                 {t("bookingSuccessPage.meetingPoint")}
               </p>
-              <p className="font-semibold text-[#243437]">
+              <p className="font-semibold text-[#243437] dark:text-on-surface">
                 {booking?.tour?.location || t("bookingSuccessPage.itineraryFallback")}
               </p>
             </div>
           </div>
         </div>
 
-        <Separator className="bg-[#ede4d7]" />
+        <Separator className="bg-[#ede4d7] dark:bg-white/12" />
 
         <div className="flex items-center justify-between gap-4">
-          <span className="text-[#6c6f6a]">
+          <span className="text-[#6c6f6a] dark:text-on-surface-variant">
             {t("bookingSuccessPage.totalAmountPaid")}
           </span>
-          <span className="text-3xl font-black tracking-tight text-[#0b8c87]">
+          <span className="text-3xl font-black tracking-tight text-[#0b8c87] dark:text-primary">
             {formatCurrencyVND(booking?.totalAmount)}
           </span>
         </div>

@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import Booking from "../models/booking.model.js";
 import Image from "../models/image.model.js";
+import TourSchedule from "../models/tourSchedule.model.js";
 import { throwError } from "../utils/throwError.js";
 
 const getFrontendUrl = () =>
@@ -97,6 +98,19 @@ export const ensureTrackingCode = async (booking) => {
 export const getTrackingUrl = (code) =>
   `${getFrontendUrl()}/guest?trackingCode=${encodeURIComponent(code)}`;
 
+const getTourImageUrl = async (tourId) => {
+  if (!tourId) return "";
+
+  const image = await Image.findOne({
+    entityType: "TOUR",
+    entityId: tourId,
+  })
+    .sort({ createdAt: 1 })
+    .lean();
+
+  return image?.imageUrl || image?.cloudinaryUrl || "";
+};
+
 const mapActivity = (activity, currentActivityId, activityStatusMap, dayNumber = null) => {
   const service = activity.serviceId || {};
   const activityId = activity._id ? String(activity._id) : null;
@@ -127,6 +141,7 @@ const mapActivity = (activity, currentActivityId, activityStatusMap, dayNumber =
 const buildTrackingDetail = async (booking) => {
   const code = await ensureTrackingCode(booking);
   const tour = booking.tourId || {};
+  const tourImageUrl = await getTourImageUrl(tour._id);
   const start = new Date(getBookingStartDate(booking));
   const validStart = Number.isNaN(start.getTime()) ? new Date() : start;
   const dayOffset = Math.max(
@@ -193,6 +208,7 @@ const buildTrackingDetail = async (booking) => {
       description: tour.description || "",
       numberOfDay: Number(tour.numberOfDay) || 1,
       type: tour.type || "GROUP",
+      imageUrl: tourImageUrl,
     },
     schedule: {
       startDay: toIsoDate(validStart),
@@ -278,9 +294,7 @@ export const getTravelerTracking = async (travelerId, bookingId = null) => {
   try {
     const query = getPaidTrackingBookings(travelerId);
     const bookings = await query;
-    const trackableBookings = bookings.filter(
-      (booking) => getBookingStatus(booking) !== "completed",
-    );
+    const trackableBookings = bookings;
 
     if (!trackableBookings.length) {
       return {
@@ -332,7 +346,7 @@ export const getPublicTrackingByCode = async (trackingCode) => {
     const booking = await Booking.findOne({
       trackingShareCode: trackingCode.trim(),
       payment: "PAID",
-      status: { $nin: ["CANCELLED", "COMPLETED", "REFUNDED"] },
+      status: { $nin: ["CANCELLED", "REFUNDED"] },
       trackingEnabled: { $ne: false },
     })
       .populate({
@@ -356,17 +370,9 @@ export const getPublicTrackingByCode = async (trackingCode) => {
 
     if (!booking) {
       throwError(
-        "Tracking link is invalid, disabled, or the tour has been completed",
+        "Tracking link is invalid, disabled, or the booking is not available",
         404,
         "TRACKING_NOT_FOUND",
-      );
-    }
-
-    if (getBookingStatus(booking) === "completed") {
-      throwError(
-        "Tracking link expired because this tour has been completed",
-        410,
-        "TRACKING_COMPLETED",
       );
     }
 
@@ -457,6 +463,17 @@ const getDateRangeLabel = (booking) => {
   return startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`;
 };
 
+const getScheduleDateRangeLabel = (schedule) => {
+  const start = new Date(schedule.departureDate);
+  if (Number.isNaN(start.getTime())) return "No start date";
+
+  const end = addDays(start, (Number(schedule.tourId?.numberOfDay) || 1) - 1);
+  const startLabel = formatDateLabel(start);
+  const endLabel = formatDateLabel(end);
+
+  return startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`;
+};
+
 const getGuideAssignedStatus = (booking) => {
   const status = getBookingStatus(booking);
   if (status === "upcoming") return "scheduled";
@@ -506,12 +523,109 @@ const buildAssignedTour = (booking, tourImage, listRole) => {
   };
 };
 
+const getScheduleStatus = (schedule, bookings = []) => {
+  if (bookings.some((booking) => getBookingStatus(booking) === "ongoing")) return "ongoing";
+  if (bookings.length && bookings.every((booking) => getBookingStatus(booking) === "completed")) {
+    return "completed";
+  }
+
+  const start = new Date(schedule.departureDate);
+  if (Number.isNaN(start.getTime())) return "scheduled";
+  const now = new Date();
+  const end = addDays(start, (Number(schedule.tourId?.numberOfDay) || 1) - 1);
+
+  if (now > end) return "completed";
+  if (now >= start) return "ongoing";
+  return "scheduled";
+};
+
+const buildAssignedScheduleTour = (schedule, bookings, tourImage, listRole) => {
+  const tour = schedule.tourId || {};
+  const primaryBooking =
+    bookings.find((booking) => !["CANCELLED", "REFUNDED"].includes(booking.status)) ||
+    bookings[0] ||
+    null;
+  const startDate = toIsoDate(schedule.departureDate);
+  const endDate = toIsoDate(addDays(new Date(schedule.departureDate), (Number(tour.numberOfDay) || 1) - 1));
+  const imageUrl =
+    tourImage?.imageUrl ||
+    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=1200&q=80";
+  const passengerCount = bookings.reduce((total, booking) => total + getTotalTravelers(booking), 0);
+  const passengers = bookings.length
+    ? bookings.map((booking) => ({
+        id: String(booking.travelerId?._id || booking.travelerId || ""),
+        name: booking.travelerId?.fullName || "Traveler",
+        avatar: booking.travelerId?.avatarUrl || "",
+        tags: [],
+      }))
+    : [
+        {
+          id: "no-booking",
+          name: "No paid booking yet",
+          avatar: "",
+          tags: [],
+        },
+      ];
+
+  return {
+    id: String(schedule._id),
+    bookingId: primaryBooking ? String(primaryBooking._id) : null,
+    scheduleId: String(schedule._id),
+    tourId: String(tour._id),
+    code: primaryBooking?.orderCode ? `#${primaryBooking.orderCode}` : `SCH-${String(schedule._id).slice(-6)}`,
+    title: tour.name || "Unnamed tour",
+    status: getScheduleStatus(schedule, bookings),
+    listRole,
+    region: String(tour.location || "unknown").toLowerCase(),
+    heroImage: imageUrl,
+    cardImage: imageUrl,
+    pickup: tour.location || "No pickup location",
+    locationShortLabel: tour.location || "Unknown location",
+    guideName: schedule.leadGuideServiceId?.fullName || "You",
+    passengerCount,
+    dateRangeLabel: getScheduleDateRangeLabel(schedule),
+    startDate,
+    endDate,
+    passengers,
+    activitiesCount:
+      tour.itineraries?.reduce((total, day) => total + (day.activities?.length || 0), 0) || 0,
+    progressStatus: primaryBooking?.status || schedule.status,
+    trackingCode: primaryBooking?.trackingShareCode || null,
+    hasBooking: Boolean(primaryBooking),
+  };
+};
+
 export const getGuideAssignedTours = async (guideId) => {
   try {
-    const bookings = (await getGuideTrackingBookings(guideId)).filter(
-      (booking) => booking.tourId,
-    );
-    const tourIds = bookings.map((booking) => booking.tourId?._id).filter(Boolean);
+    const schedules = await TourSchedule.find({ leadGuideServiceId: guideId })
+      .populate({
+        path: "tourId",
+        select: "name location description numberOfDay type itineraries",
+        populate: [
+          {
+            path: "itineraries.activities.serviceId",
+            select: "name type address description lat long",
+          },
+        ],
+      })
+      .populate("leadGuideServiceId", "fullName email avatarUrl")
+      .sort({ departureDate: 1, createdAt: -1 });
+
+    const scheduleIds = schedules.map((schedule) => schedule._id);
+    const bookings = await Booking.find({
+      tourScheduleId: { $in: scheduleIds },
+      status: { $ne: "CANCELLED" },
+    })
+      .populate("travelerId", "fullName email avatarUrl phone")
+      .sort({ paidAt: -1, createdAt: -1 });
+    const bookingsBySchedule = new Map();
+
+    bookings.forEach((booking) => {
+      const key = String(booking.tourScheduleId);
+      bookingsBySchedule.set(key, [...(bookingsBySchedule.get(key) || []), booking]);
+    });
+
+    const tourIds = schedules.map((schedule) => schedule.tourId?._id).filter(Boolean);
     const images = await Image.find({
       entityType: "TOUR",
       entityId: { $in: tourIds },
@@ -523,20 +637,23 @@ export const getGuideAssignedTours = async (guideId) => {
       if (!imageMap.has(key)) imageMap.set(key, image);
     });
 
-    const orderedBookings = [...bookings].sort((a, b) => {
-      const statusOrder = { ongoing: 0, upcoming: 1, completed: 2 };
-      const aStatus = getBookingStatus(a);
-      const bStatus = getBookingStatus(b);
+    const orderedSchedules = [...schedules].filter((schedule) => schedule.tourId).sort((a, b) => {
+      const aBookings = bookingsBySchedule.get(String(a._id)) || [];
+      const bBookings = bookingsBySchedule.get(String(b._id)) || [];
+      const statusOrder = { ongoing: 0, scheduled: 1, completed: 2 };
+      const aStatus = getScheduleStatus(a, aBookings);
+      const bStatus = getScheduleStatus(b, bBookings);
       const statusDiff = (statusOrder[aStatus] ?? 9) - (statusOrder[bStatus] ?? 9);
       if (statusDiff) return statusDiff;
-      return new Date(getBookingStartDate(a)) - new Date(getBookingStartDate(b));
+      return new Date(a.departureDate) - new Date(b.departureDate);
     });
 
-    return orderedBookings.map((booking, index) => {
+    return orderedSchedules.map((schedule, index) => {
       const listRole = index === 0 ? "hero" : index <= 2 ? "sidebar" : "later";
-      return buildAssignedTour(
-        booking,
-        imageMap.get(String(booking.tourId?._id)),
+      return buildAssignedScheduleTour(
+        schedule,
+        bookingsBySchedule.get(String(schedule._id)) || [],
+        imageMap.get(String(schedule.tourId?._id)),
         listRole,
       );
     });
@@ -571,7 +688,7 @@ const toGuideLiveTracking = async (booking) => {
 export const getGuideLiveTracking = async (guideId, bookingId = null) => {
   try {
     const bookings = (await getGuideTrackingBookings(guideId)).filter(
-      (booking) => booking.tourId && getBookingStatus(booking) !== "completed",
+      (booking) => booking.tourId,
     );
 
     if (!bookings.length) {

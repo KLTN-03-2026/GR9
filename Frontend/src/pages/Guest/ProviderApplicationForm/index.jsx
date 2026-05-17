@@ -40,7 +40,7 @@ const PHONE_PATTERN = /^(0|\+84)(\d[\s.-]?){8,10}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const fieldClassName =
-  "h-13 rounded-[18px] border border-[#e6dac9] bg-[#fcfaf6] px-4 text-[#213033] placeholder:text-[#8a857d] shadow-none focus-visible:border-[#0b8c87] focus-visible:ring-[#0b8c87]/10";
+  "h-13 rounded-[18px] !border-[#e6dac9] !bg-[#fcfaf6] px-4 !text-[#213033] placeholder:!text-[#8a857d] shadow-none focus-visible:!border-[#0b8c87] focus-visible:ring-[#0b8c87]/10";
 
 const ProviderApplicationForm = () => {
   const { t } = useI18n();
@@ -145,7 +145,7 @@ const ProviderApplicationForm = () => {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#f6f1e7] text-[#213033]">
+    <main className="guest-light-page relative min-h-screen overflow-hidden !bg-[#f6f1e7] !text-[#213033]">
       <div className="absolute inset-x-0 top-0 h-[28rem] overflow-hidden">
         <img
           src={bayHero}
@@ -161,7 +161,7 @@ const ProviderApplicationForm = () => {
           <Button
             asChild
             variant="ghost"
-            className="rounded-full border border-[#ddd0bf] bg-white/55 px-4 text-[#324347] hover:bg-white/80"
+            className="rounded-full !border-[#ddd0bf] !bg-white/[0.55] px-4 !text-[#324347] hover:!bg-white/80"
           >
             <Link to="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -180,27 +180,27 @@ const ProviderApplicationForm = () => {
 
         <header className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
           <div className="space-y-5">
-            <p className="text-sm font-black uppercase tracking-[0.26em] text-[#9f7d52]">
+            <p className="text-sm font-black uppercase tracking-[0.26em] !text-[#9f7d52]">
               {t("providerApplication.eyebrow")}
             </p>
-            <h1 className="max-w-4xl [font-family:Iowan_Old_Style,Palatino_Linotype,Book_Antiqua,Georgia,serif] text-[2.8rem] leading-[0.97] tracking-[-0.04em] text-[#1f2d2f] md:text-[4.6rem]">
+            <h1 className="max-w-4xl [font-family:Iowan_Old_Style,Palatino_Linotype,Book_Antiqua,Georgia,serif] text-[2.8rem] leading-[0.97] tracking-[-0.04em] !text-[#1f2d2f] md:text-[4.6rem]">
               {t("providerApplication.title")}
             </h1>
-            <p className="max-w-2xl text-base leading-8 text-[#5c605d] md:text-[1.04rem]">
+            <p className="max-w-2xl text-base leading-8 !text-[#5c605d] md:text-[1.04rem]">
               {t("providerApplication.description")}
             </p>
           </div>
 
-          <div className="rounded-[28px] border border-[#e8ded0] bg-white/78 p-5 shadow-[0_24px_70px_rgba(38,33,28,0.08)] backdrop-blur-sm">
+          <div className="rounded-[28px] border !border-[#e8ded0] !bg-white/[0.78] p-5 shadow-[0_24px_70px_rgba(38,33,28,0.08)] backdrop-blur-sm">
             <div className="flex gap-3">
-              <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] bg-[#0b8c87]/10 text-[#0b8c87]">
+              <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] !bg-[#0b8c87]/10 !text-[#0b8c87]">
                 <CheckCircle2 className="h-5 w-5" />
               </div>
               <div>
-                <p className="font-bold text-[#233236]">
+                <p className="font-bold !text-[#233236]">
                   {t("providerApplication.approvedTitle")}
                 </p>
-                <p className="mt-1 text-sm leading-6 text-[#6f7069]">
+                <p className="mt-1 text-sm leading-6 !text-[#6f7069]">
                   {t("providerApplication.approvedDescription")}
                 </p>
               </div>
@@ -216,7 +216,7 @@ const ProviderApplicationForm = () => {
             >
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div className="space-y-2.5">
-                  <Label htmlFor="fullName" className="text-sm font-semibold text-[#3b4a4d]">
+                  <Label htmlFor="fullName" className="text-sm font-semibold !text-[#3b4a4d]">
                     {t("providerApplication.legalName")}
                   </Label>
                   <Input
@@ -229,11 +229,11 @@ const ProviderApplicationForm = () => {
                 </div>
 
                 <div className="space-y-2.5">
-                  <Label htmlFor="email" className="text-sm font-semibold text-[#3b4a4d]">
+                  <Label htmlFor="email" className="text-sm font-semibold !text-[#3b4a4d]">
                     {t("providerApplication.email")}
                   </Label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8e8b84]" />
+                    <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 !text-[#8e8b84]" />
                     <Input
                       id="email"
                       value={form.email}
@@ -246,11 +246,11 @@ const ProviderApplicationForm = () => {
                 </div>
 
                 <div className="space-y-2.5">
-                  <Label htmlFor="phone" className="text-sm font-semibold text-[#3b4a4d]">
+                  <Label htmlFor="phone" className="text-sm font-semibold !text-[#3b4a4d]">
                     {t("providerApplication.phone")}
                   </Label>
                   <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8e8b84]" />
+                    <Phone className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 !text-[#8e8b84]" />
                     <Input
                       id="phone"
                       value={form.phone}
@@ -263,7 +263,7 @@ const ProviderApplicationForm = () => {
                 </div>
 
                 <div className="space-y-2.5">
-                  <Label htmlFor="gender" className="text-sm font-semibold text-[#3b4a4d]">
+                  <Label htmlFor="gender" className="text-sm font-semibold !text-[#3b4a4d]">
                     {t("providerApplication.representativeGender")}
                   </Label>
                   <Select
@@ -277,7 +277,7 @@ const ProviderApplicationForm = () => {
                         placeholder={t("providerApplication.chooseGender")}
                       />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="dark:border-[#e6dac9] dark:bg-white dark:text-[#213033]">
                       <SelectItem value="MALE">
                         {t("providerApplication.male")}
                       </SelectItem>
@@ -298,11 +298,11 @@ const ProviderApplicationForm = () => {
               icon={Briefcase}
             >
               <div className="space-y-2.5">
-                <Label htmlFor="address" className="text-sm font-semibold text-[#3b4a4d]">
+                <Label htmlFor="address" className="text-sm font-semibold !text-[#3b4a4d]">
                   {t("providerApplication.address")}
                 </Label>
                 <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8e8b84]" />
+                  <MapPin className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 !text-[#8e8b84]" />
                   <Input
                     id="address"
                     value={form.address}
@@ -318,17 +318,17 @@ const ProviderApplicationForm = () => {
               title={t("providerApplication.documentSection")}
               icon={UploadCloud}
             >
-              <div className="overflow-hidden rounded-[24px] border border-[#ebdfcf] bg-white shadow-sm">
-                <div className="border-b border-[#f0e6d9] bg-[#fbf7f0] px-5 py-4">
+              <div className="overflow-hidden rounded-[24px] border !border-[#ebdfcf] !bg-white shadow-sm">
+                <div className="border-b !border-[#f0e6d9] !bg-[#fbf7f0] px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] bg-[#0b8c87]/10 text-[#0b8c87]">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] !bg-[#0b8c87]/10 !text-[#0b8c87]">
                       <FileCheck2 className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-sm font-black uppercase tracking-[0.18em] text-[#9f7d52]">
+                      <p className="text-sm font-black uppercase tracking-[0.18em] !text-[#9f7d52]">
                         {t("providerApplication.policyTitle")}
                       </p>
-                      <p className="mt-1 text-sm text-[#6f7069]">
+                      <p className="mt-1 text-sm !text-[#6f7069]">
                         {t("providerApplication.policyDescription")}
                       </p>
                     </div>
@@ -337,12 +337,12 @@ const ProviderApplicationForm = () => {
 
                 {providerPolicy ? (
                   <div className="space-y-4 p-5">
-                    <div className="flex flex-col gap-4 rounded-[22px] border border-[#efe5d8] bg-[#fbf8f2] p-4 md:flex-row md:items-center md:justify-between">
+                    <div className="flex flex-col gap-4 rounded-[22px] border !border-[#efe5d8] !bg-[#fbf8f2] p-4 md:flex-row md:items-center md:justify-between">
                       <div className="min-w-0">
-                        <p className="truncate font-bold text-[#243437]">
+                        <p className="truncate font-bold !text-[#243437]">
                           {providerPolicy.title}
                         </p>
-                        <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b857c]">
+                        <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] !text-[#8b857c]">
                           {t("providerApplication.policyFileNote")}
                         </p>
                       </div>
@@ -351,14 +351,14 @@ const ProviderApplicationForm = () => {
                         href={providerPolicy.fileUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-[#0b8c87] px-4 text-sm font-bold text-white shadow-sm hover:bg-[#09726e]"
+                        className="inline-flex h-11 shrink-0 items-center justify-center rounded-full !bg-[#0b8c87] px-4 text-sm font-bold !text-white shadow-sm hover:!bg-[#09726e]"
                       >
                         <ExternalLink className="mr-2 h-4 w-4" />
                         {t("providerApplication.openPolicy")}
                       </a>
                     </div>
 
-                    <label className="flex cursor-pointer items-start gap-3 rounded-[22px] border border-[#e6dccd] bg-[#fcfaf5] p-4 text-sm font-semibold text-[#4a5658] transition hover:border-[#d8c7b2] hover:bg-[#f7f4ed]">
+                    <label className="flex cursor-pointer items-start gap-3 rounded-[22px] border !border-[#e6dccd] !bg-[#fcfaf5] p-4 text-sm font-semibold !text-[#4a5658] transition hover:!border-[#d8c7b2] hover:!bg-[#f7f4ed]">
                       <Checkbox
                         checked={acceptedPolicy}
                         onCheckedChange={(checked) =>
@@ -373,7 +373,7 @@ const ProviderApplicationForm = () => {
                   </div>
                 ) : (
                   <div className="p-5">
-                    <p className="rounded-[20px] bg-amber-50 p-4 text-sm font-semibold text-amber-700">
+                    <p className="rounded-[20px] !bg-amber-50 p-4 text-sm font-semibold !text-amber-700">
                       {t("providerApplication.noPolicy")}
                     </p>
                   </div>
@@ -386,13 +386,13 @@ const ProviderApplicationForm = () => {
 
           <aside className="space-y-6 lg:col-span-4">
             <div className="sticky top-8 space-y-6">
-              <div className="relative overflow-hidden rounded-[30px] bg-[#112225] p-6 text-white shadow-[0_24px_70px_rgba(17,34,37,0.22)]">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(246,210,165,0.18),transparent_28%)]" />
+              <div className="relative overflow-hidden rounded-[30px] border border-[#d8cfbf] bg-[linear-gradient(145deg,#f7f1e6_0%,#e9f5f1_100%)] p-6 text-[#213033] shadow-[0_24px_70px_rgba(17,34,37,0.12)] dark:border-[#d8cfbf] dark:bg-[linear-gradient(145deg,#f7f1e6_0%,#e9f5f1_100%)] dark:text-[#213033]">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(246,210,165,0.18),transparent_28%)] dark:bg-[radial-gradient(circle_at_top_right,rgba(246,210,165,0.18),transparent_28%)]" />
                 <div className="relative z-10">
-                  <h3 className="[font-family:Iowan_Old_Style,Palatino_Linotype,Book_Antiqua,Georgia,serif] text-[1.8rem] leading-tight tracking-[-0.03em] text-[#f7ead8]">
+                  <h3 className="[font-family:Iowan_Old_Style,Palatino_Linotype,Book_Antiqua,Georgia,serif] text-[1.8rem] leading-tight tracking-[-0.03em] text-[#1f2d2f] dark:text-[#1f2d2f]">
                     {t("providerApplication.checklistTitle")}
                   </h3>
-                  <div className="mt-5 space-y-3 text-sm leading-6 text-white/72">
+                  <div className="mt-5 space-y-3 text-sm leading-6 text-[#5c605d] dark:text-[#5c605d]">
                     <p>{t("providerApplication.checklistEmail")}</p>
                     <p>{t("providerApplication.checklistDocument")}</p>
                     <p>{t("providerApplication.checklistCloudinary")}</p>
@@ -403,7 +403,7 @@ const ProviderApplicationForm = () => {
               <Button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="h-14 w-full rounded-full bg-[#0b8c87] text-base font-bold text-white shadow-[0_16px_32px_rgba(11,140,135,0.2)] hover:bg-[#09726e]"
+                className="h-14 w-full rounded-full bg-[#0b8c87] text-base font-bold text-white shadow-[0_16px_32px_rgba(11,140,135,0.2)] hover:bg-[#09726e] dark:bg-[#0b8c87] dark:text-white dark:hover:bg-[#09726e]"
               >
                 {isSubmitting
                   ? t("providerApplication.submitting")

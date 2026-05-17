@@ -136,6 +136,7 @@ export default function AITravelPlanner() {
   const routeLocation = useLocation();
   const { t } = useI18n();
   const resultSectionRef = useRef(null);
+  const [origin, setOrigin] = useState("Hà Nội, Việt Nam");
   const [destination, setDestination] = useState("Kyoto, Japan");
   const [startDate, setStartDate] = useState(null);
   const [duration, setDuration] = useState(3);
@@ -183,13 +184,15 @@ export default function AITravelPlanner() {
     setSentToProviders(
       ["PUBLISHED", "PROPOSED", "APPROVED", "REJECTED", "CONVERTED"].includes(selectedTour.status),
     );
+    setOrigin(selectedTour.origin || "");
     setDestination(selectedTour.location || "");
     setDuration(selectedTour.numberOfDay || 3);
     setBudget(
       String(
-        (Number(selectedTour.price?.ADULT) || 0) +
-          (Number(selectedTour.price?.CHILD) || 0) +
-          (Number(selectedTour.price?.INFANT) || 0),
+        Number(selectedTour.budget) ||
+          (Number(selectedTour.price?.ADULT) || 0) +
+            (Number(selectedTour.price?.CHILD) || 0) +
+            (Number(selectedTour.price?.INFANT) || 0),
       ),
     );
     setDescribe(selectedTour.description || "");
@@ -239,6 +242,7 @@ export default function AITravelPlanner() {
       setGenerateError("");
 
       const payload = {
+        origin,
         destination,
         startDate: startDate?.toISOString() ?? null,
         budget: Number(budget) || 0,
@@ -249,7 +253,11 @@ export default function AITravelPlanner() {
 
       const response = await callAi(payload);
       const data = extractJson(response.data.data);
-      setItinerary(data);
+      setItinerary({
+        ...data,
+        origin,
+        budget: Number(budget) || 0,
+      });
       setSavedTripId(null);
       setSentToProviders(false);
     } catch (error) {
@@ -344,6 +352,7 @@ export default function AITravelPlanner() {
       <div className="min-h-[calc(100vh-5rem)]">
         <main className="flex min-h-[calc(100vh-5rem)] flex-1 flex-col overflow-visible xl:flex-row">
           <PlannerSidebar
+            origin={origin}
             budget={budget}
             isGenerating={isGenerating}
             quantity={quantity}
@@ -352,6 +361,7 @@ export default function AITravelPlanner() {
             handleGenerateTour={handleGenerateTour}
             onBudgetChange={setBudget}
             onCompanionChange={handleChangeCompanion}
+            onOriginChange={setOrigin}
             onDestinationChange={setDestination}
             onDurationChange={handleChangeDuration}
             onStartDateChange={handleChangeStartDate}

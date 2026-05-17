@@ -490,6 +490,11 @@ const Header = () => {
                             days: item.numberOfDay || 1,
                           })}
                         </p>
+                        {item.status === "CLAIMED" ? (
+                          <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-600">
+                            Đang giữ request
+                          </p>
+                        ) : null}
                       </div>
                     </div>
                   </DropdownMenuItem>

@@ -31,6 +31,7 @@ const tourSchema = new Schema(
             index: true,
         },
 
+        origin: { type: String, default: null, trim: true },
         location: { type: String, default: null, trim: true },
         name: { type: String, default: null, trim: true },
         description: { type: String, default: null },
@@ -50,6 +51,11 @@ const tourSchema = new Schema(
             adult: { type: Number, default: 0, min: 0 },
             child: { type: Number, default: 0, min: 0 },
             infant: { type: Number, default: 0, min: 0 },
+        },
+        requestedBudget: {
+            type: Number,
+            default: 0,
+            min: 0,
         },
         privateMultiplier: {
             type: Number,

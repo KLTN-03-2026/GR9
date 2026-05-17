@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useMotionValueEvent, useScroll, useTransform } from "framer-motion";
 import {
@@ -7,6 +7,7 @@ import {
   Check,
   ChevronRight,
   Compass,
+  Menu,
   MapPinned,
   ShieldCheck,
   Sparkles,
@@ -21,9 +22,18 @@ import hueImperialDusk from "@/assets/redesign/hue-imperial-dusk.png";
 import sapaMistTerraces from "@/assets/redesign/sapa-mist-terraces-v2.png";
 import ChatBotWidget from "@/pages/Traveler/ChatBot/ChatBotWidget";
 import { landingChatbotProps } from "@/pages/Traveler/ChatBot/chatbot.data";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import BrandLogo from "@/components/shared/brand-logo";
 import LanguageToggle from "@/components/shared/language-toggle";
 import ThemeModeToggle from "@/components/shared/theme-mode-toggle";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import AuthContext from "@/context/authContext";
 import { useI18n } from "@/i18n/I18nProvider";
 
 const fadeUp = {
@@ -595,11 +605,13 @@ const buildCopy = (language) =>
       };
 
 export default function LandingHome() {
+  const { user } = useContext(AuthContext);
   const { language } = useI18n();
   const copy = useMemo(() => buildCopy(language), [language]);
   const [activeJourney, setActiveJourney] = useState(copy.journeys.filters[0].id);
   const [activeNav, setActiveNav] = useState(copy.nav[0].id);
   const [headerScrolled, setHeaderScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const heroRef = useRef(null);
   const storyRef = useRef(null);
   const testimonialRef = useRef(null);
@@ -607,6 +619,36 @@ export default function LandingHome() {
   const startLabel = language === "vi" ? "Bắt đầu" : "Start";
   const partnerPrimaryLabel =
     language === "vi" ? "Trở thành đối tác" : "Become a partner";
+  const currentRole = String(user?.user?.role || "").toUpperCase();
+  const isTraveler = currentRole === "TRAVELER";
+  const isStaffRole = ["ADMIN", "PROVIDER", "GUIDE"].includes(currentRole);
+  const userDashboardPath =
+    currentRole === "ADMIN"
+      ? "/admin"
+      : currentRole === "PROVIDER"
+        ? "/provider"
+        : currentRole === "GUIDE"
+          ? "/guide"
+          : "/traveler";
+  const travelerAvatarFallback =
+    String(user?.user?.fullName || "T")
+      .trim()
+      .charAt(0)
+      .toUpperCase() || "T";
+  const dashboardButtonLabel =
+    language === "vi"
+      ? currentRole === "ADMIN"
+        ? "Về Admin Dashboard"
+        : currentRole === "PROVIDER"
+          ? "Về Provider Dashboard"
+          : "Về Guide Dashboard"
+      : currentRole === "ADMIN"
+        ? "Go to Admin Dashboard"
+        : currentRole === "PROVIDER"
+          ? "Go to Provider Dashboard"
+          : "Go to Guide Dashboard";
+  const travelerProfileLabel = language === "vi" ? "Hồ sơ của tôi" : "My profile";
+  const travelerWorkspaceLabel = language === "vi" ? "Về Traveler Dashboard" : "Go to Traveler Dashboard";
 
   const { scrollY } = useScroll();
   const { scrollYProgress: heroProgress } = useScroll({
@@ -662,6 +704,7 @@ export default function LandingHome() {
 
   const scrollToSection = (sectionId) => {
     setActiveNav(sectionId);
+    setMobileMenuOpen(false);
     document.getElementById(sectionId)?.scrollIntoView({
       behavior: "smooth",
       block: "start",
@@ -683,12 +726,12 @@ export default function LandingHome() {
         className="fixed inset-x-0 top-3 z-50 px-4 sm:top-4 sm:px-6 lg:px-8"
       >
         <div
-          className="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-5 rounded-[20px] border border-[#dfd7cb] bg-white/86 px-4 py-3 text-[#213033] shadow-[0_20px_48px_rgba(22,30,31,0.08)] backdrop-blur-2xl transition-colors dark:border-white/14 dark:bg-[#12191b]/88 dark:text-white sm:px-5"
+          className="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-3 rounded-[20px] border border-[#dfd7cb] bg-white/86 px-3 py-2.5 text-[#213033] shadow-[0_20px_48px_rgba(22,30,31,0.08)] backdrop-blur-2xl transition-colors dark:border-white/14 dark:bg-[#12191b]/88 dark:text-white sm:gap-5 sm:px-5 sm:py-3"
         >
           <Link to="/" className="shrink-0">
             <>
               <div className="sm:hidden">
-                <BrandLogo className="gap-2" iconClassName="size-8" />
+                <BrandLogo showText={false} iconClassName="size-8" />
               </div>
               <div className="hidden sm:block">
                 <BrandLogo
@@ -717,25 +760,170 @@ export default function LandingHome() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
-            <ThemeModeToggle className="!h-10 !w-[74px] !border-[#d9ddd7] !bg-white !shadow-none hover:!bg-[#f5f4ef] dark:!border-white/14 dark:!bg-[#1a2426] dark:hover:!bg-[#223033]" />
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <ThemeModeToggle className="!h-9 !w-[66px] !border-[#d9ddd7] !bg-white !shadow-none hover:!bg-[#f5f4ef] dark:!border-white/14 dark:!bg-[#1a2426] dark:hover:!bg-[#223033] sm:!h-10 sm:!w-[74px]" />
             <LanguageToggle
-              className="!h-10 !rounded-full !border-[#d9ddd7] !bg-white !px-3.5 !text-[#213033] hover:!bg-[#f5f4ef] dark:!border-white/14 dark:!bg-[#1a2426] dark:!text-white dark:hover:!bg-[#223033]"
+              className="hidden !h-9 !rounded-full !border-[#d9ddd7] !bg-white !px-3 !text-[#213033] hover:!bg-[#f5f4ef] dark:!border-white/14 dark:!bg-[#1a2426] dark:!text-white dark:hover:!bg-[#223033] sm:!h-10 sm:!px-3.5 md:!inline-flex"
             />
             <Link
               to="/login"
-              className="hidden items-center rounded-full border border-[#d8cdbd] bg-white px-4 py-2.5 text-sm font-semibold text-[#324347] transition hover:bg-[#f8f4ec] dark:border-white/14 dark:bg-[#1a2426] dark:text-white/84 dark:hover:bg-[#223033] lg:inline-flex"
+              className={`hidden items-center rounded-full border border-[#d8cdbd] bg-white px-4 py-2.5 text-sm font-semibold text-[#324347] transition hover:bg-[#f8f4ec] dark:border-white/14 dark:bg-[#1a2426] dark:text-white/84 dark:hover:bg-[#223033] xl:inline-flex ${isTraveler || isStaffRole ? "!hidden" : ""}`}
             >
               {loginLabel}
             </Link>
             <Link
               to="/signup"
-              className="hidden items-center rounded-full bg-[#efe6d8] px-4 py-2.5 text-sm font-semibold text-[#324347] transition hover:bg-[#e6dbc9] dark:bg-white/10 dark:text-white dark:hover:bg-white/14 lg:inline-flex"
+              className={`hidden items-center rounded-full bg-[#efe6d8] px-4 py-2.5 text-sm font-semibold text-[#324347] transition hover:bg-[#e6dbc9] dark:bg-white/10 dark:text-white dark:hover:bg-white/14 xl:inline-flex ${isTraveler || isStaffRole ? "!hidden" : ""}`}
             >
               {startLabel}
             </Link>
+            {isTraveler ? (
+              <Link
+                to="/traveler/profile"
+                className="hidden items-center xl:inline-flex"
+                aria-label={travelerProfileLabel}
+              >
+                <Avatar className="size-11 rounded-full border border-[#d8cdbd] shadow-sm dark:border-white/14">
+                  <AvatarImage src={user?.user?.avatarUrl} />
+                  <AvatarFallback className="bg-[#efe6d8] text-[#324347] dark:bg-white/10 dark:text-white">
+                    {travelerAvatarFallback}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
+            ) : null}
+            {isStaffRole ? (
+              <Link
+                to={userDashboardPath}
+                className="hidden items-center rounded-full bg-[#0d5c59] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#083f3d] dark:bg-[#0f7a74] dark:hover:bg-[#0c615d] xl:inline-flex"
+              >
+                {dashboardButtonLabel}
+              </Link>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#d9ddd7] bg-white text-[#213033] transition hover:bg-[#f5f4ef] dark:border-white/14 dark:bg-[#1a2426] dark:text-white dark:hover:bg-[#223033] xl:hidden"
+              aria-label={language === "vi" ? "Mở menu điều hướng" : "Open navigation menu"}
+            >
+              <Menu className="size-4.5" />
+            </button>
           </div>
         </div>
+
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetContent
+            side="right"
+            className="w-full border-l border-[#dfd7cb] bg-[#fbf8f2] p-0 text-[#213033] dark:border-white/14 dark:bg-[#12191b] dark:text-white sm:max-w-sm"
+          >
+            <SheetHeader className="border-b border-[#e8dfd3] px-5 py-5 text-left dark:border-white/10">
+              <div className="flex items-center justify-between gap-3 pr-10">
+                <BrandLogo className="gap-2" iconClassName="size-8" />
+              </div>
+              <SheetTitle className="pt-2 text-base font-semibold">
+                {language === "vi" ? "Điều hướng SmartTravel" : "SmartTravel navigation"}
+              </SheetTitle>
+              <SheetDescription className="text-sm text-[#5f7274] dark:text-white/62">
+                {language === "vi"
+                  ? "Khám phá các điểm đến, câu chuyện và bắt đầu hành trình AI của bạn."
+                  : "Explore destinations, stories, and start your AI-planned journey."}
+              </SheetDescription>
+            </SheetHeader>
+
+            <div className="flex flex-1 flex-col overflow-y-auto px-5 py-5">
+              <div className="mb-5 flex items-center gap-3">
+                <ThemeModeToggle className="!h-10 !w-[74px] !border-[#d9ddd7] !bg-white !shadow-none hover:!bg-[#f5f4ef] dark:!border-white/14 dark:!bg-[#1a2426] dark:hover:!bg-[#223033]" />
+                <LanguageToggle className="!h-10 !rounded-full !border-[#d9ddd7] !bg-white !px-3.5 !text-[#213033] hover:!bg-[#f5f4ef] dark:!border-white/14 dark:!bg-[#1a2426] dark:!text-white dark:hover:!bg-[#223033]" />
+              </div>
+
+              <nav className="grid gap-2">
+                {copy.nav.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => scrollToSection(item.id)}
+                    className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-medium transition ${
+                      activeNav === item.id
+                        ? "border-[#d5c3a8] bg-white text-[#0d5c59] shadow-sm dark:border-[#c6b08b]/40 dark:bg-white/8 dark:text-white"
+                        : "border-[#e8dfd3] bg-white/72 text-[#314446] hover:border-[#d5c3a8] hover:text-[#0d5c59] dark:border-white/10 dark:bg-white/4 dark:text-white/76 dark:hover:bg-white/8 dark:hover:text-white"
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    <ChevronRight className="size-4 opacity-70" />
+                  </button>
+                ))}
+              </nav>
+
+              <div className="mt-6 grid gap-3">
+                {isTraveler ? (
+                  <>
+                    <div className="flex items-center gap-3 rounded-[22px] border border-[#e8dfd3] bg-white/72 px-4 py-3 dark:border-white/10 dark:bg-white/4">
+                      <Avatar className="size-11 rounded-full border border-[#d8cdbd] shadow-sm dark:border-white/14">
+                        <AvatarImage src={user?.user?.avatarUrl} />
+                        <AvatarFallback className="bg-[#efe6d8] text-[#324347] dark:bg-white/10 dark:text-white">
+                          {travelerAvatarFallback}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-[#213033] dark:text-white">
+                          {user?.user?.fullName || "Traveler"}
+                        </p>
+                        <p className="truncate text-xs text-[#5f7274] dark:text-white/62">
+                          {user?.user?.email || ""}
+                        </p>
+                      </div>
+                    </div>
+                    <Link
+                      to="/traveler/profile"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[#d8cdbd] bg-white px-4 py-2.5 text-sm font-semibold text-[#324347] transition hover:bg-[#f8f4ec] dark:border-white/14 dark:bg-[#1a2426] dark:text-white/84 dark:hover:bg-[#223033]"
+                    >
+                      {travelerProfileLabel}
+                    </Link>
+                    <Link
+                      to="/traveler"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="inline-flex min-h-[48px] items-center justify-center rounded-full bg-[#0d5c59] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#083f3d] dark:bg-[#0f7a74] dark:hover:bg-[#0c615d]"
+                    >
+                      {travelerWorkspaceLabel}
+                    </Link>
+                  </>
+                ) : isStaffRole ? (
+                  <Link
+                    to={userDashboardPath}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="inline-flex min-h-[48px] items-center justify-center rounded-full bg-[#0d5c59] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#083f3d] dark:bg-[#0f7a74] dark:hover:bg-[#0c615d]"
+                  >
+                    {dashboardButtonLabel}
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[#d8cdbd] bg-white px-4 py-2.5 text-sm font-semibold text-[#324347] transition hover:bg-[#f8f4ec] dark:border-white/14 dark:bg-[#1a2426] dark:text-white/84 dark:hover:bg-[#223033]"
+                    >
+                      {loginLabel}
+                    </Link>
+                    <Link
+                      to="/signup"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="inline-flex min-h-[48px] items-center justify-center rounded-full bg-[#efe6d8] px-4 py-2.5 text-sm font-semibold text-[#324347] transition hover:bg-[#e6dbc9] dark:bg-white/10 dark:text-white dark:hover:bg-white/14"
+                    >
+                      {startLabel}
+                    </Link>
+                    <Link
+                      to="/apply-provider"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="inline-flex min-h-[48px] items-center justify-center rounded-full bg-[#0d5c59] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#083f3d] dark:bg-[#0f7a74] dark:hover:bg-[#0c615d]"
+                    >
+                      {partnerPrimaryLabel}
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </motion.header>
 
       <main className="overflow-hidden">

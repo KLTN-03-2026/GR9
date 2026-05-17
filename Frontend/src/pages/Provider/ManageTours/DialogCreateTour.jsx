@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
     Dialog,
     DialogContent,
@@ -29,6 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@/components/ui/spinner";
 import { formatCurrencyVND, formatPrice } from "@/utils/formatPrice";
 import { useI18n } from "@/i18n/I18nProvider";
+import DialogCreateService from "../ServiceManagement/DialogCreateService";
 
 const getServiceAdultPrice = (service) => service?.total?.find((item) => item.type === "ADULT")?.price ?? 0;
 
@@ -59,11 +60,14 @@ export default function DialogCreateTour({
     setExistingImages,
     newImages,
     setNewImages,
+    onServiceCreated,
 }) {
     const { t } = useI18n();
     const text = (key, values) => t(`provider.tours.dialog.${key}`, values);
     const [serviceLocationFilter, setServiceLocationFilter] = useState("");
     const [serviceSort, setServiceSort] = useState("name-asc");
+    const [createServiceTarget, setCreateServiceTarget] = useState(null);
+    const createServiceTargetRef = useRef(null);
     const getFilteredServices = (type, search = "") => {
         const searchText = search.trim().toLowerCase();
 
@@ -272,6 +276,37 @@ export default function DialogCreateTour({
     };
     const updateDayDescription = (dayIndex, value) => {
         setDays((prev) => prev.map((day, index) => (index === dayIndex ? { ...day, description: value } : day)));
+    };
+    const openCreateServiceDialog = (dayIndex, activityIndex, activity) => {
+        const target = {
+            dayIndex,
+            activityIndex,
+            initialValues: {
+                name: activity.search || activity.title || "",
+                type: "ACTIVITY",
+                address: tour.location || serviceLocationFilter || "",
+                aliases: activity.search || "",
+                status: "ACTIVE",
+            },
+        };
+        createServiceTargetRef.current = target;
+        setCreateServiceTarget(target);
+        updateActivity(dayIndex, activityIndex, { isFocus: false });
+    };
+    const handleCreatedService = (createdService) => {
+        onServiceCreated?.(createdService);
+
+        const target = createServiceTargetRef.current;
+        if (createdService?._id && target) {
+            updateActivity(target.dayIndex, target.activityIndex, {
+                serviceId: createdService._id,
+                search: createdService.name || "",
+                title: createdService.name || "",
+                image: createdService.image || "",
+                isFocus: false,
+            });
+        }
+        createServiceTargetRef.current = null;
     };
     return (
         <>
@@ -509,7 +544,7 @@ export default function DialogCreateTour({
                                                                 </div>
 
                                                                 {activity.isFocus && (
-                                                                    <div className="absolute z-50 mt-2 w-full rounded-xl border border-slate-200 bg-white shadow-lg">
+                                                                    <div className="absolute z-50 mt-2 w-full rounded-xl border border-outline-variant/25 bg-surface-container-lowest shadow-lg">
                                                                         <div className="max-h-56 overflow-y-auto">
                                                                             {filteredServices.length > 0 ? (
                                                                                 filteredServices.map((s) => {
@@ -520,7 +555,8 @@ export default function DialogCreateTour({
                                                                                     return (
                                                                                         <div
                                                                                             key={s._id}
-                                                                                            onClick={() => {
+                                                                                            onMouseDown={(event) => {
+                                                                                                event.preventDefault();
                                                                                                 updateActivity(
                                                                                                     dayIndex,
                                                                                                     activityIndex,
@@ -534,7 +570,7 @@ export default function DialogCreateTour({
                                                                                                     },
                                                                                                 );
                                                                                             }}
-                                                                                            className="cursor-pointer px-4 py-3 hover:bg-slate-100"
+                                                                                            className="cursor-pointer px-4 py-3 hover:bg-surface-container-low"
                                                                                         >
                                                                                             <div className="flex justify-between">
                                                                                                 <span className="font-medium">
@@ -560,9 +596,27 @@ export default function DialogCreateTour({
                                                                                     );
                                                                                 })
                                                                             ) : (
-                                                                                <p className="p-3 text-sm text-slate-400">
-                                                                                    No service found
-                                                                                </p>
+                                                                                <div className="space-y-3 p-3">
+                                                                                    <p className="text-sm text-on-surface-variant">
+                                                                                        Không tìm thấy service phù hợp.
+                                                                                    </p>
+                                                                                    <Button
+                                                                                        type="button"
+                                                                                        variant="outline"
+                                                                                        onMouseDown={(event) => {
+                                                                                            event.preventDefault();
+                                                                                            openCreateServiceDialog(
+                                                                                                dayIndex,
+                                                                                                activityIndex,
+                                                                                                activity,
+                                                                                            );
+                                                                                        }}
+                                                                                        className="h-10 w-full rounded-xl border-primary/25 bg-primary/5 font-bold text-primary hover:bg-primary/10"
+                                                                                    >
+                                                                                        <CirclePlus className="size-4" />
+                                                                                        Tạo service mới
+                                                                                    </Button>
+                                                                                </div>
                                                                             )}
                                                                         </div>
                                                                     </div>
@@ -1210,6 +1264,17 @@ export default function DialogCreateTour({
                     </DialogDescription>
                 </DialogContent>
             </Dialog>
+            <DialogCreateService
+                open={!!createServiceTarget}
+                setOpen={(nextOpen) => {
+                    if (!nextOpen) setCreateServiceTarget(null);
+                }}
+                initialValues={createServiceTarget?.initialValues}
+                onCreated={handleCreatedService}
+                title="Tạo service mới cho tour"
+                description="Service sau khi tạo sẽ tự được chọn vào hoạt động hiện tại."
+                successMessage="Đã tạo service và thêm vào hoạt động."
+            />
         </>
     );
 }

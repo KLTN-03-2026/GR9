@@ -40,6 +40,10 @@ export default function GuideLiveTourTracking() {
 
   const handleUpdateActivityStatus = async (activityId, statusActivity) => {
     if (!tracking?.bookingId || !activityId) return;
+    if (tracking.status === "completed") {
+      toast.error("Tour đã kết thúc, không thể cập nhật live tracking");
+      return;
+    }
 
     setUpdatingActivityId(activityId);
     try {
@@ -84,7 +88,11 @@ export default function GuideLiveTourTracking() {
                 {t("guidePages.liveTracking.contactOperations")}
               </Button>
               <Button className="h-11 rounded-2xl bg-primary px-5 font-semibold text-on-primary shadow-md shadow-primary/10">
-                {tracking?.status === "ongoing" ? t("guidePages.liveTracking.tourActive") : t("guidePages.liveTracking.upcomingTour")}
+                {tracking?.status === "completed"
+                  ? "Tour đã kết thúc"
+                  : tracking?.status === "ongoing"
+                    ? t("guidePages.liveTracking.tourActive")
+                    : t("guidePages.liveTracking.upcomingTour")}
               </Button>
             </div>
           }

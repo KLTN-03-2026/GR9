@@ -19,7 +19,7 @@ function SocialButton({ loading, onClick, idleLabel, loadingLabel }) {
       type="button"
       onClick={onClick}
       disabled={loading}
-      className="h-13 w-full rounded-[18px] border border-white/16 bg-transparent text-white shadow-none transition hover:bg-white/[0.05]"
+      className="h-auto min-h-13 w-full rounded-[18px] border border-white/16 bg-transparent px-4 py-3 text-white shadow-none transition hover:bg-white/[0.05]"
     >
       {loading ? (
         <span className="inline-flex items-center gap-2 text-[0.98rem] font-semibold">
@@ -91,19 +91,19 @@ export default function RegisterForm({
 
   return (
     <form
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-3.5 sm:gap-4"
       onSubmit={(event) => {
         event.preventDefault();
         handleSignUpUser();
       }}
     >
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-4 sm:gap-5">
         <FieldShell icon={UserRound}>
           <Input
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
             placeholder={copy.fullNameLabel}
-            className="h-13 rounded-[18px] border-white/16 bg-white/[0.03] pl-12 pr-4 text-[0.98rem] text-white placeholder:text-[#a4b0b1] focus-visible:border-[#d8b98f] focus-visible:ring-[#d8b98f]/15"
+            className="h-12 rounded-[18px] border-white/16 bg-white/[0.03] pl-12 pr-4 text-sm text-white placeholder:text-[#a4b0b1] focus-visible:border-[#d8b98f] focus-visible:ring-[#d8b98f]/15 sm:h-13 sm:text-[0.98rem]"
           />
         </FieldShell>
 
@@ -113,7 +113,7 @@ export default function RegisterForm({
             onChange={(event) => setEmail(event.target.value)}
             type="email"
             placeholder={copy.emailLabel}
-            className="h-13 rounded-[18px] border-white/16 bg-white/[0.03] pl-12 pr-4 text-[0.98rem] text-white placeholder:text-[#a4b0b1] focus-visible:border-[#d8b98f] focus-visible:ring-[#d8b98f]/15"
+            className="h-12 rounded-[18px] border-white/16 bg-white/[0.03] pl-12 pr-4 text-sm text-white placeholder:text-[#a4b0b1] focus-visible:border-[#d8b98f] focus-visible:ring-[#d8b98f]/15 sm:h-13 sm:text-[0.98rem]"
           />
         </FieldShell>
 
@@ -136,7 +136,7 @@ export default function RegisterForm({
             onChange={(event) => setPassword(event.target.value)}
             type={showPassword ? "text" : "password"}
             placeholder={copy.passwordLabel}
-            className="h-13 rounded-[18px] border-white/16 bg-white/[0.03] pl-12 pr-13 text-[0.98rem] text-white placeholder:text-[#a4b0b1] focus-visible:border-[#d8b98f] focus-visible:ring-[#d8b98f]/15"
+            className="h-12 rounded-[18px] border-white/16 bg-white/[0.03] pl-12 pr-13 text-sm text-white placeholder:text-[#a4b0b1] focus-visible:border-[#d8b98f] focus-visible:ring-[#d8b98f]/15 sm:h-13 sm:text-[0.98rem]"
           />
         </FieldShell>
 
@@ -159,7 +159,7 @@ export default function RegisterForm({
             onChange={(event) => setConfirmPassword(event.target.value)}
             type={showPassword ? "text" : "password"}
             placeholder={copy.confirmPasswordLabel}
-            className="h-13 rounded-[18px] border-white/16 bg-white/[0.03] pl-12 pr-13 text-[0.98rem] text-white placeholder:text-[#a4b0b1] focus-visible:border-[#d8b98f] focus-visible:ring-[#d8b98f]/15"
+            className="h-12 rounded-[18px] border-white/16 bg-white/[0.03] pl-12 pr-13 text-sm text-white placeholder:text-[#a4b0b1] focus-visible:border-[#d8b98f] focus-visible:ring-[#d8b98f]/15 sm:h-13 sm:text-[0.98rem]"
           />
         </FieldShell>
       </div>
@@ -167,7 +167,7 @@ export default function RegisterForm({
       <Button
         disabled={loading}
         type="submit"
-        className="h-13 rounded-[18px] bg-[#0b8c87] text-[1rem] font-semibold text-white shadow-[0_18px_36px_rgba(11,140,135,0.18)] transition hover:bg-[#09726e]"
+        className="h-auto min-h-12 rounded-[18px] bg-[#0b8c87] px-4 py-3 text-sm font-semibold text-white shadow-[0_18px_36px_rgba(11,140,135,0.18)] transition hover:bg-[#09726e] sm:min-h-13 sm:text-[1rem]"
       >
         {loading ? (
           <span className="inline-flex items-center gap-2">
@@ -194,7 +194,7 @@ export default function RegisterForm({
         loadingLabel={copy.googleLoading}
       />
 
-      <p className="text-center text-sm text-white/56">
+      <p className="text-center text-xs leading-6 text-white/56 sm:text-sm">
         {copy.footerText}
         <Link
           to="/login"

@@ -24,10 +24,32 @@ const formatDateInputValue = (date) => {
   return `${year}-${month}-${day}`;
 };
 
+const formatDatePreview = (date) => {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+    return "Chưa chọn ngày khởi hành";
+  }
+
+  return new Intl.DateTimeFormat("vi-VN", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(date);
+};
+
+const getTodayInputValue = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 const formatCurrencyVND = (value) =>
   `${new Intl.NumberFormat("vi-VN").format(Number(value) || 0)} đ`;
 
 function PlannerSidebar({
+  origin,
   budget,
   isGenerating = false,
   quantity,
@@ -36,6 +58,7 @@ function PlannerSidebar({
   handleGenerateTour,
   onBudgetChange,
   onCompanionChange,
+  onOriginChange,
   onDestinationChange,
   onDurationChange,
   onStartDateChange,
@@ -59,6 +82,25 @@ function PlannerSidebar({
         <div className="space-y-8">
           <div className="space-y-2">
             <Label className="px-1 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+              Điểm đi
+            </Label>
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">
+                flight_takeoff
+              </span>
+              <Input
+                type="text"
+                value={origin}
+                disabled={isGenerating}
+                onChange={(e) => onOriginChange(e.target.value)}
+                placeholder="Ví dụ: Hà Nội, Việt Nam"
+                className="h-14 rounded-2xl border-outline-variant/20 bg-surface-container-lowest py-4 pl-12 pr-4 font-medium text-on-surface focus-visible:border-primary focus-visible:ring-primary/10"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="px-1 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               {t("planner.destination")}
             </Label>
             <div className="relative">
@@ -79,17 +121,31 @@ function PlannerSidebar({
             <Label className="px-1 text-xs font-bold uppercase tracking-widest text-on-surface-variant">
               {t("planner.startDate")}
             </Label>
-            <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">
-                calendar_month
-              </span>
+            <div className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-4 shadow-sm">
+              <div className="mb-3 flex items-center gap-3 rounded-2xl bg-primary/5 px-4 py-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <span className="material-symbols-outlined">calendar_month</span>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">
+                    Ngày đã chọn
+                  </p>
+                  <p className="truncate text-sm font-semibold text-on-surface">
+                    {formatDatePreview(startDate)}
+                  </p>
+                </div>
+              </div>
               <Input
                 type="date"
+                min={getTodayInputValue()}
                 value={formatDateInputValue(startDate)}
                 disabled={isGenerating}
                 onChange={(e) => onStartDateChange(e.target.value)}
-                className="h-14 rounded-2xl border-outline-variant/20 bg-surface-container-lowest pl-12 pr-4 font-medium text-on-surface focus-visible:border-primary focus-visible:ring-primary/10"
+                className="h-14 rounded-2xl border-outline-variant/20 bg-white px-4 font-medium text-on-surface focus-visible:border-primary focus-visible:ring-primary/10"
               />
+              <p className="mt-3 px-1 text-xs text-on-surface-variant">
+                Chỉ chọn từ ngày hiện tại trở đi để AI lên lịch trình phù hợp hơn.
+              </p>
             </div>
           </div>
 
