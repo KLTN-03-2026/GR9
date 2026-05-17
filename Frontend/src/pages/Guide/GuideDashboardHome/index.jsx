@@ -236,7 +236,7 @@ export default function GuideDashboardHome() {
   );
 
   return (
-    <main className="min-h-screen bg-[#f6f1e7] px-4 py-8 text-[#213033] md:px-8">
+    <main className="min-h-screen bg-surface px-4 py-8 text-on-surface md:px-8">
       <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-8 pb-12 pt-14">
         <PageHero
           eyebrow={copy.heroEyebrow}
@@ -250,7 +250,7 @@ export default function GuideDashboardHome() {
           }
           description={copy.description}
           meta={
-            <p className="flex items-center gap-2 text-[#666a65]">
+            <p className="flex items-center gap-2 text-on-surface-variant">
               <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#0b8c87]" />
               {assignedTours.length} {copy.toursAssigned}
             </p>
@@ -259,7 +259,7 @@ export default function GuideDashboardHome() {
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button
                 variant="secondary"
-                className="h-11 rounded-full bg-white px-5 text-sm font-semibold text-[#324347] hover:bg-[#f8f4ec]"
+                className="h-11 rounded-full bg-white px-5 text-sm font-semibold text-[#324347] hover:bg-[#f8f4ec] dark:bg-surface-container-lowest dark:text-on-surface dark:hover:bg-surface-container-high"
                 asChild
               >
                 <Link to="/guide/assigned-tours">{copy.scheduleView}</Link>
@@ -281,14 +281,14 @@ export default function GuideDashboardHome() {
             return (
               <Card
                 key={card.label}
-                className="rounded-[1.75rem] border border-[#e8ded0] bg-white/92 py-0 shadow-[0_20px_50px_rgba(38,33,28,0.06)]"
+                className="rounded-[1.75rem] border border-outline-variant/15 bg-surface-container-lowest py-0 shadow-[0_20px_50px_rgba(38,33,28,0.06)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.24)]"
               >
                 <CardContent className="flex h-full min-h-[10rem] flex-col justify-between p-6">
-                  <span className="text-xs font-bold uppercase tracking-[0.24em] text-[#8b857c]">
+                  <span className="text-xs font-bold uppercase tracking-[0.24em] text-on-surface-variant">
                     {card.label}
                   </span>
                   <div className="flex items-end justify-between">
-                    <span className="text-4xl font-black tracking-tight text-[#243437]">
+                    <span className="text-4xl font-black tracking-tight text-on-surface">
                       {card.value}
                     </span>
                     <div className={`rounded-[16px] p-3 ${card.iconBg}`}>
@@ -302,7 +302,7 @@ export default function GuideDashboardHome() {
         </section>
 
         <section className="space-y-6">
-          <h2 className="text-lg font-bold text-[#243437]">
+          <h2 className="text-lg font-bold text-on-surface">
             {copy.quickOperations}
           </h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -314,12 +314,12 @@ export default function GuideDashboardHome() {
                   key={action.title}
                   type="button"
                   onClick={action.onClick}
-                  className="group flex items-center gap-4 rounded-[1.75rem] border border-[#e8ded0] bg-white/90 p-5 text-left shadow-[0_18px_45px_rgba(38,33,28,0.05)] transition-all hover:-translate-y-0.5 hover:shadow-[0_22px_55px_rgba(38,33,28,0.08)]"
+                  className="group flex items-center gap-4 rounded-[1.75rem] border border-outline-variant/15 bg-surface-container-lowest p-5 text-left shadow-[0_18px_45px_rgba(38,33,28,0.05)] transition-all hover:-translate-y-0.5 hover:bg-surface-container-low hover:shadow-[0_22px_55px_rgba(38,33,28,0.08)] dark:shadow-[0_18px_45px_rgba(0,0,0,0.22)]"
                 >
                   <div className={`flex h-12 w-12 items-center justify-center rounded-full ${action.iconWrap}`}>
                     <Icon className="size-5" />
                   </div>
-                  <span className="font-semibold text-[#445154]">
+                  <span className="font-semibold text-on-surface">
                     {action.title}
                   </span>
                 </button>
@@ -330,7 +330,7 @@ export default function GuideDashboardHome() {
 
         <section className="space-y-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="[font-family:Iowan_Old_Style,Palatino_Linotype,Book_Antiqua,Georgia,serif] text-[2rem] leading-tight tracking-[-0.03em] text-[#243437]">
+            <h2 className="[font-family:Iowan_Old_Style,Palatino_Linotype,Book_Antiqua,Georgia,serif] text-[2rem] leading-tight tracking-[-0.03em] text-on-surface">
               {copy.todaysAssignedTours}
             </h2>
             <Button
@@ -347,7 +347,7 @@ export default function GuideDashboardHome() {
               {dashboardTours.map((tour) => (
                 <Card
                   key={tour.id}
-                  className="group overflow-hidden rounded-[2rem] border border-[#e8ded0] bg-white/92 py-0 shadow-[0_24px_70px_rgba(38,33,28,0.08)] transition-all hover:-translate-y-0.5 hover:shadow-[0_28px_80px_rgba(38,33,28,0.12)]"
+                  className="group overflow-hidden rounded-[2rem] border border-outline-variant/15 bg-surface-container-lowest py-0 shadow-[0_24px_70px_rgba(38,33,28,0.08)] transition-all hover:-translate-y-0.5 hover:shadow-[0_28px_80px_rgba(38,33,28,0.12)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.28)]"
                 >
                   <div className="flex flex-col md:flex-row">
                     <div className="h-52 w-full overflow-hidden md:h-auto md:w-72">
@@ -367,15 +367,15 @@ export default function GuideDashboardHome() {
                             >
                               {tour.shift}
                             </Badge>
-                            <h3 className="text-xl font-bold text-[#243437]">
+                            <h3 className="text-xl font-bold text-on-surface">
                               {tour.title}
                             </h3>
-                            <div className="mt-1 flex flex-wrap items-center gap-4 text-sm text-[#666a65]">
+                            <div className="mt-1 flex flex-wrap items-center gap-4 text-sm text-on-surface-variant">
                               <span className="flex items-center gap-1">
                                 <MapPin className="size-4" />
                                 {tour.location}
                               </span>
-                              <span className="font-mono font-semibold text-[#445154]">
+                              <span className="font-mono font-semibold text-on-surface">
                                 {tour.id}
                               </span>
                             </div>
@@ -391,33 +391,33 @@ export default function GuideDashboardHome() {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-4 border-t border-[#ece3d7] py-4 sm:grid-cols-3 sm:gap-6">
+                        <div className="grid grid-cols-1 gap-4 border-t border-outline-variant/15 py-4 sm:grid-cols-3 sm:gap-6">
                           <div className="flex flex-col">
-                            <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#8b857c]">
+                            <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
                               {copy.time}
                             </span>
-                            <span className="flex items-center gap-2 text-sm font-semibold text-[#324347]">
-                              <Clock3 className="size-4 text-[#8b857c]" />
+                            <span className="flex items-center gap-2 text-sm font-semibold text-on-surface">
+                              <Clock3 className="size-4 text-on-surface-variant" />
                               {tour.time}
                             </span>
                           </div>
 
                           <div className="flex flex-col">
-                            <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#8b857c]">
+                            <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
                               {copy.passengers}
                             </span>
-                            <span className="flex items-center gap-2 text-sm font-semibold text-[#324347]">
-                              <Users className="size-4 text-[#8b857c]" />
+                            <span className="flex items-center gap-2 text-sm font-semibold text-on-surface">
+                              <Users className="size-4 text-on-surface-variant" />
                               {tour.passengers}
                             </span>
                           </div>
 
                           <div className="flex flex-col">
-                            <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#8b857c]">
+                            <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant">
                               {tour.detailLabel}
                             </span>
-                            <span className="flex items-center gap-2 text-sm font-semibold text-[#324347]">
-                              <UtensilsCrossed className="size-4 text-[#8b857c]" />
+                            <span className="flex items-center gap-2 text-sm font-semibold text-on-surface">
+                              <UtensilsCrossed className="size-4 text-on-surface-variant" />
                               {tour.detailValue}
                             </span>
                           </div>
@@ -429,7 +429,7 @@ export default function GuideDashboardHome() {
                           variant={tour.primaryVariant}
                           className={
                             tour.primaryVariant === "outline"
-                              ? "h-11 flex-1 rounded-full border border-[#d8cab6] bg-white font-bold text-[#324347] hover:bg-[#f8f4ec]"
+                              ? "h-11 flex-1 rounded-full border border-outline-variant/25 bg-surface-container-lowest font-bold text-on-surface hover:bg-surface-container-low"
                               : "h-11 flex-1 rounded-full bg-[#0b8c87] font-bold text-white hover:bg-[#09726e]"
                           }
                           asChild
@@ -442,7 +442,7 @@ export default function GuideDashboardHome() {
                         <Button
                           variant="secondary"
                           size="icon"
-                          className="h-11 w-11 rounded-full border border-[#e8ded0] bg-[#fbf8f2] text-[#556063] hover:bg-[#f3eee5]"
+                          className="h-11 w-11 rounded-full border border-outline-variant/25 bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low"
                         >
                           <MoreHorizontal className="size-5" />
                         </Button>
@@ -453,12 +453,12 @@ export default function GuideDashboardHome() {
               ))}
             </div>
           ) : (
-            <Card className="rounded-[2rem] border border-[#e8ded0] bg-white/92 py-0 shadow-[0_24px_70px_rgba(38,33,28,0.08)]">
+            <Card className="rounded-[2rem] border border-outline-variant/15 bg-surface-container-lowest py-0 shadow-[0_24px_70px_rgba(38,33,28,0.08)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.28)]">
               <CardContent className="p-8">
-                <h3 className="text-xl font-bold text-[#243437]">
+                <h3 className="text-xl font-bold text-on-surface">
                   {copy.emptyTitle}
                 </h3>
-                <p className="mt-2 max-w-2xl text-sm leading-7 text-[#666a65]">
+                <p className="mt-2 max-w-2xl text-sm leading-7 text-on-surface-variant">
                   {copy.emptyDescription}
                 </p>
               </CardContent>

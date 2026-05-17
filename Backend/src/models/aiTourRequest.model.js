@@ -134,6 +134,8 @@ const aiTourRequestSchema = new Schema(
       type: participantPriceSchema,
       default: () => ({}),
     },
+    budget: { type: Number, default: 0, min: 0 },
+    origin: { type: String, default: null, trim: true },
     location: { type: String, default: null, trim: true },
     description: { type: String, default: null },
     numberOfDay: { type: Number, default: 1, min: 1 },

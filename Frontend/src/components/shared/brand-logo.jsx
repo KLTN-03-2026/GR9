@@ -97,8 +97,8 @@ export default function BrandLogo({
 }) {
   const primaryText = light ? "text-white" : "text-on-surface";
   const secondaryText = light ? "text-white/80" : "text-on-surface-variant";
-  const editorialPrimary = light ? "text-[#f4e8d5]" : "text-[#173234]";
-  const editorialSecondary = light ? "text-[#c8b89e]" : "text-[#6f7f81]";
+  const editorialPrimary = light ? "text-[#f4e8d5]" : "text-[#173234] dark:text-[#f4e8d5]";
+  const editorialSecondary = light ? "text-[#c8b89e]" : "text-[#6f7f81] dark:text-[#c8b89e]";
 
   if (variant === "editorial") {
     return (

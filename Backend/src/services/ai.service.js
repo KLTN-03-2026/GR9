@@ -241,6 +241,35 @@ const buildParticipantPriceMap = (totals = []) => {
   return map;
 };
 
+const sumParticipantPriceMaps = (...maps) =>
+  maps.reduce(
+    (acc, current) => ({
+      ADULT: acc.ADULT + (Number(current?.ADULT) || 0),
+      CHILD: acc.CHILD + (Number(current?.CHILD) || 0),
+      INFANT: acc.INFANT + (Number(current?.INFANT) || 0),
+    }),
+    { ADULT: 0, CHILD: 0, INFANT: 0 },
+  );
+
+const buildResolvedProviderTourPrice = (requiredServices = [], fallbackPrice = {}) => {
+  const servicePrice = (Array.isArray(requiredServices) ? requiredServices : []).reduce(
+    (acc, item) => {
+      if (!item?.matchedService) return acc;
+
+      const currentMap =
+        item?.confirmedMode === "sync_price"
+          ? item?.priceComparison?.sourcePrice || buildParticipantPriceMap(item?.source?.total)
+          : item?.priceComparison?.matchedPrice || buildParticipantPriceMap(item?.matchedService?.total);
+
+      return sumParticipantPriceMaps(acc, currentMap);
+    },
+    { ADULT: 0, CHILD: 0, INFANT: 0 },
+  );
+
+  const hasAnyResolvedPrice = Object.values(servicePrice).some((value) => Number(value) > 0);
+  return hasAnyResolvedPrice ? servicePrice : normalizeParticipantMap(fallbackPrice);
+};
+
 const compareServicePrices = (source = {}, service = {}) => {
   const sourcePrice = buildParticipantPriceMap(source?.total);
   const matchedPrice = buildParticipantPriceMap(service?.total);
@@ -280,6 +309,8 @@ const normalizeAiTourPayload = (tour = {}) => ({
   ...tour,
   quantity: normalizeParticipantMap(tour.quantity),
   price: normalizeParticipantMap(tour.price),
+  budget: Math.max(Number(tour.budget) || 0, 0),
+  origin: tour.origin || null,
   startDay: tour.startDay ? new Date(tour.startDay) : null,
   hotelServiceId: normalizeAiServiceSource(tour.hotelServiceId),
   transportServiceId: normalizeAiServiceSource(tour.transportServiceId),
@@ -603,6 +634,7 @@ const findMissingProviderServices = async (providerId, request) => {
 
 export const generateItinerary = async (data) => {
   try {
+    const origin = data?.origin || data?.departure || data?.from || "";
     const destination = data?.destination || "Da Nang";
     const numberDay = data?.numberDay ?? data?.duration ?? 3;
     const budget = Number(data?.budget) || 5000000;
@@ -614,6 +646,7 @@ export const generateItinerary = async (data) => {
       Tạo 1 tour du lịch bằng JSON hợp lệ, không markdown, không giải thích.
 
       Input:
+      - origin: "${origin}"
       - destination: "${destination}"
       - numberDay: ${numberDay}
       - budget: ${budget}
@@ -623,11 +656,27 @@ export const generateItinerary = async (data) => {
 
       Quy tắc:
       - Bám model Tour: location, description, numberOfDay, type, price, isActive, itineraries.
+      - Thêm field origin là điểm đi ban đầu của traveler. Nếu có hoạt động/vận chuyển/đưa đón/vé máy bay thì phải dựa trên origin -> destination cho hợp lý.
       - Bám model TourSchedule: startDay là departureDate ISO, minSlots/maxSlots dùng cho số chỗ, currentBooked = 0, status mặc định "PENDING".
-      - quantity và price dùng key "ADULT", "CHILD", "INFANT"; price cùng đơn vị với budget và tổng giá cố gắng <= budget. Nếu budget nhỏ như 3999 thì price cũng quanh 3999, không đổi sang 3999000.
+      - quantity và price dùng key "ADULT", "CHILD", "INFANT"; price cùng đơn vị với budget. Nếu budget nhỏ như 3999 thì price cũng quanh 3999, không đổi sang 3999000.
+      - Budget là ràng buộc cứng. Tổng giá tour phải bám rất sát budget của traveler, ưu tiên nằm trong khoảng 90% đến 100% budget, tuyệt đối không vượt quá budget.
+      - price không được tự đoán rời rạc. price phải được suy ra từ tổng giá các service thực sự xuất hiện trong tour: hotelServiceId + transportServiceId + toàn bộ activity.serviceId.
+      - Mỗi service phải có total cho ADULT, CHILD, INFANT. Nếu INFANT miễn phí thì để 0, nhưng ADULT/CHILD phải hợp lý với ngân sách và loại dịch vụ.
+      - Sau khi chọn xong toàn bộ service, tự cộng lại toàn bộ total của các service theo từng nhóm khách để ra price. Nghĩa là:
+        price.ADULT = tổng total.ADULT của hotelServiceId + transportServiceId + tất cả activity.serviceId
+        price.CHILD = tổng total.CHILD của hotelServiceId + transportServiceId + tất cả activity.serviceId
+        price.INFANT = tổng total.INFANT của hotelServiceId + transportServiceId + tất cả activity.serviceId
+      - Tự kiểm tra lại: (quantity.ADULT * price.ADULT) + (quantity.CHILD * price.CHILD) + (quantity.INFANT * price.INFANT) phải gần với budget, không lệch quá 10%.
+      - Nếu tổng giá đang vượt budget thì phải giảm mức giá service: chọn khách sạn rẻ hơn, giảm activity quá đắt, ưu tiên activity miễn phí/rẻ, ưu tiên quán ăn bình dân hơn.
+      - Nếu tổng giá đang thấp hơn quá nhiều so với budget thì có thể tăng chất lượng service vừa phải hoặc thêm activity hợp lý, nhưng vẫn không vượt budget.
       - Tổng số khách = ADULT + CHILD + INFANT. Nếu input quantity là số thì xem là ADULT.
       - type = "PRIVATE" nếu tổng khách <= 5, ngược lại "GROUP"; minSlots = tổng khách nếu PRIVATE, ngược lại 1; maxSlots = tổng khách nếu PRIVATE, ngược lại tổng khách + 5.
       - Mỗi ngày có dayNumber, description, activities; mỗi activity có time dạng "HH:mm", statusActivity = "NOT_DONE", serviceId là object dịch vụ.
+      - Lịch trình phải dày hơn hiện tại: mỗi ngày phải có ít nhất 5 activities. Nếu numberDay <= 2 thì mỗi ngày nên có 6 đến 8 activities. Nếu numberDay >= 3 thì mỗi ngày nên có 5 đến 7 activities.
+      - Activities phải đa dạng và liền mạch trong ngày: di chuyển/ăn sáng/tham quan/ăn trưa/check-in/nghỉ chiều/ăn tối/dạo đêm hoặc mua sắm nếu hợp lý.
+      - Phải có ít nhất 1 activity buổi sáng, 1 activity buổi trưa hoặc đầu chiều, và 1 activity buổi tối cho mỗi ngày đầy đủ.
+      - Day 1 phải thể hiện logic đi từ origin -> destination nếu là đi tỉnh/thành khác, ví dụ có sân bay, ga tàu, bến xe, đưa đón, check-in khách sạn.
+      - Ngày cuối phải có logic quay về hoặc kết thúc hành trình hợp lý, ví dụ trả phòng, mua đặc sản, ra sân bay/ga/bến xe nếu cần.
       - serviceId.type chỉ dùng: "HOTEL", "TRANSPORT", "RESTAURANT", "ACTIVITY", "FOOD", "ATTRACTION", "ATTRACTION_TICKET", "COMBO", "OTHER".
       - Độ chính xác tên địa điểm là bắt buộc: mỗi serviceId, hotelServiceId, transportServiceId phải có name là tên chính thức của địa điểm/doanh nghiệp có thật, khớp với destination.
       - Không bịa tên, không dùng tên chung như "local hotel", "restaurant near beach", "night market", "city tour"; phải dùng tên riêng cụ thể có thể tìm trên Google Maps.
@@ -635,9 +684,15 @@ export const generateItinerary = async (data) => {
       - address nên cụ thể nếu biết; long và lat có thể để 0 vì hệ thống sẽ dùng Google API để lấy tọa độ khi render UI.
       - Trước khi trả JSON, tự kiểm tra từng service: name có thật, type đúng enum. Nếu name không chắc, đổi service khác rồi mới trả kết quả.
       - Ưu tiên yêu cầu trong describe, món ăn/đặc sản nếu có, và lịch trình phù hợp thời tiết theo startDate.
+      - Không trả tour quá sơ sài. Nếu còn ngân sách và thời gian trống thì phải thêm activity hợp lý thay vì để lịch trình thưa.
+      - Trước khi trả kết quả, bắt buộc tự kiểm tra 3 điều:
+        1. Số activity mỗi ngày đã đủ dày chưa.
+        2. Tổng giá các service có khớp với price chưa.
+        3. Tổng tiền tour có nằm trong khoảng ngân sách traveler kỳ vọng chưa.
 
       Trả đúng schema này:
       {
+        "origin": "",
         "quantity": { "ADULT": 0, "CHILD": 0, "INFANT": 0 },
         "price": { "ADULT": 0, "CHILD": 0, "INFANT": 0 },
         "location": "",
@@ -738,7 +793,7 @@ export const getAiTourRequestHistory = async (travelerId) => {
       .populate("convertedTourId", "name location travelerApprovalStatus bookingAccess")
       .sort({ createdAt: -1 })
       .select(
-        "location description numberOfDay startDay type minSlots maxSlots quantity price status itineraries hotelServiceId transportServiceId createdAt convertedTourId publishedAt publishedExpiresAt claimExpiresAt expiredReason",
+        "location description numberOfDay startDay type minSlots maxSlots quantity price budget status itineraries hotelServiceId transportServiceId createdAt convertedTourId publishedAt publishedExpiresAt claimExpiresAt expiredReason",
       );
 
     const missingConvertedRequests = requests.filter((request) => !request.convertedTourId);
@@ -841,16 +896,59 @@ export const publishAiTourRequest = async (id, travelerId) => {
   }
 };
 
-export const getProviderAiTourNotifications = async () => {
+export const cancelPublishedAiTourRequest = async (id, travelerId) => {
+  try {
+    const request = await AiTourRequest.findOne({
+      _id: id,
+      travelerId,
+      status: { $in: ["PUBLISHED", "CLAIMED"] },
+      convertedTourId: null,
+    });
+
+    if (!request) {
+      throwError(
+        "Không tìm thấy lịch trình AI đang gửi hoặc yêu cầu đã được provider xử lý",
+        404,
+        "AI_TOUR_REQUEST_NOT_CANCELLABLE",
+      );
+    }
+
+    request.status = "DRAFT";
+    request.publishedAt = null;
+    request.publishedExpiresAt = null;
+    request.expiredReason = null;
+    request.claimedBy = null;
+    request.claimedAt = null;
+    request.claimExpiresAt = null;
+    request.serviceMatchDecisions = [];
+    await request.save();
+
+    return request;
+  } catch (error) {
+    throwError(
+      error.message || "Không thể hủy gửi lịch trình AI cho provider",
+      error.status || 500,
+      error.errorCode || "CANCEL_PUBLISHED_AI_TOUR_REQUEST_ERROR",
+    );
+  }
+};
+
+export const getProviderAiTourNotifications = async (providerId) => {
   try {
     await refreshAiTourRequestLifecycle();
 
-    return await AiTourRequest.find({ status: "PUBLISHED" })
+    return await AiTourRequest.find({
+      $or: [
+        { status: "PUBLISHED" },
+        { status: "CLAIMED", claimedBy: providerId },
+      ],
+    })
       .populate("travelerId", "fullName email avatarUrl")
+      .populate("claimedBy", "fullName email")
       .select(
-        "location description numberOfDay startDay type price quantity status publishedAt publishedExpiresAt createdAt travelerId",
+        "origin location description numberOfDay startDay type price budget quantity status publishedAt publishedExpiresAt claimedBy claimExpiresAt createdAt travelerId",
       )
-      .sort({ publishedAt: -1, createdAt: -1 })
+      .sort({ claimedAt: -1, publishedAt: -1, createdAt: -1 })
       .limit(20)
       .lean()
       .then((items) =>
@@ -1083,15 +1181,19 @@ export const convertAiTourRequestToTour = async (id, providerId) => {
         ) === index,
       );
 
+    const resolvedTourPrice = buildResolvedProviderTourPrice(requiredServices, request.price);
+
     const tour = await Tour.create({
       providerId,
+      origin: request.origin,
       location: request.location,
       name: `${request.location || "AI Tour"} ${request.numberOfDay || 1}D`,
       description: request.description,
       numberOfDay: Number(request.numberOfDay) || 1,
       type: "PRIVATE",
       scheduleType: "FIXED",
-      price: normalizePrice(request.price),
+      price: normalizePrice(resolvedTourPrice),
+      requestedBudget: Math.max(Number(request.budget) || 0, 0),
       isActive: true,
       itineraries,
       availableServices,

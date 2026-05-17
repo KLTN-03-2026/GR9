@@ -100,6 +100,10 @@ function statusBadgeClass(status) {
   return "bg-surface-container-highest text-on-surface-variant border-0";
 }
 
+function canOpenLiveTracking(tour) {
+  return Boolean(tour?.bookingId) && tour.status !== "completed";
+}
+
 function sortTours(list, sortBy) {
   const next = [...list];
   if (sortBy === "startDate")
@@ -259,7 +263,7 @@ const AssignedToursList = () => {
       setProposeOpen(false);
       setProposalTitle("");
       setProposalRegion("");
-    }, 450);
+    },0);
   };
 
   return (
@@ -493,12 +497,14 @@ const AssignedToursList = () => {
                   <Button
                     size="lg"
                     className="rounded-xl px-8 py-3 font-bold shadow-lg shadow-primary/20"
-                    disabled={heroTour.status === "completed"}
+                    disabled={!canOpenLiveTracking(heroTour)}
                     asChild
                   >
-                    {heroTour.status === "completed" ? (
+                    {!canOpenLiveTracking(heroTour) ? (
                       <span>
-                        {t("guidePages.assignedTours.completedLabel")}
+                        {heroTour.status === "completed"
+                          ? t("guidePages.assignedTours.completedLabel")
+                          : t("guidePages.assignedTours.pendingStart")}
                         <ArrowRight className="size-4" />
                       </span>
                     ) : (
@@ -557,11 +563,15 @@ const AssignedToursList = () => {
                   <Button
                     variant="outline"
                     className="mt-6 w-full rounded-xl border-outline-variant/30 font-bold text-primary hover:bg-primary/5"
-                    disabled={tour.status === "completed"}
+                    disabled={!canOpenLiveTracking(tour)}
                     asChild
                   >
-                    {tour.status === "completed" ? (
-                      <span>{t("guidePages.assignedTours.completedLabel")}</span>
+                    {!canOpenLiveTracking(tour) ? (
+                      <span>
+                        {tour.status === "completed"
+                          ? t("guidePages.assignedTours.completedLabel")
+                          : t("guidePages.assignedTours.pendingStart")}
+                      </span>
                     ) : (
                       <Link to={`/guide/live-tour-tracking?bookingId=${tour.bookingId}`}>
                         {t("guidePages.assignedTours.viewDetails")}
@@ -642,11 +652,15 @@ const AssignedToursList = () => {
                       <Button
                         variant="link"
                         className="h-auto p-0 text-xs font-semibold"
-                        disabled={tour.status === "completed"}
+                        disabled={!canOpenLiveTracking(tour)}
                         asChild
                       >
-                        {tour.status === "completed" ? (
-                          <span>{t("guidePages.assignedTours.completedLabel")}</span>
+                        {!canOpenLiveTracking(tour) ? (
+                          <span>
+                            {tour.status === "completed"
+                              ? t("guidePages.assignedTours.completedLabel")
+                              : t("guidePages.assignedTours.pendingStart")}
+                          </span>
                         ) : (
                           <Link to={`/guide/live-tour-tracking?bookingId=${tour.bookingId}`}>
                             {t("guidePages.assignedTours.manageTour")}

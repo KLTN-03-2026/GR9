@@ -49,6 +49,11 @@ export default function TourHistoryList({
                 <h2 className="truncate text-base font-bold text-slate-950">
                   {tour.location || "Untitled destination"}
                 </h2>
+                {tour.origin ? (
+                  <p className="mt-1 text-xs font-medium text-slate-400">
+                    {tour.origin} {"->"} {tour.location}
+                  </p>
+                ) : null}
                 <p className="mt-1 line-clamp-2 text-sm text-slate-500">
                   {tour.description || "No description"}
                 </p>

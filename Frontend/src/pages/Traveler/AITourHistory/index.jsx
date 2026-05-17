@@ -6,6 +6,7 @@ import PageHero from "@/components/shared/page-hero";
 import { DetailPageSkeleton } from "@/components/shared/page-skeletons";
 import { Button } from "@/components/ui/button";
 import {
+  cancelPublishedAiTourRequest,
   getAiTourHistory,
   getAiTourHistoryDetail,
   publishAiTourRequest,
@@ -23,6 +24,7 @@ export default function AITourHistory() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [decisionLoading, setDecisionLoading] = useState(false);
   const [publishLoading, setPublishLoading] = useState(false);
+  const [cancelPublishLoading, setCancelPublishLoading] = useState(false);
 
   const formatDate = (value) => {
     if (!value) return "No start date";
@@ -150,6 +152,49 @@ export default function AITourHistory() {
     }
   };
 
+  const handleCancelPublish = async () => {
+    if (!selectedTour?._id) return;
+
+    try {
+      setCancelPublishLoading(true);
+      const response = await cancelPublishedAiTourRequest(selectedTour._id);
+      const updated = response.data.data;
+
+      setSelectedTour((prev) =>
+        prev
+          ? {
+              ...prev,
+              status: updated.status,
+              publishedAt: updated.publishedAt,
+              publishedExpiresAt: updated.publishedExpiresAt,
+              claimedBy: updated.claimedBy,
+              claimExpiresAt: updated.claimExpiresAt,
+            }
+          : prev,
+      );
+      setHistory((prev) =>
+        prev.map((item) =>
+          item._id === updated._id
+            ? {
+                ...item,
+                status: updated.status,
+                publishedAt: updated.publishedAt,
+                publishedExpiresAt: updated.publishedExpiresAt,
+                claimedBy: updated.claimedBy,
+                claimExpiresAt: updated.claimExpiresAt,
+              }
+            : item,
+        ),
+      );
+
+      toast.success("Đã hủy gửi tour cho provider");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Không thể hủy gửi tour cho provider");
+    } finally {
+      setCancelPublishLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadHistory();
   }, []);
@@ -211,8 +256,10 @@ export default function AITourHistory() {
             totalActivities={getTotalActivities(selectedTour)}
             decisionLoading={decisionLoading}
             publishLoading={publishLoading}
+            cancelPublishLoading={cancelPublishLoading}
             onDecision={handleDecision}
             onPublish={handlePublishToProviders}
+            onCancelPublish={handleCancelPublish}
             onViewProposal={(tourId) => navigate(`/traveler/tour-detail/${tourId}`)}
           />
         </div>

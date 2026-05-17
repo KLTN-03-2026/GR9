@@ -3,7 +3,6 @@ import toast from "react-hot-toast";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
-import bayHero from "@/assets/redesign/bay-hero.png";
 import BrandLogo from "@/components/shared/brand-logo";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -52,8 +51,8 @@ export default function BookingSuccess() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#f6f1e7] px-4 py-16 sm:px-6 sm:py-24">
-        <div className="mx-auto max-w-7xl rounded-[30px] border border-[#e8ded0] bg-white/90 p-8 text-[#61645f] shadow-[0_24px_70px_rgba(38,33,28,0.08)]">
+      <main className="min-h-screen bg-[#f8fafc] px-4 py-16 dark:bg-background sm:px-6 sm:py-24">
+        <div className="mx-auto max-w-7xl rounded-3xl bg-white p-8 text-slate-600 shadow-sm dark:bg-surface-container-lowest dark:text-on-surface-variant">
           {t("bookingSuccessPage.loading")}
         </div>
       </main>
@@ -62,16 +61,16 @@ export default function BookingSuccess() {
 
   if (!booking) {
     return (
-      <main className="min-h-screen bg-[#f6f1e7] px-4 py-16 sm:px-6 sm:py-24">
-        <div className="mx-auto max-w-7xl rounded-[30px] border border-[#e8ded0] bg-white/92 p-8 shadow-[0_24px_70px_rgba(38,33,28,0.08)]">
+      <main className="min-h-screen bg-[#f8fafc] px-4 py-16 dark:bg-background sm:px-6 sm:py-24">
+        <div className="mx-auto max-w-7xl rounded-3xl bg-white p-8 shadow-sm dark:bg-surface-container-lowest">
           <div className="space-y-4">
-            <h1 className="text-2xl font-black text-[#233236]">
+            <h1 className="text-2xl font-black text-slate-950 dark:text-on-surface">
               {t("bookingSuccessPage.notFoundTitle")}
             </h1>
-            <p className="text-[#61645f]">
+            <p className="text-slate-600 dark:text-on-surface-variant">
               {t("bookingSuccessPage.notFoundDescription")}
             </p>
-            <Link className="font-bold text-[#0b8c87]" to="/traveler/my-booking-traveler">
+            <Link className="font-bold text-teal-700 dark:text-primary" to="/traveler/my-booking-traveler">
               {t("bookingSuccessPage.backToMyBooking")}
             </Link>
           </div>
@@ -81,24 +80,14 @@ export default function BookingSuccess() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#f6f1e7] text-[#213033]">
-      <div className="absolute inset-x-0 top-0 h-[24rem] overflow-hidden">
-        <img
-          src={bayHero}
-          alt=""
-          className="h-full w-full object-cover object-center opacity-35"
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(246,241,231,0.08)_0%,rgba(246,241,231,0.55)_42%,#f6f1e7_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(246,210,165,0.38),transparent_26%),radial-gradient(circle_at_top_right,rgba(11,140,135,0.16),transparent_22%)]" />
-      </div>
-
-      <div className="relative mx-auto w-full max-w-7xl px-4 pb-16 pt-8 sm:px-6 lg:px-8 lg:pt-10">
+    <main className="min-h-screen bg-[#f8fafc] pb-24 dark:bg-background md:pb-12">
+      <div className="mx-auto w-full max-w-7xl px-4 pt-16 md:px-8 md:pt-24">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Button
             type="button"
             variant="ghost"
             onClick={() => navigate(-1)}
-            className="rounded-full border border-[#ddd0bf] bg-white/55 px-4 text-[#324347] hover:bg-white/80"
+            className="rounded-full border border-slate-200 bg-white px-4 text-slate-700 hover:bg-slate-100 dark:border-outline-variant dark:bg-surface-container-lowest dark:text-on-surface dark:hover:bg-surface-container"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             {t("bookingSuccessPage.backToMyBooking")}

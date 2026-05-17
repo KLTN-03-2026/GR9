@@ -281,6 +281,13 @@ export default function ManageTours() {
             setLoading(false);
         }
     };
+    const handleServiceCreated = (createdService) => {
+        if (!createdService?._id) return;
+        setServices((prev) => {
+            if (prev.some((service) => service._id === createdService._id)) return prev;
+            return [createdService, ...prev];
+        });
+    };
     useEffect(() => {
         loadServices();
         loadTours();
@@ -351,6 +358,7 @@ export default function ManageTours() {
                 setExistingImages={setExistingImages}
                 newImages={newImages}
                 setNewImages={setNewImages}
+                onServiceCreated={handleServiceCreated}
             />
         </div>
     );

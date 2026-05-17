@@ -7,23 +7,26 @@ import {
 } from "@/services/api/tracking";
 import TrackingLinkHero from "./TrackingLinkHero";
 import TrackingLinkOverviewSection from "./TrackingLinkOverviewSection";
-import TrackingLinkVisualCards from "./TrackingLinkVisualCards";
 import TrackingLinkAccessCard from "./TrackingLinkAccessCard";
 import TrackingLinkPrivacyNote from "./TrackingLinkPrivacyNote";
+import TrackingTourSelector from "../TrackingTourSelector";
 import { TrackingPageSkeleton } from "@/components/shared/page-skeletons";
 import { useI18n } from "@/i18n/I18nProvider";
 
 export default function TrackingLinkManagement() {
   const { t } = useI18n();
   const [tracking, setTracking] = useState(null);
+  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const loadTracking = async () => {
     try {
       setLoading(true);
       const response = await getTravelerTracking(searchParams.get("bookingId"));
-      setTracking(response.data.data?.selected || null);
+      const data = response.data.data || {};
+      setTracking(data.selected || null);
+      setBookings(data.bookings || []);
     } catch (error) {
       toast.error(error?.response?.data?.message || t("trackingLink.cannotLoad"));
     } finally {
@@ -51,6 +54,11 @@ export default function TrackingLinkManagement() {
     }
   };
 
+  const handleSelectBooking = (bookingId) => {
+    if (!bookingId || bookingId === tracking?.bookingId) return;
+    setSearchParams({ bookingId });
+  };
+
   return (
     <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-surface">
       <div className="mx-auto w-full max-w-[1600px] space-y-8 px-4 pb-10 pt-6 text-on-surface sm:px-6 md:px-10 md:pt-24 lg:space-y-10">
@@ -61,8 +69,16 @@ export default function TrackingLinkManagement() {
         ) : (
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           <section className="space-y-8 lg:col-span-7">
+            <TrackingTourSelector
+              bookings={bookings}
+              selectedBookingId={tracking?.bookingId}
+              onSelect={handleSelectBooking}
+              eyebrow={t("trackingLink.management")}
+              title={t("tracking.myTrackedTours")}
+              description={t("tracking.selectTourHint")}
+            />
+
             <TrackingLinkOverviewSection tracking={tracking} />
-            <TrackingLinkVisualCards tracking={tracking} />
           </section>
 
           <aside className="space-y-8 lg:col-span-5">

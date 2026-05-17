@@ -9,6 +9,7 @@ import {
   Link2,
   MapPin,
   Plus,
+  SquarePen,
   Sparkles,
   Users,
 } from "lucide-react";
@@ -18,30 +19,13 @@ import { Button } from "@/components/ui/button";
 import { DetailPageSkeleton } from "@/components/shared/page-skeletons";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   confirmProviderAiServiceMatch,
   convertProviderAiRequest,
   getProviderAiRequestDetail,
 } from "@/services/api/ai";
-import { createService } from "@/services/api/service";
 import { formatCurrencyVND } from "@/utils/formatPrice";
+import DialogCreateService from "@/pages/Provider/ServiceManagement/DialogCreateService";
+import DialogEditService from "@/pages/Provider/ServiceManagement/DialogEditService";
 
 const formatDate = (value) => {
   if (!value) return "-";
@@ -66,6 +50,51 @@ const formatRemainingTime = (totalSeconds = 0) => {
 const totalTravelers = (quantity = {}) =>
   (Number(quantity.ADULT) || 0) + (Number(quantity.CHILD) || 0) + (Number(quantity.INFANT) || 0);
 
+const participantTypeConfig = [
+  { key: "ADULT", label: "Người lớn" },
+  { key: "CHILD", label: "Trẻ em" },
+  { key: "INFANT", label: "Em bé" },
+];
+
+const calculateParticipantTourTotal = (quantity = {}, prices = {}) =>
+  participantTypeConfig.reduce((sum, { key }) => {
+    const count = Number(quantity?.[key]) || 0;
+    const unitPrice = Number(prices?.[key]) || 0;
+    return sum + count * unitPrice;
+  }, 0);
+
+const buildParticipantPriceMap = (totals = []) => {
+  const result = { ADULT: 0, CHILD: 0, INFANT: 0 };
+  (Array.isArray(totals) ? totals : []).forEach((item) => {
+    const type = String(item?.type || "").toUpperCase();
+    if (!Object.prototype.hasOwnProperty.call(result, type)) return;
+    result[type] = Number(item?.price) || 0;
+  });
+  return result;
+};
+
+const calculateProviderServiceTotal = (requiredServices = [], quantity = {}) =>
+  (Array.isArray(requiredServices) ? requiredServices : []).reduce((sum, item) => {
+    const activeService = item?.matchedService || null;
+
+    if (!activeService) {
+      return sum;
+    }
+
+    const prices =
+      item?.confirmedMode === "sync_price"
+        ? item?.priceComparison?.sourcePrice || buildParticipantPriceMap(item?.source?.total)
+        : item?.priceComparison?.matchedPrice || buildParticipantPriceMap(activeService?.total);
+
+    return sum + calculateParticipantTourTotal(quantity, prices);
+  }, 0);
+
+const calculateAiSourceServiceTotal = (requiredServices = [], quantity = {}) =>
+  (Array.isArray(requiredServices) ? requiredServices : []).reduce((sum, item) => {
+    const prices = buildParticipantPriceMap(item?.source?.total);
+    return sum + calculateParticipantTourTotal(quantity, prices);
+  }, 0);
+
 const getSuggestedPrice = (service = {}, type) =>
   String(service?.total?.find((item) => item.type === type)?.price || "");
 
@@ -88,17 +117,6 @@ const PriceSummary = ({ title, prices = {} }) => (
   </div>
 );
 
-const serviceTypeOptions = [
-  { value: "HOTEL", label: "Accommodation" },
-  { value: "TRANSPORT", label: "Transport" },
-  { value: "RESTAURANT", label: "Restaurant" },
-  { value: "ACTIVITY", label: "Activity" },
-  { value: "FOOD", label: "Food" },
-  { value: "ATTRACTION_TICKET", label: "Attraction Ticket" },
-  { value: "COMBO", label: "Combo" },
-  { value: "OTHER", label: "Other" },
-];
-
 const createInitialServiceForm = (item) => ({
   name: item?.source?.name || "",
   type:
@@ -106,7 +124,10 @@ const createInitialServiceForm = (item) => ({
       ? "ACTIVITY"
       : item?.source?.type || item?.normalizedType || "ACTIVITY",
   address: item?.source?.address || "",
+  lat: item?.source?.lat ?? "",
+  long: item?.source?.long ?? "",
   description: item?.source?.description || "",
+  aliases: "",
   status: "ACTIVE",
   priceAdult: getSuggestedPrice(item?.source, "ADULT"),
   priceChild: getSuggestedPrice(item?.source, "CHILD"),
@@ -114,164 +135,20 @@ const createInitialServiceForm = (item) => ({
 });
 
 function MissingServiceDialog({ item, open, onOpenChange, onCreated }) {
-  const [formData, setFormData] = useState(createInitialServiceForm(item));
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setFormData(createInitialServiceForm(item));
-  }, [item]);
-
-  const handleChange = (key, value) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleSubmit = async () => {
-    if (!formData.name.trim()) {
-      toast.error("Vui lòng nhập tên service");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const total = [];
-
-      if (formData.priceAdult !== "") {
-        total.push({ type: "ADULT", price: Number(formData.priceAdult) || 0 });
-      }
-      if (formData.priceChild !== "") {
-        total.push({ type: "CHILD", price: Number(formData.priceChild) || 0 });
-      }
-      if (formData.priceInfant !== "") {
-        total.push({ type: "INFANT", price: Number(formData.priceInfant) || 0 });
-      }
-
-      await createService({
-        name: formData.name.trim(),
-        type: formData.type,
-        address: formData.address,
-        description: formData.description,
-        status: formData.status,
-        total,
-      });
-
-      toast.success("Đã tạo service cho AI request");
-      onCreated?.();
-      onOpenChange(false);
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "Không thể tạo service");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[calc(100vh-2rem)] overflow-y-auto rounded-3xl sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Tạo service còn thiếu</DialogTitle>
-          <DialogDescription>
-            Provider chưa có service này. Bạn có thể tạo nhanh theo dữ liệu traveler gửi lên rồi tạo tour ngay sau đó.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="grid gap-4 py-2 sm:grid-cols-2">
-          <div className="grid gap-2">
-            <Label>Tên service</Label>
-            <Input
-              value={formData.name}
-              onChange={(event) => handleChange("name", event.target.value)}
-              placeholder="Tên service"
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Loại service</Label>
-            <Select value={formData.type} onValueChange={(value) => handleChange("type", value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn loại service" />
-              </SelectTrigger>
-              <SelectContent>
-                {serviceTypeOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid gap-2 sm:col-span-2">
-            <Label>Địa chỉ</Label>
-            <Input
-              value={formData.address}
-              onChange={(event) => handleChange("address", event.target.value)}
-              placeholder="Địa chỉ service"
-            />
-          </div>
-
-          <div className="grid gap-2 sm:col-span-2">
-            <Label>Mô tả</Label>
-            <Textarea
-              value={formData.description}
-              onChange={(event) => handleChange("description", event.target.value)}
-              className="min-h-28"
-              placeholder="Mô tả ngắn"
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Giá người lớn</Label>
-            <Input
-              type="number"
-              min="0"
-              value={formData.priceAdult}
-              onChange={(event) => handleChange("priceAdult", event.target.value)}
-              placeholder="0"
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Giá trẻ em</Label>
-            <Input
-              type="number"
-              min="0"
-              value={formData.priceChild}
-              onChange={(event) => handleChange("priceChild", event.target.value)}
-              placeholder="0"
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Giá em bé</Label>
-            <Input
-              type="number"
-              min="0"
-              value={formData.priceInfant}
-              onChange={(event) => handleChange("priceInfant", event.target.value)}
-              placeholder="0"
-            />
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Hủy
-          </Button>
-          <Button
-            type="button"
-            onClick={handleSubmit}
-            disabled={loading}
-            className="bg-teal-600 text-white hover:bg-teal-700"
-          >
-            {loading ? "Đang tạo..." : "Lưu service"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <DialogCreateService
+      open={open}
+      setOpen={onOpenChange}
+      initialValues={createInitialServiceForm(item)}
+      title="Tạo service còn thiếu"
+      description="Provider chưa có service này. Bạn có thể tạo nhanh theo đúng form tạo service chuẩn rồi tiếp tục dựng tour."
+      successMessage="Đã tạo service cho AI request"
+      onCreated={onCreated}
+    />
   );
 }
 
-function RequiredServiceCard({ item, onCreate, onConfirm, confirmingRole }) {
+function RequiredServiceCard({ item, onCreate, onConfirm, onEdit, confirmingRole }) {
   const priceAdult = item?.source?.total?.find((entry) => entry.type === "ADULT")?.price || 0;
   const isPriceMismatch = item.matchStatus === "PRICE_MISMATCH" && item.matchedService;
 
@@ -355,10 +232,23 @@ function RequiredServiceCard({ item, onCreate, onConfirm, confirmingRole }) {
         </div>
       ) : item.matchedService ? (
         <div className="mt-4 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-800">
-          Đã dùng service hiện có: <span className="font-bold">{item.matchedService.name}</span>
-          {item.matchReason ? (
-            <p className="mt-1 text-xs text-emerald-700">{item.matchReason}</p>
-          ) : null}
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              Đã dùng service hiện có: <span className="font-bold">{item.matchedService.name}</span>
+              {item.matchReason ? (
+                <p className="mt-1 text-xs text-emerald-700">{item.matchReason}</p>
+              ) : null}
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onEdit?.(item.matchedService)}
+              className="rounded-xl border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-100"
+            >
+              <SquarePen className="size-4" />
+              Chỉnh sửa service
+            </Button>
+          </div>
         </div>
       ) : item.candidateServices?.length ? (
         <div className="mt-4 space-y-3">
@@ -413,6 +303,8 @@ export default function AITourRequestDetail() {
   const [confirmingRole, setConfirmingRole] = useState(null);
   const [serviceDialogOpen, setServiceDialogOpen] = useState(false);
   const [activeMissingService, setActiveMissingService] = useState(null);
+  const [editableService, setEditableService] = useState(null);
+  const [editServiceOpen, setEditServiceOpen] = useState(false);
   const [nowTick, setNowTick] = useState(Date.now());
 
   const loadRequest = useCallback(async (options = {}) => {
@@ -509,6 +401,24 @@ export default function AITourRequestDetail() {
     claimRemainingSeconds > 0 &&
     missingCount === 0 &&
     confirmationCount === 0;
+  const estimatedTourTotal = useMemo(
+    () => calculateParticipantTourTotal(request?.quantity, request?.price),
+    [request?.price, request?.quantity],
+  );
+  const aiSourceServiceTotal = useMemo(
+    () => calculateAiSourceServiceTotal(request?.requiredServices, request?.quantity),
+    [request?.quantity, request?.requiredServices],
+  );
+  const providerServiceTotal = useMemo(
+    () => calculateProviderServiceTotal(request?.requiredServices, request?.quantity),
+    [request?.quantity, request?.requiredServices],
+  );
+  const showResolvedProviderTotal = useMemo(
+    () =>
+      Array.isArray(request?.requiredServices) &&
+      request.requiredServices.some((item) => item?.matchedService),
+    [request?.requiredServices],
+  );
   const travelerProposalStatus = request?.convertedTourId?.travelerApprovalStatus || null;
 
   const proposalStatusLabel = useMemo(() => {
@@ -531,8 +441,31 @@ export default function AITourRequestDetail() {
       <MissingServiceDialog
         item={activeMissingService}
         open={serviceDialogOpen}
-        onOpenChange={setServiceDialogOpen}
-        onCreated={() => loadRequest({ silent: true })}
+        onOpenChange={(open) => {
+          setServiceDialogOpen(open);
+          if (!open) {
+            setActiveMissingService(null);
+          }
+        }}
+        onCreated={(createdService) => {
+          setEditableService(createdService || null);
+          setEditServiceOpen(true);
+          loadRequest({ silent: true });
+        }}
+      />
+      <DialogEditService
+        open={editServiceOpen}
+        setOpen={(open) => {
+          setEditServiceOpen(open);
+          if (!open) {
+            setEditableService(null);
+          }
+        }}
+        service={editableService}
+        onUpdated={() => {
+          loadRequest({ silent: true });
+          setEditableService(null);
+        }}
       />
 
       <div className="flex flex-col gap-4 rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-200 md:flex-row md:items-center md:justify-between">
@@ -614,7 +547,7 @@ export default function AITourRequestDetail() {
             </div>
             <p className="text-sm leading-7 text-slate-600">{request.description}</p>
 
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-2xl bg-slate-50 p-4">
                 <CalendarDays className="mb-2 size-4 text-primary" />
                 <p className="text-xs text-slate-500">Start date</p>
@@ -627,8 +560,18 @@ export default function AITourRequestDetail() {
               </div>
               <div className="rounded-2xl bg-slate-50 p-4">
                 <MapPin className="mb-2 size-4 text-primary" />
+                <p className="text-xs text-slate-500">Điểm đi</p>
+                <p className="font-bold">{request.origin || "-"}</p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <MapPin className="mb-2 size-4 text-primary" />
                 <p className="text-xs text-slate-500">Location</p>
                 <p className="font-bold">{request.location}</p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <Sparkles className="mb-2 size-4 text-primary" />
+                <p className="text-xs text-slate-500">Budget mục tiêu</p>
+                <p className="font-bold">{formatPrice(request.budget || 0)}</p>
               </div>
             </div>
           </CardContent>
@@ -642,10 +585,54 @@ export default function AITourRequestDetail() {
               <p className="text-sm text-slate-500">{request.travelerId?.email || "-"}</p>
             </div>
             <div className="rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Base price</p>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Giá tour AI mục tiêu</p>
               <p className="mt-2 text-sm">Adult: {formatPrice(request.price?.ADULT || 0)}</p>
               <p className="text-sm">Child: {formatPrice(request.price?.CHILD || 0)}</p>
               <p className="text-sm">Infant: {formatPrice(request.price?.INFANT || 0)}</p>
+            </div>
+            <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Tổng giá dịch vụ AI</p>
+              <p className="mt-2 text-2xl font-extrabold text-slate-950">{formatPrice(aiSourceServiceTotal)}</p>
+              <div className="mt-3 space-y-1 text-sm text-slate-600">
+                {participantTypeConfig.map(({ key, label }) => {
+                  const count = Number(request?.quantity?.[key]) || 0;
+                  const unitPrice = (request?.requiredServices || []).reduce((sum, item) => {
+                    const sourcePrices = buildParticipantPriceMap(item?.source?.total);
+                    return sum + (Number(sourcePrices?.[key]) || 0);
+                  }, 0);
+                  const subtotal = count * unitPrice;
+                  return (
+                    <p key={key}>
+                      {label}: <span className="font-semibold text-slate-900">{count}</span> x{" "}
+                      <span className="font-semibold text-slate-900">{formatPrice(unitPrice)}</span>
+                      {" = "}
+                      <span className="font-semibold text-slate-950">{formatPrice(subtotal)}</span>
+                    </p>
+                  );
+                })}
+              </div>
+              <p className="mt-3 text-xs text-slate-500">
+                Đây là tổng cộng từ toàn bộ service AI đề xuất. So với số bên dưới sẽ dễ đối chiếu hơn so với giá tour AI mục tiêu.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Tổng giá tour AI mục tiêu</p>
+              <p className="mt-2 text-lg font-bold text-slate-950">{formatPrice(estimatedTourTotal)}</p>
+            </div>
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-700">
+                {missingCount > 0 || confirmationCount > 0
+                  ? "Tổng giá service provider (tạm tính)"
+                  : "Tổng giá service provider"}
+              </p>
+              <p className="mt-2 text-2xl font-extrabold text-slate-950">
+                {showResolvedProviderTotal ? formatPrice(providerServiceTotal) : "Chưa đủ dữ liệu"}
+              </p>
+              <p className="mt-2 text-sm text-slate-600">
+                {missingCount > 0 || confirmationCount > 0
+                  ? "Tổng này chỉ tính trên các service đã match/xác nhận thật sự. Các candidate chưa chốt và service còn thiếu sẽ không được cộng vào để tránh làm lệch số."
+                  : "Tổng này được cộng từ toàn bộ service thực tế mà provider sẽ dùng để dựng tour."}
+              </p>
             </div>
             {missingCount > 0 ? (
               <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
@@ -699,6 +686,10 @@ export default function AITourRequestDetail() {
                 onCreate={(currentItem) => {
                   setActiveMissingService(currentItem);
                   setServiceDialogOpen(true);
+                }}
+                onEdit={(service) => {
+                  setEditableService(service);
+                  setEditServiceOpen(true);
                 }}
                 onConfirm={handleConfirmServiceMatch}
               />

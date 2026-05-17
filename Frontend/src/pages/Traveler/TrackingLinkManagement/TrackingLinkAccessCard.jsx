@@ -1,4 +1,4 @@
-import { Copy, LocateFixed, RefreshCcw, ShieldCheck } from "lucide-react";
+import { Copy, LocateFixed, RefreshCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -78,23 +78,6 @@ export default function TrackingLinkAccessCard({ tracking, onRegenerate }) {
         </div>
       </CardContent>
 
-      <div className="bg-surface-container-low/50 px-6 py-6 md:px-8">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <ShieldCheck className="mt-0.5 size-5 text-on-surface-variant" />
-            <div>
-              <p className="font-bold">{t("trackingLink.phoneVerification")}</p>
-              <p className="text-xs leading-relaxed text-on-surface-variant">
-                {t("trackingLink.phoneVerificationText")}
-              </p>
-            </div>
-          </div>
-
-          <div className="relative h-7 w-13 shrink-0 rounded-full bg-primary">
-            <span className="absolute left-7 top-1 h-5 w-5 rounded-full bg-white" />
-          </div>
-        </div>
-      </div>
     </Card>
   );
 }

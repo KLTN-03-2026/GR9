@@ -234,46 +234,8 @@ export default function TourTrackingSidebar({ tracking }) {
             </div>
           </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            className="h-14 w-full rounded-2xl border-2 border-dashed border-outline-variant bg-transparent text-sm font-semibold text-on-surface-variant hover:bg-surface-container-low"
-          >
-            {t("tracking.attendanceSheet")}
-          </Button>
         </CardContent>
       </Card>
-
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-auto rounded-2xl bg-secondary-container/30 p-5 text-on-secondary-container hover:bg-secondary-container/50"
-        >
-          <div className="flex flex-col items-center justify-center space-y-2 text-center">
-            <span className="material-symbols-outlined text-2xl text-on-secondary-container">
-              receipt_long
-            </span>
-            <span className="text-xs font-bold uppercase">{t("tracking.expenses")}</span>
-          </div>
-        </Button>
-
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-auto rounded-2xl bg-tertiary-container/10 p-5 text-tertiary-container hover:bg-tertiary-container/20"
-        >
-          <div className="flex flex-col items-center justify-center space-y-2 text-center">
-            <span
-              className="material-symbols-outlined text-2xl text-tertiary-container"
-              style={{ fontVariationSettings: '"FILL" 1' }}
-            >
-              medical_services
-            </span>
-            <span className="text-xs font-bold uppercase">{t("tracking.firstAid")}</span>
-          </div>
-        </Button>
-      </div>
     </div>
   );
 }

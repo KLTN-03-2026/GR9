@@ -22,25 +22,48 @@ const PublicTourTracking = () => {
       return;
     }
 
-    getGuestTracking(trackingCode)
-      .then((response) => setTracking(response.data.data))
-      .catch((error) =>
-        toast.error(error?.response?.data?.message || t("guestHeader.loadTrackingError")),
-      )
-      .finally(() => setLoading(false));
+    let ignore = false;
+
+    const loadTracking = async (showError = false) => {
+      try {
+        const response = await getGuestTracking(trackingCode);
+        if (!ignore) {
+          setTracking(response.data.data);
+        }
+      } catch (error) {
+        if (!ignore && showError) {
+          toast.error(error?.response?.data?.message || t("guestHeader.loadTrackingError"));
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadTracking(true);
+    const intervalId = window.setInterval(() => loadTracking(false), 10000);
+
+    return () => {
+      ignore = true;
+      window.clearInterval(intervalId);
+    };
   }, [trackingCode, t]);
 
   if (loading) {
     return (
-      <main className="mx-auto min-h-screen max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
+      <main className="min-h-screen bg-background px-4 py-16 sm:px-6 sm:py-24">
+        <div className="mx-auto max-w-7xl">
         <TrackingPageSkeleton />
+        </div>
       </main>
     );
   }
 
   if (!tracking) {
     return (
-      <main className="mx-auto min-h-screen max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
+      <main className="min-h-screen bg-background px-4 py-16 sm:px-6 sm:py-24">
+        <div className="mx-auto max-w-7xl">
         <div className="space-y-4 rounded-3xl bg-white p-8 shadow-sm">
           <h1 className="text-2xl font-black text-slate-950">
             {t("guestHeader.invalidTrackingTitle")}
@@ -52,12 +75,13 @@ const PublicTourTracking = () => {
             {t("guestHeader.backHome")}
           </Link>
         </div>
+        </div>
       </main>
     );
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-24 md:pb-12">
+    <div className="min-h-screen bg-background pb-24 md:pb-12">
       <main className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 pt-16 md:px-8 md:pt-24 lg:grid-cols-12 lg:gap-8">
         
         <div className="lg:col-span-8 flex flex-col gap-8">

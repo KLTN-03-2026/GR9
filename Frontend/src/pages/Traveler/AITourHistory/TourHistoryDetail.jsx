@@ -68,8 +68,10 @@ export default function TourHistoryDetail({
   totalActivities,
   decisionLoading,
   publishLoading,
+  cancelPublishLoading,
   onDecision,
   onPublish,
+  onCancelPublish,
   onViewProposal,
 }) {
   const proposalTour = selectedTour?.convertedTourId;
@@ -80,6 +82,8 @@ export default function TourHistoryDetail({
   const canSendToProviders =
     selectedTour?.status === "DRAFT" ||
     (selectedTour?.status === "EXPIRED" && selectedTour?.expiredReason === "PUBLISH_TIMEOUT");
+  const canCancelPublish =
+    selectedTour?.status === "PUBLISHED" || selectedTour?.status === "CLAIMED";
 
   return (
     <section className="min-h-[560px] rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -195,16 +199,32 @@ export default function TourHistoryDetail({
                       : "Gửi tour cho provider"}
                 </Button>
               ) : null}
+              {canCancelPublish ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={cancelPublishLoading}
+                  onClick={() => onCancelPublish?.()}
+                  className="rounded-xl border-rose-200 text-rose-700 hover:bg-rose-50"
+                >
+                  {cancelPublishLoading ? "Đang hủy..." : "Hủy gửi cho provider"}
+                </Button>
+              ) : null}
             </div>
           </div>
 
-          <div className="mb-8 grid gap-3 md:grid-cols-4">
+          <div className="mb-8 grid gap-3 md:grid-cols-5">
+            <SummaryMetric label="Origin" value={selectedTour.origin || "No origin"} />
             <SummaryMetric label="Start" value={formatDate(selectedTour.startDay)} />
             <SummaryMetric label="Duration" value={`${selectedTour.numberOfDay} days`} />
             <SummaryMetric label="Travelers" value={getTotal(selectedTour.quantity)} />
             <SummaryMetric
               label="Price"
               value={getTotal(selectedTour.price).toLocaleString("en")}
+            />
+            <SummaryMetric
+              label="Budget"
+              value={(Number(selectedTour.budget) || 0).toLocaleString("en")}
             />
           </div>
 

@@ -20,6 +20,10 @@ export const publishAiTourRequest = async (id) => {
   return await api.post(`/ai/history/${id}/publish`);
 };
 
+export const cancelPublishedAiTourRequest = async (id) => {
+  return await api.post(`/ai/history/${id}/cancel-publish`);
+};
+
 export const getProviderAiNotifications = async () => {
   return await api.get("/ai/provider/notifications");
 };
