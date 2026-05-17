@@ -15,6 +15,7 @@ const SAMPLE_EMAILS = [
   "sample.admin@smarttravel.vn",
   "sample.provider@smarttravel.vn",
   "sample.traveler@smarttravel.vn",
+  "sample.traveler2@smarttravel.vn",
   "sample.guide1@smarttravel.vn",
   "sample.guide2@smarttravel.vn",
   "sample.guide3@smarttravel.vn",
@@ -23,6 +24,7 @@ const SAMPLE_EMAILS = [
 const TOUR_IMAGES = [
   "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80",
   "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
 ];
 
 const SERVICE_IMAGES = {
@@ -59,6 +61,14 @@ const users = {
     role: "TRAVELER",
     phone: "0900000003",
     address: "Ho Chi Minh City, Vietnam",
+  },
+  traveler2: {
+    email: "sample.traveler2@smarttravel.vn",
+    password: "Traveler@123",
+    fullName: "Sample Traveler Two",
+    role: "TRAVELER",
+    phone: "0900000004",
+    address: "Ha Noi, Vietnam",
   },
   guides: [
     {
@@ -325,6 +335,87 @@ const createTour = async ({
   return tour;
 };
 
+const buildSelectedServices = (serviceMap) => [
+  {
+    serviceType: "HOTEL",
+    serviceId: serviceMap.get("hotel")._id,
+    optionName: serviceMap.get("hotel").name,
+    price: 0,
+    quantity: 1,
+    nights: 1,
+    unitPrice: 0,
+    isIncluded: true,
+  },
+  {
+    serviceType: "TRANSPORT",
+    serviceId: serviceMap.get("transport")._id,
+    optionName: serviceMap.get("transport").name,
+    price: 0,
+    quantity: 1,
+    unitPrice: 0,
+    isIncluded: true,
+  },
+  {
+    serviceType: "EXTRA",
+    serviceId: serviceMap.get("activity")._id,
+    optionName: serviceMap.get("activity").name,
+    price: 0,
+    quantity: 1,
+    unitPrice: 0,
+    isIncluded: true,
+  },
+];
+
+const createAssignedScheduleWithBooking = async ({
+  traveler,
+  tour,
+  guide,
+  serviceMap,
+  departureDate,
+  orderCode,
+  trackingCode,
+  trackingShareCode,
+}) => {
+  const schedule = await TourSchedule.create({
+    tourId: tour._id,
+    leadGuideServiceId: guide._id,
+    departureDate,
+    maxSlots: 12,
+    currentBooked: 1,
+    status: "CONFIRMED",
+    isPrivate: false,
+  });
+
+  await Booking.create({
+    travelerId: traveler._id,
+    tourId: tour._id,
+    tourScheduleId: schedule._id,
+    quantity: {
+      adults: 1,
+      children: 0,
+      infants: 0,
+    },
+    startDate: departureDate,
+    bookingDate: new Date("2026-05-17T10:00:00.000+07:00"),
+    status: "CONFIRMED",
+    payment: "PAID",
+    totalAmount: 10000,
+    orderCode,
+    trackingCode,
+    trackingShareCode,
+    trackingEnabled: true,
+    paymentLinkId: `${orderCode.toLowerCase()}-payment-link`,
+    checkoutUrl: null,
+    paidAt: new Date("2026-05-17T10:05:00.000+07:00"),
+    slotsReserved: true,
+    selectedServices: buildSelectedServices(serviceMap),
+    trackingActivities: buildTrackingActivities(tour, guide._id),
+    isPrivate: false,
+  });
+
+  return schedule;
+};
+
 const seedSampleData = async () => {
   try {
     if (!MONGO_URL) {
@@ -339,6 +430,7 @@ const seedSampleData = async () => {
     await createUser(users.admin);
     const provider = await createUser(users.provider);
     const traveler = await createUser(users.traveler);
+    const traveler2 = await createUser(users.traveler2);
     const guides = [];
 
     for (const guideData of users.guides) {
@@ -364,71 +456,34 @@ const seedSampleData = async () => {
       imageUrl: TOUR_IMAGES[1],
     });
 
-    const departureDate = new Date("2026-06-20T08:00:00.000+07:00");
-    const schedule = await TourSchedule.create({
-      tourId: assignedTour._id,
-      leadGuideServiceId: guides[0]._id,
-      departureDate,
-      maxSlots: 12,
-      currentBooked: 1,
-      status: "CONFIRMED",
-      isPrivate: false,
+    const secondAssignedTour = await createTour({
+      providerId: provider._id,
+      serviceMap,
+      name: "Sample Hue Tour 10K",
+      location: "Hue",
+      imageUrl: TOUR_IMAGES[2],
     });
 
-    await Booking.create({
-      travelerId: traveler._id,
-      tourId: assignedTour._id,
-      tourScheduleId: schedule._id,
-      quantity: {
-        adults: 1,
-        children: 0,
-        infants: 0,
-      },
-      startDate: departureDate,
-      bookingDate: new Date("2026-05-17T10:00:00.000+07:00"),
-      status: "CONFIRMED",
-      payment: "PAID",
-      totalAmount: 10000,
+    await createAssignedScheduleWithBooking({
+      traveler,
+      tour: assignedTour,
+      guide: guides[0],
+      serviceMap,
+      departureDate: new Date("2026-06-20T08:00:00.000+07:00"),
       orderCode: "SAMPLE10000",
       trackingCode: "SAMPLE-TRACK-10K",
       trackingShareCode: "sample-track-10k",
-      trackingEnabled: true,
-      paymentLinkId: "sample-payment-link-10k",
-      checkoutUrl: null,
-      paidAt: new Date("2026-05-17T10:05:00.000+07:00"),
-      slotsReserved: true,
-      selectedServices: [
-        {
-          serviceType: "HOTEL",
-          serviceId: serviceMap.get("hotel")._id,
-          optionName: serviceMap.get("hotel").name,
-          price: 0,
-          quantity: 1,
-          nights: 1,
-          unitPrice: 0,
-          isIncluded: true,
-        },
-        {
-          serviceType: "TRANSPORT",
-          serviceId: serviceMap.get("transport")._id,
-          optionName: serviceMap.get("transport").name,
-          price: 0,
-          quantity: 1,
-          unitPrice: 0,
-          isIncluded: true,
-        },
-        {
-          serviceType: "EXTRA",
-          serviceId: serviceMap.get("activity")._id,
-          optionName: serviceMap.get("activity").name,
-          price: 0,
-          quantity: 1,
-          unitPrice: 0,
-          isIncluded: true,
-        },
-      ],
-      trackingActivities: buildTrackingActivities(assignedTour, guides[0]._id),
-      isPrivate: false,
+    });
+
+    await createAssignedScheduleWithBooking({
+      traveler: traveler2,
+      tour: secondAssignedTour,
+      guide: guides[1],
+      serviceMap,
+      departureDate: new Date("2026-07-10T08:00:00.000+07:00"),
+      orderCode: "SAMPLE20000",
+      trackingCode: "SAMPLE-TRACK-10K-2",
+      trackingShareCode: "sample-track-10k-2",
     });
 
     console.log("Sample seed completed");
@@ -443,6 +498,11 @@ const seedSampleData = async () => {
         role: "TRAVELER",
         email: users.traveler.email,
         password: users.traveler.password,
+      },
+      {
+        role: "TRAVELER",
+        email: users.traveler2.email,
+        password: users.traveler2.password,
       },
       ...users.guides.map((guide) => ({
         role: "GUIDE",
